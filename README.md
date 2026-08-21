@@ -25,15 +25,15 @@ fixed seeds.
 
 ## Commands
 
-| Command                                 | What it does                                                                                    |
-| --------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `npm run dev`                           | Vite dev server. Game at `/`, dev icon browser at `/dev/icons.html`.                            |
-| `npm run build`                         | Typecheck + production build (game entry only).                                                 |
-| `npm test`                              | Vitest, single run.                                                                             |
-| `npm run typecheck` / `lint` / `format` | The usual.                                                                                      |
-| `npm run icons:vendor`                  | Clone game-icons into `vendor/` at the commit pinned in `scripts/game-icons.lock.json`.         |
-| `npm run icons:index`                   | Rebuild `src/assets/icon-index.json` from the vendored SVGs (needs `icons:vendor`).             |
-| `npm run icons:ship`                    | Rebuild the shipped icon subset and `ATTRIBUTION.md` (runs automatically before `dev`/`build`). |
+| Command                                 | What it does                                                                                      |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `npm run dev`                           | Vite dev server. Game at `/`, dev icon browser at `/dev/icons.html`.                              |
+| `npm run build`                         | Typecheck + production build (game entry only).                                                   |
+| `npm test`                              | Vitest, single run.                                                                               |
+| `npm run typecheck` / `lint` / `format` | The usual.                                                                                        |
+| `npm run icons:vendor -- --refresh`     | Re-fetch `vendor/game-icons` (checked in) at the commit pinned in `scripts/game-icons.lock.json`. |
+| `npm run icons:index`                   | Rebuild `src/assets/icon-index.json` from the vendored SVGs.                                      |
+| `npm run icons:ship`                    | Rebuild the shipped icon subset and `ATTRIBUTION.md` (runs automatically before `dev`/`build`).   |
 
 ## Icons
 

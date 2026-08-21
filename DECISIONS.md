@@ -10,13 +10,16 @@ React for the render layer because the brief's "no React imports in the sim" rul
 render layer is meant to stay thin. npm because it is the only package manager on the dev machine.
 The sim will be a pure TS module with no React dependency; React only ever reads state.
 
-### Vendored icons are gitignored and pinned by commit; the generated index is committed
+### Vendored icons are committed as plain files, pinned by commit (reversed 2026-08-22)
 
-`vendor/game-icons` is ~4,200 files / 7 MB and changes upstream. Committing it would bloat history;
-a submodule adds clone/CI friction. Instead `scripts/game-icons.lock.json` pins an exact upstream SHA,
-`npm run icons:vendor` fetches that SHA, and the _output_ (`src/assets/icon-index.json`) is committed
-so a fresh checkout builds and tests without the clone. Regenerating the index requires the clone;
-bumping the pin is a deliberate lock-file change.
+Originally gitignored with a pinned fetch script, to keep history small. Reversed at the user's
+request after Phase 1: `vendor/game-icons` (~4,200 SVGs, ~17 MB) is checked in as plain files with
+no nested `.git`, so a fresh clone has everything needed to rebuild the index with no network
+step, and content authoring (the icon browser) works offline. `scripts/game-icons.lock.json`
+still records the upstream SHA; `npm run icons:vendor -- --refresh` replaces the tree with the
+pinned commit, and that diff is reviewed and committed like any other. The generated
+`src/assets/icon-index.json` stays committed too. Per-author `license.txt` files ship with the
+tree, which is what CC BY 3.0 asks of us alongside `ATTRIBUTION.md`.
 
 ### Icon identity is `author/slug`, not `slug`
 

@@ -1,6 +1,9 @@
 /**
- * Clones game-icons/icons into vendor/game-icons at the commit pinned in game-icons.lock.json.
- * Idempotent: a checkout already at the pinned commit is left alone.
+ * Fetches game-icons/icons into vendor/game-icons at the commit pinned in game-icons.lock.json.
+ *
+ * The vendored tree is committed to this repo as plain files (no nested .git), so a fresh
+ * checkout already has it and this script is a no-op. Run with `--refresh` after bumping the
+ * lock to replace the tree with the newly pinned commit; commit the result.
  */
 
 import { execFileSync } from 'node:child_process';
@@ -28,24 +31,23 @@ function git(args: string[], cwd: string): string {
 
 function main(): void {
   const lock = readLock();
-  if (existsSync(resolve(VENDOR_DIR, '.git'))) {
-    const head = git(['rev-parse', 'HEAD'], VENDOR_DIR);
-    if (head === lock.commit) {
-      console.log(`vendor/game-icons already at ${lock.commit.slice(0, 12)}`);
-      return;
-    }
+  const refresh = process.argv.includes('--refresh');
+  if (existsSync(resolve(VENDOR_DIR, 'license.txt')) && !refresh) {
     console.log(
-      `vendor/game-icons at ${head.slice(0, 12)}, want ${lock.commit.slice(0, 12)}; re-fetching`,
+      `vendor/game-icons is checked in (pinned ${lock.commit.slice(0, 12)}); pass --refresh to re-fetch`,
     );
-    rmSync(VENDOR_DIR, { recursive: true, force: true });
+    return;
   }
+  rmSync(VENDOR_DIR, { recursive: true, force: true });
   mkdirSync(VENDOR_DIR, { recursive: true });
   git(['init', '-q'], VENDOR_DIR);
   git(['remote', 'add', 'origin', lock.repo], VENDOR_DIR);
   // Fetching a bare SHA keeps the clone shallow and exactly reproducible.
   git(['fetch', '-q', '--depth', '1', 'origin', lock.commit], VENDOR_DIR);
   git(['checkout', '-q', 'FETCH_HEAD'], VENDOR_DIR);
-  console.log(`vendor/game-icons checked out at ${lock.commit.slice(0, 12)} (${lock.commitDate})`);
+  // Plain files, not an embedded repository: the outer repo tracks the tree itself.
+  rmSync(resolve(VENDOR_DIR, '.git'), { recursive: true, force: true });
+  console.log(`vendor/game-icons refreshed to ${lock.commit.slice(0, 12)} (${lock.commitDate})`);
 }
 
 if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) main();
