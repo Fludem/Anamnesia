@@ -1,0 +1,15 @@
+{
+  "$comment": "Icon ids shipped in the production bundle in addition to any `\"icon\": \"…\"` referenced from src/content/**/*.json. Ids are author/slug from src/assets/icon-index.json.",
+  "icons": [
+    "lorc/broadsword",
+    "lorc/mining",
+    "delapouite/war-pick",
+    "faithtoken/ore",
+    "lorc/anvil",
+    "lorc/metal-bar",
+    "delapouite/chest-armor",
+    "delapouite/gold-stack",
+    "lorc/wolf-head",
+    "sbed/shield"
+  ]
+}
