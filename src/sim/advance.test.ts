@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { applyPlan, planAdvance, planTickCount, wallMsAt } from './advance.ts';
 import { OFFLINE_CAP_TICKS, TICK_MS } from './constants.ts';
 import { createSimState } from './save.ts';
-import { stepTick } from './step.ts';
+import { countItem } from './items.ts';
+import { makeStep } from './step.ts';
+import { fixtureContext, miningState } from './testing/fixture.ts';
+
+const stepTick = makeStep(fixtureContext);
 
 const HOUR = 3_600_000;
 const T0 = 1_700_000_000_000;
@@ -96,15 +100,16 @@ describe('wallMsAt', () => {
 
 describe('applyPlan', () => {
   it('runs exactly the planned ticks through step', () => {
-    const s0 = createSimState(1);
+    const s0 = miningState(1, 'sure-rock');
     const plan = planAdvance({ tick: 0, wallMs: T0, nowMs: T0 + 2_500 });
     const s1 = applyPlan(s0, plan, stepTick);
     expect(s1.tick).toBe(25);
-    expect(s1.placeholder.draws).toBe(25);
+    // 3 ticks per stone, never fails: 25 ticks = 8 complete cycles.
+    expect(countItem(s1.bank, 'stone')).toBe(8);
   });
 
   it('is a no-op for a plan already covered by state.tick (idempotent)', () => {
-    const s0 = createSimState(1);
+    const s0 = miningState(1);
     const plan = planAdvance({ tick: 0, wallMs: T0, nowMs: T0 + 2_500 });
     const s1 = applyPlan(s0, plan, stepTick);
     const s2 = applyPlan(s1, plan, stepTick);
@@ -112,7 +117,7 @@ describe('applyPlan', () => {
   });
 
   it('only processes the part of a range not yet covered', () => {
-    const s0 = createSimState(1);
+    const s0 = miningState(1);
     const whole = planAdvance({ tick: 0, wallMs: T0, nowMs: T0 + 1_000 });
     const direct = applyPlan(s0, whole, stepTick);
     const half = applyPlan(s0, whole, stepTick, 4);
@@ -124,7 +129,7 @@ describe('applyPlan', () => {
   it('produces identical state regardless of batch size (the fast-path proof shape)', () => {
     const plan = planAdvance({ tick: 0, wallMs: T0, nowMs: T0 + 60 * 60 * 1_000 }); // 36,000 ticks
     const run = (batch: number) => {
-      let s = createSimState(12345);
+      let s = miningState(12345);
       while (s.tick < plan.toTick) s = applyPlan(s, plan, stepTick, batch);
       return s;
     };

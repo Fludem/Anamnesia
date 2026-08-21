@@ -7,7 +7,9 @@ import {
   type SaveRecord,
   type SimState,
 } from '../sim/save.ts';
-import { stepTick, type StepFn } from '../sim/step.ts';
+import { simContext } from '../content/index.ts';
+import { applyCommand, type CommandResult } from '../sim/commands.ts';
+import { makeStep, type StepFn } from '../sim/step.ts';
 import { CHANNEL_NAME, GameChannel, type GameAction } from './channel.ts';
 import { DEFAULT_BATCH_TICKS, runAdvance } from './catch-up.ts';
 import type { Env } from './env.ts';
@@ -42,6 +44,8 @@ export interface HostSnapshot {
   takeoverPending: boolean;
   /** Non-fatal condition the UI should show (e.g. guard-only mode). */
   warning: string | null;
+  /** Why the last local command was rejected by the sim; cleared by the next accepted one. */
+  commandError: string | null;
   /** Fatal condition; the host has stopped. */
   error: string | null;
 }
@@ -62,11 +66,21 @@ export interface GameHostOptions {
   handoverResumeMs?: number;
   /** How long after boot without a lock grant or a snapshot before we report 'follower'. */
   followerSettleMs?: number;
-  /** Called on the leader for every action (local or forwarded). Phase 1 feeds the action queue. */
+  /** Applies a player command to the sim. Defaults to the real command handler with shipped content. */
+  applyAction?: (sim: SimState, action: GameAction) => CommandResult;
+  /** Observer called on the leader for every action (local or forwarded), after it is applied. */
   onAction?: (action: GameAction, fromTabId: string) => void;
 }
 
-type SaveReason = 'claim' | 'catch-up' | 'periodic' | 'hidden' | 'pagehide' | 'handover' | 'manual';
+type SaveReason =
+  | 'claim'
+  | 'catch-up'
+  | 'periodic'
+  | 'hidden'
+  | 'pagehide'
+  | 'handover'
+  | 'manual'
+  | 'action';
 
 /**
  * Exactly one tab runs the sim. This host decides which role this tab plays and enforces the
@@ -78,6 +92,8 @@ export class GameHost {
   private readonly opts: Required<Omit<GameHostOptions, 'onAction'>> & {
     onAction: GameHostOptions['onAction'] | undefined;
   };
+  /** Commands that arrived while a catch-up was running; applied once it completes. */
+  private pendingActions: Array<{ action: GameAction; fromTabId: string }> = [];
   private readonly channel: GameChannel;
   private readonly election: LeaderElection | null;
   private readonly listeners = new Set<() => void>();
@@ -107,7 +123,7 @@ export class GameHost {
   ) {
     this.opts = {
       slot: options.slot ?? 'main',
-      step: options.step ?? stepTick,
+      step: options.step ?? makeStep(simContext),
       tickMs: options.tickMs ?? TICK_MS,
       capTicks: options.capTicks ?? OFFLINE_CAP_TICKS,
       batchTicks: options.batchTicks ?? DEFAULT_BATCH_TICKS,
@@ -116,6 +132,7 @@ export class GameHost {
       takeoverAckTimeoutMs: options.takeoverAckTimeoutMs ?? 2_000,
       handoverResumeMs: options.handoverResumeMs ?? 3_000,
       followerSettleMs: options.followerSettleMs ?? 300,
+      applyAction: options.applyAction ?? ((sim, action) => applyCommand(sim, action, simContext)),
       onAction: options.onAction,
     };
     this.channel = new GameChannel(env.openChannel(CHANNEL_NAME));
@@ -132,6 +149,7 @@ export class GameHost {
       cappedNotice: null,
       takeoverPending: false,
       warning: null,
+      commandError: null,
       error: null,
     };
   }
@@ -199,11 +217,44 @@ export class GameHost {
 
   /** Apply a player intent. Leaders handle it; everyone else forwards it to the leader. */
   dispatch(action: GameAction): void {
-    if (this.role === 'leader' || this.role === 'handing-over') {
-      this.opts.onAction?.(action, this.env.tabId);
-    } else {
+    if (this.role === 'leader') {
+      this.applyAction(action, this.env.tabId);
+    } else if (this.role === 'follower' || this.role === 'booting') {
       this.channel.post({ type: 'action', tabId: this.env.tabId, action });
     }
+    // handing-over / stale / error: the sim is frozen here; dropping is the honest option.
+  }
+
+  /**
+   * Commands are applied between ticks, never inside a catch-up: one that arrives mid-advance
+   * waits until the advance completes so the derived tick range stays a pure function of time.
+   */
+  private applyAction(action: GameAction, fromTabId: string): void {
+    if (this.sim === null) return;
+    if (this.advancing) {
+      this.pendingActions.push({ action, fromTabId });
+      return;
+    }
+    const result = this.opts.applyAction(this.sim, action);
+    if (result.ok) {
+      this.sim = result.state;
+      this.patch({ sim: this.sim, commandError: null });
+      this.broadcastSnapshot(true);
+      void this.save('action');
+    } else if (fromTabId === this.env.tabId) {
+      this.patch({ commandError: result.reason });
+    }
+    this.opts.onAction?.(action, fromTabId);
+  }
+
+  private flushPendingActions(): void {
+    const pending = this.pendingActions;
+    this.pendingActions = [];
+    for (const { action, fromTabId } of pending) this.applyAction(action, fromTabId);
+  }
+
+  clearCommandError(): void {
+    if (this.snapshot.commandError !== null) this.patch({ commandError: null });
   }
 
   saveNow(): Promise<void> {
@@ -379,12 +430,14 @@ export class GameHost {
       this.advancing = false;
       if (showProgress && !session.signal.aborted) this.patch({ catchUp: null });
     }
+    if (!session.signal.aborted && this.role === 'leader') this.flushPendingActions();
   }
 
   private stopLeading(): void {
     this.session?.abort();
     this.session = null;
     this.advancing = false;
+    this.pendingActions = [];
     if (this.tickHandle != null) this.env.scheduler.clearInterval(this.tickHandle);
     if (this.saveHandle != null) this.env.scheduler.clearInterval(this.saveHandle);
     if (this.handoverHandle != null) this.env.scheduler.clearTimeout(this.handoverHandle);
@@ -482,7 +535,7 @@ export class GameHost {
 
   private onRemoteAction(action: GameAction, fromTabId: string): void {
     if (this.role !== 'leader') return;
-    this.opts.onAction?.(action, fromTabId);
+    this.applyAction(action, fromTabId);
   }
 
   private onTakeoverRequest(requester: string): void {

@@ -1,0 +1,12 @@
+{
+  "$comment": "Named drop tables, referenced from rocks etc. as { \"$ref\": \"<name>\" }. Weights are relative; nothingWeight adds an empty outcome.",
+  "gems": {
+    "nothingWeight": 248,
+    "entries": [
+      { "item": "uncut-sapphire", "weight": 4 },
+      { "item": "uncut-emerald", "weight": 2 },
+      { "item": "uncut-ruby", "weight": 1 },
+      { "item": "uncut-diamond", "weight": 0.5 }
+    ]
+  }
+}

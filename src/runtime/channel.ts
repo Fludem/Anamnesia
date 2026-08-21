@@ -1,14 +1,13 @@
 import { z } from 'zod';
+import { CommandSchema, type Command } from '../sim/commands.ts';
 import { SimStateSchema } from '../sim/save.ts';
 import type { ChannelLike } from './env.ts';
 
 export const CHANNEL_NAME = 'anamnesia:game';
 
-/** Player intents. Phase 1 gives these real variants; the plumbing is proven with `noop`. */
-export const GameActionSchema = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('noop') }),
-]);
-export type GameAction = z.infer<typeof GameActionSchema>;
+/** Player intents are the sim's commands; the channel just carries them to the leader. */
+export const GameActionSchema = CommandSchema;
+export type GameAction = Command;
 
 export const ChannelMessageSchema = z.discriminatedUnion('type', [
   /** A tab has opened and wants the current state. */

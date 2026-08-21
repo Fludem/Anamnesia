@@ -1,11 +1,43 @@
-import { CURRENT_SAVE_VERSION, SaveRecordSchema, type SaveRecord } from './save.ts';
+import {
+  CURRENT_SAVE_VERSION,
+  DEFAULT_PLAYER_NAME,
+  emptyEquipment,
+  SaveRecordSchema,
+  type SaveRecord,
+} from './save.ts';
 
 /** A step migrates a save from version N to N+1. Keyed by N. Input is untrusted JSON. */
 export type MigrationStep = (raw: Record<string, unknown>) => Record<string, unknown>;
 export type MigrationTable = Readonly<Record<number, MigrationStep>>;
 
-/** No migrations yet — v1 is the first shipped format. Add `0: …` style steps here as it changes. */
-export const MIGRATIONS: MigrationTable = {};
+export const MIGRATIONS: MigrationTable = {
+  /**
+   * v1 (Phase 0.5 placeholder sim) → v2 (Phase 1 game state). Keeps tick and rng so the
+   * envelope's wall-clock anchor stays valid; the placeholder checksum is dropped.
+   */
+  1: (raw) => {
+    const sim = asObject(raw['sim']);
+    return {
+      ...raw,
+      sim: {
+        tick: sim['tick'],
+        rng: sim['rng'],
+        player: { name: DEFAULT_PLAYER_NAME },
+        skills: {},
+        inventory: [],
+        equipment: emptyEquipment(),
+        bank: [],
+        action: { current: null, queue: [] },
+      },
+    };
+  },
+};
+
+function asObject(v: unknown): Record<string, unknown> {
+  return typeof v === 'object' && v !== null && !Array.isArray(v)
+    ? (v as Record<string, unknown>)
+    : {};
+}
 
 export class SaveLoadError extends Error {
   override readonly name = 'SaveLoadError';

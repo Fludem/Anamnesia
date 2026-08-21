@@ -1,13 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { applyPlan, planAdvance } from '../sim/advance.ts';
 import { OFFLINE_CAP_TICKS } from '../sim/constants.ts';
-import { createSimState } from '../sim/save.ts';
-import { stepTick } from '../sim/step.ts';
+import { makeStep } from '../sim/step.ts';
+import { fixtureContext, miningState } from '../sim/testing/fixture.ts';
 import { runAdvance, type BatchProgress } from './catch-up.ts';
 
 const T0 = 1_700_000_000_000;
 const HOUR = 3_600_000;
 const yieldNow = () => Promise.resolve();
+const stepTick = makeStep(fixtureContext);
+const createSimState = miningState;
 
 describe('runAdvance', () => {
   it('applies a small plan in one batch with no yield', async () => {

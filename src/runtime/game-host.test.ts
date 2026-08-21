@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { OFFLINE_CAP_TICKS } from '../sim/constants.ts';
 import { createNewSave, type SaveRecord } from '../sim/save.ts';
-import { stepTick } from '../sim/step.ts';
+import { applyCommand, type Command } from '../sim/commands.ts';
+import { countItem } from '../sim/items.ts';
+import { makeStep } from '../sim/step.ts';
+import { fixtureContext } from '../sim/testing/fixture.ts';
 import { GameHost, type GameHostOptions, type HostSnapshot } from './game-host.ts';
 import { type SaveStore, type WriteResult } from './store.ts';
 import { FakeChannelHub } from './testing/fake-channel.ts';
@@ -23,6 +26,16 @@ async function settle(host: GameHost): Promise<void> {
   for (let i = 0; i < 1_000_000 && host.getSnapshot().catchUp !== null; i++)
     await Promise.resolve();
 }
+
+/** Host options bound to the fixture content, so command tests don't depend on shipped tuning. */
+const FIXTURE: GameHostOptions = {
+  step: makeStep(fixtureContext),
+  applyAction: (sim, action) => applyCommand(sim, action, fixtureContext),
+};
+const START_SURE: Command = {
+  type: 'action:start',
+  request: { kind: 'mining', rock: 'sure-rock', count: null },
+};
 
 function boot(tab: FakeTab, options: GameHostOptions = {}): GameHost {
   const host = new GameHost(tab.env, options);
@@ -154,7 +167,7 @@ describe('GameHost — single tab', () => {
     const host = boot(a, {
       step: (s) => {
         steps++;
-        return stepTick(s);
+        return makeStep(fixtureContext)(s);
       },
       batchTicks: 2_000,
     });
@@ -399,9 +412,85 @@ describe('GameHost — two tabs', () => {
     await flushMicrotasks();
     const hb = boot(b);
     await flushMicrotasks();
-    hb.dispatch({ type: 'noop' });
+    hb.dispatch({ type: 'action:stop' });
     await flushMicrotasks();
-    expect(received).toEqual(['noop@B']);
+    expect(received).toEqual(['action:stop@B']);
+  });
+
+  it('a command on the leader changes the sim, is saved, and is mirrored to followers', async () => {
+    const world = new FakeWorld(T0);
+    const a = world.tab('A');
+    const b = world.tab('B');
+    const ha = boot(a, { ...FIXTURE, snapshotIntervalMs: 0 });
+    await flushMicrotasks();
+    const hb = boot(b, FIXTURE);
+    await flushMicrotasks();
+    const writesBefore = world.store.log.filter((l) => l.op === 'write').length;
+
+    ha.dispatch(START_SURE);
+    await flushMicrotasks();
+    expect(ha.getSnapshot().sim?.action.current?.request).toEqual(START_SURE.request);
+    expect(hb.getSnapshot().sim?.action.current?.request).toEqual(START_SURE.request);
+    expect(world.store.log.filter((l) => l.op === 'write')).toHaveLength(writesBefore + 1);
+
+    await elapse(world, [a, b], 3_000);
+    expect(countItem(ha.getSnapshot().sim?.bank ?? [], 'stone')).toBe(10);
+    expect(hb.getSnapshot().sim).toEqual(ha.getSnapshot().sim);
+  });
+
+  it("a follower's command is applied by the leader, not locally", async () => {
+    const world = new FakeWorld(T0);
+    const a = world.tab('A');
+    const b = world.tab('B');
+    const ha = boot(a, { ...FIXTURE, snapshotIntervalMs: 0 });
+    await flushMicrotasks();
+    const hb = boot(b, FIXTURE);
+    await flushMicrotasks();
+
+    hb.dispatch(START_SURE);
+    await flushMicrotasks();
+    expect(ha.getSnapshot().sim?.action.current?.request).toEqual(START_SURE.request);
+    await elapse(world, [a, b], 300);
+    expect(countItem(hb.getSnapshot().sim?.bank ?? [], 'stone')).toBe(1);
+    expect(world.store.peek('main')?.writerId).toBe('A');
+  });
+
+  it('a rejected command surfaces its reason and leaves the sim untouched', async () => {
+    const world = new FakeWorld(T0);
+    const a = world.tab('A');
+    const host = boot(a, FIXTURE);
+    await flushMicrotasks();
+    const before = host.getSnapshot().sim;
+    host.dispatch({
+      type: 'action:start',
+      request: { kind: 'mining', rock: 'gated-rock', count: null },
+    });
+    await flushMicrotasks();
+    expect(host.getSnapshot().commandError).toBe('requires Mining level 10 (you are 1)');
+    expect(host.getSnapshot().sim).toBe(before);
+    host.dispatch(START_SURE);
+    expect(host.getSnapshot().commandError).toBeNull();
+  });
+
+  it('a command that arrives mid-catch-up is applied after the derived range, not inside it', async () => {
+    const world = new FakeWorld(T0 + HOUR);
+    seeded(world);
+    const a = world.tab('A');
+    const host = boot(a, { ...FIXTURE, batchTicks: 1_000 });
+    let batches = 0;
+    a.env.yieldToEventLoop = () => {
+      if (++batches === 5) host.dispatch(START_SURE);
+      return Promise.resolve();
+    };
+    await flushMicrotasks();
+    await a.runTimers(0);
+    await settle(host);
+    const sim = host.getSnapshot().sim;
+    expect(sim?.tick).toBe(36_000);
+    expect(sim?.action.current?.request).toEqual(START_SURE.request);
+    expect(sim?.bank).toEqual([]); // nothing mined inside the catch-up
+    await elapse(world, [a], 300);
+    expect(countItem(host.getSnapshot().sim?.bank ?? [], 'stone')).toBe(1);
   });
 
   it('getSnapshot is referentially stable between changes', async () => {

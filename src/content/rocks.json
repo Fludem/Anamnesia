@@ -1,0 +1,80 @@
+[
+  {
+    "id": "copper-rock",
+    "name": "Copper rock",
+    "icon": "lorc/rock",
+    "level": 1,
+    "durationTicks": 30,
+    "xp": 7,
+    "success": { "base": 0.8, "perLevel": 0.01 },
+    "drops": [
+      { "entries": [{ "item": "copper-ore", "weight": 1 }] },
+      { "$ref": "gems" }
+    ]
+  },
+  {
+    "id": "tin-rock",
+    "name": "Tin rock",
+    "icon": "lorc/rock",
+    "level": 1,
+    "durationTicks": 30,
+    "xp": 7,
+    "success": { "base": 0.8, "perLevel": 0.01 },
+    "drops": [
+      { "entries": [{ "item": "tin-ore", "weight": 1 }] },
+      { "$ref": "gems" }
+    ]
+  },
+  {
+    "id": "iron-rock",
+    "name": "Iron rock",
+    "icon": "lorc/rock",
+    "level": 15,
+    "durationTicks": 40,
+    "xp": 17,
+    "success": { "base": 0.6, "perLevel": 0.01 },
+    "drops": [
+      { "entries": [{ "item": "iron-ore", "weight": 1 }] },
+      { "$ref": "gems" }
+    ]
+  },
+  {
+    "id": "coal-rock",
+    "name": "Coal rock",
+    "icon": "lorc/rock",
+    "level": 30,
+    "durationTicks": 50,
+    "xp": 30,
+    "success": { "base": 0.5, "perLevel": 0.01 },
+    "drops": [
+      { "entries": [{ "item": "coal", "weight": 1 }] },
+      { "$ref": "gems" }
+    ]
+  },
+  {
+    "id": "silver-rock",
+    "name": "Silver rock",
+    "icon": "lorc/rock",
+    "level": 40,
+    "durationTicks": 60,
+    "xp": 40,
+    "success": { "base": 0.5, "perLevel": 0.01 },
+    "drops": [
+      { "entries": [{ "item": "silver-ore", "weight": 1 }] },
+      { "$ref": "gems" }
+    ]
+  },
+  {
+    "id": "gold-rock",
+    "name": "Gold rock",
+    "icon": "lorc/rock",
+    "level": 50,
+    "durationTicks": 70,
+    "xp": 65,
+    "success": { "base": 0.45, "perLevel": 0.01 },
+    "drops": [
+      { "entries": [{ "item": "gold-ore", "weight": 1 }] },
+      { "$ref": "gems" }
+    ]
+  }
+]

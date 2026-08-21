@@ -1,24 +1,55 @@
 import { z } from 'zod';
+import { ActionQueueSchema } from './actions.ts';
+import { IdSchema } from './content/schema.ts';
+import { ContainerSchema } from './items.ts';
 import { seedRng } from './rng.ts';
 
-export const CURRENT_SAVE_VERSION = 1;
+export const CURRENT_SAVE_VERSION = 2;
 
 const Uint32 = z.number().int().min(0).max(0xffffffff);
 
 export const RngStateSchema = z.tuple([Uint32, Uint32, Uint32, Uint32]).readonly();
 
+export const EQUIPMENT_SLOTS = [
+  'weapon',
+  'shield',
+  'head',
+  'body',
+  'legs',
+  'hands',
+  'feet',
+  'cape',
+  'amulet',
+  'ring',
+  'ammo',
+] as const;
+export const EquipmentSlotSchema = z.enum(EQUIPMENT_SLOTS);
+export type EquipmentSlot = z.infer<typeof EquipmentSlotSchema>;
+
+/** Every slot is present (null when empty) so the shape never varies by save. */
+export const EquipmentSchema = z.record(EquipmentSlotSchema, IdSchema.nullable());
+export type Equipment = z.infer<typeof EquipmentSchema>;
+
+export const SkillProgressSchema = z.object({ xp: z.number().min(0) });
+
 /**
  * Everything the simulation reads and writes. Pure data; the sim never sees the envelope.
- * Phase 1 replaces `placeholder` with real game state (skills, inventory, …).
+ * Content is referenced by id only, so content changes never require a save migration
+ * unless an id is removed.
  */
 export const SimStateSchema = z.object({
   /** Number of ticks processed so far. The single source of truth for elapsed game time. */
   tick: z.number().int().min(0),
   rng: RngStateSchema,
-  placeholder: z.object({
-    draws: z.number().int().min(0),
-    checksum: Uint32,
-  }),
+  player: z.object({ name: z.string().min(1) }),
+  /** Keyed by skill id; a skill absent here has 0 xp. */
+  skills: z.record(IdSchema, SkillProgressSchema),
+  /** Carried items: consumables a later combat loop draws from. Unused in Phase 1. */
+  inventory: ContainerSchema,
+  equipment: EquipmentSchema,
+  /** Main storage; gathering deposits here. */
+  bank: ContainerSchema,
+  action: ActionQueueSchema,
 });
 export type SimState = z.infer<typeof SimStateSchema>;
 
@@ -38,8 +69,23 @@ export const SaveRecordSchema = z.object({
 });
 export type SaveRecord = z.infer<typeof SaveRecordSchema>;
 
+export const DEFAULT_PLAYER_NAME = 'Nameless';
+
+export function emptyEquipment(): Equipment {
+  return Object.fromEntries(EQUIPMENT_SLOTS.map((s) => [s, null])) as Equipment;
+}
+
 export function createSimState(seed: number): SimState {
-  return { tick: 0, rng: seedRng(seed), placeholder: { draws: 0, checksum: 0 } };
+  return {
+    tick: 0,
+    rng: seedRng(seed),
+    player: { name: DEFAULT_PLAYER_NAME },
+    skills: {},
+    inventory: [],
+    equipment: emptyEquipment(),
+    bank: [],
+    action: { current: null, queue: [] },
+  };
 }
 
 export function createNewSave(opts: { seed: number; nowMs: number; writerId: string }): SaveRecord {

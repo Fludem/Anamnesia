@@ -63,11 +63,11 @@ export function DebugPanel({
         </dd>
         <dt>rng</dt>
         <dd>{sim ? sim.rng.map((w) => w.toString(16).padStart(8, '0')).join(' ') : '—'}</dd>
-        <dt>draws / checksum</dt>
+        <dt>action</dt>
         <dd>
-          {sim
-            ? `${formatInt(sim.placeholder.draws)} / ${sim.placeholder.checksum.toString(16)}`
-            : '—'}
+          {sim?.action.current
+            ? `${sim.action.current.request.kind} ${formatInt(sim.action.current.elapsedTicks)}/${formatInt(sim.action.current.durationTicks)} (queue ${formatInt(sim.action.queue.length)})`
+            : 'idle'}
         </dd>
       </dl>
       <div className="actions">

@@ -19,6 +19,7 @@ const BOOTING: HostSnapshot = {
   cappedNotice: null,
   takeoverPending: false,
   warning: null,
+  commandError: null,
   error: null,
 };
 
