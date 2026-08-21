@@ -7,15 +7,21 @@ Phase 0.5 is in: exactly one tab runs the simulation (Web Locks leader election)
 it over a BroadcastChannel, every save is guarded by a compare-and-swap on `saveCounter` in
 IndexedDB, and offline progress is derived from timestamps, capped at 12 h, and idempotent.
 
+Phase 1 is in: a real save shape (player, skills, inventory, equipment, bank, action queue), a
+swappable XP curve, content as validated JSON, a single action primitive (duration in ticks,
+success roll, outcome), and mining end to end with tests that pin exact XP and drop results from
+fixed seeds.
+
 ## Layout
 
-| Path           | Layer                                                                    |
-| -------------- | ------------------------------------------------------------------------ |
-| `src/sim/`     | Pure simulation: save schema, migrations, PRNG, advance planner. No DOM. |
-| `src/runtime/` | Browser orchestration: save store, leader election, channel, GameHost.   |
-| `src/ui/`      | React shell (thin).                                                      |
-| `src/icons/`   | Icon registry and `<Icon>`.                                              |
-| `scripts/`     | Icon vendoring / indexing pipeline.                                      |
+| Path           | Layer                                                                        |
+| -------------- | ---------------------------------------------------------------------------- |
+| `src/sim/`     | Pure simulation: save schema, migrations, PRNG, actions, skills. No DOM.     |
+| `src/content/` | Game content as JSON (skills, items, rocks, drop tables), validated at load. |
+| `src/runtime/` | Browser orchestration: save store, leader election, channel, GameHost.       |
+| `src/ui/`      | React shell (thin).                                                          |
+| `src/icons/`   | Icon registry and `<Icon>`.                                                  |
+| `scripts/`     | Icon vendoring / indexing pipeline.                                          |
 
 ## Commands
 

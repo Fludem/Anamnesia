@@ -141,3 +141,77 @@ host then assumes leadership with a visible warning and relies on the save-count
 No closed-form fast path yet — with a placeholder sim it would prove nothing; the batch-size-
 independence test in `advance.test.ts` is the shape the Phase 1 proof reuses. Snapshots are the
 full `SimState` at 4 Hz; diff them once Phase 1 state grows.
+
+## Phase 1 — simulation core
+
+### Phase 0.5 flagged items: left as they are
+
+Reviewed before starting Phase 1. Backward-clock re-anchor stays (a few-second NTP correction
+must not freeze the game; the exploit it admits is the one forward-clocking already grants).
+Stale-write → reload stays (what the brief asks for; it never overwrites). Full-state snapshots
+at 4 Hz stay: Phase 1 state is a few KB and structured-clone is far cheaper than diffing code
+we would have to test. Revisit when the bank holds hundreds of distinct stacks.
+
+### Everything is an action
+
+`SimState.action = { current, queue }`. An action is a request (`{ kind, … , count }`), a
+duration in ticks snapshotted at start, elapsed ticks, and a remaining count (`null` = until
+stopped). Each kind has a handler with `canStart`, `durationTicks`, `successChance`, `resolve`.
+The tick loop knows only the primitive; mining is the first handler and later gathering skills
+are content, not code. Combat and crafting will be handlers with a different `resolve`.
+
+### Draw order is a save-compatible contract
+
+Per completed cycle: one float for the success roll (skipped entirely when the chance is
+exactly 1), then per drop table per roll one float for the weighted pick and one integer draw
+for quantity only when `max > min`. `mining.test.ts` re-derives 100 cycles from the rng
+primitives independently and pins the literal results (seed 42: 84/100 successes, 161 ore,
+7 gems, 8 rare gems, 2,100 xp). Changing the order silently changes every player's future.
+
+### Commands are applied between ticks, never inside a catch-up
+
+A command that arrives while an advance is running is queued and applied after the derived
+range completes. The tick range stays a pure function of time, and replaying a catch-up can
+never interleave differently. Leaders apply locally; followers forward over the channel and
+render the result. A rejected command surfaces its reason (`commandError`) only on the tab that
+issued it.
+
+### Content: JSON under `src/content/`, validated once, referenced by id
+
+`ContentDb.fromPack` validates shape with zod, then every cross-reference (drop → item, `$ref` →
+named table, rocks → mining skill) and reports all problems at once. Named drop tables
+(`drop-tables.json`) are shared via `{ "$ref": "gems" }` and resolved inline before the sim sees
+them. The icon build already scans this directory, so an item's `icon` ships automatically.
+Saves reference content only by id; removing an id is the only content change that needs a
+migration.
+
+### XP curve is a value, not a formula in the code
+
+`SimContext.xp: XpCurve` — RuneScape's table by default (level 99 = 13,034,431 xp). The sim
+never computes a level without going through it; swapping the progression is a one-line change
+and the tests cover a linear table through the same interface.
+
+### Success roll on gathering
+
+Rocks define `success: { base, perLevel }`; chance = `min(1, base + perLevel × (level −
+required))`. A failed cycle consumes its time and yields nothing. Tunable per rock; `{ base: 1 }`
+gives Melvor-style never-fail nodes. The shipped numbers are placeholders for Phase 3.
+
+### Inventory and bank are the same container type
+
+Both are ordered `ItemStack[]`. `bank` is the main store gathering deposits into; `inventory`
+exists in the save shape for carried consumables (food, ammo) that a later combat loop draws
+from, and is unused until then. Equipment is a fixed record of eleven slots, all present, null
+when empty — the shape never varies by save.
+
+### v1 → v2 migration keeps tick and rng
+
+The Phase 0.5 placeholder save migrates by keeping `tick` and `rng` (so the wall-clock anchor
+stays valid) and initialising fresh game state. `migrate.test.ts` runs a real v1 record through
+it. Verified in Chrome against the save left from the Phase 0.5 session (1.32 M ticks preserved).
+
+### Still no closed-form fast path
+
+432,000 ticks of the real sim run in well under a second, so there is nothing to speed up yet.
+`advance.test.ts` proves batch-size independence (1 / 7 / 2,000 ticks per batch) against a
+state that is actively mining a flaky rock, which is the exact shape a future fast path must pass.

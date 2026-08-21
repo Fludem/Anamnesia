@@ -1,10 +1,5 @@
 import { z } from 'zod';
-import {
-  ActionRequestSchema,
-  beginAction,
-  canStartAction,
-  startNextQueued,
-} from './actions.ts';
+import { ActionRequestSchema, beginAction, canStartAction, startNextQueued } from './actions.ts';
 import type { SimContext } from './context.ts';
 import type { SimState } from './save.ts';
 
@@ -23,8 +18,7 @@ export const CommandSchema = z.discriminatedUnion('type', [
 export type Command = z.infer<typeof CommandSchema>;
 
 export type CommandResult =
-  | { ok: true; state: SimState }
-  | { ok: false; state: SimState; reason: string };
+  { ok: true; state: SimState } | { ok: false; state: SimState; reason: string };
 
 export function applyCommand(state: SimState, cmd: Command, ctx: SimContext): CommandResult {
   switch (cmd.type) {
@@ -39,7 +33,10 @@ export function applyCommand(state: SimState, cmd: Command, ctx: SimContext): Co
     case 'action:enqueue': {
       const check = canStartAction(state, cmd.request, ctx);
       if (!check.ok) return { ok: false, state, reason: check.reason };
-      const queued = { ...state, action: { ...state.action, queue: [...state.action.queue, cmd.request] } };
+      const queued = {
+        ...state,
+        action: { ...state.action, queue: [...state.action.queue, cmd.request] },
+      };
       return { ok: true, state: queued.action.current ? queued : startNextQueued(queued, ctx) };
     }
     case 'action:stop':

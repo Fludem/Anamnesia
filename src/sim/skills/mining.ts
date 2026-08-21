@@ -16,7 +16,10 @@ export const miningHandler: ActionHandler<'mining'> = {
     const rock = ctx.content.rock(req.rock);
     const level = skillLevel(state, MINING, ctx);
     if (level < rock.level) {
-      return { ok: false, reason: `requires Mining level ${String(rock.level)} (you are ${String(level)})` };
+      return {
+        ok: false,
+        reason: `requires Mining level ${String(rock.level)} (you are ${String(level)})`,
+      };
     }
     return { ok: true };
   },

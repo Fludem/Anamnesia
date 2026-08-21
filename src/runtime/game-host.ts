@@ -73,14 +73,7 @@ export interface GameHostOptions {
 }
 
 type SaveReason =
-  | 'claim'
-  | 'catch-up'
-  | 'periodic'
-  | 'hidden'
-  | 'pagehide'
-  | 'handover'
-  | 'manual'
-  | 'action';
+  'claim' | 'catch-up' | 'periodic' | 'hidden' | 'pagehide' | 'handover' | 'manual' | 'action';
 
 /**
  * Exactly one tab runs the sim. This host decides which role this tab plays and enforces the

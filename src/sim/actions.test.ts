@@ -11,8 +11,10 @@ const run = (s: SimState, ticks: number): SimState => {
   for (let i = 0; i < ticks; i++) s = stepTick(s, ctx);
   return s;
 };
-const sure = (count: number | null = null) => ({ kind: 'mining', rock: 'sure-rock', count }) as const;
-const flaky = (count: number | null = null) => ({ kind: 'mining', rock: 'flaky-rock', count }) as const;
+const sure = (count: number | null = null) =>
+  ({ kind: 'mining', rock: 'sure-rock', count }) as const;
+const flaky = (count: number | null = null) =>
+  ({ kind: 'mining', rock: 'flaky-rock', count }) as const;
 const start = (s: SimState, request: ReturnType<typeof sure> | ReturnType<typeof flaky>) => {
   const r = applyCommand(s, { type: 'action:start', request }, ctx);
   if (!r.ok) throw new Error(r.reason);

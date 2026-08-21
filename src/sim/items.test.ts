@@ -38,11 +38,14 @@ describe('containers', () => {
 
   it('addStacks applies in order', () => {
     expect(
-      addStacks([], [
-        { item: 'a', qty: 1 },
-        { item: 'b', qty: 2 },
-        { item: 'a', qty: 1 },
-      ]),
+      addStacks(
+        [],
+        [
+          { item: 'a', qty: 1 },
+          { item: 'b', qty: 2 },
+          { item: 'a', qty: 1 },
+        ],
+      ),
     ).toEqual([
       { item: 'a', qty: 2 },
       { item: 'b', qty: 2 },

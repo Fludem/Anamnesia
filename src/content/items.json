@@ -1,12 +1,72 @@
 [
-  { "id": "copper-ore", "name": "Copper ore", "icon": "faithtoken/ore", "value": 4, "tags": ["ore", "mining"] },
-  { "id": "tin-ore", "name": "Tin ore", "icon": "faithtoken/ore", "value": 4, "tags": ["ore", "mining"] },
-  { "id": "iron-ore", "name": "Iron ore", "icon": "faithtoken/ore", "value": 17, "tags": ["ore", "mining"] },
-  { "id": "coal", "name": "Coal", "icon": "delapouite/coal-pile", "value": 45, "tags": ["ore", "mining", "fuel"] },
-  { "id": "silver-ore", "name": "Silver ore", "icon": "faithtoken/ore", "value": 75, "tags": ["ore", "mining"] },
-  { "id": "gold-ore", "name": "Gold ore", "icon": "faithtoken/ore", "value": 150, "tags": ["ore", "mining"] },
-  { "id": "uncut-sapphire", "name": "Uncut sapphire", "icon": "lorc/crystal-growth", "value": 25, "tags": ["gem", "uncut"] },
-  { "id": "uncut-emerald", "name": "Uncut emerald", "icon": "lorc/crystal-growth", "value": 50, "tags": ["gem", "uncut"] },
-  { "id": "uncut-ruby", "name": "Uncut ruby", "icon": "lorc/crystal-growth", "value": 100, "tags": ["gem", "uncut"] },
-  { "id": "uncut-diamond", "name": "Uncut diamond", "icon": "lorc/crystal-growth", "value": 200, "tags": ["gem", "uncut"] }
+  {
+    "id": "copper-ore",
+    "name": "Copper ore",
+    "icon": "faithtoken/ore",
+    "value": 4,
+    "tags": ["ore", "mining"]
+  },
+  {
+    "id": "tin-ore",
+    "name": "Tin ore",
+    "icon": "faithtoken/ore",
+    "value": 4,
+    "tags": ["ore", "mining"]
+  },
+  {
+    "id": "iron-ore",
+    "name": "Iron ore",
+    "icon": "faithtoken/ore",
+    "value": 17,
+    "tags": ["ore", "mining"]
+  },
+  {
+    "id": "coal",
+    "name": "Coal",
+    "icon": "delapouite/coal-pile",
+    "value": 45,
+    "tags": ["ore", "mining", "fuel"]
+  },
+  {
+    "id": "silver-ore",
+    "name": "Silver ore",
+    "icon": "faithtoken/ore",
+    "value": 75,
+    "tags": ["ore", "mining"]
+  },
+  {
+    "id": "gold-ore",
+    "name": "Gold ore",
+    "icon": "faithtoken/ore",
+    "value": 150,
+    "tags": ["ore", "mining"]
+  },
+  {
+    "id": "uncut-sapphire",
+    "name": "Uncut sapphire",
+    "icon": "lorc/crystal-growth",
+    "value": 25,
+    "tags": ["gem", "uncut"]
+  },
+  {
+    "id": "uncut-emerald",
+    "name": "Uncut emerald",
+    "icon": "lorc/crystal-growth",
+    "value": 50,
+    "tags": ["gem", "uncut"]
+  },
+  {
+    "id": "uncut-ruby",
+    "name": "Uncut ruby",
+    "icon": "lorc/crystal-growth",
+    "value": 100,
+    "tags": ["gem", "uncut"]
+  },
+  {
+    "id": "uncut-diamond",
+    "name": "Uncut diamond",
+    "icon": "lorc/crystal-growth",
+    "value": 200,
+    "tags": ["gem", "uncut"]
+  }
 ]

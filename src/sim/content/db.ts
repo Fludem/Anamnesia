@@ -62,14 +62,24 @@ export class ContentDb {
         seen.add(id);
       }
     };
-    dupes('skill', pack.skills.map((s) => s.id));
-    dupes('item', pack.items.map((i) => i.id));
-    dupes('rock', pack.rocks.map((r) => r.id));
+    dupes(
+      'skill',
+      pack.skills.map((s) => s.id),
+    );
+    dupes(
+      'item',
+      pack.items.map((i) => i.id),
+    );
+    dupes(
+      'rock',
+      pack.rocks.map((r) => r.id),
+    );
 
     const itemIds = new Set(pack.items.map((i) => i.id));
     const checkTable = (owner: string, table: DropTable): void => {
       for (const e of table.entries) {
-        if (!itemIds.has(e.item)) problems.push(`${owner}: drop references unknown item "${e.item}"`);
+        if (!itemIds.has(e.item))
+          problems.push(`${owner}: drop references unknown item "${e.item}"`);
       }
     };
     for (const [name, table] of tables) checkTable(`table "${name}"`, table);
