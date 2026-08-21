@@ -50,7 +50,9 @@ function main(): void {
       continue;
     }
     const author = resolveAuthor(dir, licenseAuthors);
-    const files = readdirSync(join(VENDOR_DIR, dir)).filter((f) => f.endsWith('.svg')).sort();
+    const files = readdirSync(join(VENDOR_DIR, dir))
+      .filter((f) => f.endsWith('.svg'))
+      .sort();
     for (const file of files) {
       const slug = file.slice(0, -'.svg'.length);
       const id = `${dir}/${slug}`;
@@ -81,7 +83,8 @@ function main(): void {
   IconIndexSchema.parse(index);
 
   console.log(`indexed ${icons.length} icons from ${perAuthor.size} authors`);
-  for (const [dir, n] of [...perAuthor].sort((a, b) => b[1] - a[1])) console.log(`  ${String(n).padStart(5)}  ${dir}`);
+  for (const [dir, n] of [...perAuthor].sort((a, b) => b[1] - a[1]))
+    console.log(`  ${String(n).padStart(5)}  ${dir}`);
   if (skipped.length) console.log(`skipped dirs: ${skipped.join(', ')}`);
   if (failures.length) {
     console.error(`\n${failures.length} icon(s) failed extraction:\n  ${failures.join('\n  ')}`);
@@ -89,7 +92,9 @@ function main(): void {
   }
 
   if (unknownTagIds.length) {
-    console.error(`content/icon-tags.json references unknown icons:\n  ${unknownTagIds.join('\n  ')}`);
+    console.error(
+      `content/icon-tags.json references unknown icons:\n  ${unknownTagIds.join('\n  ')}`,
+    );
     process.exit(1);
   }
   // Compact single-line entries keep the file diffable per icon without bloating it.

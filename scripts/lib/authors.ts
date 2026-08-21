@@ -20,7 +20,11 @@ export const EXCLUDED_DIRS: ReadonlySet<string> = new Set([
 export const OVERRIDES: Readonly<Record<string, LicenseAuthor>> = {
   lucasms: { name: 'Lucas', license: 'CC-BY-3.0' },
   // Two collaborative icons committed by the maintainer with no single author.
-  'various-artists': { name: 'Various artists', url: 'https://game-icons.net', license: 'CC-BY-3.0' },
+  'various-artists': {
+    name: 'Various artists',
+    url: 'https://game-icons.net',
+    license: 'CC-BY-3.0',
+  },
 };
 
 export function normaliseKey(s: string): string {
@@ -33,6 +37,7 @@ export function resolveAuthor(dir: string, authors: readonly LicenseAuthor[]): L
   const key = normaliseKey(dir);
   const matches = authors.filter((a) => normaliseKey(a.name) === key);
   if (matches.length === 1) return matches[0]!;
-  if (matches.length > 1) throw new Error(`author dir "${dir}" matches multiple license.txt entries`);
+  if (matches.length > 1)
+    throw new Error(`author dir "${dir}" matches multiple license.txt entries`);
   throw new Error(`author dir "${dir}" has no entry in license.txt and no override`);
 }

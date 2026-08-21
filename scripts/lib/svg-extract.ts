@@ -27,7 +27,10 @@ function parseAttrs(raw: string): Map<string, string> {
 }
 
 export function extractIconPath(svg: string): ExtractResult {
-  const body = svg.replace(/<\?xml[^>]*\?>/, '').replace(/<!--[\s\S]*?-->/g, '').trim();
+  const body = svg
+    .replace(/<\?xml[^>]*\?>/, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .trim();
 
   const svgOpen = /^<svg\b([^>]*)>/.exec(body);
   if (!svgOpen) return { ok: false, error: 'no <svg> root element' };
@@ -38,7 +41,8 @@ export function extractIconPath(svg: string): ExtractResult {
     return { ok: false, error: `unexpected viewBox "${svgAttrs.get('viewBox') ?? ''}"` };
   }
   for (const name of svgAttrs.keys()) {
-    if (!ALLOWED_SVG_ATTRS.has(name)) return { ok: false, error: `unexpected <svg> attribute "${name}"` };
+    if (!ALLOWED_SVG_ATTRS.has(name))
+      return { ok: false, error: `unexpected <svg> attribute "${name}"` };
   }
 
   const inner = body.slice(svgOpen[0].length, -'</svg>'.length);
@@ -55,18 +59,21 @@ export function extractIconPath(svg: string): ExtractResult {
     if (!selfClose) return { ok: false, error: '<path> is not self-closing' };
     const attrs = parseAttrs(rawAttrs!);
     for (const name of attrs.keys()) {
-      if (!ALLOWED_PATH_ATTRS.has(name)) return { ok: false, error: `unexpected <path> attribute "${name}"` };
+      if (!ALLOWED_PATH_ATTRS.has(name))
+        return { ok: false, error: `unexpected <path> attribute "${name}"` };
     }
     const d = attrs.get('d');
     if (!d) return { ok: false, error: '<path> without d' };
     ds.push(d.trim());
   }
 
-  if (ds[0] !== BACKGROUND_PATH) return { ok: false, error: 'first path is not the background rect' };
+  if (ds[0] !== BACKGROUND_PATH)
+    return { ok: false, error: 'first path is not the background rect' };
   const fg = ds.slice(1);
   if (fg.length === 0) return { ok: false, error: 'no foreground path' };
   for (const d of fg) {
-    if (!/^[Mm]/.test(d)) return { ok: false, error: 'foreground path does not start with a moveto' };
+    if (!/^[Mm]/.test(d))
+      return { ok: false, error: 'foreground path does not start with a moveto' };
   }
   // Concatenating path data is valid when each segment begins with an absolute moveto;
   // a relative `m` at the start of a path is treated as absolute by the spec anyway.

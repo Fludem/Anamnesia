@@ -10,7 +10,10 @@ export type AttributionInput = {
 };
 
 export function generateAttribution({ icons, source }: AttributionInput): string {
-  const byAuthor = new Map<string, { name: string; url?: string; license: string; count: number }>();
+  const byAuthor = new Map<
+    string,
+    { name: string; url?: string; license: string; count: number }
+  >();
   for (const icon of icons) {
     const existing = byAuthor.get(icon.author);
     if (existing) {
@@ -43,7 +46,9 @@ export function generateAttribution({ icons, source }: AttributionInput): string
     for (const a of authors) {
       const link = a.url ? ` ([${a.url}](${a.url}))` : '';
       const cc0 = a.license === 'CC0-1.0' ? ' — CC0' : '';
-      lines.push(`- Icons made by ${a.name}. Available on https://game-icons.net${link}${cc0} — ${a.count} icon${a.count === 1 ? '' : 's'}`);
+      lines.push(
+        `- Icons made by ${a.name}. Available on https://game-icons.net${link}${cc0} — ${a.count} icon${a.count === 1 ? '' : 's'}`,
+      );
     }
     lines.push('');
   }

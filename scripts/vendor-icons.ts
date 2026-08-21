@@ -13,11 +13,17 @@ export const VENDOR_DIR = resolve(ROOT, 'vendor/game-icons');
 
 export type IconLock = { repo: string; commit: string; commitDate: string };
 export function readLock(): IconLock {
-  return JSON.parse(readFileSync(resolve(ROOT, 'scripts/game-icons.lock.json'), 'utf8')) as IconLock;
+  return JSON.parse(
+    readFileSync(resolve(ROOT, 'scripts/game-icons.lock.json'), 'utf8'),
+  ) as IconLock;
 }
 
 function git(args: string[], cwd: string): string {
-  return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] }).trim();
+  return execFileSync('git', args, {
+    cwd,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'inherit'],
+  }).trim();
 }
 
 function main(): void {
@@ -28,7 +34,9 @@ function main(): void {
       console.log(`vendor/game-icons already at ${lock.commit.slice(0, 12)}`);
       return;
     }
-    console.log(`vendor/game-icons at ${head.slice(0, 12)}, want ${lock.commit.slice(0, 12)}; re-fetching`);
+    console.log(
+      `vendor/game-icons at ${head.slice(0, 12)}, want ${lock.commit.slice(0, 12)}; re-fetching`,
+    );
     rmSync(VENDOR_DIR, { recursive: true, force: true });
   }
   mkdirSync(VENDOR_DIR, { recursive: true });

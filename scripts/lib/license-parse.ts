@@ -15,7 +15,7 @@ export type LicenseAuthor = {
   license: License;
 };
 
-const LINE = /^- (.+?)(?:, (\S+?))?( - CC0)?$/;
+const LINE = /^- ([^,]+?)(?:, (\S+))?( - CC0)?$/;
 
 export function parseLicenseFile(text: string): LicenseAuthor[] {
   const authors: LicenseAuthor[] = [];
