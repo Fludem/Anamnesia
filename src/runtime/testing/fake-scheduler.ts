@@ -59,6 +59,6 @@ export class FakeScheduler implements Scheduler {
 }
 
 /** Let all currently-queued promise continuations run. */
-export async function flushMicrotasks(rounds = 20): Promise<void> {
+export async function flushMicrotasks(rounds = 1_000): Promise<void> {
   for (let i = 0; i < rounds; i++) await Promise.resolve();
 }
