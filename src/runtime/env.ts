@@ -5,6 +5,7 @@
  * `navigator`, `indexedDB`, `BroadcastChannel`, `document`, `window` or `crypto` (enforced by
  * eslint.config.js). Tests pass fakes from src/runtime/testing.
  */
+import { warmLockManager } from './leader.ts';
 import { IndexedDbSaveStore, type SaveStore } from './store.ts';
 
 export interface Clock {
@@ -76,7 +77,10 @@ function browserYield(): Promise<void> {
 }
 
 export function browserEnv(): Env {
-  const locks = typeof navigator !== 'undefined' && 'locks' in navigator ? navigator.locks : null;
+  const locks =
+    typeof navigator !== 'undefined' && 'locks' in navigator
+      ? warmLockManager(navigator.locks)
+      : null;
   return {
     clock: { now: () => Date.now() },
     locks,

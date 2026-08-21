@@ -1,35 +1,55 @@
-import { Icon } from './icons/Icon.tsx';
-import { icons } from './icons/registry.ts';
+import { formatDuration, formatInt } from './ui/format.ts';
+import { useGameRuntime } from './ui/useGameHost.ts';
+import {
+  CappedNotice,
+  CatchUpProgress,
+  ErrorBanner,
+  FollowerBanner,
+  StaleBanner,
+  WarningBanner,
+} from './ui/Banners.tsx';
+import { DebugPanel } from './ui/DebugPanel.tsx';
+import './ui/shell.css';
 
-/** Phase 0 placeholder: proves the shipped icon subset renders. The game arrives in Phase 1+. */
+/** Phase 0.5 shell: proves single-writer discipline end to end. The game UI arrives in Phase 4. */
 export function App() {
+  const { runtime, snapshot } = useGameRuntime();
+  const { sim, role } = snapshot;
+
   return (
-    <main style={{ padding: 32, maxWidth: 720, margin: '0 auto' }}>
-      <h1 style={{ fontWeight: 600, letterSpacing: '-0.01em' }}>Anamnesia Idle</h1>
-      <p style={{ color: 'var(--fg-muted)' }}>
-        Phase 0 — asset pipeline. {icons.size} icons shipped from game-icons@
-        <code>{icons.source.commit.slice(0, 8)}</code>. Dev icon browser:{' '}
-        {import.meta.env.DEV ? <a href="/dev/icons.html">/dev/icons.html</a> : <em>dev only</em>}.
+    <main className="shell">
+      <h1>Anamnesia Idle</h1>
+      <p className="subtitle">Phase 0.5 — single-writer runtime. One tab ticks; the rest watch.</p>
+
+      {snapshot.error && <ErrorBanner message={snapshot.error} />}
+      {snapshot.warning && <WarningBanner message={snapshot.warning} />}
+      {role === 'stale' && <StaleBanner />}
+      {role === 'follower' && (
+        <FollowerBanner snapshot={snapshot} onTakeOver={() => runtime?.host.takeOver()} />
+      )}
+      {snapshot.catchUp && (
+        <CatchUpProgress done={snapshot.catchUp.done} total={snapshot.catchUp.total} />
+      )}
+      {snapshot.cappedNotice && (
+        <CappedNotice
+          notice={snapshot.cappedNotice}
+          onDismiss={() => runtime?.host.dismissCappedNotice()}
+        />
+      )}
+
+      <p className="tick">
+        {sim ? formatInt(sim.tick) : '—'}
+        <small>ticks{sim ? ` · ${formatDuration(sim.tick * 100)} of game time` : ''}</small>
       </p>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 24 }}>
-        {icons.all().map((icon) => (
-          <div
-            key={icon.id}
-            title={icon.id}
-            style={{
-              width: 72,
-              height: 72,
-              display: 'grid',
-              placeItems: 'center',
-              background: 'var(--bg-raised)',
-              border: '1px solid var(--border)',
-              borderRadius: 8,
-            }}
-          >
-            <Icon icon={icon} size={44} title={icon.id} />
-          </div>
-        ))}
-      </div>
+
+      {import.meta.env.DEV && runtime && (
+        <DebugPanel
+          host={runtime.host}
+          snapshot={snapshot}
+          store={runtime.env.store}
+          reload={() => runtime.env.reloadPage()}
+        />
+      )}
     </main>
   );
 }

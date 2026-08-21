@@ -39,6 +39,15 @@ export class FakeLocks implements LockManagerLike {
         reject,
         signal: options.signal,
       };
+      if (options.steal && options.signal) {
+        reject(
+          new DOMException(
+            "The 'signal' and 'steal' options cannot be used together.",
+            'NotSupportedError',
+          ),
+        );
+        return;
+      }
       if (options.signal?.aborted) {
         reject(abortError('request aborted'));
         return;

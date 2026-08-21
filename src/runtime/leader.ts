@@ -1,8 +1,38 @@
-import type { LockManagerLike } from './env.ts';
+import type { LockManagerLike, LockRequestOptions } from './env.ts';
 
 export const LOCK_NAME = 'anamnesia:leader';
 
 export type ElectionState = 'idle' | 'queued' | 'held';
+
+export interface WarmableLockManager extends LockManagerLike {
+  query(): Promise<unknown>;
+}
+
+/**
+ * Work around a Chromium quirk (observed in Chrome 151): an AbortSignal aborted before the
+ * page's LockManager connection is established is silently lost and the request stays pending
+ * forever. Awaiting one `query()` first binds the connection; requests issued after that abort
+ * correctly. As a bonus, a request cancelled before it was ever issued is simply never sent —
+ * which is exactly what React StrictMode's mount → unmount → mount does to the first host.
+ */
+export function warmLockManager(locks: WarmableLockManager): LockManagerLike {
+  let ready: Promise<void> | null = null;
+  return {
+    async request<T>(
+      name: string,
+      options: LockRequestOptions,
+      callback: () => Promise<T>,
+    ): Promise<T> {
+      ready ??= locks.query().then(
+        () => undefined,
+        () => undefined,
+      );
+      await ready;
+      if (options.signal?.aborted) throw new DOMException('lock request aborted', 'AbortError');
+      return locks.request(name, options, callback);
+    },
+  };
+}
 
 /**
  * Leader election over the Web Locks API.
@@ -36,7 +66,7 @@ export class LeaderElection {
     return () => this.lostListeners.delete(cb);
   }
 
-  /** Resolves once the lock is held. Rejects only if `cancel()` is called while queued. */
+  /** Resolves once the lock is held. Rejects with AbortError if `cancel()` is called first. */
   acquire(options: { steal?: boolean } = {}): Promise<void> {
     if (this.state !== 'idle') {
       return Promise.reject(new Error(`acquire() called while ${this.state}`));
@@ -46,14 +76,19 @@ export class LeaderElection {
     this.abort = abort;
 
     return new Promise<void>((resolveAcquired, rejectAcquired) => {
+      let granted = false;
       const held = new Promise<void>((resolve) => {
         this.holdResolve = resolve;
       });
+      // The spec forbids combining `signal` with `steal`; a steal is granted immediately anyway.
       const request = this.locks.request(
         this.name,
-        { signal: abort.signal, ...(options.steal ? { steal: true } : {}) },
+        options.steal ? { steal: true } : { signal: abort.signal },
         () => {
-          if (abort !== this.abort) return Promise.resolve(); // cancelled before grant
+          // The spec ignores an abort that arrives after the grant: the callback still runs.
+          // If we were cancelled in that window, give the lock straight back.
+          if (abort !== this.abort || abort.signal.aborted) return Promise.resolve();
+          granted = true;
           this.state = 'held';
           resolveAcquired();
           return held;
@@ -61,8 +96,9 @@ export class LeaderElection {
       );
       request.then(
         () => {
-          // Normal release via release().
+          // Normal release via release(), or a cancelled-after-grant request that released itself.
           this.reset(abort);
+          if (!granted) rejectAcquired(new DOMException('lock request cancelled', 'AbortError'));
         },
         (e: unknown) => {
           const wasHeld = this.state === 'held';

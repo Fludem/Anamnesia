@@ -1,7 +1,21 @@
 # Anamnesia Idle
 
-A browser idle RPG (Melvor-shaped) with a generated item and icon pipeline. See `BRIEF.md` for the project brief and `DECISIONS.md` for the why behind
-non-obvious choices.
+A browser idle RPG (Melvor-shaped) with a generated item and icon pipeline. See `BRIEF.md` for
+the project brief and `DECISIONS.md` for the why behind non-obvious choices.
+
+Phase 0.5 is in: exactly one tab runs the simulation (Web Locks leader election), followers mirror
+it over a BroadcastChannel, every save is guarded by a compare-and-swap on `saveCounter` in
+IndexedDB, and offline progress is derived from timestamps, capped at 12 h, and idempotent.
+
+## Layout
+
+| Path           | Layer                                                                    |
+| -------------- | ------------------------------------------------------------------------ |
+| `src/sim/`     | Pure simulation: save schema, migrations, PRNG, advance planner. No DOM. |
+| `src/runtime/` | Browser orchestration: save store, leader election, channel, GameHost.   |
+| `src/ui/`      | React shell (thin).                                                      |
+| `src/icons/`   | Icon registry and `<Icon>`.                                              |
+| `scripts/`     | Icon vendoring / indexing pipeline.                                      |
 
 ## Commands
 

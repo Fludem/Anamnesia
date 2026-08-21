@@ -1,0 +1,135 @@
+.shell {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+.shell h1 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 4px;
+}
+
+.shell .subtitle {
+  color: var(--fg-muted);
+  margin: 0 0 24px;
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-raised);
+  margin-bottom: 16px;
+}
+
+.banner.warn {
+  border-color: #6b5a2a;
+}
+
+.banner.error {
+  border-color: #7a3030;
+}
+
+.banner .grow {
+  flex: 1;
+}
+
+.banner .title {
+  font-weight: 600;
+}
+
+.banner .detail {
+  color: var(--fg-muted);
+  font-size: 0.93em;
+}
+
+.progress {
+  position: relative;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bg-hover);
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.progress > div {
+  height: 100%;
+  background: var(--accent);
+  transition: width 80ms linear;
+}
+
+.tick {
+  font-family: var(--mono);
+  font-size: 2.4em;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 8px 0 0;
+}
+
+.tick small {
+  font-size: 0.4em;
+  font-weight: 400;
+  color: var(--fg-muted);
+  margin-left: 8px;
+}
+
+.panel {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-raised);
+  padding: 16px;
+  margin-top: 24px;
+}
+
+.panel h2 {
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fg-muted);
+  margin: 0 0 12px;
+  font-weight: 600;
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 16px;
+  font-family: var(--mono);
+  font-size: 0.92em;
+}
+
+.kv dt {
+  color: var(--fg-muted);
+}
+
+.kv dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.role {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.8em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--bg-hover);
+}
+
+.role.leader {
+  background: var(--accent);
+  color: var(--accent-fg);
+}

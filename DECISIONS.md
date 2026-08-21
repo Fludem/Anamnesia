@@ -56,3 +56,88 @@ Checked August 2026: Chrome for Android only re-enabled SharedWorker in Chrome 1
 years disabled, and its process lifecycle is still flagged as unpredictable. Web Locks has been in
 every engine since Safari 15.4 (2022) and gives automatic release on tab death with no heartbeat.
 Confirm at the Phase 0.5 check-in.
+
+## Phase 0.5 — single-writer discipline
+
+### Web Locks + BroadcastChannel (final)
+
+Confirmed the provisional call above. `navigator.locks.request` queues followers in order and
+releases automatically on tab death; no heartbeat or timeout code exists anywhere. Verified in
+Chrome 151: a second tab is a read-only mirror, closing the leader promotes the queued tab
+within a frame, and "Take over" moves leadership without a reload.
+
+### Takeover is flush → ack → `steal`, with a `handing-over` state
+
+A follower that wants to lead sends `takeover-request`. The leader stops ticking and saving but
+_keeps the lock_ (so a third queued tab can never be promoted in the gap), flushes, and replies
+`takeover-ack`; the requester then calls `locks.request(…, { steal: true })`, which rejects the old
+leader's request promise with `AbortError` → it demotes and re-queues. If no ack arrives in 2 s
+(frozen leader) the follower steals anyway; if nobody steals within 3 s the leader resumes.
+Per spec `steal` cannot be combined with `signal` — Chrome rejects with `NotSupportedError` — so
+the election never passes both (the fake lock manager enforces the same rule so tests catch it).
+
+### New leader claim-writes before catch-up
+
+On promotion the leader bumps `saveCounter` with its own `writerId` _before_ doing any work. A
+straggling write from the previous leader (it flushed, then a periodic save raced the steal) is
+then the one rejected, instead of the new leader going stale and reloading the tab the user is
+looking at.
+
+### Chromium quirk: abort before the LockManager connection is bound is lost
+
+Observed in Chrome 151: if the page's very first `navigator.locks` call is a `request()` and its
+`AbortSignal` is aborted in the same task (React StrictMode's mount → unmount → mount does exactly
+this), the abort is ignored and the request stays pending forever — a dead host then sits in the
+queue and a later legitimate follower never gets promoted. `warmLockManager` awaits one
+`query()` before the first request and never issues a request whose signal is already aborted.
+
+### Ticks are derived from the clock; the live loop and offline catch-up are one function
+
+`setInterval(100 ms)` is only a wake-up. Every fire calls `planAdvance(tick, wallMs, now)` and
+runs exactly that many ticks through `runAdvance`, which is also the offline path: a 100 ms
+delta is a single batch with no yield, a 12 h delta is 216 batches with progress events and a
+`MessageChannel` yield between them (`setTimeout(0)` is throttled to 1/min in hidden tabs).
+Calls while an advance is in flight are dropped (re-entrancy guard); the anchor is committed per
+batch, so the next plan is exact.
+
+### Invariant: `wallMs` is the wall time of `sim.tick`
+
+Every committed `{ sim, wallMs }` pair satisfies `wallMs = wallMsAt(plan, sim.tick)`. A save
+taken mid-catch-up (visibilitychange during a long batch run) is therefore consistent, and the
+next load resumes the remainder from the original anchor rather than re-extending the cap.
+
+### Backward clock jumps re-anchor instead of waiting
+
+A negative delta yields zero ticks _and_ moves the anchor to `now`. Keeping the old anchor would
+freeze the game until the wall clock caught up — a day, after a mistaken clock change. This
+admits a "set the clock back, then forward" exploit worth at most one cap per cycle; setting the
+clock forward already farms progress just as well, so the marginal cost is nil.
+
+### Stale write → reload, never overwrite
+
+A `stale` result from the store's compare-and-swap (someone else wrote after we loaded) stops the
+loop, releases the lock and calls `location.reload()`. Corrupt or future-version saves surface as
+an error state; the game never starts fresh over a save it cannot read.
+
+### `pagehide` flushes and releases; `pageshow` with `persisted` reloads
+
+Chromium marks pages holding Web Locks bfcache-ineligible and evicts bfcached pages on
+BroadcastChannel receipt, but Firefox/Safari behaviour is unverified, so the host makes it
+deterministic itself.
+
+### Guard-only mode on insecure contexts
+
+`navigator.locks` is `[SecureContext]` and is undefined over plain `http://` on a LAN address. The
+host then assumes leadership with a visible warning and relies on the save-counter guard alone.
+
+### Purity is lint-enforced
+
+`src/sim/**` and `src/runtime/**` (except `env.ts` and test doubles) cannot reference `Date.now`,
+`new Date()`, `Math.random`, `performance.now`, timers, `navigator`, `document`, `window`,
+`indexedDB` or `BroadcastChannel`; `src/sim` additionally cannot import React or other layers.
+
+### Deferred
+
+No closed-form fast path yet — with a placeholder sim it would prove nothing; the batch-size-
+independence test in `advance.test.ts` is the shape the Phase 1 proof reuses. Snapshots are the
+full `SimState` at 4 Hz; diff them once Phase 1 state grows.
