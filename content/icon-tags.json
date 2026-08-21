@@ -1,0 +1,11 @@
+{
+  "$comment": "Curated search tags per icon id. Upstream has no tag data; slug words are searchable automatically, so add tags here only for synonyms the slug does not contain.",
+  "lorc/broadsword": ["weapon", "sword", "melee"],
+  "lorc/mining": ["pickaxe", "tool", "skill"],
+  "delapouite/war-pick": ["pickaxe", "tool", "mining"],
+  "faithtoken/ore": ["mining", "rock", "resource"],
+  "lorc/anvil": ["smithing", "crafting"],
+  "lorc/metal-bar": ["ingot", "smithing", "resource"],
+  "delapouite/chest-armor": ["armour", "body", "platebody"],
+  "delapouite/gold-stack": ["currency", "coins", "money"]
+}
