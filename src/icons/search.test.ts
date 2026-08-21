@@ -19,7 +19,8 @@ const mk = (
 };
 
 const icons = [
-  mk('lorc/broadsword', ['weapon', 'sword']),
+  mk('lorc/broadsword', ['weapon']),
+  mk('lorc/longsword', ['weapon', 'sword']),
   mk('lorc/sword-brandish'),
   mk('lorc/broad-dagger'),
   mk('delapouite/swordman'),
@@ -39,11 +40,12 @@ describe('searchIcons', () => {
     expect(searchIcons(icons, { query: '' }).map((i) => i.id)).toEqual(icons.map((i) => i.id));
   });
 
-  it('ranks exact token > prefix > tag', () => {
+  it('ranks exact token > prefix > tag > substring', () => {
     expect(searchIcons(icons, { query: 'sword' }).map((i) => i.id)).toEqual([
       'lorc/sword-brandish', // exact token
       'delapouite/swordman', // token prefix
-      'lorc/broadsword', // curated tag
+      'lorc/longsword', // curated tag
+      'lorc/broadsword', // substring of a slug token
     ]);
   });
 
@@ -56,7 +58,7 @@ describe('searchIcons', () => {
 
   it('matches author names and filters by author and licence', () => {
     expect(searchIcons(icons, { query: 'sbed' }).map((i) => i.id)).toEqual(['sbed/shield']);
-    expect(searchIcons(icons, { query: '', author: 'lorc' })).toHaveLength(3);
+    expect(searchIcons(icons, { query: '', author: 'lorc' })).toHaveLength(4);
     expect(searchIcons(icons, { query: '', license: 'CC0-1.0' }).map((i) => i.id)).toEqual([
       'zeromancer/orb',
     ]);

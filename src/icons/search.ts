@@ -22,7 +22,7 @@ export type SearchOptions = {
 
 /**
  * Returns matching icons, best first. Scoring: exact slug match > exact token match >
- * token prefix > tag match > author name match. Ties keep index order (sorted by id).
+ * token prefix > tag match > token substring > tag prefix > author name match. Ties keep index order (sorted by id).
  */
 export function searchIcons<T extends SearchableIcon>(
   entries: readonly T[],
@@ -60,6 +60,8 @@ function scoreEntry(entry: SearchableIcon, queryTokens: string[]): number {
     else if (slugTokens.includes(q)) best = 50;
     else if (slugTokens.some((t) => t.startsWith(q))) best = 25;
     else if (tags.includes(q)) best = 20;
+    else if (slugTokens.some((t) => t.includes(q)))
+      best = 15; // "sword" in "broadsword"
     else if (tags.some((t) => t.startsWith(q))) best = 10;
     else if (authorKey.startsWith(q) || entry.author.startsWith(q)) best = 5;
     if (best === 0) return 0; // every query token must match something

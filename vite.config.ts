@@ -11,8 +11,11 @@ export default defineConfig(({ command }) => ({
     rollupOptions: {
       input:
         command === 'serve'
-          ? { main: resolve(__dirname, 'index.html'), icons: resolve(__dirname, 'dev/icons.html') }
-          : { main: resolve(__dirname, 'index.html') },
+          ? {
+              main: resolve(import.meta.dirname, 'index.html'),
+              icons: resolve(import.meta.dirname, 'dev/icons.html'),
+            }
+          : { main: resolve(import.meta.dirname, 'index.html') },
     },
   },
   test: {
