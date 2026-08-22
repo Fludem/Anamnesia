@@ -1,5 +1,6 @@
 import type { GodDef } from './content/schema.ts';
 import type { SimContext } from './context.ts';
+import { gearXpBoost } from './equipment.ts';
 import type { ItemStack } from './items.ts';
 import { addXp } from './progress.ts';
 import type { SimState } from './save.ts';
@@ -15,9 +16,9 @@ export function godOf(state: SimState, ctx: SimContext): GodDef | null {
   return id !== null && ctx.content.hasGod(id) ? ctx.content.god(id) : null;
 }
 
-/** 1 + the god's bonus for `skill` (1 when unsworn). */
+/** 1 + the god's bonus for `skill` (0 when unsworn) + whatever the worn gear adds. */
 export function xpMultiplier(state: SimState, skill: string, ctx: SimContext): number {
-  return 1 + (godOf(state, ctx)?.perks.xp[skill] ?? 0);
+  return 1 + (godOf(state, ctx)?.perks.xp[skill] ?? 0) + gearXpBoost(state, skill, ctx);
 }
 
 /** The xp a base amount actually pays in `skill`, to a tenth. */

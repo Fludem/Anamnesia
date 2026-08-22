@@ -242,31 +242,37 @@ export interface FeedRow {
   /** Ticks since it landed, at the sim's current tick. */
   ageTicks: number;
   skill: string;
+  /** Left by the hill (the skill's finds table), not paid by the cycle. */
+  found: boolean;
 }
 
-/** Newest first; one row per stack landed. `skill` limits the feed to one skill's drops. */
+/**
+ * Newest first; one row per stack landed, from the cycles' gains and the hill's finds.
+ * `skill` limits the feed to one skill's drops.
+ */
 export function dropFeed(
   sim: SimState,
   content: ContentDb,
   opts: { skill?: string | undefined; limit?: number | undefined } = {},
 ): FeedRow[] {
   const rows: FeedRow[] = [];
-  const gains = eventsOfType(sim, 'gain');
-  for (let i = gains.length - 1; i >= 0; i--) {
-    const g = gains[i]!;
-    if (opts.skill !== undefined && g.skill !== opts.skill) continue;
-    g.items.forEach((stack, j) => {
+  const limit = opts.limit ?? 14;
+  for (let i = sim.log.length - 1; i >= 0 && rows.length < limit; i--) {
+    const e = sim.log[i]!;
+    if (e.type !== 'gain' && e.type !== 'found') continue;
+    if (opts.skill !== undefined && e.skill !== opts.skill) continue;
+    e.items.forEach((stack, j) => {
       rows.push({
-        key: `${String(g.tick)}:${String(j)}`,
+        key: `${String(e.tick)}:${e.type}:${String(j)}`,
         item: content.item(stack.item),
         qty: stack.qty,
-        ageTicks: sim.tick - g.tick,
-        skill: g.skill,
+        ageTicks: sim.tick - e.tick,
+        skill: e.skill,
+        found: e.type === 'found',
       });
     });
-    if (rows.length >= (opts.limit ?? 14)) break;
   }
-  return rows.slice(0, opts.limit ?? 14);
+  return rows.slice(0, limit);
 }
 
 /** The most recent level-up younger than `withinTicks`, for the overlay. */

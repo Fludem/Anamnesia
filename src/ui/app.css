@@ -2146,11 +2146,38 @@
   color: var(--fg-3);
   margin-top: 2px;
 }
-.recap-note.favour {
+.recap-note.favour,
+.recap-note.found {
   display: flex;
   align-items: center;
   gap: 6px;
   color: var(--accent);
+}
+/* The javelin count on the fight card: the same chip as the boon, in the quiet colour. */
+.ammo-tag {
+  margin-left: 8px;
+  font: 500 var(--fs-label) var(--font-mono);
+  color: var(--fg-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  letter-spacing: var(--tracking-chip);
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+.ammo-tag.last {
+  color: var(--hurt);
+  border-color: rgba(var(--hurt-rgb), 0.4);
+}
+/* A find in the drop feed: left by the hill, not paid by the cycle. */
+.found-tag {
+  font: 600 var(--fs-tag) var(--font-mono);
+  letter-spacing: var(--tracking-tag);
+  color: var(--accent);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
+  border-radius: var(--radius-xs);
+  padding: 2px 5px;
+  text-transform: uppercase;
 }
 
 .zone-row.active {

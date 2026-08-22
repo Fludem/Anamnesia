@@ -124,6 +124,17 @@ describe('feed and moments', () => {
     ]);
     expect(dropFeed(s, ctx.content, { skill: 'woodcutting' })).toEqual([]);
     expect(dropFeed(s, ctx.content, { limit: 1 }).length).toBe(1);
+    expect(feed.every((r) => !r.found)).toBe(true);
+    // A find rides the same feed, marked.
+    const found: SimState = {
+      ...s,
+      log: [
+        ...s.log,
+        { type: 'found', tick: s.tick, skill: 'mining', items: [{ item: 'cape', qty: 1 }] },
+      ],
+    };
+    expect(dropFeed(found, ctx.content)[0]).toMatchObject({ found: true, ageTicks: 0 });
+    expect(dropFeed(found, ctx.content)[0]?.item.id).toBe('cape');
   });
 
   it('surfaces a level-up only while it is fresh', () => {

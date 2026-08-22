@@ -59,6 +59,7 @@ describe('first steps', () => {
         kills: { 'hill-goat': 3 },
         deaths: 0,
         offered: 1,
+        thrown: 0,
         sold: 3,
         items: {
           'copper-ore': 10,

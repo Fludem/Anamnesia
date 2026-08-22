@@ -222,6 +222,7 @@ export function DropFeed({ sim, skill, juice }: { sim: SimState; skill: string; 
           >
             <ItemIconTile item={r.item} size="sm" juice={juice} feed={fresh > 0} />
             <span className="name">{r.item.name}</span>
+            {r.found && <span className="found-tag">found</span>}
             <RarityTag rarity={r.item.rarity} />
             <span className="qty">+{String(r.qty)}</span>
             <span className="age">{formatAge(ticksToMs(r.ageTicks))}</span>

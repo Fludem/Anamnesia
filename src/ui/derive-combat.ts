@@ -314,17 +314,61 @@ export function wornBody(sim: SimState, content: ContentDb): WornSlotView[] {
   });
 }
 
-/** Bank items that fit `slot`, best stat total first. */
+/** Bank items that fit `slot`, best stat total first (an xp boost counts for a point a percent). */
 export function bankItemsFor(sim: SimState, content: ContentDb, slot: EquipmentSlot): ItemDef[] {
   const total = (i: ItemDef) =>
     (i.stats.attack ?? 0) +
     (i.stats.strength ?? 0) +
     (i.stats.defence ?? 0) +
-    (i.stats.gather ?? 0);
+    (i.stats.gather ?? 0) +
+    (i.xpBoost?.fraction ?? 0) * 100;
   return sim.bank
     .filter((s) => content.hasItem(s.item) && content.item(s.item).slot === slot)
     .map((s) => content.item(s.item))
     .sort((a, b) => total(b) - total(a));
+}
+
+/** "+5% mining xp" / "+2% xp in every skill". */
+export function xpBoostText(item: ItemDef, content: ContentDb): string | null {
+  const b = item.xpBoost;
+  if (b === null) return null;
+  const pct = `+${String(Math.round(b.fraction * 100))}%`;
+  return b.skill === null
+    ? `${pct} xp in every skill`
+    : `${pct} ${content.skill(b.skill).name.toLowerCase()} xp`;
+}
+
+export interface XpBoostView {
+  /** Every worn boost added up, as a percentage ("+7"). */
+  totalPercent: number;
+  /** One line per boost, for the screen's detail. */
+  lines: string[];
+}
+
+/** The worn gear's xp boosts, for the equipment screen's XP BOOST total. */
+export function wornXpBoost(sim: SimState, content: ContentDb): XpBoostView {
+  const lines: string[] = [];
+  let total = 0;
+  for (const { item } of wornBody(sim, content)) {
+    const text = item === null ? null : xpBoostText(item, content);
+    if (item === null || text === null) continue;
+    total += item.xpBoost!.fraction;
+    lines.push(text);
+  }
+  return { totalPercent: Math.round(total * 100), lines };
+}
+
+export interface AmmoView {
+  item: ItemDef;
+  /** In the bank, beyond the one in the slot. */
+  inBank: number;
+}
+
+/** What the ammo slot holds and how many more the bank has; null with the slot empty. */
+export function ammoView(sim: SimState, content: ContentDb): AmmoView | null {
+  const id = sim.equipment.ammo;
+  if (id === null || !content.hasItem(id)) return null;
+  return { item: content.item(id), inBank: countItem(sim.bank, id) };
 }
 
 export { heroStats, type HeroStats };

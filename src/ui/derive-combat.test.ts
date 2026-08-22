@@ -8,6 +8,7 @@ import {
   fixtureContext as ctx,
 } from '../sim/testing/fixture.ts';
 import {
+  ammoView,
   bankItemsFor,
   boonText,
   favourView,
@@ -20,6 +21,8 @@ import {
   recentOffering,
   totalKills,
   wornBody,
+  wornXpBoost,
+  xpBoostText,
   zoneRows,
 } from './derive-combat.ts';
 
@@ -124,6 +127,26 @@ describe('worn', () => {
     expect(worn.some((w) => w.slot === 'pickaxe')).toBe(false);
     expect(bankItemsFor(s, content, 'weapon').map((i) => i.id)).toEqual(['sword', 'spear']);
     expect(bankItemsFor(s, content, 'head')).toEqual([]);
+  });
+
+  it('spells out xp boosts, adds the worn ones up, and counts the javelins', () => {
+    expect(xpBoostText(content.item('cape'), content)).toBe('+50% mining xp');
+    expect(xpBoostText(content.item('pendant'), content)).toBe('+25% xp in every skill');
+    expect(xpBoostText(content.item('helm'), content)).toBeNull();
+    const s0 = createSimState(1);
+    expect(wornXpBoost(s0, content)).toEqual({ totalPercent: 0, lines: [] });
+    const s: SimState = {
+      ...s0,
+      equipment: { ...s0.equipment, cape: 'cape', amulet: 'pendant', ammo: 'javelin' },
+      bank: [{ item: 'javelin', qty: 12 }],
+    };
+    expect(wornXpBoost(s, content)).toEqual({
+      totalPercent: 75,
+      lines: ['+50% mining xp', '+25% xp in every skill'],
+    });
+    expect(ammoView(s0, content)).toBeNull();
+    expect(ammoView(s, content)).toMatchObject({ inBank: 12 });
+    expect(ammoView(s, content)?.item.id).toBe('javelin');
   });
 });
 

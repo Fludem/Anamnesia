@@ -30,6 +30,10 @@
           {
             "item": "goat-meat",
             "weight": 2
+          },
+          {
+            "item": "goat-hide-cape",
+            "weight": 0.05
           }
         ]
       }
@@ -204,6 +208,10 @@
           {
             "item": "bone",
             "weight": 2
+          },
+          {
+            "item": "wolf-pelt-cloak",
+            "weight": 0.05
           }
         ]
       }
@@ -593,6 +601,10 @@
           {
             "item": "gold-ore",
             "weight": 1
+          },
+          {
+            "item": "hound-cloak",
+            "weight": 0.05
           }
         ]
       }
@@ -762,6 +774,10 @@
           {
             "item": "aether-shard",
             "weight": 0.5
+          },
+          {
+            "item": "bull-hide-cape",
+            "weight": 0.05
           }
         ]
       }

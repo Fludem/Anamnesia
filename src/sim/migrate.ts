@@ -107,6 +107,11 @@ export const MIGRATIONS: MigrationTable = {
       },
     };
   },
+  /** v7 → v8 (Phase 8): nothing ever thrown. */
+  7: (raw) => {
+    const sim = asObject(raw['sim']);
+    return { ...raw, sim: { ...sim, stats: { thrown: 0, ...asObject(sim['stats']) } } };
+  },
 };
 
 function asObject(v: unknown): Record<string, unknown> {

@@ -2228,5 +2228,460 @@
         "level": 75
       }
     ]
+  },
+  {
+    "id": "copper-gauntlets",
+    "name": "Copper Gauntlets",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 9,
+    "durationTicks": 36,
+    "xp": 30,
+    "inputs": [
+      {
+        "item": "copper-bar",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "copper-gauntlets",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "copper-javelin",
+    "name": "Copper Javelins",
+    "skill": "smithing",
+    "category": "weapons",
+    "level": 3,
+    "durationTicks": 36,
+    "xp": 30,
+    "inputs": [
+      {
+        "item": "copper-bar",
+        "qty": 1
+      },
+      {
+        "item": "pine-logs",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "copper-javelin",
+        "qty": 20
+      }
+    ]
+  },
+  {
+    "id": "iron-gauntlets",
+    "name": "Iron Gauntlets",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 18,
+    "durationTicks": 42,
+    "xp": 115,
+    "inputs": [
+      {
+        "item": "iron-bar",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "iron-gauntlets",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "iron-javelin",
+    "name": "Iron Javelins",
+    "skill": "smithing",
+    "category": "weapons",
+    "level": 12,
+    "durationTicks": 42,
+    "xp": 115,
+    "inputs": [
+      {
+        "item": "iron-bar",
+        "qty": 1
+      },
+      {
+        "item": "oak-logs",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "iron-javelin",
+        "qty": 20
+      }
+    ]
+  },
+  {
+    "id": "basalt-gauntlets",
+    "name": "Basalt Gauntlets",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 33,
+    "durationTicks": 42,
+    "xp": 105,
+    "inputs": [
+      {
+        "item": "basalt-core",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "basalt-gauntlets",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "basalt-javelin",
+    "name": "Basalt Javelins",
+    "skill": "smithing",
+    "category": "weapons",
+    "level": 27,
+    "durationTicks": 42,
+    "xp": 105,
+    "inputs": [
+      {
+        "item": "basalt-core",
+        "qty": 1
+      },
+      {
+        "item": "birch-logs",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "basalt-javelin",
+        "qty": 20
+      }
+    ]
+  },
+  {
+    "id": "silver-gauntlets",
+    "name": "Silver Gauntlets",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 63,
+    "durationTicks": 48,
+    "xp": 420,
+    "inputs": [
+      {
+        "item": "silver-bar",
+        "qty": 1
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "silver-gauntlets",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "silver-javelin",
+    "name": "Silver Javelins",
+    "skill": "smithing",
+    "category": "weapons",
+    "level": 57,
+    "durationTicks": 48,
+    "xp": 420,
+    "inputs": [
+      {
+        "item": "silver-bar",
+        "qty": 1
+      },
+      {
+        "item": "willow-logs",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "silver-javelin",
+        "qty": 20
+      }
+    ]
+  },
+  {
+    "id": "gold-gauntlets",
+    "name": "Gold Gauntlets",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 73,
+    "durationTicks": 54,
+    "xp": 720,
+    "inputs": [
+      {
+        "item": "gold-bar",
+        "qty": 1
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "gold-gauntlets",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "gold-javelin",
+    "name": "Gold Javelins",
+    "skill": "smithing",
+    "category": "weapons",
+    "level": 67,
+    "durationTicks": 54,
+    "xp": 720,
+    "inputs": [
+      {
+        "item": "gold-bar",
+        "qty": 1
+      },
+      {
+        "item": "blightwood-logs",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "gold-javelin",
+        "qty": 20
+      }
+    ]
+  },
+  {
+    "id": "aether-gauntlets",
+    "name": "Aether Gauntlets",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 88,
+    "durationTicks": 130,
+    "xp": 3420,
+    "inputs": [
+      {
+        "item": "aether-ingot",
+        "qty": 1
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "aether-gauntlets",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "aether-javelin",
+    "name": "Aether Javelins",
+    "skill": "smithing",
+    "category": "weapons",
+    "level": 82,
+    "durationTicks": 130,
+    "xp": 3420,
+    "inputs": [
+      {
+        "item": "aether-ingot",
+        "qty": 1
+      },
+      {
+        "item": "elder-logs",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "aether-javelin",
+        "qty": 20
+      }
+    ]
+  },
+  {
+    "id": "copper-band",
+    "name": "Copper Band",
+    "skill": "smithing",
+    "category": "jewellery",
+    "level": 8,
+    "durationTicks": 36,
+    "xp": 30,
+    "inputs": [
+      {
+        "item": "copper-bar",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "copper-band",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "copper-torc",
+    "name": "Copper Torc",
+    "skill": "smithing",
+    "category": "jewellery",
+    "level": 9,
+    "durationTicks": 72,
+    "xp": 60,
+    "inputs": [
+      {
+        "item": "copper-bar",
+        "qty": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "copper-torc",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "basalt-ring",
+    "name": "Basalt Ring",
+    "skill": "smithing",
+    "category": "jewellery",
+    "level": 34,
+    "durationTicks": 54,
+    "xp": 260,
+    "inputs": [
+      {
+        "item": "basalt-core",
+        "qty": 1
+      },
+      {
+        "item": "rough-gem",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "basalt-ring",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "basalt-pendant",
+    "name": "Basalt Pendant",
+    "skill": "smithing",
+    "category": "jewellery",
+    "level": 35,
+    "durationTicks": 84,
+    "xp": 420,
+    "inputs": [
+      {
+        "item": "basalt-core",
+        "qty": 2
+      },
+      {
+        "item": "rough-gem",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "basalt-pendant",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "rune-pendant",
+    "name": "Rune Pendant",
+    "skill": "smithing",
+    "category": "jewellery",
+    "level": 76,
+    "durationTicks": 108,
+    "xp": 2160,
+    "inputs": [
+      {
+        "item": "gold-bar",
+        "qty": 2
+      },
+      {
+        "item": "rune-stone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "rune-pendant",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "aether-ring",
+    "name": "Aether Ring",
+    "skill": "smithing",
+    "category": "jewellery",
+    "level": 89,
+    "durationTicks": 130,
+    "xp": 3420,
+    "inputs": [
+      {
+        "item": "aether-ingot",
+        "qty": 1
+      },
+      {
+        "item": "aether-shard",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "aether-ring",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "aether-pendant",
+    "name": "Aether Pendant",
+    "skill": "smithing",
+    "category": "jewellery",
+    "level": 90,
+    "durationTicks": 260,
+    "xp": 6840,
+    "inputs": [
+      {
+        "item": "aether-ingot",
+        "qty": 2
+      },
+      {
+        "item": "aether-shard",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "aether-pendant",
+        "qty": 1
+      }
+    ]
   }
 ]

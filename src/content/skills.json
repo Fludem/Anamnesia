@@ -5,37 +5,100 @@
   {
     "id": "mining",
     "name": "Mining",
-    "icon": "lorc/mining"
+    "icon": "lorc/mining",
+    "finds": {
+      "nothingWeight": 1999,
+      "entries": [
+        {
+          "item": "miners-cape",
+          "weight": 1
+        }
+      ]
+    }
   },
   {
     "id": "woodcutting",
     "name": "Woodcutting",
-    "icon": "lorc/pine-tree"
+    "icon": "lorc/pine-tree",
+    "finds": {
+      "nothingWeight": 1999,
+      "entries": [
+        {
+          "item": "woodsmans-cape",
+          "weight": 1
+        }
+      ]
+    }
   },
   {
     "id": "fishing",
     "name": "Fishing",
-    "icon": "delapouite/fishing"
+    "icon": "delapouite/fishing",
+    "finds": {
+      "nothingWeight": 1999,
+      "entries": [
+        {
+          "item": "fishers-cape",
+          "weight": 1
+        }
+      ]
+    }
   },
   {
     "id": "foraging",
     "name": "Foraging",
-    "icon": "delapouite/herbs-bundle"
+    "icon": "delapouite/herbs-bundle",
+    "finds": {
+      "nothingWeight": 1999,
+      "entries": [
+        {
+          "item": "foragers-cape",
+          "weight": 1
+        }
+      ]
+    }
   },
   {
     "id": "firemaking",
     "name": "Firemaking",
-    "icon": "lorc/campfire"
+    "icon": "lorc/campfire",
+    "finds": {
+      "nothingWeight": 1999,
+      "entries": [
+        {
+          "item": "ashen-cape",
+          "weight": 1
+        }
+      ]
+    }
   },
   {
     "id": "cooking",
     "name": "Cooking",
-    "icon": "delapouite/cooking-pot"
+    "icon": "delapouite/cooking-pot",
+    "finds": {
+      "nothingWeight": 1999,
+      "entries": [
+        {
+          "item": "cooks-cape",
+          "weight": 1
+        }
+      ]
+    }
   },
   {
     "id": "smithing",
     "name": "Smithing",
-    "icon": "lorc/anvil"
+    "icon": "lorc/anvil",
+    "finds": {
+      "nothingWeight": 1999,
+      "entries": [
+        {
+          "item": "smiths-cape",
+          "weight": 1
+        }
+      ]
+    }
   },
   {
     "id": "combat",

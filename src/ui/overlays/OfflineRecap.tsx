@@ -36,6 +36,12 @@ export function OfflineRecap({
   const kills = totalKills(sim) - totalKills(info.before);
   const deaths = sim.stats.deaths - info.before.stats.deaths;
   const offered = sim.stats.offered - info.before.stats.offered;
+  const thrown = sim.stats.thrown - info.before.stats.thrown;
+  const quiverEmpty = thrown > 0 && sim.equipment.ammo === null;
+  // What the hill left, as far as the log still remembers (the item list counts the rest).
+  const found = eventsOfType(sim, 'found')
+    .filter((f) => f.tick > info.before.tick)
+    .flatMap((f) => f.items.map((i) => content.item(i.item).name));
   // The log is short; the items it still remembers are named, the rest is counted.
   const taken = eventsOfType(sim, 'died')
     .filter((d) => d.tick > info.before.tick && d.lost !== null)
@@ -91,6 +97,19 @@ export function OfflineRecap({
             })}
           </div>
         </>
+      )}
+      {found.length > 0 && (
+        <div className="recap-note found">
+          <UiIcon id="delapouite/cape" size={13} />
+          the hill left you {found.join(', ')}
+        </div>
+      )}
+      {thrown > 0 && (
+        <div className="recap-note">
+          <UiIcon id="lorc/thrown-spear" size={13} />
+          {thrown === 1 ? 'one javelin thrown' : `${formatInt(thrown)} javelins thrown`}
+          {quiverEmpty ? ' · the last one went with them' : ''}
+        </div>
       )}
       {offered > 0 && (
         <div className="recap-note favour">

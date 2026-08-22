@@ -21,8 +21,20 @@ export const SkillDefSchema = z.object({
   icon: IconRefSchema,
   /** Whether the skill has a screen and a nav row. Hitpoints is trained by combat and only read. */
   listed: z.boolean().default(true),
+  /**
+   * A table rolled once per successful cycle of the skill, on top of whatever the cycle paid:
+   * what the hill leaves for someone who works it long enough (a cape, say). Never rolled when
+   * the bank has no room for what it might drop.
+   */
+  finds: z
+    .lazy(() => DropTableOrRefSchema)
+    .nullable()
+    .default(null),
 });
-export type SkillDef = z.infer<typeof SkillDefSchema>;
+/** A skill as authored (`finds` may be a `$ref`). */
+export type SkillSource = z.infer<typeof SkillDefSchema>;
+/** A skill as the sim sees it: the finds table resolved inline. */
+export type SkillDef = Omit<SkillSource, 'finds'> & { finds: DropTable | null };
 
 /** Lowercase 6-digit hex. Palettes are data so a new tier is a content change, not a code change. */
 export const HexColorSchema = z.string().regex(/^#[0-9a-f]{6}$/, 'colours are lowercase #rrggbb');
@@ -137,6 +149,12 @@ export const ItemQtySchema = z.object({
 });
 export type ItemQty = z.infer<typeof ItemQtySchema>;
 
+export const XpBoostSchema = z.object({
+  skill: IdSchema.nullable(),
+  fraction: z.number().positive(),
+});
+export type XpBoost = z.infer<typeof XpBoostSchema>;
+
 export const ItemDefSchema = z.object({
   id: IdSchema,
   name: z.string().min(1),
@@ -160,6 +178,11 @@ export const ItemDefSchema = z.object({
   procedural: z.enum(['sword']).nullable().default(null),
   /** For `container` items: the table rolled once per opened item. */
   opens: DropTableOrRefSchema.nullable().default(null),
+  /**
+   * Worn, the item pays more xp: `fraction` on top in `skill`, or in every skill when `skill`
+   * is null. A cape knows its trade; a pendant is less particular.
+   */
+  xpBoost: XpBoostSchema.nullable().default(null),
   /** Base sell value in coins. */
   value: z.number().int().min(0),
   tags: z.array(z.string()).default([]),

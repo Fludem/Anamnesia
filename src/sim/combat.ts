@@ -1,9 +1,9 @@
 import type { CombatBoon, ItemDef, MonsterDef } from './content/schema.ts';
 import type { SimContext } from './context.ts';
+import { BODY_SLOTS, wornBodyItems } from './equipment.ts';
 import { godOf } from './perks.ts';
 import { skillLevel } from './progress.ts';
 import type { SimState } from './save.ts';
-import { EQUIPMENT_SLOTS, isToolSlot, type EquipmentSlot } from './slots.ts';
 
 /**
  * The combat numbers, in one place so the sim, the progression model and the screens agree.
@@ -30,8 +30,7 @@ export const SPLAT_CAP = 8;
 /** In a fight, one favour burns every this many ticks (one a second). */
 export const FAVOUR_EVERY_TICKS = 10;
 
-/** Worn slots that are not tools: what the hill may take on death. */
-export const BODY_SLOTS: readonly EquipmentSlot[] = EQUIPMENT_SLOTS.filter((s) => !isToolSlot(s));
+export { BODY_SLOTS };
 
 export interface HeroStats {
   attack: number;
@@ -98,15 +97,10 @@ export function activeBoon(state: SimState, ctx: SimContext): CombatBoon | null 
 
 /** The hero's numbers from the save: combat level, hitpoints level, everything in a body slot. */
 export function heroStats(state: SimState, ctx: SimContext): HeroStats {
-  const worn: ItemDef[] = [];
-  for (const slot of BODY_SLOTS) {
-    const id = state.equipment[slot];
-    if (id !== null && ctx.content.hasItem(id)) worn.push(ctx.content.item(id));
-  }
   return heroStatsFrom(
     skillLevel(state, COMBAT_SKILL, ctx),
     skillLevel(state, HITPOINTS_SKILL, ctx),
-    gearStats(worn),
+    gearStats(wornBodyItems(state, ctx)),
     activeBoon(state, ctx),
   );
 }

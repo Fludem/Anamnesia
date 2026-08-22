@@ -19,6 +19,7 @@ function obtainable(): Set<string> {
     for (const t of node.drops) tableItems(t).forEach((i) => out.add(i));
   for (const g of content.gods)
     for (const e of g.perks.extraDrops) tableItems(e.table).forEach((i) => out.add(i));
+  for (const sk of content.skills) if (sk.finds) tableItems(sk.finds).forEach((i) => out.add(i));
   for (const r of content.recipes)
     for (const o of [...r.outputs, ...r.failOutputs]) out.add(o.item);
   for (const m of content.monsters) {
@@ -166,7 +167,50 @@ describe('shipped content', () => {
       if (wearable) expect(Object.keys(item.stats).length, item.id).toBeGreaterThan(0);
       if (!wearable && item.class !== 'consumable') expect(item.stats, item.id).toEqual({});
       if (item.procedural !== null) expect(item.material, item.id).not.toBeNull();
+      if (item.xpBoost !== null) expect(item.slot, item.id).not.toBeNull();
+      expect(item.slot === 'ammo', item.id).toBe(item.tags.includes('ammo'));
     }
+  });
+
+  it('every body slot fills from the anvil at each tier; the capes come from the work and the beasts', () => {
+    const tiers = content.materials.filter((m) => m.tier > 0 || m.id === 'copper');
+    expect(tiers).toHaveLength(6);
+    const smithed = new Set(content.recipes.flatMap((r) => r.outputs.map((o) => o.item)));
+    for (const tier of tiers) {
+      for (const slot of ['weapon', 'shield', 'head', 'body', 'legs', 'hands', 'feet', 'ammo']) {
+        const piece = content.items.find((i) => i.slot === slot && i.material === tier.id);
+        expect(piece, `${tier.id} ${slot}`).toBeDefined();
+        expect(smithed.has(piece!.id), piece!.id).toBe(true);
+      }
+    }
+    // Rings and necks: something to wear before silver, and something past gold.
+    for (const slot of ['ring', 'amulet']) {
+      const levels = content.recipes
+        .filter((r) => content.item(r.outputs[0]!.item).slot === slot)
+        .map((r) => r.level);
+      expect(Math.min(...levels), slot).toBeLessThan(10);
+      expect(Math.max(...levels), slot).toBeGreaterThan(85);
+    }
+    // Every skill with a screen and no fight has a cape to find, boosting its own xp.
+    for (const sk of content.skills.filter((x) => x.listed && x.id !== 'combat')) {
+      expect(sk.finds, sk.id).not.toBeNull();
+      const capes = sk.finds!.entries.map((e) => content.item(e.item));
+      expect(capes.length, sk.id).toBe(1);
+      expect(capes[0]!.slot, sk.id).toBe('cape');
+      expect(capes[0]!.xpBoost, sk.id).toEqual({ skill: sk.id, fraction: 0.05 });
+      // One in two thousand cycles: an hour or two of work at the standard nodes.
+      expect(sk.finds!.nothingWeight / sk.finds!.entries[0]!.weight).toBe(1999);
+    }
+    expect(content.skill('combat').finds).toBeNull();
+    const beastCapes = content.monsters.filter((m) =>
+      m.drops.some((t) => t.entries.some((e) => content.item(e.item).slot === 'cape')),
+    );
+    expect(beastCapes.map((m) => m.zone)).toEqual([
+      'lower-slope',
+      'the-copse',
+      'the-deep',
+      'the-summit',
+    ]);
   });
 
   it('monsters belong to their zone level band and get harder up the hill', () => {

@@ -5,6 +5,7 @@ import {
   expectedKillTicks,
   gearStats,
   heroStatsFrom,
+  hitChance,
   maxHit,
   type HeroStats,
 } from './combat.ts';
@@ -197,7 +198,7 @@ export function hoursToCap(skill: string, ctx: SimContext, opts: { quick?: boole
 /** A gear set arriving at a combat level: "from level 25 the hero wears basalt". */
 export interface GearStep {
   level: number;
-  /** Material tier; the set is `<tier>-sword`, `-shield`, `-helm`, `-cuirass`, `-greaves`, `-boots`. */
+  /** Material tier; the set is `<tier>-sword`, `-shield`, `-helm`, `-cuirass`, `-greaves`, `-boots`, `-gauntlets`. */
   tier: string;
 }
 
@@ -214,12 +215,16 @@ export const GEAR_LADDER: readonly GearStep[] = [
   { level: 75, tier: 'aether' },
 ];
 
-const SET_PIECES = ['sword', 'shield', 'helm', 'cuirass', 'greaves', 'boots'];
+const SET_PIECES = ['sword', 'shield', 'helm', 'cuirass', 'greaves', 'boots', 'gauntlets'];
 
-/** What the combat model assumes beyond the level: the gear ladder and a boon always burning. */
+/**
+ * What the combat model assumes beyond the level: the gear ladder, a boon always burning,
+ * and whether the tier's javelin is in the ammo slot with the bank never running dry.
+ */
 export interface CombatModelOptions {
   ladder?: readonly GearStep[];
   boon?: CombatBoon | null;
+  ammo?: boolean;
 }
 
 /**
@@ -234,7 +239,9 @@ export function modelHero(
   const ladder = opts.ladder ?? GEAR_LADDER;
   let tier = ladder[0]?.tier ?? '';
   for (const step of ladder) if (level >= step.level) tier = step.tier;
-  const worn = SET_PIECES.map((p) => `${tier}-${p}`)
+  const pieces = opts.ammo ? [...SET_PIECES, 'javelin'] : SET_PIECES;
+  const worn = pieces
+    .map((p) => `${tier}-${p}`)
     .filter((id) => ctx.content.hasItem(id))
     .map((id) => ctx.content.item(id));
   const hpLevel = ctx.xp.levelForXp(ctx.xp.xpForLevel(level) * HITPOINTS_XP_SHARE);
@@ -252,6 +259,8 @@ export interface CombatStep {
   damagePerHour: number;
   /** The monster's biggest hit against the hero's max hitpoints. */
   maxHitFraction: number;
+  /** Swings that land per hour: what the ammo slot throws, if it holds anything. */
+  hitsPerHour: number;
 }
 
 export interface CombatClimb extends Climb {
@@ -302,6 +311,7 @@ export function combatClimb(ctx: SimContext, opts: CombatModelOptions = {}): Com
       killSeconds: (bestTicks * TICK_MS) / 1000,
       damagePerHour: Math.max(0, expectedDamageTakenPerTick(hero, best) * TICKS_PER_HOUR - regen),
       maxHitFraction: maxHit(best.stats.strength) / hero.maxHp,
+      hitsPerHour: (TICKS_PER_HOUR / hero.swingTicks) * hitChance(hero.attack, best.stats.defence),
     });
     if ((MILESTONES as readonly number[]).includes(level + 1)) milestones[level + 1] = hours;
   }

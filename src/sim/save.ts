@@ -6,7 +6,7 @@ import { ContainerSchema } from './items.ts';
 import { seedRng } from './rng.ts';
 import { EQUIPMENT_SLOTS, EquipmentSlotSchema } from './slots.ts';
 
-export const CURRENT_SAVE_VERSION = 7;
+export const CURRENT_SAVE_VERSION = 8;
 
 const Uint32 = z.number().int().min(0).max(0xffffffff);
 
@@ -98,6 +98,8 @@ export const SimStateSchema = z.object({
     deaths: z.number().int().min(0).default(0),
     /** Offerings ever burnt. */
     offered: z.number().int().min(0).default(0),
+    /** Javelins ever thrown. */
+    thrown: z.number().int().min(0).default(0),
   }),
   combat: CombatStateSchema,
   /** First-steps progress: step ids completed in order, and whether the card was put away. */
@@ -144,7 +146,7 @@ export function createSimState(seed: number): SimState {
     coins: 0,
     action: { current: null, queue: [] },
     log: [],
-    stats: { actions: {}, items: {}, sold: 0, kills: {}, deaths: 0, offered: 0 },
+    stats: { actions: {}, items: {}, sold: 0, kills: {}, deaths: 0, offered: 0, thrown: 0 },
     tutorial: { done: [], dismissed: false },
     combat: {
       hp: STARTING_HP,

@@ -7,6 +7,7 @@ import { eventsOfType } from '../../sim/events.ts';
 import { countItem } from '../../sim/items.ts';
 import type { SimState } from '../../sim/save.ts';
 import { EQUIPMENT_SLOTS, type EquipmentSlot } from '../../sim/slots.ts';
+import { xpBoostText } from '../derive-combat.ts';
 import { formatInt, formatShort } from '../format.ts';
 import { BareIcon } from '../items/ItemTile.tsx';
 import { itemIconSpec } from '../items/spec.ts';
@@ -207,6 +208,9 @@ export function BankScreen({ sim, dispatch, juice }: ScreenProps) {
                       accent
                     />
                   ))}
+                  {xpBoostText(sel, content) && (
+                    <StatRow k="xp boost" v={xpBoostText(sel, content)!} accent />
+                  )}
                 </div>
                 {sel.opens !== null && (
                   <div className="btn-row">

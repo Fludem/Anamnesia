@@ -686,3 +686,69 @@ still costs 500.
   survives it.
 - The onboarding god cards show the combat boon under the existing boon line, since the
   choice now has a second consequence.
+
+## Phase 8 — the empty slots: gauntlets, capes, javelins, rings
+
+The ask: gear for the slots nothing filled — hands, cape and ammo — and the two that only
+filled past level 58 (ring, neck). Still no new design screen. The design's equipment mock
+had seven worn slots (no hands, ring or ammo) and pictured the cape as xp gear: "Woodsman's
+Cape, +3% woodcutting" next to an "XP BOOST" total. That mock decides what a cape is here.
+
+### Gauntlets are the seventh set piece
+
+Hands fill from the anvil like everything else: `<tier>-gauntlets`, one bar (and a whetstone
+from silver up), a level after the tier's boots, defence like boots plus a point or two of
+attack — a steady hand. The progression model's set grew to seven pieces, which moved the
+combat climb from 36.0 to 35.8 hours; nothing retuned.
+
+### A cape boosts xp, and the hill leaves it for you
+
+`ItemDef.xpBoost: { skill | null, fraction }` is the design's "+3% woodcutting" as content;
+`xpMultiplier` adds every worn boost to the god's (they add, they do not multiply), so a
+sworn Tharok in a Miner's Cape mines at +15%. `skill: null` is the mock's amulet ("+2% all
+skills"), used once, on the Rune Pendant.
+
+Seven skill capes, one per skill with a screen and no fight, +5% in that skill. They are not
+smithed and there is no tailor: each skill has a `finds` table, rolled once per successful
+cycle on top of whatever the cycle paid (`src/sim/finds.ts`), at one in two thousand — an
+hour or two of work at the standard nodes. The roll is skipped, not wasted, when the bank
+has no room, so a full bank costs no rng and finds nothing. A fight never rolls (combat's
+table is null and the action runner says so). A find is its own event (`found`), marked in
+the drop feed and named in the recap; a second cape sells. Combat's capes come from the
+beasts instead: Goat-Hide, Wolf Pelt, Hound, Bull-Hide, one per hide-wearing zone, at 1% of
+the beast's drop, with defence and a little strength.
+
+The equipment screen gained the mock's fourth figure, XP BOOST, beside attack / strength /
+defence; it is the worn boosts added up, with the per-skill lines in the tooltip and on the
+selected card.
+
+### Javelins: ammo from the bank, thrown when a swing lands
+
+`ammo` was in the slot list since Phase 4 with nothing to put in it. Now it holds a javelin,
+smithed twenty to the bar (plus a log) at the tier's sword level, adding attack and strength
+to the swing. Every swing that lands throws one: from the bank's stock first, and when that
+is gone the one in the slot goes and the slot empties — so equip and unequip keep their
+ordinary meaning (one item moves), death picks from the slots minus ammo (`LOSABLE_SLOTS`; a
+javelin is not worth taking), and nothing in the save changed shape but a `thrown` counter
+(save v8). A miss throws nothing. The fight card shows the count beside the name, red on the
+last one; the equipment screen shows the stock.
+
+Measured in the model with the tier's javelin always in hand: 8% off the climb and 8% off the
+food, for 46–52 bars an hour at every tier (`scripts/tune-gear.ts`; a test pins 5–15% and
+40–60 bars). That is a bar every minute or so: cheap in copper, dear in aether, which is the
+point — nobody will throw aether, and gold javelins at the top are the sane choice.
+
+### Rings and necks below silver and above gold
+
+Copper Band (8) and Copper Torc (9) so the slots fill in the first hour; Basalt Ring (34) and
+Basalt Pendant (35) give Rough Gem its first use; Rune Pendant (76) gives Rune Stone its first
+use and carries the "+2% every skill" boost; Aether Ring (89) and Aether Pendant (90) take a
+shard each. Every recipe still pays more than it eats.
+
+### Fixed along the way
+
+- `BODY_SLOTS` and the worn-items walk moved out of `combat.ts` into `src/sim/equipment.ts`
+  so perks can read worn gear without importing combat.
+- The content audit now checks that every body slot fills from the anvil at every tier, that
+  every listed non-combat skill finds exactly its own cape at the same odds, and that only
+  worn items carry an xp boost.

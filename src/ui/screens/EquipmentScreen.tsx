@@ -10,9 +10,9 @@ import { heroStats } from '../../sim/combat.ts';
 import type { ItemDef } from '../../sim/content/schema.ts';
 import { godOf } from '../../sim/perks.ts';
 import { TOOL_SLOTS, type EquipmentSlot, type ToolSlot } from '../../sim/slots.ts';
-import { bankItemsFor, wornBody } from '../derive-combat.ts';
+import { ammoView, bankItemsFor, wornBody, wornXpBoost, xpBoostText } from '../derive-combat.ts';
 import { toolCutPercent } from '../derive.ts';
-import { formatSigned } from '../format.ts';
+import { formatInt, formatSigned } from '../format.ts';
 import { BareIcon } from '../items/ItemTile.tsx';
 import { itemIconSpec } from '../items/spec.ts';
 import { Label, TileBox, UiIcon } from '../parts.tsx';
@@ -48,6 +48,7 @@ const STAT_LABEL: Record<string, string> = {
 export function EquipmentScreen({ sim, dispatch }: ScreenProps) {
   const worn = wornBody(sim, content);
   const hero = heroStats(sim, simContext);
+  const boost = wornXpBoost(sim, content);
   const god = godOf(sim, simContext);
   const [sel, setSel] = useState<EquipmentSlot>('weapon');
   const wornCount = worn.filter((w) => w.item !== null).length;
@@ -85,7 +86,13 @@ export function EquipmentScreen({ sim, dispatch }: ScreenProps) {
                 ) : (
                   <UiIcon id="lorc/padlock" size={12} className="empty" />
                 )}
-                <span className="label">{item ? lastWord(item.name) : SLOT_LABEL[slot]}</span>
+                <span className="label">
+                  {item
+                    ? slot === 'ammo'
+                      ? `×${formatInt((ammoView(sim, content)?.inBank ?? 0) + 1)}`
+                      : lastWord(item.name)
+                    : SLOT_LABEL[slot]}
+                </span>
               </button>
             ))}
           </div>
@@ -101,6 +108,12 @@ export function EquipmentScreen({ sim, dispatch }: ScreenProps) {
             <div>
               <div className="n">{formatSigned(hero.gear.defence)}</div>
               <div className="k">DEFENCE</div>
+            </div>
+            <div title={boost.lines.join(' · ') || 'nothing worn boosts xp'}>
+              <div className={boost.totalPercent > 0 ? 'n accent' : 'n'}>
+                {formatSigned(boost.totalPercent, '%')}
+              </div>
+              <div className="k">XP BOOST</div>
             </div>
           </div>
         </div>
@@ -209,6 +222,18 @@ function Selected({
             </span>
           </div>
         )}
+        {item && xpBoostText(item, content) && (
+          <div className="stat-row">
+            <span className="k">xp boost</span>
+            <span className="v accent">{xpBoostText(item, content)}</span>
+          </div>
+        )}
+        {item && slot === 'ammo' && (
+          <div className="stat-row">
+            <span className="k">in the bank</span>
+            <span className="v">{formatInt(ammoView(sim, content)?.inBank ?? 0)} more</span>
+          </div>
+        )}
         {item && (
           <div className="stat-row">
             <span className="k">tier</span>
@@ -252,13 +277,16 @@ function Selected({
 }
 
 function statLine(item: ItemDef): string {
-  return Object.entries(item.stats)
-    .filter(([k]) => k !== 'heal')
-    .map(
-      ([k, v]) =>
-        `${k === 'gather' ? '−' + String(v) + '%' : formatSigned(v)} ${STAT_LABEL[k] ?? k}`,
-    )
-    .join(' · ');
+  const boost = xpBoostText(item, content);
+  return [
+    ...Object.entries(item.stats)
+      .filter(([k]) => k !== 'heal')
+      .map(
+        ([k, v]) =>
+          `${k === 'gather' ? '−' + String(v) + '%' : formatSigned(v)} ${STAT_LABEL[k] ?? k}`,
+      ),
+    ...(boost ? [boost] : []),
+  ].join(' · ');
 }
 
 function lastWord(name: string): string {

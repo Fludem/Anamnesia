@@ -55,10 +55,14 @@ describe('migrateSave', () => {
         applied.push(6);
         return r;
       },
+      7: (r) => {
+        applied.push(7);
+        return r;
+      },
     };
     const v0 = { ...fresh(), version: 0, writerId: undefined };
     const out = migrateSave(v0, migrations, CURRENT_SAVE_VERSION);
-    expect(applied).toEqual([0, 1, 2, 3, 4, 5, 6]);
+    expect(applied).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
     expect(out.version).toBe(CURRENT_SAVE_VERSION);
     expect(out.writerId).toBe('migrated-from-v0');
   });
@@ -81,7 +85,7 @@ describe('migrateSave', () => {
       coins: 0,
       action: { current: null, queue: [] },
       log: [],
-      stats: { actions: {}, items: {}, sold: 0, kills: {}, deaths: 0, offered: 0 },
+      stats: { actions: {}, items: {}, sold: 0, kills: {}, deaths: 0, offered: 0, thrown: 0 },
       tutorial: { done: [], dismissed: false },
       combat: { hp: 10, food: null, eatAt: 0.25, offering: null, favour: 0, fight: null },
     });
@@ -124,6 +128,7 @@ describe('migrateSave', () => {
       kills: {},
       deaths: 0,
       offered: 0,
+      thrown: 0,
     });
     expect(out.sim.bank).toEqual([{ item: 'copper-ore', qty: 3 }]);
   });
@@ -153,6 +158,7 @@ describe('migrateSave', () => {
       kills: {},
       deaths: 0,
       offered: 0,
+      thrown: 0,
     });
     expect(out.sim.tutorial).toEqual({ done: [], dismissed: false });
     // A v4 stop has no skill, so it is dropped; everything else in the log is kept.
@@ -174,6 +180,7 @@ describe('migrateSave', () => {
       kills: {},
       deaths: 0,
       offered: 0,
+      thrown: 0,
     });
     expect(out.sim.combat).toEqual({
       hp: 10,
@@ -202,6 +209,24 @@ describe('migrateSave', () => {
       offering: null,
       favour: 0,
       fight: null,
+    });
+  });
+
+  it('migrates a v7 record to v8: nothing thrown; the rest is kept', () => {
+    const v7 = JSON.parse(JSON.stringify(fresh())) as Record<string, unknown>;
+    const sim = v7['sim'] as Record<string, unknown>;
+    v7['version'] = 7;
+    sim['stats'] = { actions: {}, items: {}, sold: 0, kills: { adder: 2 }, deaths: 1, offered: 3 };
+    const out = migrateSave(v7);
+    expect(out.version).toBe(CURRENT_SAVE_VERSION);
+    expect(out.sim.stats).toEqual({
+      actions: {},
+      items: {},
+      sold: 0,
+      kills: { adder: 2 },
+      deaths: 1,
+      offered: 3,
+      thrown: 0,
     });
   });
 

@@ -1,7 +1,6 @@
 import type { ActionHandler } from '../actions.ts';
 import { roomFor } from '../bank.ts';
 import {
-  BODY_SLOTS,
   COMBAT_SKILL,
   FAVOUR_EVERY_TICKS,
   HITPOINTS_SKILL,
@@ -16,6 +15,7 @@ import {
 import type { MonsterDef } from '../content/schema.ts';
 import type { SimContext } from '../context.ts';
 import { rollDropTable } from '../drops.ts';
+import { LOSABLE_SLOTS } from '../equipment.ts';
 import { pushEvent } from '../events.ts';
 import { addStacks, countItem, removeItem, type ItemStack } from '../items.ts';
 import { awardXp, recordItems, xpAwarded } from '../perks.ts';
@@ -33,6 +33,10 @@ import type { Fight, SimState, Splat } from '../save.ts';
  * The sworn god watches the fight too: favour burns one a second while it runs, the god's
  * boon holds while there is any, and when it runs out one of the chosen offering is burnt
  * from the bank to buy more — the same shape as food.
+ *
+ * Ammo is the same shape again: the javelin in the ammo slot adds to the swing, and every
+ * swing that lands throws one, taken from the bank's stock first; the one in the slot is the
+ * last, and throwing it empties the slot.
  */
 
 function monsterOf(ctx: SimContext, id: string): MonsterDef {
@@ -134,12 +138,29 @@ function favourTick(state: SimState, ctx: SimContext): SimState {
   return s;
 }
 
+/** How many more of the equipped ammo the bank holds (0 with nothing in the slot). */
+export function ammoLeft(state: SimState): number {
+  return state.equipment.ammo === null ? 0 : countItem(state.bank, state.equipment.ammo);
+}
+
+/** A swing landed: one javelin goes, from the bank while it has any, then the one in hand. */
+function throwAmmo(state: SimState): SimState {
+  const ammo = state.equipment.ammo;
+  if (ammo === null) return state;
+  const bank = removeItem(state.bank, ammo, 1);
+  const thrown = { ...state, stats: { ...state.stats, thrown: state.stats.thrown + 1 } };
+  return bank === null
+    ? { ...thrown, equipment: { ...thrown.equipment, ammo: null } }
+    : { ...thrown, bank };
+}
+
 /**
- * The hero falls: one worn body item is lost (uniformly among the filled slots), the fight
- * and the whole action queue end, and hitpoints refill. Pure; the rng draw is the slot pick.
+ * The hero falls: one worn body item is lost (uniformly among the filled slots; the javelin
+ * in hand is not worth taking), the fight and the whole action queue end, and hitpoints
+ * refill. Pure; the rng draw is the slot pick.
  */
 function die(state: SimState, m: MonsterDef, ctx: SimContext): SimState {
-  const worn = BODY_SLOTS.filter((s) => state.equipment[s] !== null);
+  const worn = LOSABLE_SLOTS.filter((s) => state.equipment[s] !== null);
   let rng = state.rng;
   let lost: string | null = null;
   let equipment = state.equipment;
@@ -278,6 +299,7 @@ export const combatHandler: ActionHandler<'combat'> = {
     let rng = s.rng;
     let amount = 0;
     if (success) [amount, rng] = nextInt(rng, 1, maxHit(heroStats(s, ctx).strength));
+    if (success) s = throwAmmo(s);
     const dealt = Math.min(amount, s.combat.fight!.hp);
     const fight = pushSplat(
       { ...s.combat.fight!, hp: s.combat.fight!.hp - dealt },

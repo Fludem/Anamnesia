@@ -212,9 +212,20 @@ export class ContentDb {
     );
     for (const [name, table] of tables) checkTable(`table "${name}"`, table);
 
+    const skills: SkillDef[] = pack.skills.map((skill) => {
+      const owner = `skill "${skill.id}"`;
+      const finds = skill.finds === null ? null : resolve(`${owner} finds`, skill.finds);
+      return { ...skill, finds };
+    });
+
     const items: ItemDef[] = pack.items.map((item) => {
       const owner = `item "${item.id}"`;
       checkMaterial(owner, item.material);
+      if (item.xpBoost !== null) {
+        if (item.slot === null) problems.push(`${owner}: only worn items boost xp`);
+        if (item.xpBoost.skill !== null && !skillIds.has(item.xpBoost.skill))
+          problems.push(`${owner}: xp boost for unknown skill "${item.xpBoost.skill}"`);
+      }
       if (!rarityIds.has(item.rarity)) problems.push(`${owner}: unknown rarity "${item.rarity}"`);
       const slotProblem = slotAllowed(item);
       if (slotProblem !== null) problems.push(`${owner}: ${slotProblem}`);
@@ -281,7 +292,7 @@ export class ContentDb {
     const unique = [...new Set(problems)];
     if (unique.length) throw new ContentError(unique);
     return new ContentDb({
-      skills: pack.skills,
+      skills,
       materials: pack.materials,
       rarities: pack.rarities,
       items,
@@ -298,6 +309,9 @@ export class ContentDb {
 
   skill(id: string): SkillDef {
     return lookup(this.skillById, 'skill', id);
+  }
+  hasSkill(id: string): boolean {
+    return this.skillById.has(id);
   }
   material(id: string): MaterialDef {
     return lookup(this.materialById, 'material', id);

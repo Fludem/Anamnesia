@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { IdSchema } from './content/schema.ts';
 import type { SimContext } from './context.ts';
 import { pushEvent } from './events.ts';
+import { rollFinds } from './finds.ts';
 import { nextFloat } from './rng.ts';
 import type { SimState } from './save.ts';
 import { combatHandler } from './skills/combat.ts';
@@ -132,7 +133,10 @@ export function tickAction(state: SimState, ctx: SimContext): SimState {
     s = { ...s, rng };
   }
   const skill = skillOfRequest(cur.request, ctx);
-  s = logLevelUps(s, handler.resolve(s, req, success, ctx), ctx);
+  let after = handler.resolve(s, req, success, ctx);
+  // A fight's cycle is one swing; the hill leaves nothing for a swing.
+  if (success && cur.request.kind !== 'combat') after = rollFinds(after, skill, ctx);
+  s = logLevelUps(s, after, ctx);
   s = countAction(s, skill);
 
   const remaining = cur.remaining === null ? null : cur.remaining - 1;

@@ -105,6 +105,37 @@ export const FIXTURE_PACK = {
       stats: { defence: 10 },
       value: 60,
     },
+    /** Ammo: a javelin that adds to the swing and is thrown when it lands. */
+    {
+      id: 'javelin',
+      name: 'Javelin',
+      icon: 'lorc/thrown-spear',
+      class: 'weapon',
+      slot: 'ammo',
+      stats: { attack: 5, strength: 4 },
+      value: 2,
+    },
+    /** A cape that pays half again in mining; a pendant that pays a quarter more everywhere. */
+    {
+      id: 'cape',
+      name: 'Cape',
+      icon: 'delapouite/cape',
+      class: 'armour',
+      slot: 'cape',
+      stats: { defence: 1 },
+      xpBoost: { skill: 'mining', fraction: 0.5 },
+      value: 40,
+    },
+    {
+      id: 'pendant',
+      name: 'Pendant',
+      icon: 'lorc/gem-pendant',
+      class: 'armour',
+      slot: 'amulet',
+      stats: { defence: 1 },
+      xpBoost: { skill: null, fraction: 0.25 },
+      value: 40,
+    },
     { id: 'bone', name: 'Bone', icon: 'lorc/rock', value: 1 },
     { id: 'hide', name: 'Hide', icon: 'lorc/rock', value: 4 },
     /** An offering worth 5 favour (five seconds of fighting). */

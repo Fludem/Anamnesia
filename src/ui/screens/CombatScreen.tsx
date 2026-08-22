@@ -9,6 +9,7 @@ import { heroStats } from '../../sim/combat.ts';
 import type { CombatBoon, MonsterDef } from '../../sim/content/schema.ts';
 import type { SimState, Splat } from '../../sim/save.ts';
 import {
+  ammoView,
   boonText,
   favourView,
   fightView,
@@ -21,6 +22,7 @@ import {
   recentRareKill,
   totalKills,
   zoneRows,
+  type AmmoView,
   type FightView,
   type SideView,
 } from '../derive-combat.ts';
@@ -130,7 +132,13 @@ function FightCard({
   return (
     <div className="card">
       <div className="fight-sides">
-        <Side view={fight.you} you juice={juice} boon={heroStats(sim, simContext).boon} />
+        <Side
+          view={fight.you}
+          you
+          juice={juice}
+          boon={heroStats(sim, simContext).boon}
+          ammo={ammoView(sim, content)}
+        />
         <Side view={fight.them} monster={fight.monster} juice={juice} />
       </div>
       <div className="fight-foot">
@@ -153,6 +161,7 @@ function Side({
   monster,
   juice,
   boon,
+  ammo,
 }: {
   view: SideView;
   you?: boolean;
@@ -160,6 +169,8 @@ function Side({
   juice: Juice;
   /** The hero's boon in effect, shown beside the name. */
   boon?: CombatBoon | null;
+  /** What the hero throws, and how many are left. */
+  ammo?: AmmoView | null;
 }) {
   const frac = view.maxHp > 0 ? view.hp / view.maxHp : 0;
   return (
@@ -178,6 +189,14 @@ function Side({
             {you && boon && (
               <span className="boon-tag" title={boonText(boon)}>
                 {boon.name}
+              </span>
+            )}
+            {you && ammo && (
+              <span
+                className={ammo.inBank === 0 ? 'ammo-tag last' : 'ammo-tag'}
+                title={`${ammo.item.name}: one thrown with every swing that lands`}
+              >
+                {lastWord(ammo.item.name)} ×{formatInt(ammo.inBank + 1)}
               </span>
             )}
           </div>
@@ -597,3 +616,7 @@ function KillLog({ sim, juice }: { sim: SimState; juice: Juice }) {
 }
 
 const SESSION_START = Date.now();
+
+function lastWord(name: string): string {
+  return name.split(' ').slice(-1)[0] ?? name;
+}

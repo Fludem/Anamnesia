@@ -58,6 +58,13 @@ same shape as food. First steps gains a combat step, a foraging step and an offe
 progression model measures every boon (`scripts/tune-boons.ts` prints the comparison) and a
 test pins them to about the same worth. Save v7 adds the offering, favour and a burnt counter.
 
+Phase 8 fills the empty slots. Gauntlets are smithed like the rest of the set; capes carry an
+xp boost as the design pictured — one per skill, found rarely while working it, plus beast
+capes with combat stats from the monsters that wore the hide; javelins go in the ammo slot,
+twenty to the bar, one thrown from the bank with every swing that lands; rings and necks run
+from copper to aether. `scripts/tune-gear.ts` prints what javelins buy and cost. Save v8 adds
+a thrown counter.
+
 ## Layout
 
 | Path            | Layer                                                                                                                                                                                    |
@@ -70,7 +77,7 @@ test pins them to about the same worth. Save v7 adds the offering, favour and a 
 | `src/ui/theme/` | Design tokens (CSS custom properties + TS object) and fonts.                                                                                                                             |
 | `src/ui/items/` | Maps content onto renderer specs; `<ItemTile>` / `<BareIcon>`.                                                                                                                           |
 | `design/`       | Claude Design reference screens the tokens were extracted from.                                                                                                                          |
-| `scripts/`      | Icon vendoring / indexing pipeline; `tune-combat.ts` retunes monsters against the progression model; `tune-boons.ts` compares the gods' boons.                                           |
+| `scripts/`      | Icon vendoring / indexing pipeline; `tune-combat.ts` retunes monsters against the progression model; `tune-boons.ts` compares the gods' boons; `tune-gear.ts` prices javelins.           |
 
 ## Commands
 

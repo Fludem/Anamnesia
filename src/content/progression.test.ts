@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { combatClimb, hoursToCap, regenPerHour } from '../sim/progression.ts';
+import { combatClimb, GEAR_LADDER, hoursToCap, regenPerHour } from '../sim/progression.ts';
 import { content, simContext } from './index.ts';
 
 /**
@@ -118,6 +118,22 @@ describe('progression: combat', () => {
         expect(eaten, g.id).toBeGreaterThan(-0.45);
       }
       if (boon.kind === 'regen') expect(regenPerHour(boon)).toBeGreaterThan(0);
+    }
+  });
+
+  /** Pinned in scripts/tune-gear.ts: a slot's worth of numbers for a bar every minute or so. */
+  it('the tier’s javelins take 5–15% off the climb and cost 40–60 bars an hour at every tier', () => {
+    const armed = combatClimb(simContext, { ammo: true });
+    const hours = (armed.hours - climb.hours) / climb.hours;
+    expect(hours).toBeLessThan(-0.05);
+    expect(hours).toBeGreaterThan(-0.15);
+    for (const step of GEAR_LADDER) {
+      const row = armed.steps.find((s) => s.level === step.level)!;
+      const recipe = content.recipe(`${step.tier}-javelin`);
+      const perBar = recipe.outputs[0]!.qty;
+      const bars = row.hitsPerHour / perBar;
+      expect(bars, step.tier).toBeGreaterThan(40);
+      expect(bars, step.tier).toBeLessThan(60);
     }
   });
 

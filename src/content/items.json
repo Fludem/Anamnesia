@@ -2065,5 +2065,507 @@
     "rarity": "epic",
     "value": 500,
     "tags": ["foraging", "find"]
+  },
+  {
+    "id": "copper-gauntlets",
+    "name": "Copper Gauntlets",
+    "description": "Copper knuckles. The rock notices before you do.",
+    "icon": "delapouite/gauntlet",
+    "class": "armour",
+    "material": "copper",
+    "rarity": "common",
+    "slot": "hands",
+    "stats": {
+      "defence": 2,
+      "attack": 1
+    },
+    "value": 9,
+    "tags": ["armour", "smithing", "copper"]
+  },
+  {
+    "id": "copper-javelin",
+    "name": "Copper Javelin",
+    "description": "A point on a short pole, thrown before the blade arrives. Mostly it arrives.",
+    "icon": "lorc/thrown-spear",
+    "class": "weapon",
+    "material": "copper",
+    "rarity": "common",
+    "slot": "ammo",
+    "stats": {
+      "attack": 2,
+      "strength": 3
+    },
+    "value": 1,
+    "tags": ["ammo", "smithing", "copper"]
+  },
+  {
+    "id": "iron-gauntlets",
+    "name": "Iron Gauntlets",
+    "description": "Heavy on the hands, which is where the weight is useful.",
+    "icon": "delapouite/gauntlet",
+    "class": "armour",
+    "material": "iron",
+    "rarity": "common",
+    "slot": "hands",
+    "stats": {
+      "defence": 3,
+      "attack": 1
+    },
+    "value": 34,
+    "tags": ["armour", "smithing", "iron"]
+  },
+  {
+    "id": "iron-javelin",
+    "name": "Iron Javelin",
+    "description": "Heavier, and so is the landing. Ten to the bar; you will not get them back.",
+    "icon": "lorc/thrown-spear",
+    "class": "weapon",
+    "material": "iron",
+    "rarity": "common",
+    "slot": "ammo",
+    "stats": {
+      "attack": 2,
+      "strength": 4
+    },
+    "value": 5,
+    "tags": ["ammo", "smithing", "iron"]
+  },
+  {
+    "id": "basalt-gauntlets",
+    "name": "Basalt Gauntlets",
+    "description": "Stone on stone. Nothing in them gives.",
+    "icon": "delapouite/gauntlet",
+    "class": "armour",
+    "material": "basalt",
+    "rarity": "common",
+    "slot": "hands",
+    "stats": {
+      "defence": 3,
+      "attack": 2
+    },
+    "value": 39,
+    "tags": ["armour", "smithing", "basalt"]
+  },
+  {
+    "id": "basalt-javelin",
+    "name": "Basalt Javelin",
+    "description": "A basalt head on birch. It does not so much pierce as insist.",
+    "icon": "lorc/thrown-spear",
+    "class": "weapon",
+    "material": "basalt",
+    "rarity": "common",
+    "slot": "ammo",
+    "stats": {
+      "attack": 3,
+      "strength": 5
+    },
+    "value": 6,
+    "tags": ["ammo", "smithing", "basalt"]
+  },
+  {
+    "id": "silver-gauntlets",
+    "name": "Silver Gauntlets",
+    "description": "Bright, articulated, and cold for the first hour.",
+    "icon": "delapouite/gauntlet",
+    "class": "armour",
+    "material": "silver",
+    "rarity": "common",
+    "slot": "hands",
+    "stats": {
+      "defence": 4,
+      "attack": 2
+    },
+    "value": 353,
+    "tags": ["armour", "smithing", "silver"]
+  },
+  {
+    "id": "silver-javelin",
+    "name": "Silver Javelin",
+    "description": "Silver-tipped and wasteful. The hill approves of waste in its favour.",
+    "icon": "lorc/thrown-spear",
+    "class": "weapon",
+    "material": "silver",
+    "rarity": "common",
+    "slot": "ammo",
+    "stats": {
+      "attack": 3,
+      "strength": 6
+    },
+    "value": 31,
+    "tags": ["ammo", "smithing", "silver"]
+  },
+  {
+    "id": "gold-gauntlets",
+    "name": "Gold Gauntlets",
+    "description": "Too soft for a fist. Nobody has pointed this out to you.",
+    "icon": "delapouite/gauntlet",
+    "class": "armour",
+    "material": "gold",
+    "rarity": "common",
+    "slot": "hands",
+    "stats": {
+      "defence": 5,
+      "attack": 3
+    },
+    "value": 449,
+    "tags": ["armour", "smithing", "gold"]
+  },
+  {
+    "id": "gold-javelin",
+    "name": "Gold Javelin",
+    "description": "Gold is a poor metal for a point and a fine one for a gesture.",
+    "icon": "lorc/thrown-spear",
+    "class": "weapon",
+    "material": "gold",
+    "rarity": "common",
+    "slot": "ammo",
+    "stats": {
+      "attack": 4,
+      "strength": 7
+    },
+    "value": 42,
+    "tags": ["ammo", "smithing", "gold"]
+  },
+  {
+    "id": "aether-gauntlets",
+    "name": "Aether Gauntlets",
+    "description": "They weigh nothing, and the hand inside them forgets it is there.",
+    "icon": "delapouite/gauntlet",
+    "class": "armour",
+    "material": "aether",
+    "rarity": "epic",
+    "slot": "hands",
+    "stats": {
+      "defence": 6,
+      "attack": 4
+    },
+    "value": 9161,
+    "tags": ["armour", "smithing", "aether"]
+  },
+  {
+    "id": "aether-javelin",
+    "name": "Aether Javelin",
+    "description": "It leaves the hand before you have decided to throw it.",
+    "icon": "lorc/thrown-spear",
+    "class": "weapon",
+    "material": "aether",
+    "rarity": "epic",
+    "slot": "ammo",
+    "stats": {
+      "attack": 5,
+      "strength": 9
+    },
+    "value": 850,
+    "tags": ["ammo", "smithing", "aether"]
+  },
+  {
+    "id": "copper-band",
+    "name": "Copper Band",
+    "description": "It turns the finger green. The finger was going to be green anyway, with the ore.",
+    "icon": "delapouite/ring",
+    "class": "armour",
+    "material": "copper",
+    "rarity": "common",
+    "slot": "ring",
+    "stats": {
+      "strength": 1
+    },
+    "value": 7,
+    "tags": ["jewellery", "smithing", "copper"]
+  },
+  {
+    "id": "copper-torc",
+    "name": "Copper Torc",
+    "description": "A bent bar, worn. Technically jewellery.",
+    "icon": "cathelineau/torc",
+    "class": "armour",
+    "material": "copper",
+    "rarity": "common",
+    "slot": "amulet",
+    "stats": {
+      "attack": 1,
+      "defence": 1
+    },
+    "value": 14,
+    "tags": ["jewellery", "smithing", "copper"]
+  },
+  {
+    "id": "basalt-ring",
+    "name": "Basalt Ring",
+    "description": "Black stone around a stone that is not rock. It sits heavy, the way a decision does.",
+    "icon": "delapouite/ring",
+    "class": "armour",
+    "material": "basalt",
+    "rarity": "rare",
+    "slot": "ring",
+    "stats": {
+      "strength": 2,
+      "defence": 1
+    },
+    "value": 267,
+    "tags": ["jewellery", "smithing", "basalt"]
+  },
+  {
+    "id": "basalt-pendant",
+    "name": "Basalt Pendant",
+    "description": "The gem is uncut. Cutting it would have meant knowing what it was.",
+    "icon": "lorc/gem-pendant",
+    "class": "armour",
+    "material": "basalt",
+    "rarity": "rare",
+    "slot": "amulet",
+    "stats": {
+      "attack": 2,
+      "defence": 2
+    },
+    "value": 302,
+    "tags": ["jewellery", "smithing", "basalt"]
+  },
+  {
+    "id": "rune-pendant",
+    "name": "Rune Pendant",
+    "description": "Somebody's reminder, set in gold. You remember things a little better wearing it. Not what.",
+    "icon": "delapouite/tribal-pendant",
+    "class": "armour",
+    "material": "aether",
+    "rarity": "rare",
+    "slot": "amulet",
+    "stats": {
+      "defence": 1
+    },
+    "xpBoost": {
+      "skill": null,
+      "fraction": 0.02
+    },
+    "value": 1304,
+    "tags": ["jewellery", "smithing", "aether"]
+  },
+  {
+    "id": "aether-ring",
+    "name": "Aether Ring",
+    "description": "It is not on your finger so much as near it.",
+    "icon": "delapouite/ring",
+    "class": "armour",
+    "material": "aether",
+    "rarity": "epic",
+    "slot": "ring",
+    "stats": {
+      "strength": 4,
+      "attack": 2
+    },
+    "value": 11000,
+    "tags": ["jewellery", "smithing", "aether"]
+  },
+  {
+    "id": "aether-pendant",
+    "name": "Aether Pendant",
+    "description": "Cold at the throat. Colder when something is about to hit you.",
+    "icon": "lorc/gem-pendant",
+    "class": "armour",
+    "material": "aether",
+    "rarity": "epic",
+    "slot": "amulet",
+    "stats": {
+      "attack": 5,
+      "defence": 4
+    },
+    "value": 19360,
+    "tags": ["jewellery", "smithing", "aether"]
+  },
+  {
+    "id": "miners-cape",
+    "name": "Miner's Cape",
+    "description": "Rock dust in every fold. It pays you back a little for the hours.",
+    "icon": "delapouite/cape",
+    "class": "armour",
+    "material": "copper",
+    "rarity": "rare",
+    "slot": "cape",
+    "stats": {
+      "defence": 1
+    },
+    "xpBoost": {
+      "skill": "mining",
+      "fraction": 0.05
+    },
+    "value": 600,
+    "tags": ["cape", "drop", "armour"]
+  },
+  {
+    "id": "woodsmans-cape",
+    "name": "Woodsman's Cape",
+    "description": "Smells faintly of sap and superiority.",
+    "icon": "delapouite/cape",
+    "class": "armour",
+    "material": "oak",
+    "rarity": "rare",
+    "slot": "cape",
+    "stats": {
+      "defence": 1
+    },
+    "xpBoost": {
+      "skill": "woodcutting",
+      "fraction": 0.05
+    },
+    "value": 600,
+    "tags": ["cape", "drop", "armour"]
+  },
+  {
+    "id": "fishers-cape",
+    "name": "Fisher's Cape",
+    "description": "Oiled against the weather. Has been rained on regardless.",
+    "icon": "delapouite/cape",
+    "class": "armour",
+    "material": "willow",
+    "rarity": "rare",
+    "slot": "cape",
+    "stats": {
+      "defence": 1
+    },
+    "xpBoost": {
+      "skill": "fishing",
+      "fraction": 0.05
+    },
+    "value": 600,
+    "tags": ["cape", "drop", "armour"]
+  },
+  {
+    "id": "foragers-cape",
+    "name": "Forager's Cape",
+    "description": "Green, with pockets. The pockets are the point.",
+    "icon": "delapouite/cape",
+    "class": "armour",
+    "material": "gem",
+    "rarity": "rare",
+    "slot": "cape",
+    "stats": {
+      "defence": 1
+    },
+    "xpBoost": {
+      "skill": "foraging",
+      "fraction": 0.05
+    },
+    "value": 600,
+    "tags": ["cape", "drop", "armour"]
+  },
+  {
+    "id": "ashen-cape",
+    "name": "Ashen Cape",
+    "description": "Singed at the hem. It has stood closer to fires than you have.",
+    "icon": "delapouite/cape",
+    "class": "armour",
+    "material": "marble",
+    "rarity": "rare",
+    "slot": "cape",
+    "stats": {
+      "defence": 1
+    },
+    "xpBoost": {
+      "skill": "firemaking",
+      "fraction": 0.05
+    },
+    "value": 600,
+    "tags": ["cape", "drop", "armour"]
+  },
+  {
+    "id": "cooks-cape",
+    "name": "Cook's Cape",
+    "description": "Stained, but it will not say with what.",
+    "icon": "delapouite/cape",
+    "class": "armour",
+    "material": "blight",
+    "rarity": "rare",
+    "slot": "cape",
+    "stats": {
+      "defence": 1
+    },
+    "xpBoost": {
+      "skill": "cooking",
+      "fraction": 0.05
+    },
+    "value": 600,
+    "tags": ["cape", "drop", "armour"]
+  },
+  {
+    "id": "smiths-cape",
+    "name": "Smith's Cape",
+    "description": "Leather, scarred by sparks. Left by the last smith; they will not need it.",
+    "icon": "delapouite/cape",
+    "class": "armour",
+    "material": "iron",
+    "rarity": "rare",
+    "slot": "cape",
+    "stats": {
+      "defence": 1
+    },
+    "xpBoost": {
+      "skill": "smithing",
+      "fraction": 0.05
+    },
+    "value": 600,
+    "tags": ["cape", "drop", "armour"]
+  },
+  {
+    "id": "goat-hide-cape",
+    "name": "Goat-Hide Cape",
+    "description": "Warm, coarse, and unmistakably goat. The goats know.",
+    "icon": "lucasms/cloak",
+    "class": "armour",
+    "material": "oak",
+    "rarity": "rare",
+    "slot": "cape",
+    "stats": {
+      "defence": 1
+    },
+    "value": 80,
+    "tags": ["cape", "drop", "armour"]
+  },
+  {
+    "id": "wolf-pelt-cloak",
+    "name": "Wolf Pelt Cloak",
+    "description": "Grey, with the grey patch turned inward. It is still a little cold there.",
+    "icon": "lucasms/cloak",
+    "class": "armour",
+    "material": "iron",
+    "rarity": "rare",
+    "slot": "cape",
+    "stats": {
+      "defence": 3,
+      "strength": 1
+    },
+    "value": 400,
+    "tags": ["cape", "drop", "armour"]
+  },
+  {
+    "id": "hound-cloak",
+    "name": "Hound Cloak",
+    "description": "From a dog that was guarding something. Now it guards you, roughly.",
+    "icon": "lucasms/cloak",
+    "class": "armour",
+    "material": "marble",
+    "rarity": "rare",
+    "slot": "cape",
+    "stats": {
+      "defence": 4,
+      "strength": 2
+    },
+    "value": 1500,
+    "tags": ["cape", "drop", "armour"]
+  },
+  {
+    "id": "bull-hide-cape",
+    "name": "Bull-Hide Cape",
+    "description": "Heavy enough to count as a wall. He wore it better.",
+    "icon": "lucasms/cloak",
+    "class": "armour",
+    "material": "gold",
+    "rarity": "epic",
+    "slot": "cape",
+    "stats": {
+      "defence": 6,
+      "strength": 3
+    },
+    "value": 4000,
+    "tags": ["cape", "drop", "armour"]
   }
 ]

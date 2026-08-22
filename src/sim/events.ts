@@ -63,6 +63,13 @@ export const SimEventSchema = z.discriminatedUnion('type', [
     item: IdSchema,
     favour: z.number().int().min(0),
   }),
+  /** The skill's finds table paid out: what the hill left on top of the cycle's own haul. */
+  z.object({
+    type: z.literal('found'),
+    tick: z.number().int().min(0),
+    skill: IdSchema,
+    items: z.array(ItemStackSchema).min(1),
+  }),
   /** A first-steps step was completed and its reward paid. */
   z.object({
     type: z.literal('tutorial'),
