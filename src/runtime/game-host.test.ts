@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { OFFLINE_CAP_TICKS } from '../sim/constants.ts';
 import { createNewSave, type SaveRecord } from '../sim/save.ts';
+import { offlineCapTicks } from '../sim/trader.ts';
 import { applyCommand, type Command } from '../sim/commands.ts';
 import { countItem } from '../sim/items.ts';
+import { reconcileWithContent } from '../sim/reconcile.ts';
 import { makeStep } from '../sim/step.ts';
 import { fixtureContext } from '../sim/testing/fixture.ts';
 import { GameHost, type GameHostOptions, type HostSnapshot } from './game-host.ts';
@@ -209,6 +211,21 @@ describe('GameHost — single tab', () => {
     expect(host.getSnapshot().wallMs).toBe(world.clock.now());
   });
 
+  it('a save with a lamp is capped at the lamp, and the recap says so', async () => {
+    const world = new FakeWorld(T0 + 13 * HOUR);
+    seeded(world, { upgrades: { lamp: 1 } });
+    const a = world.tab('A');
+    const host = boot(a, {
+      ...FIXTURE,
+      capTicksFor: (sim) => offlineCapTicks(sim, fixtureContext),
+    });
+    await flushMicrotasks();
+    await a.runTimers(0);
+    const snap = host.getSnapshot();
+    expect(snap.sim?.tick).toBe((13 * HOUR) / 100);
+    expect(snap.offline).toMatchObject({ skippedTicks: 0, awayMs: 13 * HOUR, capMs: 16 * HOUR });
+  });
+
   it('a save taken mid-catch-up is consistent and the remainder resumes on next load', async () => {
     const world = new FakeWorld(T0 + HOUR);
     seeded(world);
@@ -228,6 +245,39 @@ describe('GameHost — single tab', () => {
     expect(saved?.sim.tick).toBe(5_000);
     expect(saved?.wallMs).toBe(T0 + 500_000);
     expect(host.getSnapshot().sim?.tick).toBe(36_000);
+  });
+
+  it('a save naming content that is gone boots, minus those things, instead of crashing', async () => {
+    const world = new FakeWorld(T0);
+    seeded(
+      world,
+      {
+        action: {
+          current: {
+            request: { kind: 'mining', rock: 'coal-rock', count: null },
+            elapsedTicks: 0,
+            durationTicks: 3,
+            remaining: null,
+          },
+          queue: [],
+        },
+        bank: [{ item: 'coal', qty: 7 }],
+      },
+      T0 - HOUR,
+    );
+    const a = world.tab('A');
+    const host = boot(a, {
+      ...FIXTURE,
+      reconcile: (sim) => reconcileWithContent(sim, fixtureContext.content).sim,
+    });
+    await flushMicrotasks();
+    await settle(host);
+    expect(host.getSnapshot().error).toBeNull();
+    expect(host.role).toBe('leader');
+    const sim = host.getSnapshot().sim!;
+    expect(sim.action.current).toBeNull();
+    expect(sim.bank).toEqual([]);
+    expect(sim.tick).toBe(HOUR / 100);
   });
 
   it('refuses to start over an unreadable save', async () => {

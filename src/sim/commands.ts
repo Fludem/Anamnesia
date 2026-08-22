@@ -10,6 +10,7 @@ import { heroStats } from './combat.ts';
 import { recordItems } from './perks.ts';
 import type { SimState } from './save.ts';
 import { eat, offer } from './skills/combat.ts';
+import { buyWare } from './trader.ts';
 import { EquipmentSlotSchema } from './slots.ts';
 
 /** 3–16 visible characters; trimmed by the UI, checked here so a save never holds junk. */
@@ -56,6 +57,10 @@ export const CommandSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('combat:offering'), item: IdSchema.nullable() }),
   /** Burn one of the chosen offering now. */
   z.object({ type: z.literal('combat:offer') }),
+  /** Pay the ferryman on death (twice the lost item's worth) rather than lose the item. */
+  z.object({ type: z.literal('combat:ferryman'), pay: z.boolean() }),
+  /** Buy one of the trader's wares at its current price. */
+  z.object({ type: z.literal('trader:buy'), ware: IdSchema }),
 ]);
 export type Command = z.infer<typeof CommandSchema>;
 
@@ -190,7 +195,12 @@ export function applyCommand(state: SimState, cmd: Command, ctx: SimContext): Co
       }
       return {
         ok: true,
-        state: { ...state, coins: state.coins - cost, bankSlotsBought: state.bankSlotsBought + 1 },
+        state: {
+          ...state,
+          coins: state.coins - cost,
+          bankSlotsBought: state.bankSlotsBought + 1,
+          stats: { ...state.stats, spent: state.stats.spent + cost },
+        },
       };
     }
     case 'player:rename':
@@ -245,6 +255,12 @@ export function applyCommand(state: SimState, cmd: Command, ctx: SimContext): Co
         return reject(state, `no ${ctx.content.item(state.combat.offering).name} left in the bank`);
       }
       return { ok: true, state: burnt };
+    }
+    case 'combat:ferryman':
+      return { ok: true, state: { ...state, combat: { ...state.combat, ferryman: cmd.pay } } };
+    case 'trader:buy': {
+      const bought = buyWare(state, cmd.ware, ctx);
+      return bought.ok ? bought : reject(state, bought.reason);
     }
   }
 }

@@ -43,9 +43,13 @@ export function OfflineRecap({
     .filter((f) => f.tick > info.before.tick)
     .flatMap((f) => f.items.map((i) => content.item(i.item).name));
   // The log is short; the items it still remembers are named, the rest is counted.
-  const taken = eventsOfType(sim, 'died')
-    .filter((d) => d.tick > info.before.tick && d.lost !== null)
-    .map((d) => content.item(d.lost!).name);
+  const since = eventsOfType(sim, 'died').filter((d) => d.tick > info.before.tick);
+  const taken = since.filter((d) => d.lost !== null).map((d) => content.item(d.lost!).name);
+  const kept = since.filter((d) => d.kept !== null).map((d) => content.item(d.kept!).name);
+  // Nothing else spends while away, so the coins spent are the ferryman's.
+  const ferried = sim.stats.ferried - info.before.stats.ferried;
+  const fee = sim.stats.spent - info.before.stats.spent;
+  const obols = since.filter((d) => d.obol).length;
   const top = r.skills[0];
   const verb = top ? (VERB[top.skill] ?? 'trained') : null;
   const capped = info.skippedTicks > 0;
@@ -125,6 +129,12 @@ export function OfflineRecap({
           <span>
             {deaths === 1 ? 'you died once' : `you died ${String(deaths)} times`}
             {taken.length > 0 ? ` · the hill took ${taken.join(', ')}` : ''}
+            {ferried > 0
+              ? ` · the ferryman was paid ${String(ferried)} time${ferried === 1 ? '' : 's'}` +
+                (fee > 0 ? ` (${formatInt(fee)} gp)` : '') +
+                (obols > 0 ? ` (${String(obols)} obol${obols === 1 ? '' : 's'})` : '')
+              : ''}
+            {kept.length > 0 ? ` · kept ${kept.join(', ')}` : ''}
           </span>
         </div>
       )}

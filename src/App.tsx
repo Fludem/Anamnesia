@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import type { Command } from './sim/commands.ts';
 import { DEFAULT_PLAYER_NAME } from './sim/save.ts';
+import { oathsReleased } from './sim/trader.ts';
+import { simContext } from './content/index.ts';
+import { nightHours } from './ui/derive-trader.ts';
 import { recentLevelUp } from './ui/derive.ts';
 import {
   BootingPage,
@@ -23,6 +26,7 @@ import { CRAFT_SKILLS, GATHER_SKILLS } from './ui/screens/defs.ts';
 import { FirstSteps } from './ui/screens/FirstSteps.tsx';
 import { GatherScreen } from './ui/screens/GatherScreen.tsx';
 import { HighscoresScreen } from './ui/screens/HighscoresScreen.tsx';
+import { TraderScreen } from './ui/screens/TraderScreen.tsx';
 import { Shell } from './ui/Shell.tsx';
 import { useGameRuntime } from './ui/useGameHost.ts';
 import './ui/app.css';
@@ -56,11 +60,13 @@ export function App() {
     return (
       <Onboarding
         name={sim.player.name === DEFAULT_PLAYER_NAME ? null : sim.player.name}
+        nightHours={nightHours(sim, simContext)}
         onName={(name) => dispatch({ type: 'player:rename', name })}
         onSwear={(god) => {
           dispatch({ type: 'player:swear', god });
-          // A new hero starts where first steps start, whatever this browser last looked at.
-          setView(DEFAULT_VIEW);
+          // A new hero starts where first steps start, whatever this browser last looked at;
+          // one released from an oath goes back to where they were.
+          if (oathsReleased(sim, simContext) === 0) setView(DEFAULT_VIEW);
         }}
       />
     );
@@ -73,6 +79,8 @@ export function App() {
       <BankScreen sim={sim} dispatch={dispatch} juice={juice} />
     ) : view.kind === 'equipment' ? (
       <EquipmentScreen sim={sim} dispatch={dispatch} juice={juice} />
+    ) : view.kind === 'trader' ? (
+      <TraderScreen sim={sim} dispatch={dispatch} juice={juice} />
     ) : view.kind === 'highscores' ? (
       <HighscoresScreen
         sim={sim}

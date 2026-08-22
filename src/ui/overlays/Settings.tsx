@@ -8,6 +8,7 @@ import { simContext } from '../../content/index.ts';
 import type { HostSnapshot } from '../../runtime/game-host.ts';
 import { PlayerNameSchema, type Command } from '../../sim/commands.ts';
 import { godOf } from '../../sim/perks.ts';
+import { nightHours } from '../derive-trader.ts';
 import { formatInt } from '../format.ts';
 import { Label, UiIcon } from '../parts.tsx';
 import type { Juice } from '../theme/theme.ts';
@@ -129,7 +130,9 @@ export function Settings({
             'nobody yet'
           )}
         </div>
-        <div className="note-line">The hill does not take oaths back.</div>
+        <div className="note-line">
+          The hill does not take oaths back. The trader sells release from one.
+        </div>
       </div>
 
       <div className="settings-section">
@@ -161,6 +164,7 @@ export function Settings({
           {snapshot.lastSavedAtMs !== null
             ? ` · saved ${new Date(snapshot.lastSavedAtMs).toLocaleTimeString()}`
             : ''}
+          {sim ? ` · the night lasts ${String(nightHours(sim, simContext))} h` : ''}
         </div>
         {snapshot.warning && (
           <div className="kv" style={{ color: 'var(--gold)' }}>

@@ -13,6 +13,7 @@ import {
   type RarityDef,
   type RecipeDef,
   type RivalDef,
+  type WareDef,
   type RockDef,
   type SkillDef,
   type TreeDef,
@@ -34,6 +35,7 @@ interface ResolvedPack {
   monsters: readonly MonsterDef[];
   gods: readonly GodDef[];
   rivals: readonly RivalDef[];
+  wares: readonly WareDef[];
 }
 
 export class ContentError extends Error {
@@ -72,6 +74,8 @@ export class ContentDb {
   readonly gods: readonly GodDef[];
   /** The highscores' other names, in authored order. */
   readonly rivals: readonly RivalDef[];
+  /** The trader's wares, in authored order — the order the screen lists them. */
+  readonly wares: readonly WareDef[];
   private readonly skillById: ReadonlyMap<string, SkillDef>;
   private readonly materialById: ReadonlyMap<string, MaterialDef>;
   private readonly rarityById: ReadonlyMap<string, RarityDef>;
@@ -84,6 +88,7 @@ export class ContentDb {
   private readonly godById: ReadonlyMap<string, GodDef>;
   private readonly zoneById: ReadonlyMap<string, ZoneDef>;
   private readonly monsterById: ReadonlyMap<string, MonsterDef>;
+  private readonly wareById: ReadonlyMap<string, WareDef>;
 
   private constructor(pack: ResolvedPack) {
     this.skills = pack.skills;
@@ -99,6 +104,7 @@ export class ContentDb {
     this.monsters = pack.monsters;
     this.gods = pack.gods;
     this.rivals = pack.rivals;
+    this.wares = pack.wares;
     this.skillById = new Map(pack.skills.map((s) => [s.id, s]));
     this.materialById = new Map(pack.materials.map((m) => [m.id, m]));
     this.rarityById = new Map(pack.rarities.map((r) => [r.id, r]));
@@ -111,6 +117,7 @@ export class ContentDb {
     this.godById = new Map(pack.gods.map((g) => [g.id, g]));
     this.zoneById = new Map(pack.zones.map((z) => [z.id, z]));
     this.monsterById = new Map(pack.monsters.map((m) => [m.id, m]));
+    this.wareById = new Map(pack.wares.map((w) => [w.id, w]));
   }
 
   /** Validate shape, then every cross-reference. Throws `ContentError` listing all problems. */
@@ -305,6 +312,21 @@ export class ContentDb {
         if (!skillIds.has(skill)) problems.push(`${owner}: unknown skill "${skill}"`);
       }
     }
+    const wareIds = new Set(pack.wares.map((w) => w.id));
+    dupes(
+      'ware',
+      pack.wares.map((w) => w.id),
+    );
+    for (const w of pack.wares) {
+      const owner = `ware "${w.id}"`;
+      if (w.requires !== null && !wareIds.has(w.requires))
+        problems.push(`${owner}: requires unknown ware "${w.requires}"`);
+      if (w.requires === w.id) problems.push(`${owner}: requires itself`);
+      if (w.effect.kind === 'release-oath' && w.once)
+        problems.push(`${owner}: release from the oath is sold again and again (once: false)`);
+      if (w.effect.kind !== 'release-oath' && !w.once)
+        problems.push(`${owner}: only release from the oath is sold more than once`);
+    }
     // Duplicate problems from a table checked through several owners are not informative.
     const unique = [...new Set(problems)];
     if (unique.length) throw new ContentError(unique);
@@ -322,6 +344,7 @@ export class ContentDb {
       monsters,
       gods,
       rivals: pack.rivals,
+      wares: pack.wares,
     });
   }
 
@@ -387,6 +410,12 @@ export class ContentDb {
   }
   hasRecipe(id: string): boolean {
     return this.recipeById.has(id);
+  }
+  ware(id: string): WareDef {
+    return lookup(this.wareById, 'ware', id);
+  }
+  hasWare(id: string): boolean {
+    return this.wareById.has(id);
   }
   /** The gathering nodes a skill trains on, or an empty list for crafting skills. */
   nodesFor(skill: string): readonly GatherNodeDef[] {

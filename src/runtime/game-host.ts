@@ -1,6 +1,8 @@
 import { planAdvance, planTickCount } from '../sim/advance.ts';
 import { OFFLINE_CAP_TICKS, TICK_MS } from '../sim/constants.ts';
+import { offlineCapTicks } from '../sim/trader.ts';
 import { migrateSave, SaveLoadError } from '../sim/migrate.ts';
+import { reconcileWithContent } from '../sim/reconcile.ts';
 import {
   createNewSave,
   CURRENT_SAVE_VERSION,
@@ -80,8 +82,26 @@ export interface GameHostOptions {
   followerSettleMs?: number;
   /** Applies a player command to the sim. Defaults to the real command handler with shipped content. */
   applyAction?: (sim: SimState, action: GameAction) => CommandResult;
+  /**
+   * Runs once on a loaded save, after migration, with the content in hand: drops whatever the
+   * content no longer has (see sim/reconcile.ts). Defaults to the shipped content.
+   */
+  reconcile?: (sim: SimState) => SimState;
   /** Observer called on the leader for every action (local or forwarded), after it is applied. */
   onAction?: (action: GameAction, fromTabId: string) => void;
+  /**
+   * The offline cap a save has earned (the trader's lamp), in ticks; the larger of this and
+   * `capTicks` is used. Defaults to the shipped content's wares.
+   */
+  capTicksFor?: (sim: SimState) => number;
+}
+
+/** The shipped content's reconcile; says what it dropped, since the player will not be told. */
+function defaultReconcile(sim: SimState): SimState {
+  const { sim: clean, dropped } = reconcileWithContent(sim, simContext.content);
+  if (dropped.length > 0)
+    console.warn(`save reconciled against content:\n  ${dropped.join('\n  ')}`);
+  return clean;
 }
 
 type SaveReason =
@@ -139,7 +159,9 @@ export class GameHost {
       handoverResumeMs: options.handoverResumeMs ?? 3_000,
       followerSettleMs: options.followerSettleMs ?? 300,
       applyAction: options.applyAction ?? ((sim, action) => applyCommand(sim, action, simContext)),
+      reconcile: options.reconcile ?? defaultReconcile,
       onAction: options.onAction,
+      capTicksFor: options.capTicksFor ?? ((sim) => offlineCapTicks(sim, simContext)),
     };
     this.channel = new GameChannel(env.openChannel(CHANNEL_NAME));
     this.election = env.locks ? new LeaderElection(env.locks, LOCK_NAME) : null;
@@ -353,7 +375,7 @@ export class GameHost {
       );
       return;
     }
-    this.sim = record.sim;
+    this.sim = this.opts.reconcile(record.sim);
     this.wallMs = record.wallMs;
     this.saveCounter = record.saveCounter;
     this.patch({ sim: this.sim, wallMs: this.wallMs, saveCounter: this.saveCounter });
@@ -384,15 +406,21 @@ export class GameHost {
     await this.advanceToNow(this.session);
   }
 
+  /** The offline cap for the loaded save: the base, or the lamp's if it is longer. */
+  private capTicks(sim: SimState): number {
+    return Math.max(this.opts.capTicks, this.opts.capTicksFor(sim));
+  }
+
   /** Plan from the clock and run exactly the derived ticks. Re-entrant calls are dropped. */
   private async advanceToNow(session: AbortController): Promise<void> {
     if (this.advancing || this.sim === null || this.wallMs === null) return;
+    const capTicks = this.capTicks(this.sim);
     const plan = planAdvance({
       tick: this.sim.tick,
       wallMs: this.wallMs,
       nowMs: this.env.clock.now(),
       tickMs: this.opts.tickMs,
-      capTicks: this.opts.capTicks,
+      capTicks,
     });
     const count = planTickCount(plan);
     if (count === 0) {
@@ -434,7 +462,7 @@ export class GameHost {
           before: recapFrom,
           awayMs: plan.newWallMs - plan.fromWallMs,
           skippedTicks: plan.skippedTicks,
-          capMs: this.opts.capTicks * this.opts.tickMs,
+          capMs: capTicks * this.opts.tickMs,
         },
       });
     }

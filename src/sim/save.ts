@@ -6,7 +6,7 @@ import { ContainerSchema } from './items.ts';
 import { seedRng } from './rng.ts';
 import { EQUIPMENT_SLOTS, EquipmentSlotSchema } from './slots.ts';
 
-export const CURRENT_SAVE_VERSION = 8;
+export const CURRENT_SAVE_VERSION = 9;
 
 const Uint32 = z.number().int().min(0).max(0xffffffff);
 
@@ -52,6 +52,8 @@ export const CombatStateSchema = z.object({
   offering: IdSchema.nullable(),
   /** The sworn god's favour: burns one a second while fighting; the boon holds while it lasts. */
   favour: z.number().int().min(0),
+  /** Pay the ferryman on death (twice the lost item's worth) rather than lose the item. */
+  ferryman: z.boolean().default(true),
   fight: FightSchema.nullable(),
 });
 export type CombatState = z.infer<typeof CombatStateSchema>;
@@ -100,7 +102,13 @@ export const SimStateSchema = z.object({
     offered: z.number().int().min(0).default(0),
     /** Javelins ever thrown. */
     thrown: z.number().int().min(0).default(0),
+    /** Coins ever spent: bank slots, the trader, the ferryman. */
+    spent: z.number().int().min(0).default(0),
+    /** Deaths the ferryman was paid for, in coin or obol. */
+    ferried: z.number().int().min(0).default(0),
   }),
+  /** Times each of the trader's wares was bought, keyed by ware id. */
+  upgrades: z.record(IdSchema, z.number().int().min(0)).default({}),
   combat: CombatStateSchema,
   /** First-steps progress: step ids completed in order, and whether the card was put away. */
   tutorial: z.object({ done: z.array(z.string().min(1)), dismissed: z.boolean() }),
@@ -146,7 +154,18 @@ export function createSimState(seed: number): SimState {
     coins: 0,
     action: { current: null, queue: [] },
     log: [],
-    stats: { actions: {}, items: {}, sold: 0, kills: {}, deaths: 0, offered: 0, thrown: 0 },
+    stats: {
+      actions: {},
+      items: {},
+      sold: 0,
+      kills: {},
+      deaths: 0,
+      offered: 0,
+      thrown: 0,
+      spent: 0,
+      ferried: 0,
+    },
+    upgrades: {},
     tutorial: { done: [], dismissed: false },
     combat: {
       hp: STARTING_HP,
@@ -154,6 +173,7 @@ export function createSimState(seed: number): SimState {
       eatAt: DEFAULT_EAT_AT,
       offering: null,
       favour: 0,
+      ferryman: true,
       fight: null,
     },
   };

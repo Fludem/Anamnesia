@@ -9,7 +9,13 @@ import {
   maxHit,
   type HeroStats,
 } from './combat.ts';
-import type { CombatBoon, GatherNodeDef, MonsterDef, RecipeDef } from './content/schema.ts';
+import type {
+  CombatBoon,
+  DropTable,
+  GatherNodeDef,
+  MonsterDef,
+  RecipeDef,
+} from './content/schema.ts';
 import { TICK_MS } from './constants.ts';
 import type { SimContext } from './context.ts';
 import { TOOL_SLOTS, type ToolSlot } from './slots.ts';
@@ -193,6 +199,61 @@ export function hoursToCap(skill: string, ctx: SimContext, opts: { quick?: boole
   return climb(standardMethods(skill, ctx, opts), ctx, toolLadderFor(skill));
 }
 
+// ---- coins --------------------------------------------------------------------------------
+
+/** Expected sale value of one roll of `table`. */
+function tableValue(table: DropTable, ctx: SimContext): number {
+  const total = table.nothingWeight + table.entries.reduce((n, e) => n + e.weight, 0);
+  if (total === 0) return 0;
+  let value = 0;
+  for (const e of table.entries) {
+    const qty = (e.quantity[0] + e.quantity[1]) / 2;
+    value += (e.weight / total) * qty * ctx.content.item(e.item).value;
+  }
+  return table.rolls * value;
+}
+
+/** Expected sale value of what one successful cycle of a node lands. */
+export function nodeValue(n: GatherNodeDef, ctx: SimContext): number {
+  return n.drops.reduce((v, t) => v + tableValue(t, ctx), 0);
+}
+
+/** Value a recipe adds per successful cycle: outputs less inputs, both at sale value. */
+export function recipeValue(r: RecipeDef, ctx: SimContext): number {
+  const value = (stacks: readonly { item: string; qty: number }[]) =>
+    stacks.reduce((v, s) => v + ctx.content.item(s.item).value * s.qty, 0);
+  return value(r.outputs) - value(r.inputs);
+}
+
+/**
+ * Coins per hour at `level`, selling everything the best open standard method of `skill`
+ * lands (gathering) or adds (crafting, on the staple), with the tier's tool. The trader's
+ * prices are set against this; `scripts/tune-trader.ts` prints it.
+ */
+export function coinsPerHour(skill: string, level: number, ctx: SimContext): number {
+  const cut = toolCutAt(level, toolLadderFor(skill));
+  const nodes = ctx.content.nodesFor(skill);
+  let best = 0;
+  if (nodes.length > 0) {
+    for (const n of nodes) {
+      if (n.quick) continue;
+      const m = methodOfNode(n);
+      const perHour = methodRate(m, level, cut) / m.xp;
+      best = Math.max(best, perHour * nodeValue(n, ctx));
+    }
+  } else {
+    const staple = STAPLE_CATEGORY[skill];
+    for (const r of ctx.content.recipesFor(skill)) {
+      if (staple !== undefined && r.category !== staple) continue;
+      const m = methodOfRecipe(r);
+      if (m.xp === 0) continue;
+      const perHour = methodRate(m, level, 0) / m.xp;
+      best = Math.max(best, perHour * recipeValue(r, ctx));
+    }
+  }
+  return best;
+}
+
 // ---- combat -------------------------------------------------------------------------------
 
 /** A gear set arriving at a combat level: "from level 25 the hero wears basalt". */
@@ -215,7 +276,7 @@ export const GEAR_LADDER: readonly GearStep[] = [
   { level: 75, tier: 'aether' },
 ];
 
-const SET_PIECES = ['sword', 'shield', 'helm', 'cuirass', 'greaves', 'boots', 'gauntlets'];
+export const SET_PIECES = ['sword', 'shield', 'helm', 'cuirass', 'greaves', 'boots', 'gauntlets'];
 
 /**
  * What the combat model assumes beyond the level: the gear ladder, a boon always burning,

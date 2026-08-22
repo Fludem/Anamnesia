@@ -2698,3 +2698,86 @@
     width: 72px;
   }
 }
+
+/* the trader (Phase 10): Screen A's rows with a price on the right; the ferryman's card */
+.wares {
+  position: relative;
+}
+.ware-row {
+  cursor: default;
+}
+.ware-row:hover:not(:disabled) {
+  background: transparent;
+}
+.ware-row .name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ware-row .name .tag-active {
+  font-size: var(--fs-tag);
+  padding: 2px 6px;
+}
+.ware-row .body {
+  display: flex;
+  flex-direction: column;
+}
+.ware-row .sub + .sub {
+  color: var(--fg-2);
+}
+.ware-row.owned .tile-box {
+  border-color: rgba(var(--accent-rgb), 0.4);
+}
+.ware-buy {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+.ware-buy .price {
+  font: 500 var(--fs-body) var(--font-mono);
+  color: var(--gold);
+}
+.ware-buy .price.short {
+  color: var(--fg-3);
+}
+.ware-buy .btn {
+  padding: 6px 14px;
+  border-color: rgba(var(--accent-rgb), 0.45);
+  color: var(--accent);
+}
+.ware-buy .btn:disabled {
+  border-color: var(--border);
+  color: var(--fg-disabled);
+  cursor: default;
+}
+.ferryman-card .card-head {
+  padding: 0 0 8px;
+}
+.ferryman-card .sel-flavour {
+  margin: 0 0 12px;
+}
+.ferryman-card .card-foot {
+  margin-top: 10px;
+}
+.ferryman-row .name {
+  font: 500 var(--fs-body) var(--font-sans);
+  color: var(--fg);
+}
+.ferryman-row .sub {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+  margin-top: 1px;
+}
+.ferryman-row.paying {
+  border-color: rgba(var(--gold-rgb), 0.3);
+}
+.ferryman-row.paying .tile-box {
+  color: var(--gold);
+}
+@media (max-width: 700px) {
+  .ware-buy {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

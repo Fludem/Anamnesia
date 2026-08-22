@@ -394,6 +394,35 @@ export const RivalDefSchema = z.object({
 });
 export type RivalDef = z.infer<typeof RivalDefSchema>;
 
+/** What a ware does once bought. Effects are engine-known, like a god's perks. */
+export const WareEffectSchema = z.discriminatedUnion('kind', [
+  /** Offline progress counts for this many hours instead of the base cap. */
+  z.object({ kind: z.literal('offline-cap'), hours: z.number().positive() }),
+  /** A skill's `finds` table is rolled twice per cycle. */
+  z.object({ kind: z.literal('second-look') }),
+  /** The sworn god lets go: the hero may swear again. */
+  z.object({ kind: z.literal('release-oath') }),
+]);
+export type WareEffect = z.infer<typeof WareEffectSchema>;
+
+/**
+ * Something the trader sells for coins. `price × growth^bought`, rounded to 10 gp, is what it
+ * costs next; a `once` ware is sold one time. `requires` is a ware that must be owned first.
+ */
+export const WareDefSchema = z.object({
+  id: IdSchema,
+  name: z.string().min(1),
+  /** One dry line. */
+  line: z.string().min(1),
+  icon: IconRefSchema,
+  price: z.number().int().min(1),
+  growth: z.number().min(1).default(1),
+  once: z.boolean().default(true),
+  requires: IdSchema.nullable().default(null),
+  effect: WareEffectSchema,
+});
+export type WareDef = z.infer<typeof WareDefSchema>;
+
 function stripDollarKeys(v: unknown): unknown {
   if (typeof v !== 'object' || v === null || Array.isArray(v)) return v;
   return Object.fromEntries(Object.entries(v).filter(([k]) => !k.startsWith('$')));
@@ -438,5 +467,7 @@ export const ContentPackSchema = z.object({
   monsters: contentList(MonsterDefSchema).default([]),
   /** The highscores' other names. */
   rivals: contentList(RivalDefSchema).default([]),
+  /** What the trader sells. */
+  wares: contentList(WareDefSchema).default([]),
 });
 export type ContentPack = z.infer<typeof ContentPackSchema>;

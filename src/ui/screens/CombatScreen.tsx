@@ -26,6 +26,7 @@ import {
   type FightView,
   type SideView,
 } from '../derive-combat.ts';
+import { deathLine, ferrymanView } from '../derive-trader.ts';
 import { activeView, skillView } from '../derive.ts';
 import { formatAge, formatDuration, formatInt, formatSeconds, ticksToMs } from '../format.ts';
 import { BareIcon } from '../items/ItemTile.tsx';
@@ -35,6 +36,7 @@ import { popX, useNow } from '../util.ts';
 import type { Juice } from '../theme/theme.ts';
 import { ScreenHead, XpRow } from './common.tsx';
 import type { ScreenProps } from './defs.ts';
+import { OBOL_ICON } from './TraderScreen.tsx';
 
 const EAT_AT_STEPS = [0.25, 0.5, 0.75];
 const RARE_TOAST_TICKS = 26;
@@ -71,6 +73,7 @@ export function CombatScreen({ sim, dispatch, juice }: ScreenProps) {
           />
           <FoodRow sim={sim} dispatch={dispatch} maxHp={hero.maxHp} />
           <FavourRow sim={sim} dispatch={dispatch} juice={juice} />
+          <FerrymanRow sim={sim} dispatch={dispatch} />
           <Zones sim={sim} dispatch={dispatch} />
         </div>
         <KillLog sim={sim} juice={juice} />
@@ -112,10 +115,7 @@ function FightCard({
           <div className="died" role="status">
             <UiIcon id={DEATH_ICON} size={14} />
             <span>
-              you died · {content.monster(death.monster).name} ·{' '}
-              {death.lost === null
-                ? 'the hill took nothing; you wore nothing'
-                : `the hill took your ${content.item(death.lost).name}`}
+              you died · {content.monster(death.monster).name} · {deathLine(death, content)}
             </span>
             <button
               className="btn sm"
@@ -459,6 +459,41 @@ function FavourRow({
         onClick={() => dispatch({ type: 'combat:offer' })}
       >
         Offer
+      </button>
+    </div>
+  );
+}
+
+/** The ferryman's terms and the one choice about them: pay him, or not. */
+function FerrymanRow({ sim, dispatch }: { sim: SimState; dispatch: ScreenProps['dispatch'] }) {
+  const fv = ferrymanView(sim, simContext);
+  return (
+    <div className={`card food-row ferryman-row${fv.paying ? ' paying' : ''}`}>
+      <Label>Ferryman</Label>
+      <TileBox size="md" dim={!fv.paying && fv.obols === 0}>
+        <UiIcon id={OBOL_ICON} size={18} />
+      </TileBox>
+      <div style={{ minWidth: 0 }}>
+        <div className="name">{fv.paying ? 'Paying the ferryman' : 'Not paying the ferryman'}</div>
+        <div className="sub">
+          {fv.obols > 0
+            ? `${formatInt(fv.obols)} obol${fv.obols === 1 ? '' : 's'} in the bank · `
+            : ''}
+          {fv.worst === null
+            ? 'nothing worn, nothing owed'
+            : fv.paying
+              ? `a death costs up to ${formatInt(fv.worstFee)} gp and keeps the item`
+              : `a death takes a worn item · up to the ${fv.worst.name}`}
+        </div>
+      </div>
+      <span className="spacer" />
+      <button
+        className="btn sm"
+        style={{ padding: '6px 12px' }}
+        title={fv.paying ? 'lose the item instead' : 'pay twice its worth and keep it'}
+        onClick={() => dispatch({ type: 'combat:ferryman', pay: !fv.paying })}
+      >
+        {fv.paying ? 'Stop paying' : 'Pay him'}
       </button>
     </div>
   );

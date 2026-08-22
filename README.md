@@ -71,19 +71,28 @@ who are curves through the progression model rather than players: a head start i
 each skill's climb and a pace per hour of the hero's game time. `src/sim/highscores.ts` does
 the ranking; the screen shows the hero's standing on every board and the chosen board.
 
+Phase 10 is the coin sink. The ferryman: when the hero falls, an obol in the bank settles the
+crossing, else twice the lost item's worth in coins if the hero pays him (on by default), else
+the item goes as before — the one price that tracks the gear. The trader, a new screen, sells
+what the hill will take coins for: a lamp ladder that lengthens the offline cap (16, 20,
+24 h), a second look that doubles finds, and release from the oath from 100,000 gp doubling.
+`src/sim/progression.ts` gained `coinsPerHour`; `scripts/tune-trader.ts` prints income by
+level, each ware as hours of work and the ferryman's fee per tier. Save v9 adds purchases, the
+ferryman setting and spent/ferried counters.
+
 ## Layout
 
-| Path            | Layer                                                                                                                                                                                            |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/sim/`      | Pure simulation: save schema, migrations, PRNG, actions, skills, `highscores.ts`. No DOM.                                                                                                        |
-| `src/content/`  | Game content as JSON (skills, gods, materials, rarities, items, rocks, trees, waters, recipes, zones, monsters, rivals, drop tables), validated at load; `progression.test.ts` pins hours-to-99. |
-| `src/runtime/`  | Browser orchestration: save store, leader election, channel, GameHost.                                                                                                                           |
-| `src/ui/`       | React: `Shell`, `screens/`, `overlays/`, `derive.ts` (pure view helpers), `app.css` (the design's classes over the tokens).                                                                      |
-| `src/icons/`    | Icon registry, SVG renderer + cache, badge glyphs, procedural sword geometry.                                                                                                                    |
-| `src/ui/theme/` | Design tokens (CSS custom properties + TS object) and fonts.                                                                                                                                     |
-| `src/ui/items/` | Maps content onto renderer specs; `<ItemTile>` / `<BareIcon>`.                                                                                                                                   |
-| `design/`       | Claude Design reference screens the tokens were extracted from.                                                                                                                                  |
-| `scripts/`      | Icon vendoring / indexing pipeline; `tune-combat.ts` retunes monsters against the progression model; `tune-boons.ts` compares the gods' boons; `tune-gear.ts` prices javelins.                   |
+| Path            | Layer                                                                                                                                                                                                                                     |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/sim/`      | Pure simulation: save schema, migrations, PRNG, actions, skills, `highscores.ts`. No DOM.                                                                                                                                                 |
+| `src/content/`  | Game content as JSON (skills, gods, materials, rarities, items, rocks, trees, waters, recipes, zones, monsters, rivals, the trader's wares, drop tables), validated at load; `progression.test.ts` pins hours-to-99.                      |
+| `src/runtime/`  | Browser orchestration: save store, leader election, channel, GameHost.                                                                                                                                                                    |
+| `src/ui/`       | React: `Shell`, `screens/`, `overlays/`, `derive.ts` (pure view helpers), `app.css` (the design's classes over the tokens).                                                                                                               |
+| `src/icons/`    | Icon registry, SVG renderer + cache, badge glyphs, procedural sword geometry.                                                                                                                                                             |
+| `src/ui/theme/` | Design tokens (CSS custom properties + TS object) and fonts.                                                                                                                                                                              |
+| `src/ui/items/` | Maps content onto renderer specs; `<ItemTile>` / `<BareIcon>`.                                                                                                                                                                            |
+| `design/`       | Claude Design reference screens the tokens were extracted from.                                                                                                                                                                           |
+| `scripts/`      | Icon vendoring / indexing pipeline; `tune-combat.ts` retunes monsters against the progression model; `tune-boons.ts` compares the gods' boons; `tune-gear.ts` prices javelins; `tune-trader.ts` prices the trader's wares against income. |
 
 ## Commands
 

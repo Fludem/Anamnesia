@@ -14,6 +14,7 @@ import { HIGHSCORES_ICON } from './screens/HighscoresScreen.tsx';
 export const BANK_ICON = 'delapouite/chest';
 export const COIN_ICON = 'delapouite/coins';
 export const EQUIPMENT_ICON = 'delapouite/chest-armor';
+export const TRADER_ICON = 'lorc/scales';
 
 /** Skills with a screen of their own; hitpoints is read on the combat screen. */
 const LISTED = content.skills.filter((s) => s.listed);
@@ -93,6 +94,13 @@ export function Shell({ sim, view, onView, onSettings, children }: ShellProps) {
             <span className="grow">Equipment</span>
           </button>
           <button
+            className={view.kind === 'trader' ? 'nav-row active' : 'nav-row'}
+            onClick={() => onView({ kind: 'trader' })}
+          >
+            <UiIcon id={TRADER_ICON} size={17} />
+            <span className="grow">Trader</span>
+          </button>
+          <button
             className={view.kind === 'highscores' ? 'nav-row active' : 'nav-row'}
             onClick={() =>
               onView(view.kind === 'highscores' ? view : { kind: 'highscores', board: 'total' })
@@ -132,6 +140,13 @@ export function Shell({ sim, view, onView, onSettings, children }: ShellProps) {
         >
           <UiIcon id={EQUIPMENT_ICON} size={20} />
           Gear
+        </button>
+        <button
+          className={view.kind === 'trader' ? 'tab active' : 'tab'}
+          onClick={() => onView({ kind: 'trader' })}
+        >
+          <UiIcon id={TRADER_ICON} size={20} />
+          Trade
         </button>
         <button
           className={view.kind === 'highscores' ? 'tab active' : 'tab'}

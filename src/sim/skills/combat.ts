@@ -12,7 +12,7 @@ import {
   maxHit,
   xpForDamage,
 } from '../combat.ts';
-import type { MonsterDef } from '../content/schema.ts';
+import type { ItemDef, MonsterDef } from '../content/schema.ts';
 import type { SimContext } from '../context.ts';
 import { rollDropTable } from '../drops.ts';
 import { LOSABLE_SLOTS } from '../equipment.ts';
@@ -28,7 +28,9 @@ import type { Fight, SimState, Splat } from '../save.ts';
  * speed, success = hit chance, resolve = damage and, when the monster falls, the kill). The
  * monster swings on its own clock inside the per-tick hook, which is also where the hero
  * eats and, at 0 hp, dies. Death ends the action and costs one worn body item, chosen at
- * random; tools are never taken. Hitpoints refill on death — the item is the price.
+ * random; tools are never taken. Hitpoints refill on death — the item is the price, unless
+ * the ferryman is paid: an obol in the bank settles the crossing, else twice the item's worth
+ * in coins if the hero has it and has not told him otherwise. Then the item stays on.
  *
  * The sworn god watches the fight too: favour burns one a second while it runs, the god's
  * boon holds while there is any, and when it runs out one of the chosen offering is burnt
@@ -154,34 +156,77 @@ function throwAmmo(state: SimState): SimState {
     : { ...thrown, bank };
 }
 
+/** The ferryman charges this many times what the thing is worth. */
+export const FERRYMAN_MULTIPLIER = 2;
+/** A bank item with this tag settles a crossing outright. */
+export const FERRYMAN_COIN_TAG = 'coin';
+
+export function ferrymanFee(item: ItemDef): number {
+  return FERRYMAN_MULTIPLIER * item.value;
+}
+
+/** The obols in the bank, dearest first is not a thing: any one will do. */
+export function ferrymanCoins(state: SimState, ctx: SimContext): ItemStack[] {
+  return state.bank.filter(
+    (s) => ctx.content.hasItem(s.item) && ctx.content.item(s.item).tags.includes(FERRYMAN_COIN_TAG),
+  );
+}
+
 /**
- * The hero falls: one worn body item is lost (uniformly among the filled slots; the javelin
- * in hand is not worth taking), the fight and the whole action queue end, and hitpoints
- * refill. Pure; the rng draw is the slot pick.
+ * The hero falls: one worn body item is picked (uniformly among the filled slots; the javelin
+ * in hand is not worth taking) and the ferryman is offered for it — an obol from the bank
+ * first, then twice its worth in coins if the hero pays and can — else it is lost. The fight
+ * and the whole action queue end and hitpoints refill. Pure; the rng draw is the slot pick.
  */
 function die(state: SimState, m: MonsterDef, ctx: SimContext): SimState {
   const worn = LOSABLE_SLOTS.filter((s) => state.equipment[s] !== null);
   let rng = state.rng;
   let lost: string | null = null;
+  let kept: string | null = null;
+  let paid = 0;
+  let obol = false;
   let equipment = state.equipment;
+  let bank = state.bank;
+  let coins = state.coins;
   if (worn.length > 0) {
     let i;
     [i, rng] = nextInt(rng, 0, worn.length - 1);
     const slot = worn[i]!;
-    lost = equipment[slot] ?? null;
-    equipment = { ...equipment, [slot]: null };
+    const item = equipment[slot]!;
+    const fee = ctx.content.hasItem(item) ? ferrymanFee(ctx.content.item(item)) : 0;
+    const coin = ferrymanCoins(state, ctx)[0];
+    if (coin !== undefined) {
+      bank = removeItem(bank, coin.item, 1) ?? bank;
+      kept = item;
+      obol = true;
+    } else if (state.combat.ferryman && coins >= fee) {
+      coins -= fee;
+      kept = item;
+      paid = fee;
+    } else {
+      lost = item;
+      equipment = { ...equipment, [slot]: null };
+    }
   }
+  const ferried = kept === null ? 0 : 1;
   const { maxHp } = heroStats({ ...state, equipment }, ctx);
   return pushEvent(
     {
       ...state,
       rng,
       equipment,
+      bank,
+      coins,
       action: { current: null, queue: [] },
       combat: { ...state.combat, hp: maxHp, fight: null },
-      stats: { ...state.stats, deaths: state.stats.deaths + 1 },
+      stats: {
+        ...state.stats,
+        deaths: state.stats.deaths + 1,
+        spent: state.stats.spent + paid,
+        ferried: state.stats.ferried + ferried,
+      },
     },
-    { type: 'died', tick: state.tick, monster: m.id, lost },
+    { type: 'died', tick: state.tick, monster: m.id, lost, kept, paid, obol },
   );
 }
 

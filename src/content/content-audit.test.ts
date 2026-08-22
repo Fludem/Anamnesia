@@ -79,6 +79,7 @@ describe('shipped content', () => {
       ...content.zones,
       ...content.monsters,
       ...content.gods,
+      ...content.wares,
     ].map((x) => x.icon);
     for (const ref of refs) expect(() => icons.get(ref), ref).not.toThrow();
   });
@@ -241,8 +242,9 @@ describe('shipped content', () => {
       ...content.recipes,
       ...content.zones,
       ...content.monsters,
+      ...content.wares,
     ];
-    const minor = new Set(['of', 'the', 'and']);
+    const minor = new Set(['of', 'the', 'and', 'for', 'from']);
     for (const x of named) {
       const words = x.name.split(' ');
       for (const [i, w] of words.entries()) {
@@ -252,12 +254,51 @@ describe('shipped content', () => {
     }
     const names = content.items.map((i) => i.name);
     expect(new Set(names).size).toBe(names.length);
-    for (const x of [...content.items, ...content.zones, ...content.monsters]) {
-      expect(x.description.length, x.id).toBeGreaterThan(0);
-      expect(x.description.length, x.id).toBeLessThanOrEqual(140);
-      expect(x.description, x.id).toMatch(/[.!?]$/);
-      expect(x.description, x.id).not.toMatch(/\n/);
+    const lines: [string, string][] = [
+      ...[...content.items, ...content.zones, ...content.monsters].map((x): [string, string] => [
+        x.id,
+        x.description,
+      ]),
+      ...content.wares.map((w): [string, string] => [w.id, w.line]),
+    ];
+    for (const [id, line] of lines) {
+      expect(line.length, id).toBeGreaterThan(0);
+      expect(line.length, id).toBeLessThanOrEqual(140);
+      expect(line, id).toMatch(/[.!?]$/);
+      expect(line, id).not.toMatch(/\n/);
     }
+  });
+
+  it('the trader sells a lamp ladder, a second look and release from the oath; the ferryman has his coin', () => {
+    const ids = content.wares.map((w) => w.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    // The lamp ladder: each rung requires the one before and lasts longer.
+    const lamps = content.wares.flatMap((w) =>
+      w.effect.kind === 'offline-cap' ? [{ ...w, hours: w.effect.hours }] : [],
+    );
+    expect(lamps.length).toBeGreaterThanOrEqual(3);
+    let previous: (typeof lamps)[number] | null = null;
+    for (const lamp of lamps) {
+      expect(lamp.requires, lamp.id).toBe(previous?.id ?? null);
+      if (previous !== null) {
+        expect(lamp.hours, lamp.id).toBeGreaterThan(previous.hours);
+        expect(lamp.price, lamp.id).toBeGreaterThan(previous.price);
+      }
+      previous = lamp;
+    }
+    expect(lamps[0]?.hours).toBeGreaterThan(12);
+    expect(lamps.at(-1)?.hours).toBe(24);
+    expect(content.wares.filter((w) => w.effect.kind === 'second-look')).toHaveLength(1);
+    // Release: one ware, sold again and again, from 100,000 doubling; dearer than any one-time ware.
+    const release = content.wares.filter((w) => w.effect.kind === 'release-oath');
+    expect(release).toHaveLength(1);
+    expect(release[0]).toMatchObject({ once: false, growth: 2, price: 100_000 });
+    for (const w of content.wares)
+      if (w.once) expect(w.price, w.id).toBeLessThanOrEqual(release[0]!.price);
+    // An obol drops somewhere, and nothing else passes for the ferryman's coin.
+    const coins = content.items.filter((i) => i.tags.includes('coin'));
+    expect(coins.map((i) => i.id)).toEqual(['obol']);
+    expect(obtainable().has('obol')).toBe(true);
   });
 
   it('the four rarities are all used, and the legendary tier is scarce', () => {

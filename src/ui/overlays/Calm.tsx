@@ -54,11 +54,14 @@ export function CalmPage({ children }: { children: ReactNode }) {
  */
 export function Onboarding({
   name: savedName,
+  nightHours = 12,
   onName,
   onSwear,
 }: {
   /** The name already in the save, or null while the hero is still Nameless. */
   name: string | null;
+  /** How long the night is, in hours (12 unless the trader's lamp says otherwise). */
+  nightHours?: number;
   onName: (name: string) => void;
   onSwear: (god: string) => void;
 }) {
@@ -182,7 +185,7 @@ export function Onboarding({
           <div className="hint-list">
             <div className="hint-row">
               <UiIcon id="lorc/hourglass" size={15} className="gold" />
-              Skills train offline, up to 12h at a time
+              Skills train offline, up to {String(nightHours)}h at a time
             </div>
             <div className="hint-row">
               <UiIcon id="delapouite/chest" size={15} className="gold" />

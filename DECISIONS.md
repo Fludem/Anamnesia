@@ -803,3 +803,84 @@ built from Screen A's rows and Screen E's columns.
 The roster is the placeholder for real names: a server would replace `content.rivals` rows
 with fetched ones and the ranking, the screen and the tie rule stay. Nothing in the save
 references a rival.
+
+### Fixed along the way
+
+- A save from an earlier build can name content this one no longer has (a phase-1 save was
+  still mining `coal-rock`); migrations only know the save's shape, so the sim crashed on
+  the first tick and the skill screen with it. `src/sim/reconcile.ts` now runs once on load,
+  after migration, with the content in hand: an action, a queued request, a stack, a worn
+  item, the chosen food or offering, a fight or a log line naming something that is gone is
+  dropped, everything else is kept, and the host logs what went. A clean save comes back by
+  identity. Content ids remain the only thing a content change can break, and now it breaks
+  softly.
+
+## Phase 10 — the coin sink: the trader and the ferryman
+
+The ask: a coin sink. Coins came in three ways — selling at full listed value with no
+friction, ten monsters' small gp ranges, 750 gp of first steps — and went out one: the
+bank-slot curve, which stops mattering once the bank is big enough. A read of the progression
+model (`coinsPerHour` in `src/sim/progression.ts`, printed by `scripts/tune-trader.ts`) puts
+income near 10k gp/h at level 1 mining (the gems), 45k at 45, 125k at 75 and over a million at
+aether, so a fixed price is a purchase in the early-mid game and a rounding error at the top.
+Two things already in the content pointed the way: the Obol ("One coin for the ferryman. He has
+stopped counting.") dropped rarely and did nothing, and Phase 5 left the oath's permanence with
+"a later altar could, for gp". The user chose the ferryman at twice the worth, paid by default,
+and release from the oath from 100,000 gp doubling.
+
+### The ferryman is the sink that keeps pace
+
+Death cost one worn item (Phase 6, the user's rule). Now, when the hero falls, the slot is
+rolled as before and the ferryman is offered for what it holds: an obol from the bank settles
+it outright; else, if the hero pays him (`combat.ferryman`, on by default) and can, twice the
+item's worth in coins; else the item goes as it always did. The fee tracks the gear — pennies in
+copper, 3,200 gp for a silver cuirass, 91,000 for an aether one — which is the one price in the
+game that cannot be outgrown, and it is paid at the moment the loss would have landed, so it is
+never a purchase nobody makes. Twice, not once, so paying is a decision and not the obvious
+move: remaking the thing from bars is cheaper in coin and dearer in hours. On by default because
+an idle player who never found the toggle would otherwise lose a 45k cuirass to a setting; the
+fight screen carries the row, the trader's card repeats the terms, and the death line says
+which way it went ("the ferryman took 1,330 gp for your Silver Sword" / "an obol paid the
+ferryman · your Silver Sword stays" / "the hill took your …"). The obol is free because it is
+rare (0.5% a catch at four waters, two shades) and because "he has stopped counting" was
+already written; nothing sells obols.
+
+`FERRYMAN_MULTIPLIER` and the `coin` tag live in `src/sim/skills/combat.ts`; the `died` event
+gained `kept`, `paid`, `obol` with defaults so a v8 log still parses; `stats.spent` counts
+every coin that leaves (slots, wares, the ferryman) and `stats.ferried` the crossings, so the
+recap can say what the night cost without a purchase event.
+
+### The trader sells what the hill can take coins for
+
+`src/content/trader.json` is a new `wares` collection: a name, one dry line, an icon, a price,
+and an engine-known effect, the way a god's perks are content. `price × growth^bought`, rounded
+to 10 gp; a `once` ware is sold one time; `requires` makes a ladder. `src/sim/trader.ts` prices
+and sells them; `state.upgrades` is a count per ware id, so a purchase survives a content
+change the way everything else does (reconcile drops a ware that is gone).
+
+- **The lamp ladder** — A Lamp 5,000 gp (the night lasts 16 h), Oil for the Lamp 25,000 (20 h),
+  A Long Wick 100,000 (24 h). Offline progress was capped at 12 h since Phase 0.5; the cap is
+  now `max(base, the best lamp owned)` (`offlineCapTicks`), and the host learns it through a
+  `capTicksFor` option rather than a new constant, so the runtime still knows nothing about
+  wares. A test pins each rung at under an hour of the best gathering income at its level
+  (0.3 h at 20, 0.55 h at 45, 0.8 h at 75) so it stays a purchase and not a milestone.
+- **A Second Look** — 15,000 gp; a skill's `finds` table rolls twice a cycle. The one ware for
+  someone who never fights.
+- **Release from the Oath** — 100,000 gp, doubling each time. Buying it sets the god to none;
+  the existing "choose your god" page appears and the hero swears again. Favour stays: it is
+  the hill's, not the god's, and the next oath inherits it. The user set the opening price
+  (my draft said 5,000); at 100k it is a late-game decision, which fits "the hill does not take
+  oaths back" being mostly true.
+
+No design screen exists for the trader; `TraderScreen` is Screen A's rows with a price and a
+Buy on the right, a lock on the rungs that wait on another, and Screen E's columns with the
+ferryman's terms on the side. The bank's `+` cell keeps selling slots; they were the design's
+and stay where it put them.
+
+### What is still wrong with the economy
+
+The tune script makes it plain: item values climb far faster than the xp curve (an aether smith
+adds ~2.9M gp an hour by the model; an aether cuirass sells for 45,641), so past level 80 no
+fixed price means anything and only the ferryman scales. That is the content's value ladder,
+set in Phase 3 before anything spent coins, and the real fix is a retune of `value` across the
+top tiers — a later phase, because the bank curve and every sale price move with it.

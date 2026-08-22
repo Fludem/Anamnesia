@@ -138,6 +138,8 @@ export const FIXTURE_PACK = {
     },
     { id: 'bone', name: 'Bone', icon: 'lorc/rock', value: 1 },
     { id: 'hide', name: 'Hide', icon: 'lorc/rock', value: 4 },
+    /** The ferryman's coin: one in the bank settles a death outright. */
+    { id: 'obol', name: 'Obol', icon: 'lorc/crown-coin', value: 100, tags: ['coin'] },
     /** An offering worth 5 favour (five seconds of fighting). */
     {
       id: 'sprig',
@@ -371,6 +373,44 @@ export const FIXTURE_PACK = {
     },
     /** Trains nothing; sits on a thousand coins. */
     { id: 'idler', name: 'Idler', line: 'Sits.', wealth: { start: 1000 } },
+  ],
+  wares: [
+    /** A two-rung lamp ladder, a second look, and release from the oath at 1,000 doubling. */
+    {
+      id: 'lamp',
+      name: 'Lamp',
+      line: 'Sixteen hours.',
+      icon: 'lorc/lantern',
+      price: 500,
+      effect: { kind: 'offline-cap', hours: 16 },
+    },
+    {
+      id: 'wick',
+      name: 'Wick',
+      line: 'A day.',
+      icon: 'lorc/candle-flame',
+      price: 2500,
+      requires: 'lamp',
+      effect: { kind: 'offline-cap', hours: 24 },
+    },
+    {
+      id: 'second-look',
+      name: 'Second look',
+      line: 'Twice.',
+      icon: 'lorc/semi-closed-eye',
+      price: 333,
+      effect: { kind: 'second-look' },
+    },
+    {
+      id: 'release',
+      name: 'Release',
+      line: 'Let go.',
+      icon: 'lorc/crossed-chains',
+      price: 1000,
+      growth: 2,
+      once: false,
+      effect: { kind: 'release-oath' },
+    },
   ],
 };
 

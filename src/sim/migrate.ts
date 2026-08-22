@@ -112,6 +112,19 @@ export const MIGRATIONS: MigrationTable = {
     const sim = asObject(raw['sim']);
     return { ...raw, sim: { ...sim, stats: { thrown: 0, ...asObject(sim['stats']) } } };
   },
+  /** v8 → v9 (Phase 10): nothing bought, nothing spent, the ferryman paid by default. */
+  8: (raw) => {
+    const sim = asObject(raw['sim']);
+    return {
+      ...raw,
+      sim: {
+        ...sim,
+        upgrades: {},
+        stats: { spent: 0, ferried: 0, ...asObject(sim['stats']) },
+        combat: { ferryman: true, ...asObject(sim['combat']) },
+      },
+    };
+  },
 };
 
 function asObject(v: unknown): Record<string, unknown> {

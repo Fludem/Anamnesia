@@ -49,12 +49,19 @@ export const SimEventSchema = z.discriminatedUnion('type', [
     items: z.array(ItemStackSchema),
     coins: z.number().int().min(0),
   }),
-  /** The hero fell. `lost` is the worn item the hill took, or null if nothing was worn. */
+  /** The hero fell: the hill took `lost`, or the ferryman was paid and `kept` stayed on. */
   z.object({
     type: z.literal('died'),
     tick: z.number().int().min(0),
     monster: IdSchema,
+    /** The worn item the hill took, or null. */
     lost: IdSchema.nullable(),
+    /** The worn item the ferryman let the hero keep, or null. */
+    kept: IdSchema.nullable().default(null),
+    /** Coins the ferryman took for it. */
+    paid: z.number().int().min(0).default(0),
+    /** Whether an obol settled the crossing instead. */
+    obol: z.boolean().default(false),
   }),
   /** An offering burnt for the sworn god: the item and the favour it bought. */
   z.object({

@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { combatClimb, GEAR_LADDER, hoursToCap, regenPerHour } from '../sim/progression.ts';
+import {
+  coinsPerHour,
+  combatClimb,
+  GEAR_LADDER,
+  hoursToCap,
+  regenPerHour,
+} from '../sim/progression.ts';
 import { content, simContext } from './index.ts';
 
 /**
@@ -144,6 +150,37 @@ describe('progression: combat', () => {
         ((36_000 / p.durationTicks) * p.success.base * (item.stats.favour ?? 0)) / 3600;
       expect(favour, p.id).toBeGreaterThan(2);
       expect(favour, p.id).toBeLessThan(3);
+    }
+  });
+});
+
+/**
+ * The trader's prices against income. "Income" is coins per hour selling everything the best
+ * standard method lands; each lamp should cost about an hour of it where the lamp is meant to
+ * be bought, so it is a purchase and not a milestone. The ferryman is the sink that keeps
+ * pace past that: twice the worth of what is worn, whatever the tier.
+ */
+describe('progression: the trader', () => {
+  const GATHERING = ['mining', 'woodcutting', 'fishing', 'foraging'];
+  const best = (level: number) =>
+    Math.max(...GATHERING.map((s) => coinsPerHour(s, level, simContext)));
+
+  it('income rises with level, and the first lamp is within reach before level 20', () => {
+    let last = 0;
+    for (const level of [1, 10, 20, 30, 45, 60, 75, 90]) {
+      const gp = best(level);
+      expect(gp, String(level)).toBeGreaterThanOrEqual(last);
+      last = gp;
+    }
+    expect(content.ware('lamp').price).toBeLessThanOrEqual(best(20));
+  });
+
+  it('each rung of the lamp ladder costs under an hour of the best income at its level', () => {
+    const at: Record<string, number> = { lamp: 20, 'lamp-oil': 45, 'long-wick': 75 };
+    for (const [id, level] of Object.entries(at)) {
+      const hours = content.ware(id).price / best(level);
+      expect(hours, id).toBeLessThanOrEqual(1);
+      expect(hours, id).toBeGreaterThan(0.15);
     }
   });
 });

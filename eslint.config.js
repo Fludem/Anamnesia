@@ -45,7 +45,7 @@ const wallClockRules = {
 };
 
 export default tseslint.config(
-  { ignores: ['dist', 'vendor', 'node_modules', 'src/assets'] },
+  { ignores: ['dist', 'vendor', 'node_modules', 'src/assets', '.claude'] },
   {
     files: ['**/*.{ts,tsx}'],
     extends: [js.configs.recommended, ...tseslint.configs.recommendedTypeChecked],

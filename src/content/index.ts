@@ -17,6 +17,7 @@ import recipes from './recipes.json';
 import rivals from './rivals.json';
 import rocks from './rocks.json';
 import skills from './skills.json';
+import trader from './trader.json';
 import trees from './trees.json';
 import waters from './waters.json';
 import zones from './zones.json';
@@ -36,6 +37,7 @@ export const content: ContentDb = ContentDb.fromPack({
   monsters,
   gods,
   rivals,
+  wares: trader,
 });
 
 export const simContext: SimContext = { content, xp: DEFAULT_XP_CURVE };

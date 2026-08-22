@@ -59,10 +59,14 @@ describe('migrateSave', () => {
         applied.push(7);
         return r;
       },
+      8: (r) => {
+        applied.push(8);
+        return r;
+      },
     };
     const v0 = { ...fresh(), version: 0, writerId: undefined };
     const out = migrateSave(v0, migrations, CURRENT_SAVE_VERSION);
-    expect(applied).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+    expect(applied).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
     expect(out.version).toBe(CURRENT_SAVE_VERSION);
     expect(out.writerId).toBe('migrated-from-v0');
   });
@@ -85,9 +89,28 @@ describe('migrateSave', () => {
       coins: 0,
       action: { current: null, queue: [] },
       log: [],
-      stats: { actions: {}, items: {}, sold: 0, kills: {}, deaths: 0, offered: 0, thrown: 0 },
+      stats: {
+        actions: {},
+        items: {},
+        sold: 0,
+        kills: {},
+        deaths: 0,
+        offered: 0,
+        thrown: 0,
+        spent: 0,
+        ferried: 0,
+      },
+      upgrades: {},
       tutorial: { done: [], dismissed: false },
-      combat: { hp: 10, food: null, eatAt: 0.25, offering: null, favour: 0, fight: null },
+      combat: {
+        hp: 10,
+        food: null,
+        eatAt: 0.25,
+        offering: null,
+        favour: 0,
+        ferryman: true,
+        fight: null,
+      },
     });
     expect('placeholder' in out.sim).toBe(false);
   });
@@ -129,6 +152,8 @@ describe('migrateSave', () => {
       deaths: 0,
       offered: 0,
       thrown: 0,
+      spent: 0,
+      ferried: 0,
     });
     expect(out.sim.bank).toEqual([{ item: 'copper-ore', qty: 3 }]);
   });
@@ -159,6 +184,8 @@ describe('migrateSave', () => {
       deaths: 0,
       offered: 0,
       thrown: 0,
+      spent: 0,
+      ferried: 0,
     });
     expect(out.sim.tutorial).toEqual({ done: [], dismissed: false });
     // A v4 stop has no skill, so it is dropped; everything else in the log is kept.
@@ -181,6 +208,8 @@ describe('migrateSave', () => {
       deaths: 0,
       offered: 0,
       thrown: 0,
+      spent: 0,
+      ferried: 0,
     });
     expect(out.sim.combat).toEqual({
       hp: 10,
@@ -188,6 +217,7 @@ describe('migrateSave', () => {
       eatAt: 0.25,
       offering: null,
       favour: 0,
+      ferryman: true,
       fight: null,
     });
   });
@@ -208,6 +238,7 @@ describe('migrateSave', () => {
       eatAt: 0.5,
       offering: null,
       favour: 0,
+      ferryman: true,
       fight: null,
     });
   });
@@ -227,6 +258,32 @@ describe('migrateSave', () => {
       deaths: 1,
       offered: 3,
       thrown: 0,
+      spent: 0,
+      ferried: 0,
+    });
+  });
+
+  it('migrates a v8 record to v9: nothing bought or spent, the ferryman paid by default', () => {
+    const v8 = JSON.parse(JSON.stringify(fresh())) as Record<string, unknown>;
+    const sim = v8['sim'] as Record<string, unknown>;
+    v8['version'] = 8;
+    delete sim['upgrades'];
+    sim['stats'] = { actions: {}, items: {}, sold: 2, kills: {}, deaths: 1, offered: 0, thrown: 4 };
+    sim['combat'] = { hp: 10, food: null, eatAt: 0.25, offering: null, favour: 7, fight: null };
+    sim['log'] = [{ type: 'died', tick: 5, monster: 'adder', lost: 'copper-helm' }];
+    const out = migrateSave(v8);
+    expect(out.version).toBe(CURRENT_SAVE_VERSION);
+    expect(out.sim.upgrades).toEqual({});
+    expect(out.sim.stats).toMatchObject({ sold: 2, thrown: 4, spent: 0, ferried: 0 });
+    expect(out.sim.combat).toMatchObject({ favour: 7, ferryman: true });
+    expect(out.sim.log[0]).toEqual({
+      type: 'died',
+      tick: 5,
+      monster: 'adder',
+      lost: 'copper-helm',
+      kept: null,
+      paid: 0,
+      obol: false,
     });
   });
 
