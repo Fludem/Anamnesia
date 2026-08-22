@@ -117,6 +117,7 @@ export function requestNode(req: ActionRequest): string | null {
     case 'fishing':
       return req.water;
     case 'crafting':
+    case 'combat':
       return null;
   }
 }
@@ -207,6 +208,9 @@ export function activeView(sim: SimState, ctx: SimContext): ActiveView | null {
       break;
     case 'crafting':
       ({ name, xp: base } = ctx.content.recipe(req.recipe));
+      break;
+    case 'combat':
+      ({ name, xp: base } = ctx.content.monster(req.monster));
       break;
   }
   const chance = actionHandler(req.kind).successChance(sim, req, ctx);

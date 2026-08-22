@@ -1,7 +1,9 @@
 import {
   CURRENT_SAVE_VERSION,
+  DEFAULT_EAT_AT,
   DEFAULT_PLAYER_NAME,
   emptyEquipment,
+  STARTING_HP,
   SaveRecordSchema,
   type SaveRecord,
 } from './save.ts';
@@ -74,6 +76,22 @@ export const MIGRATIONS: MigrationTable = {
         stats: { items: {}, sold: 0, ...stats, actions: stats['actions'] ?? {} },
         tutorial: { done: [], dismissed: false },
         log,
+      },
+    };
+  },
+  /**
+   * v5 → v6 (Phase 6): combat state (full hitpoints, no food chosen, the design's 25% eat
+   * threshold, no fight) and lifetime kill counters. Hitpoints xp starts at 0 like any skill.
+   */
+  5: (raw) => {
+    const sim = asObject(raw['sim']);
+    const stats = asObject(sim['stats']);
+    return {
+      ...raw,
+      sim: {
+        ...sim,
+        stats: { kills: {}, ...stats },
+        combat: { hp: STARTING_HP, food: null, eatAt: DEFAULT_EAT_AT, fight: null },
       },
     };
   },

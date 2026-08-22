@@ -6,8 +6,10 @@ import type { SimContext } from './context.ts';
 import { rollDropTable } from './drops.ts';
 import { pushEvent } from './events.ts';
 import { addItem, addStacks, countItem, removeItem, type Container } from './items.ts';
+import { heroStats } from './combat.ts';
 import { recordItems } from './perks.ts';
 import type { SimState } from './save.ts';
+import { eat } from './skills/combat.ts';
 import { EquipmentSlotSchema } from './slots.ts';
 
 /** 3–16 visible characters; trimmed by the UI, checked here so a save never holds junk. */
@@ -44,6 +46,12 @@ export const CommandSchema = z.discriminatedUnion('type', [
   /** Put the first-steps card away (skipped or finished), or bring it back. */
   z.object({ type: z.literal('tutorial:dismiss') }),
   z.object({ type: z.literal('tutorial:show') }),
+  /** Choose the bank item auto-eat draws from (null: none). */
+  z.object({ type: z.literal('combat:food'), item: IdSchema.nullable() }),
+  /** Eat below this fraction of max hitpoints. */
+  z.object({ type: z.literal('combat:eat-at'), fraction: z.number().min(0).max(1) }),
+  /** Eat one of the chosen food now. */
+  z.object({ type: z.literal('combat:eat') }),
 ]);
 export type Command = z.infer<typeof CommandSchema>;
 
@@ -57,7 +65,15 @@ export function applyCommand(state: SimState, cmd: Command, ctx: SimContext): Co
       if (!check.ok) return { ok: false, state, reason: check.reason };
       return {
         ok: true,
-        state: beginAction({ ...state, action: { current: null, queue: [] } }, cmd.request, ctx),
+        state: beginAction(
+          {
+            ...state,
+            action: { current: null, queue: [] },
+            combat: { ...state.combat, fight: null },
+          },
+          cmd.request,
+          ctx,
+        ),
       };
     }
     case 'action:enqueue': {
@@ -70,7 +86,14 @@ export function applyCommand(state: SimState, cmd: Command, ctx: SimContext): Co
       return { ok: true, state: queued.action.current ? queued : startNextQueued(queued, ctx) };
     }
     case 'action:stop':
-      return { ok: true, state: { ...state, action: { current: null, queue: [] } } };
+      return {
+        ok: true,
+        state: {
+          ...state,
+          action: { current: null, queue: [] },
+          combat: { ...state.combat, fight: null },
+        },
+      };
     case 'equip': {
       if (!ctx.content.hasItem(cmd.item)) return reject(state, `unknown item "${cmd.item}"`);
       const item = ctx.content.item(cmd.item);
@@ -179,6 +202,30 @@ export function applyCommand(state: SimState, cmd: Command, ctx: SimContext): Co
       return { ok: true, state: { ...state, tutorial: { ...state.tutorial, dismissed: true } } };
     case 'tutorial:show':
       return { ok: true, state: { ...state, tutorial: { ...state.tutorial, dismissed: false } } };
+    case 'combat:food': {
+      if (cmd.item !== null) {
+        if (!ctx.content.hasItem(cmd.item)) return reject(state, `unknown item "${cmd.item}"`);
+        const item = ctx.content.item(cmd.item);
+        if (!((item.stats.heal ?? 0) > 0)) return reject(state, `${item.name} is not food`);
+      }
+      return { ok: true, state: { ...state, combat: { ...state.combat, food: cmd.item } } };
+    }
+    case 'combat:eat-at':
+      return { ok: true, state: { ...state, combat: { ...state.combat, eatAt: cmd.fraction } } };
+    case 'combat:eat': {
+      if (state.combat.food === null) return reject(state, 'no food chosen');
+      const ate = eat(state, ctx);
+      if (ate === null) {
+        const food = ctx.content.item(state.combat.food).name;
+        return reject(
+          state,
+          state.combat.hp >= heroStats(state, ctx).maxHp
+            ? 'hitpoints are full'
+            : `no ${food} left in the bank`,
+        );
+      }
+      return { ok: true, state: ate };
+    }
   }
 }
 

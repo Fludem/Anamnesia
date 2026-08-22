@@ -36,5 +36,11 @@
     "id": "combat",
     "name": "Combat",
     "icon": "lorc/crossed-swords"
+  },
+  {
+    "id": "hitpoints",
+    "name": "Hitpoints",
+    "icon": "skoll/hearts",
+    "listed": false
   }
 ]

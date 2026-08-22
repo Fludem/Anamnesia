@@ -16,6 +16,8 @@ export const FIXTURE_PACK = {
     { id: 'fishing', name: 'Fishing', icon: 'delapouite/fishing' },
     { id: 'firemaking', name: 'Firemaking', icon: 'lorc/campfire' },
     { id: 'cooking', name: 'Cooking', icon: 'delapouite/cooking-pot' },
+    { id: 'combat', name: 'Combat', icon: 'lorc/crossed-swords' },
+    { id: 'hitpoints', name: 'Hitpoints', icon: 'skoll/hearts', listed: false },
   ],
   items: [
     { id: 'stone', name: 'Stone', icon: 'lorc/rock', value: 1 },
@@ -45,7 +47,14 @@ export const FIXTURE_PACK = {
       value: 20,
     },
     { id: 'fish', name: 'Fish', icon: 'delapouite/flatfish', value: 3 },
-    { id: 'cooked-fish', name: 'Cooked fish', icon: 'darkzaitzev/fish-cooked', value: 8 },
+    {
+      id: 'cooked-fish',
+      name: 'Cooked fish',
+      icon: 'darkzaitzev/fish-cooked',
+      class: 'consumable',
+      stats: { heal: 5 },
+      value: 8,
+    },
     { id: 'burnt', name: 'Burnt', icon: 'darkzaitzev/fried-fish', value: 0 },
     { id: 'seed', name: 'Seed', icon: 'delapouite/plant-seed', value: 1 },
     /** A −50% rod. */
@@ -58,6 +67,45 @@ export const FIXTURE_PACK = {
       stats: { gather: 50 },
       value: 20,
     },
+    /** Worn gear: a sword that always hits hard, a slow spear, plain armour. */
+    {
+      id: 'sword',
+      name: 'Sword',
+      icon: 'lorc/broadsword',
+      class: 'weapon',
+      slot: 'weapon',
+      stats: { attack: 100, strength: 10 },
+      value: 30,
+    },
+    {
+      id: 'spear',
+      name: 'Spear',
+      icon: 'lorc/broadsword',
+      class: 'weapon',
+      slot: 'weapon',
+      stats: { attack: 10, strength: 20, speed: 6 },
+      value: 30,
+    },
+    {
+      id: 'helm',
+      name: 'Helm',
+      icon: 'delapouite/chest-armor',
+      class: 'armour',
+      slot: 'head',
+      stats: { defence: 5 },
+      value: 30,
+    },
+    {
+      id: 'cuirass',
+      name: 'Cuirass',
+      icon: 'delapouite/chest-armor',
+      class: 'armour',
+      slot: 'body',
+      stats: { defence: 10 },
+      value: 60,
+    },
+    { id: 'bone', name: 'Bone', icon: 'lorc/rock', value: 1 },
+    { id: 'hide', name: 'Hide', icon: 'lorc/rock', value: 4 },
   ],
   waters: [
     {
@@ -69,6 +117,47 @@ export const FIXTURE_PACK = {
       xp: 6,
       success: { base: 1 },
       drops: [{ entries: [{ item: 'fish', weight: 1 }] }],
+    },
+  ],
+  zones: [
+    { id: 'slope', name: 'The Slope', icon: 'delapouite/mountain-road', level: 1 },
+    { id: 'heights', name: 'The Heights', icon: 'lorc/mountaintop', level: 20 },
+  ],
+  monsters: [
+    /** Harmless and soft: 6 hp, never hits back (defence 0, attack 0 still rolls a 2/… chance). */
+    {
+      id: 'goat',
+      name: 'Goat',
+      icon: 'skoll/goat',
+      zone: 'slope',
+      level: 1,
+      hp: 6,
+      stats: { attack: 0, strength: 1, defence: 0, speed: 5 },
+      xp: 12,
+      coins: [1, 1],
+      drops: [{ entries: [{ item: 'hide', weight: 1 }] }],
+      always: [{ item: 'bone', qty: 1 }],
+    },
+    /** Hits for exactly 1 every 2 ticks and (all but) always lands; unkillable. */
+    {
+      id: 'brute',
+      name: 'Brute',
+      icon: 'lorc/minotaur',
+      zone: 'slope',
+      level: 5,
+      hp: 1000,
+      stats: { attack: 100000, strength: 1, defence: 1000, speed: 2 },
+      xp: 50,
+    },
+    {
+      id: 'high',
+      name: 'High thing',
+      icon: 'lorc/cyclops',
+      zone: 'heights',
+      level: 20,
+      hp: 1,
+      stats: { attack: 0, strength: 1, defence: 0, speed: 5 },
+      xp: 1,
     },
   ],
   gods: [
@@ -211,6 +300,16 @@ export const FIXTURE_PACK = {
 
 export const fixtureContent: ContentDb = ContentDb.fromPack(FIXTURE_PACK);
 export const fixtureContext: SimContext = { content: fixtureContent, xp: runescapeCurve() };
+
+/** A fresh state already fighting `monster` until stopped. */
+export function fightingState(seed: number, monster = 'goat', equipment = {}): SimState {
+  const s = createSimState(seed);
+  return beginAction(
+    { ...s, equipment: { ...s.equipment, ...equipment } },
+    { kind: 'combat', monster, count: null },
+    fixtureContext,
+  );
+}
 
 /** A fresh state already mining `rock` until stopped. */
 export function miningState(seed: number, rock = 'flaky-rock'): SimState {

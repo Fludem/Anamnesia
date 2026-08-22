@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hoursToCap } from '../sim/progression.ts';
+import { combatClimb, hoursToCap } from '../sim/progression.ts';
 import { content, simContext } from './index.ts';
 
 /**
@@ -8,7 +8,9 @@ import { content, simContext } from './index.ts';
  * quick method is faster but not absurdly so. Numbers here are expected values with the
  * tier's tool and no god; see src/sim/progression.ts for the model and DECISIONS.md for why.
  */
-const TRAINABLE = content.skills.map((s) => s.id).filter((id) => id !== 'combat');
+const TRAINABLE = content.skills
+  .map((s) => s.id)
+  .filter((id) => id !== 'combat' && id !== 'hitpoints');
 
 describe('progression: hours to 99', () => {
   const hours = Object.fromEntries(TRAINABLE.map((s) => [s, hoursToCap(s, simContext).hours]));
@@ -19,7 +21,8 @@ describe('progression: hours to 99', () => {
   });
 
   it('averages about 36 hours across skills', () => {
-    const mean = TRAINABLE.reduce((n, s) => n + hours[s]!, 0) / TRAINABLE.length;
+    const all = [...TRAINABLE.map((s) => hours[s]!), combatClimb(simContext).hours];
+    const mean = all.reduce((n, h) => n + h, 0) / all.length;
     expect(mean).toBeGreaterThan(33);
     expect(mean).toBeLessThan(39);
   });
@@ -46,4 +49,43 @@ describe('progression: hours to 99', () => {
       expect(content.nodesFor(skill).filter((n) => n.quick).length).toBeGreaterThanOrEqual(3);
     },
   );
+});
+
+/**
+ * Combat is measured in ladder gear (src/sim/progression.ts GEAR_LADDER) on the best monster
+ * open at each level, xp paid per point of damage. The shape the content must keep: the
+ * climb lands in the band, each zone's hardest monster is worth fighting once the zone opens
+ * (no level where a one-swing goat is the best xp), and nothing one-shots the hero from half
+ * health, so an eat threshold of 50% always holds if the bank has food.
+ */
+describe('progression: combat', () => {
+  const climb = combatClimb(simContext);
+
+  it('reaches 99 in 27–45 hours in ladder gear', () => {
+    expect(climb.hours).toBeGreaterThan(27);
+    expect(climb.hours).toBeLessThan(45);
+    expect(climb.milestones[10]).toBeLessThan(10 / 60);
+    expect(climb.milestones[50]).toBeLessThan(2);
+  });
+
+  it('the best monster is never more than one zone behind', () => {
+    for (const step of climb.steps) {
+      const zone = content.zone(content.monster(step.monster).zone);
+      const open = content.zones.filter((z) => z.level <= step.level);
+      const newest = open[open.length - 1]!;
+      const previous = open[open.length - 2] ?? newest;
+      expect([newest.id, previous.id], `level ${String(step.level)}`).toContain(zone.id);
+    }
+  });
+
+  it('no chosen monster can take more than half the hero’s hitpoints in one hit', () => {
+    for (const step of climb.steps) expect(step.maxHitFraction).toBeLessThan(0.5);
+  });
+
+  it('kills take seconds, not minutes', () => {
+    for (const step of climb.steps) {
+      expect(step.killSeconds).toBeGreaterThan(3);
+      expect(step.killSeconds).toBeLessThan(90);
+    }
+  });
 });

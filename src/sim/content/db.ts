@@ -326,6 +326,9 @@ export class ContentDb {
   hasTree(id: string): boolean {
     return this.treeById.has(id);
   }
+  hasMonster(id: string): boolean {
+    return this.monsterById.has(id);
+  }
   hasWater(id: string): boolean {
     return this.waterById.has(id);
   }

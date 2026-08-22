@@ -40,6 +40,22 @@ export const SimEventSchema = z.discriminatedUnion('type', [
     skill: IdSchema,
     reason: z.string().min(1),
   }),
+  /** A monster fell: the xp it paid (combat, before the hitpoints share) and what it dropped. */
+  z.object({
+    type: z.literal('kill'),
+    tick: z.number().int().min(0),
+    monster: IdSchema,
+    xp: z.number().min(0),
+    items: z.array(ItemStackSchema),
+    coins: z.number().int().min(0),
+  }),
+  /** The hero fell. `lost` is the worn item the hill took, or null if nothing was worn. */
+  z.object({
+    type: z.literal('died'),
+    tick: z.number().int().min(0),
+    monster: IdSchema,
+    lost: IdSchema.nullable(),
+  }),
   /** A first-steps step was completed and its reward paid. */
   z.object({
     type: z.literal('tutorial'),

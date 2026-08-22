@@ -56,6 +56,7 @@ describe('first steps', () => {
       bankSlotsBought: 1,
       stats: {
         actions: {},
+        kills: {},
         sold: 3,
         items: {
           'copper-ore': 10,

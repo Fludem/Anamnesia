@@ -6,7 +6,7 @@ import { ContainerSchema } from './items.ts';
 import { seedRng } from './rng.ts';
 import { EQUIPMENT_SLOTS, EquipmentSlotSchema } from './slots.ts';
 
-export const CURRENT_SAVE_VERSION = 5;
+export const CURRENT_SAVE_VERSION = 6;
 
 const Uint32 = z.number().int().min(0).max(0xffffffff);
 
@@ -19,6 +19,38 @@ export const EquipmentSchema = z.record(EquipmentSlotSchema, IdSchema.nullable()
 export type Equipment = z.infer<typeof EquipmentSchema>;
 
 export const SkillProgressSchema = z.object({ xp: z.number().min(0) });
+
+/** One number that popped over a hitpoints bar: a hit, a miss (amount 0) or a heal. */
+export const SplatSchema = z.object({
+  tick: z.number().int().min(0),
+  side: z.enum(['you', 'them']),
+  kind: z.enum(['hit', 'miss', 'heal']),
+  amount: z.number().int().min(0),
+});
+export type Splat = z.infer<typeof SplatSchema>;
+
+/** The monster in front of the hero while a combat action runs. Cleared when the fight ends. */
+export const FightSchema = z.object({
+  monster: IdSchema,
+  hp: z.number().int().min(0),
+  /** Ticks until the monster's next swing. */
+  swingIn: z.number().int().min(0),
+  startedTick: z.number().int().min(0),
+  /** The last few numbers, newest last; presentation reads them, the sim never does. */
+  splats: z.array(SplatSchema),
+});
+export type Fight = z.infer<typeof FightSchema>;
+
+export const CombatStateSchema = z.object({
+  /** Current hitpoints. Regenerates out of combat; a death refills it and costs a worn item. */
+  hp: z.number().int().min(0),
+  /** The bank item auto-eat draws from, or null. */
+  food: IdSchema.nullable(),
+  /** Eat when hp falls below this fraction of the maximum. */
+  eatAt: z.number().min(0).max(1),
+  fight: FightSchema.nullable(),
+});
+export type CombatState = z.infer<typeof CombatStateSchema>;
 
 /**
  * Everything the simulation reads and writes. Pure data; the sim never sees the envelope.
@@ -56,7 +88,10 @@ export const SimStateSchema = z.object({
     actions: z.record(IdSchema, z.number().int().min(0)),
     items: z.record(IdSchema, z.number().int().min(0)),
     sold: z.number().int().min(0),
+    /** Kills per monster id. */
+    kills: z.record(IdSchema, z.number().int().min(0)),
   }),
+  combat: CombatStateSchema,
   /** First-steps progress: step ids completed in order, and whether the card was put away. */
   tutorial: z.object({ done: z.array(z.string().min(1)), dismissed: z.boolean() }),
 });
@@ -79,6 +114,10 @@ export const SaveRecordSchema = z.object({
 export type SaveRecord = z.infer<typeof SaveRecordSchema>;
 
 export const DEFAULT_PLAYER_NAME = 'Nameless';
+/** Max hitpoints at Hitpoints level 1 (`HP_PER_LEVEL_OFFSET + 1`). */
+export const STARTING_HP = 10;
+/** The design's default: eat below 25%. */
+export const DEFAULT_EAT_AT = 0.25;
 
 export function emptyEquipment(): Equipment {
   return Object.fromEntries(EQUIPMENT_SLOTS.map((s) => [s, null])) as Equipment;
@@ -97,8 +136,9 @@ export function createSimState(seed: number): SimState {
     coins: 0,
     action: { current: null, queue: [] },
     log: [],
-    stats: { actions: {}, items: {}, sold: 0 },
+    stats: { actions: {}, items: {}, sold: 0, kills: {} },
     tutorial: { done: [], dismissed: false },
+    combat: { hp: STARTING_HP, food: null, eatAt: DEFAULT_EAT_AT, fight: null },
   };
 }
 

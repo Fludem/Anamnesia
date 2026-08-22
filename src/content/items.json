@@ -383,7 +383,7 @@
     "stats": {
       "attack": 8,
       "strength": 6,
-      "speed": -1
+      "speed": 6
     },
     "value": 11,
     "tags": ["weapon", "smithing", "copper"]
@@ -522,7 +522,7 @@
     "stats": {
       "attack": 11,
       "strength": 8,
-      "speed": -1
+      "speed": 6
     },
     "value": 44,
     "tags": ["weapon", "smithing", "iron"]
@@ -661,7 +661,7 @@
     "stats": {
       "attack": 14,
       "strength": 10,
-      "speed": -1
+      "speed": 6
     },
     "value": 55,
     "tags": ["weapon", "smithing", "basalt"]
@@ -800,7 +800,7 @@
     "stats": {
       "attack": 16,
       "strength": 12,
-      "speed": -1
+      "speed": 6
     },
     "value": 376,
     "tags": ["weapon", "smithing", "silver"]
@@ -939,7 +939,7 @@
     "stats": {
       "attack": 19,
       "strength": 14,
-      "speed": -1
+      "speed": 6
     },
     "value": 497,
     "tags": ["weapon", "smithing", "gold"]
@@ -1078,7 +1078,7 @@
     "stats": {
       "attack": 22,
       "strength": 16,
-      "speed": -1
+      "speed": 6
     },
     "value": 9305,
     "tags": ["weapon", "smithing", "aether"]

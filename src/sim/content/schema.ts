@@ -19,6 +19,8 @@ export const SkillDefSchema = z.object({
   id: IdSchema,
   name: z.string().min(1),
   icon: IconRefSchema,
+  /** Whether the skill has a screen and a nav row. Hitpoints is trained by combat and only read. */
+  listed: z.boolean().default(true),
 });
 export type SkillDef = z.infer<typeof SkillDefSchema>;
 
@@ -70,7 +72,8 @@ export type ItemClass = z.infer<typeof ItemClassSchema>;
 
 /**
  * `gather` is a tool's percentage cut to its skill's action time (10 = −10%). `heal` is the
- * hitpoints a consumable restores. The rest are combat stats.
+ * hitpoints a consumable restores. `attack`, `strength` and `defence` add to the hero's
+ * level-derived numbers; `speed` is ticks added to the base swing (a spear is slower).
  */
 export const StatKeySchema = z.enum(['attack', 'strength', 'defence', 'speed', 'gather', 'heal']);
 export type StatKey = z.infer<typeof StatKeySchema>;

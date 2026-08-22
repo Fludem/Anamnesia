@@ -1,4 +1,14 @@
-import type { GatherNodeDef, RecipeDef } from './content/schema.ts';
+import {
+  COMBAT_SKILL,
+  HITPOINTS_XP_SHARE,
+  expectedDamageTakenPerTick,
+  expectedKillTicks,
+  gearStats,
+  heroStatsFrom,
+  maxHit,
+  type HeroStats,
+} from './combat.ts';
+import type { GatherNodeDef, MonsterDef, RecipeDef } from './content/schema.ts';
 import { TICK_MS } from './constants.ts';
 import type { SimContext } from './context.ts';
 import { TOOL_SLOTS, type ToolSlot } from './slots.ts';
@@ -181,3 +191,100 @@ export function toolLadderFor(skill: string): readonly ToolStep[] {
 export function hoursToCap(skill: string, ctx: SimContext, opts: { quick?: boolean } = {}) {
   return climb(standardMethods(skill, ctx, opts), ctx, toolLadderFor(skill));
 }
+
+// ---- combat -------------------------------------------------------------------------------
+
+/** A gear set arriving at a combat level: "from level 25 the hero wears basalt". */
+export interface GearStep {
+  level: number;
+  /** Material tier; the set is `<tier>-sword`, `-shield`, `-helm`, `-cuirass`, `-greaves`, `-boots`. */
+  tier: string;
+}
+
+/**
+ * The assumed gear ladder: each tier's set arrives around when its bars can be smithed and
+ * its zone opens. Like the tool ladders, an assumption about the shape of the climb.
+ */
+export const GEAR_LADDER: readonly GearStep[] = [
+  { level: 1, tier: 'copper' },
+  { level: 10, tier: 'iron' },
+  { level: 25, tier: 'basalt' },
+  { level: 45, tier: 'silver' },
+  { level: 60, tier: 'gold' },
+  { level: 75, tier: 'aether' },
+];
+
+const SET_PIECES = ['sword', 'shield', 'helm', 'cuirass', 'greaves', 'boots'];
+
+/** The hero as the model assumes them at `level`: ladder gear, hitpoints from the xp share. */
+export function modelHero(level: number, ctx: SimContext, ladder = GEAR_LADDER): HeroStats {
+  let tier = ladder[0]?.tier ?? '';
+  for (const step of ladder) if (level >= step.level) tier = step.tier;
+  const worn = SET_PIECES.map((p) => `${tier}-${p}`)
+    .filter((id) => ctx.content.hasItem(id))
+    .map((id) => ctx.content.item(id));
+  const hpLevel = ctx.xp.levelForXp(ctx.xp.xpForLevel(level) * HITPOINTS_XP_SHARE);
+  return heroStatsFrom(level, hpLevel, gearStats(worn));
+}
+
+export interface CombatStep {
+  level: number;
+  monster: string;
+  /** Combat xp per hour on the best monster. */
+  rate: number;
+  /** Expected seconds per kill. */
+  killSeconds: number;
+  /** Hitpoints the hero loses per hour, to be eaten back. */
+  damagePerHour: number;
+  /** The monster's biggest hit against the hero's max hitpoints. */
+  maxHitFraction: number;
+}
+
+export interface CombatClimb extends Climb {
+  steps: CombatStep[];
+}
+
+/** Monsters the hero may face at `level`: every one in an open zone. */
+export function monstersOpenAt(level: number, ctx: SimContext): MonsterDef[] {
+  return ctx.content.monsters.filter((m) => ctx.content.zone(m.zone).level <= level);
+}
+
+/**
+ * Hours to the combat cap fighting the best monster open at every level, in ladder gear. The
+ * steps carry what the choice costs: damage per hour (food) and how hard the monster hits.
+ */
+export function combatClimb(ctx: SimContext, ladder = GEAR_LADDER): CombatClimb {
+  const max = ctx.xp.maxLevel;
+  let hours = 0;
+  const milestones: Record<number, number> = {};
+  const actions: Record<string, number> = {};
+  const steps: CombatStep[] = [];
+  for (let level = 1; level < max; level++) {
+    const hero = modelHero(level, ctx, ladder);
+    const need = ctx.xp.xpForLevel(level + 1) - ctx.xp.xpForLevel(level);
+    let best: MonsterDef | null = null;
+    let bestRate = 0;
+    let bestTicks = 0;
+    for (const m of monstersOpenAt(level, ctx)) {
+      const ticks = expectedKillTicks(hero, m);
+      const rate = (m.xp * TICKS_PER_HOUR) / ticks;
+      if (rate > bestRate) [best, bestRate, bestTicks] = [m, rate, ticks];
+    }
+    if (best === null) return { hours: Infinity, milestones, actions, steps };
+    const h = need / bestRate;
+    hours += h;
+    actions[best.id] = (actions[best.id] ?? 0) + (h * TICKS_PER_HOUR) / bestTicks;
+    steps.push({
+      level,
+      monster: best.id,
+      rate: bestRate,
+      killSeconds: (bestTicks * TICK_MS) / 1000,
+      damagePerHour: expectedDamageTakenPerTick(hero, best) * TICKS_PER_HOUR,
+      maxHitFraction: maxHit(best.stats.strength) / hero.maxHp,
+    });
+    if ((MILESTONES as readonly number[]).includes(level + 1)) milestones[level + 1] = hours;
+  }
+  return { hours, milestones, actions, steps };
+}
+
+export { COMBAT_SKILL };

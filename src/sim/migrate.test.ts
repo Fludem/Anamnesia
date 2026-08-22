@@ -47,10 +47,14 @@ describe('migrateSave', () => {
         applied.push(4);
         return r;
       },
+      5: (r) => {
+        applied.push(5);
+        return r;
+      },
     };
     const v0 = { ...fresh(), version: 0, writerId: undefined };
     const out = migrateSave(v0, migrations, CURRENT_SAVE_VERSION);
-    expect(applied).toEqual([0, 1, 2, 3, 4]);
+    expect(applied).toEqual([0, 1, 2, 3, 4, 5]);
     expect(out.version).toBe(CURRENT_SAVE_VERSION);
     expect(out.writerId).toBe('migrated-from-v0');
   });
@@ -73,8 +77,9 @@ describe('migrateSave', () => {
       coins: 0,
       action: { current: null, queue: [] },
       log: [],
-      stats: { actions: {}, items: {}, sold: 0 },
+      stats: { actions: {}, items: {}, sold: 0, kills: {} },
       tutorial: { done: [], dismissed: false },
+      combat: { hp: 10, food: null, eatAt: 0.25, fight: null },
     });
     expect('placeholder' in out.sim).toBe(false);
   });
@@ -108,7 +113,7 @@ describe('migrateSave', () => {
     expect(out.sim.coins).toBe(0);
     expect(out.sim.bankSlotsBought).toBe(0);
     expect(out.sim.log).toEqual([]);
-    expect(out.sim.stats).toEqual({ actions: {}, items: {}, sold: 0 });
+    expect(out.sim.stats).toEqual({ actions: {}, items: {}, sold: 0, kills: {} });
     expect(out.sim.bank).toEqual([{ item: 'copper-ore', qty: 3 }]);
   });
 
@@ -130,10 +135,27 @@ describe('migrateSave', () => {
     expect(out.version).toBe(CURRENT_SAVE_VERSION);
     expect(out.sim.player).toEqual({ name: 'Elpis', god: null });
     expect(out.sim.equipment).toEqual({ ...emptyEquipment(), pickaxe: 'copper-pick' });
-    expect(out.sim.stats).toEqual({ actions: { mining: 12 }, items: {}, sold: 0 });
+    expect(out.sim.stats).toEqual({ actions: { mining: 12 }, items: {}, sold: 0, kills: {} });
     expect(out.sim.tutorial).toEqual({ done: [], dismissed: false });
     // A v4 stop has no skill, so it is dropped; everything else in the log is kept.
     expect(out.sim.log).toEqual([{ type: 'level', tick: 4, skill: 'mining', from: 1, to: 2 }]);
+  });
+
+  it('migrates a v5 record to v6: full hitpoints, no food, kill counters', () => {
+    const v5 = JSON.parse(JSON.stringify(fresh())) as Record<string, unknown>;
+    const sim = v5['sim'] as Record<string, unknown>;
+    v5['version'] = 5;
+    sim['stats'] = { actions: { mining: 3 }, items: { 'copper-ore': 3 }, sold: 1 };
+    delete sim['combat'];
+    const out = migrateSave(v5);
+    expect(out.version).toBe(CURRENT_SAVE_VERSION);
+    expect(out.sim.stats).toEqual({
+      actions: { mining: 3 },
+      items: { 'copper-ore': 3 },
+      sold: 1,
+      kills: {},
+    });
+    expect(out.sim.combat).toEqual({ hp: 10, food: null, eatAt: 0.25, fight: null });
   });
 
   it('refuses a future version rather than guessing', () => {

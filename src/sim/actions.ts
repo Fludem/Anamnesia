@@ -4,6 +4,7 @@ import type { SimContext } from './context.ts';
 import { pushEvent } from './events.ts';
 import { nextFloat } from './rng.ts';
 import type { SimState } from './save.ts';
+import { combatHandler } from './skills/combat.ts';
 import { craftingHandler } from './skills/crafting.ts';
 import { fishingHandler } from './skills/fishing.ts';
 import { miningHandler } from './skills/mining.ts';
@@ -22,6 +23,8 @@ export const ActionRequestSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('woodcutting'), tree: IdSchema, count: Count }),
   z.object({ kind: z.literal('fishing'), water: IdSchema, count: Count }),
   z.object({ kind: z.literal('crafting'), recipe: IdSchema, count: Count }),
+  /** Fight `monster` until stopped; a cycle is one swing, so `count` is swings. */
+  z.object({ kind: z.literal('combat'), monster: IdSchema, count: Count }),
 ]);
 export type ActionRequest = z.infer<typeof ActionRequestSchema>;
 export type ActionKind = ActionRequest['kind'];
@@ -53,6 +56,11 @@ export interface ActionHandler<K extends ActionKind> {
   successChance(state: SimState, req: RequestOf<K>, ctx: SimContext): number;
   /** Apply the cycle's outcome. Draws from `state.rng` as needed and returns the new state. */
   resolve(state: SimState, req: RequestOf<K>, success: boolean, ctx: SimContext): SimState;
+  /**
+   * Runs every tick the action is active, before the cycle advances. For things on their own
+   * clock (the monster's swings). May end the action by clearing `action.current`.
+   */
+  tick?(state: SimState, req: RequestOf<K>, ctx: SimContext): SimState;
 }
 
 const HANDLERS: { [K in ActionKind]: ActionHandler<K> } = {
@@ -60,6 +68,7 @@ const HANDLERS: { [K in ActionKind]: ActionHandler<K> } = {
   woodcutting: woodcuttingHandler,
   fishing: fishingHandler,
   crafting: craftingHandler,
+  combat: combatHandler,
 };
 
 export function actionHandler<K extends ActionKind>(kind: K): ActionHandler<K> {
@@ -96,18 +105,24 @@ export function beginAction(state: SimState, req: ActionRequest, ctx: SimContext
  * touched here; `stepTick` owns that.
  */
 export function tickAction(state: SimState, ctx: SimContext): SimState {
-  const cur = state.action.current;
-  if (cur === null) return state;
+  const before = state.action.current;
+  if (before === null) return state;
+  const handler = actionHandler(before.request.kind);
+  const req = before.request as never;
+  let s = state;
+  if (handler.tick) {
+    s = handler.tick(s, req, ctx);
+    // The hook may have ended the action (a death); the queue is already what it wants.
+    if (s.action.current === null) return s;
+  }
+  const cur = s.action.current!;
   const elapsed = cur.elapsedTicks + 1;
   if (elapsed < cur.durationTicks) {
-    return { ...state, action: { ...state.action, current: { ...cur, elapsedTicks: elapsed } } };
+    return { ...s, action: { ...s.action, current: { ...cur, elapsedTicks: elapsed } } };
   }
 
-  const handler = actionHandler(cur.request.kind);
-  const req = cur.request as never;
-  const chance = handler.successChance(state, req, ctx);
+  const chance = handler.successChance(s, req, ctx);
   let success = true;
-  let s = state;
   if (chance < 1) {
     const [f, rng] = nextFloat(s.rng);
     success = f < chance;
@@ -143,6 +158,8 @@ export function skillOfRequest(req: ActionRequest, ctx: SimContext): string {
       return 'fishing';
     case 'crafting':
       return ctx.content.recipe(req.recipe).skill;
+    case 'combat':
+      return 'combat';
   }
 }
 

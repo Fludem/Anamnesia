@@ -39,6 +39,7 @@ describe('shipped content', () => {
       'cooking',
       'smithing',
       'combat',
+      'hitpoints',
     ]);
     expect(content.rarities.map((r) => r.id)).toEqual(['common', 'rare', 'epic', 'legendary']);
     expect(content.rocks.length).toBe(11);
