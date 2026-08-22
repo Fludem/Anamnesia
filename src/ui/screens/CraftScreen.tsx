@@ -22,7 +22,8 @@ export function CraftScreen({ sim, dispatch, juice, def }: ScreenProps & { def: 
   const mine = active !== null && active.skill === def.skill ? active : null;
   const recipes = content.recipesFor(def.skill);
   const categories = [...new Set(recipes.map((r) => r.category))];
-  const [category, setCategory] = useState(categories[0] ?? '');
+  const [picked, setCategory] = useState(categories[0] ?? '');
+  const category = categories.includes(picked) ? picked : (categories[0] ?? '');
   const views = recipeViews(
     sim,
     def.tabs ? recipes.filter((r) => r.category === category) : recipes,

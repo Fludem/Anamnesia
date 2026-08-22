@@ -287,9 +287,15 @@ export function recentGains(sim: SimState, withinTicks: number, skill?: string) 
   );
 }
 
-/** The last stop reason, if the action stopped less than `withinTicks` ago. */
-export function recentStop(sim: SimState, withinTicks: number): SimEventOf<'stopped'> | null {
-  const stops = eventsOfType(sim, 'stopped');
+/** The last stop reason in `skill`, if that action stopped less than `withinTicks` ago. */
+export function recentStop(
+  sim: SimState,
+  withinTicks: number,
+  skill?: string,
+): SimEventOf<'stopped'> | null {
+  const stops = eventsOfType(sim, 'stopped').filter(
+    (e) => skill === undefined || e.skill === skill,
+  );
   const last = stops[stops.length - 1];
   return last && sim.tick - last.tick < withinTicks ? last : null;
 }

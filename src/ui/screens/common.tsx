@@ -102,7 +102,7 @@ export function ActiveCard({
   onStop: () => void;
   tool?: ReactNode;
 }) {
-  const stop = active === null ? recentStop(sim, 600) : null;
+  const stop = active === null ? recentStop(sim, 600, skill) : null;
   // Another skill's action is running: say so, since starting here would replace it.
   const elsewhere = active === null ? activeView(sim, simContext) : null;
   const pops =

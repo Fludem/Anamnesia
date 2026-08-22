@@ -1449,10 +1449,13 @@
   padding: 9px 12px;
   color: var(--fg);
   text-align: left;
+  text-transform: none;
+  letter-spacing: 0;
   cursor: pointer;
 }
 .god-row:hover {
   border-color: #3a5f50;
+  color: var(--fg);
 }
 .god-row.picked {
   border-color: rgba(var(--accent-rgb), 0.45);
@@ -1576,6 +1579,7 @@
   margin-top: 2px;
 }
 .steps-tile {
+  padding: 0;
   width: 38px;
   height: 38px;
   flex: none;

@@ -37,6 +37,7 @@ export const SimEventSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('stopped'),
     tick: z.number().int().min(0),
+    skill: IdSchema,
     reason: z.string().min(1),
   }),
   /** A first-steps step was completed and its reward paid. */

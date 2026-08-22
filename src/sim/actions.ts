@@ -113,8 +113,9 @@ export function tickAction(state: SimState, ctx: SimContext): SimState {
     success = f < chance;
     s = { ...s, rng };
   }
+  const skill = skillOfRequest(cur.request, ctx);
   s = logLevelUps(s, handler.resolve(s, req, success, ctx), ctx);
-  s = countAction(s, skillOfRequest(cur.request, ctx));
+  s = countAction(s, skill);
 
   const remaining = cur.remaining === null ? null : cur.remaining - 1;
   if (remaining !== 0) {
@@ -126,7 +127,7 @@ export function tickAction(state: SimState, ctx: SimContext): SimState {
         action: { ...restart.action, current: { ...restart.action.current!, remaining } },
       };
     }
-    s = pushEvent(s, { type: 'stopped', tick: s.tick, reason: again.reason });
+    s = pushEvent(s, { type: 'stopped', tick: s.tick, skill, reason: again.reason });
   }
   return startNextQueued({ ...s, action: { ...s.action, current: null } }, ctx);
 }

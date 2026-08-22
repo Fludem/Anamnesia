@@ -18,6 +18,8 @@
     "lorc/rune-stone",
     "lorc/campfire",
     "lorc/wood-axe",
-    "lorc/pine-tree"
+    "lorc/pine-tree",
+    "lorc/hourglass",
+    "lorc/footprint"
   ]
 }

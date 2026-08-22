@@ -58,6 +58,13 @@ export const MIGRATIONS: MigrationTable = {
   4: (raw) => {
     const sim = asObject(raw['sim']);
     const stats = asObject(sim['stats']);
+    // `stopped` events gained a skill; v4 ones have none and there is no way to know it.
+    const log = Array.isArray(sim['log'])
+      ? sim['log'].filter((e: unknown) => {
+          const ev = asObject(e);
+          return ev['type'] !== 'stopped' || typeof ev['skill'] === 'string';
+        })
+      : [];
     return {
       ...raw,
       sim: {
@@ -66,6 +73,7 @@ export const MIGRATIONS: MigrationTable = {
         equipment: { ...emptyEquipment(), ...asObject(sim['equipment']) },
         stats: { items: {}, sold: 0, ...stats, actions: stats['actions'] ?? {} },
         tutorial: { done: [], dismissed: false },
+        log,
       },
     };
   },

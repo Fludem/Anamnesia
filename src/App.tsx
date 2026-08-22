@@ -55,7 +55,11 @@ export function App() {
       <Onboarding
         name={sim.player.name === DEFAULT_PLAYER_NAME ? null : sim.player.name}
         onName={(name) => dispatch({ type: 'player:rename', name })}
-        onSwear={(god) => dispatch({ type: 'player:swear', god })}
+        onSwear={(god) => {
+          dispatch({ type: 'player:swear', god });
+          // A new hero starts where first steps start, whatever this browser last looked at.
+          setView(DEFAULT_VIEW);
+        }}
       />
     );
   }
@@ -66,9 +70,9 @@ export function App() {
     view.kind === 'bank' ? (
       <BankScreen sim={sim} dispatch={dispatch} juice={juice} />
     ) : gather ? (
-      <GatherScreen sim={sim} dispatch={dispatch} juice={juice} def={gather} />
+      <GatherScreen key={gather.skill} sim={sim} dispatch={dispatch} juice={juice} def={gather} />
     ) : craft ? (
-      <CraftScreen sim={sim} dispatch={dispatch} juice={juice} def={craft} />
+      <CraftScreen key={craft.skill} sim={sim} dispatch={dispatch} juice={juice} def={craft} />
     ) : view.id === 'combat' ? (
       <CombatScreen sim={sim} dispatch={dispatch} juice={juice} />
     ) : (

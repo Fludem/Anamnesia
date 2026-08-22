@@ -118,6 +118,10 @@ describe('migrateSave', () => {
     v4['version'] = 4;
     sim['player'] = { name: 'Elpis' };
     sim['stats'] = { actions: { mining: 12 } };
+    sim['log'] = [
+      { type: 'stopped', tick: 3, reason: 'bank is full' },
+      { type: 'level', tick: 4, skill: 'mining', from: 1, to: 2 },
+    ];
     delete sim['tutorial'];
     const equipment = sim['equipment'] as Record<string, unknown>;
     delete equipment['rod'];
@@ -128,6 +132,8 @@ describe('migrateSave', () => {
     expect(out.sim.equipment).toEqual({ ...emptyEquipment(), pickaxe: 'copper-pick' });
     expect(out.sim.stats).toEqual({ actions: { mining: 12 }, items: {}, sold: 0 });
     expect(out.sim.tutorial).toEqual({ done: [], dismissed: false });
+    // A v4 stop has no skill, so it is dropped; everything else in the log is kept.
+    expect(out.sim.log).toEqual([{ type: 'level', tick: 4, skill: 'mining', from: 1, to: 2 }]);
   });
 
   it('refuses a future version rather than guessing', () => {
