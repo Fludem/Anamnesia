@@ -50,6 +50,14 @@ combat screen (fight card, food row, zones and monsters, kill log) and an equipm
 combat climb in ladder gear, and `scripts/tune-combat.ts` retunes monster hp/xp against it.
 Save v6 adds the combat state and kill/death counters.
 
+Phase 7 is in: the gods fight too. A fourth gathering skill, Foraging (by hand, no tool),
+gathers offerings over patches; each god has a combat boon as content — Tharok's Stone Skin,
+Vessith's Green Return, Maren's Still Hand, Ashkar's Ember — that runs on favour, which burns
+one a second in a fight and is bought back by burning the chosen offering from the bank, the
+same shape as food. First steps gains a combat step, a foraging step and an offering. The
+progression model measures every boon (`scripts/tune-boons.ts` prints the comparison) and a
+test pins them to about the same worth. Save v7 adds the offering, favour and a burnt counter.
+
 ## Layout
 
 | Path            | Layer                                                                                                                                                                                    |
@@ -62,7 +70,7 @@ Save v6 adds the combat state and kill/death counters.
 | `src/ui/theme/` | Design tokens (CSS custom properties + TS object) and fonts.                                                                                                                             |
 | `src/ui/items/` | Maps content onto renderer specs; `<ItemTile>` / `<BareIcon>`.                                                                                                                           |
 | `design/`       | Claude Design reference screens the tokens were extracted from.                                                                                                                          |
-| `scripts/`      | Icon vendoring / indexing pipeline; `tune-combat.ts` retunes monsters against the progression model.                                                                                     |
+| `scripts/`      | Icon vendoring / indexing pipeline; `tune-combat.ts` retunes monsters against the progression model; `tune-boons.ts` compares the gods' boons.                                           |
 
 ## Commands
 

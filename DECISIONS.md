@@ -618,3 +618,71 @@ an Equip button. The bank keeps its Equip as well.
   made them faster as well as heavier. They are +6 now.
 - Save v6: combat state and kill/death counters, with a 5→6 migration that starts every hero
   at full hitpoints with no food chosen.
+
+## Phase 7 — the gods fight too: foraging, offerings, favour
+
+The ask: a combat first-steps step, and god combat perks that have to be recharged and cost a
+resource, with a skill attached to gathering that resource. No new design screen; everything
+is built from Screen A's list and Screen E's food row.
+
+### A boon is content, and it runs on favour
+
+Each god gains `perks.combat`: a kind (`attack`, `strength`, `defence` with a fraction, or
+`regen` with a tick interval), a name and one dry line. Tharok's Stone Skin is +50% defence,
+Vessith's Green Return a hitpoint every 6 s, Maren's Still Hand +60% attack, Ashkar's Ember
++15% strength. The boon is folded into `heroStats` whenever `combat.favour > 0`, so the fight,
+the progression model and the screens all see the same numbers; the equipment screen's totals
+read `gear` and stay honest about what is worn.
+
+Favour is one integer on the save. It burns one every second (`FAVOUR_EVERY_TICKS`) while a
+combat action runs and never otherwise — the gods only watch when it matters. When it hits
+zero mid-fight, one of the chosen offering is burnt from the bank for its `favour` stat, so the
+boon never lapses while the bank has offerings; the same shape as food (`combat.offering`
+beside `combat.food`, `combat:offer` beside `combat:eat`). There is no cap and no manual
+"cast": a player who wants the boon forages for it, chooses the offering once, and forgets it.
+The regen boon heals inside the same tick hook the monster swings from, before the swing.
+
+### Foraging is gathering by hand
+
+The resource wanted a skill, so the fourth gathering skill is Foraging: `patches` in the
+content pack (eleven: seven standard tiers from Wild Thyme to the Frankincense Terrace, four
+quick), `foragingHandler` is one more `gatheringHandler` call with `toolSlot: null`, which the
+handler and `toolAdjustedTicks` now accept. No sickle: a tool would mean a slot, a migration,
+six recipes and six icons for a skill whose point is the offerings, and the model's climb lands
+in the band without one (35.4 h). Offerings are `consumable` items with `favour` instead of
+`heal`; the audit lets a consumable do one or the other, never both. A rare finds table (a
+Bronze Sickle someone left, a Clay Votive someone else left) gives the drop feed something.
+
+### What favour costs
+
+An hour at any standard patch buys two to three hours of favour (a test pins the band). A
+full foraging climb would feed about 80 hours of fighting — more than the 36-hour combat
+climb, but not so much more that offerings are free: a hero who wants the boon for the whole
+climb burns about half of everything they forage. Early on it bites harder, which is when the
+boon matters least, so the tax feels fair rather than clever.
+
+### The four boons are worth about the same
+
+Measured in the progression model with favour never running out: the xp boons take 8% (attack)
+and 12% (strength) off the combat climb; the food boons take 29% (defence) and 34% (regen) off
+the hitpoints eaten. A test keeps each inside its band (5–20% hours, 20–45% food) and
+`scripts/tune-boons.ts` prints the table. Attack needs +60% to be worth as much as strength at
++15% because the hit chance saturates; regen had to drop to one hitpoint per six seconds
+because a flat rate is enormous against a low-level monster and still a third against the
+Stone.
+
+### First steps: fight, forage, offer
+
+Three steps after cooking: kill three Hill Goats (the cooked minnows are the food), gather
+five Thyme Sprigs, burn an offering. They read lifetime counters like the others
+(`stats.kills`, `stats.items`, `stats.offered`). Rewards now total 750 gp; the first bank slot
+still costs 500.
+
+### Fixed along the way
+
+- The bank's Food filter matched `class === 'consumable'`, which would have listed offerings
+  as food; it matches `heal` now, and Offerings has a filter of its own.
+- Save v7 with a 6→7 migration (no offering, no favour, nothing burnt); the fight in progress
+  survives it.
+- The onboarding god cards show the combat boon under the existing boon line, since the
+  choice now has a second consequence.
