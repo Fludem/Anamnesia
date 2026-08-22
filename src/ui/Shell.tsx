@@ -17,6 +17,9 @@ export const COIN_ICON = 'delapouite/coins';
 const TAB_LABEL: Record<string, string> = {
   mining: 'Mine',
   woodcutting: 'Wood',
+  fishing: 'Fish',
+  firemaking: 'Fire',
+  cooking: 'Cook',
   smithing: 'Smith',
   combat: 'Fight',
 };

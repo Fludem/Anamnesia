@@ -4,10 +4,12 @@
  */
 import { useState } from 'react';
 import type { GameRuntime } from '../useGameHost.ts';
+import { simContext } from '../../content/index.ts';
 import type { HostSnapshot } from '../../runtime/game-host.ts';
-import { PlayerNameSchema } from '../../sim/commands.ts';
+import { PlayerNameSchema, type Command } from '../../sim/commands.ts';
+import { godOf } from '../../sim/perks.ts';
 import { formatInt } from '../format.ts';
-import { Label } from '../parts.tsx';
+import { Label, UiIcon } from '../parts.tsx';
 import type { Juice } from '../theme/theme.ts';
 import { Modal } from './Modal.tsx';
 import { exportSave } from '../save-export.ts';
@@ -25,6 +27,7 @@ export function Settings({
   juice,
   onJuice,
   onRename,
+  dispatch,
   onClose,
 }: {
   runtime: GameRuntime;
@@ -32,9 +35,11 @@ export function Settings({
   juice: Juice;
   onJuice: (j: Juice) => void;
   onRename: (name: string) => void;
+  dispatch: (cmd: Command) => void;
   onClose: () => void;
 }) {
   const sim = snapshot.sim;
+  const god = sim ? godOf(sim, simContext) : null;
   const [name, setName] = useState(sim?.player.name ?? '');
   const parsed = PlayerNameSchema.safeParse(name);
   const leader = snapshot.role === 'leader';
@@ -107,6 +112,46 @@ export function Settings({
             Rename
           </button>
         </form>
+      </div>
+
+      <div className="settings-section">
+        <Label>Sworn to</Label>
+        <div className="kv sworn-line">
+          {god ? (
+            <>
+              <UiIcon id={god.icon} size={14} className="accent" />
+              <span>
+                {god.name} {god.title}
+              </span>
+              <span className="boon">{god.boon}</span>
+            </>
+          ) : (
+            'nobody yet'
+          )}
+        </div>
+        <div className="note-line">The hill does not take oaths back.</div>
+      </div>
+
+      <div className="settings-section">
+        <Label>First steps</Label>
+        <div className="settings-row">
+          <span className="kv" style={{ flex: 1 }}>
+            {sim
+              ? sim.tutorial.dismissed
+                ? 'put away'
+                : `${String(sim.tutorial.done.length)} done`
+              : '—'}
+          </span>
+          {sim?.tutorial.dismissed ? (
+            <button className="btn" onClick={() => dispatch({ type: 'tutorial:show' })}>
+              Show again
+            </button>
+          ) : (
+            <button className="btn" onClick={() => dispatch({ type: 'tutorial:dismiss' })}>
+              Put away
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="settings-section">

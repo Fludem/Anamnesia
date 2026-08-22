@@ -57,6 +57,11 @@
   background: var(--bg-chrome);
   border-top: 1px solid var(--border);
   padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabbar::-webkit-scrollbar {
+  display: none;
 }
 
 .tab {
@@ -1356,12 +1361,17 @@
   margin-bottom: 20px;
 }
 .dot {
-  width: 18px;
-  height: 3px;
-  border-radius: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
   background: var(--border-strong);
+  transition: all 0.25s;
 }
 .dot.on {
+  background: var(--accent);
+}
+.dot.now {
+  width: 22px;
   background: var(--accent);
 }
 .dots .step {
@@ -1395,7 +1405,277 @@
   color: var(--accent-hi);
 }
 
+/* onboarding: steps 2 and 3 (Screen D) */
+.calm-card .fade {
+  animation: fadeSlide 0.3s ease both;
+}
+.calm-card .centred {
+  text-align: center;
+}
+.calm-card .lead.tall {
+  margin-top: 8px;
+  line-height: 1.6;
+}
+.calm-card .btn-row {
+  gap: 10px;
+  margin-top: 18px;
+}
+.calm-card .btn-row .btn {
+  flex: none;
+  padding: 11px 16px;
+}
+.calm-card .btn-row .btn.grow {
+  flex: 1;
+}
+.calm-card form .btn.solid,
+.calm-card .fade > .btn.solid {
+  width: 100%;
+  margin-top: 18px;
+}
+.god-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 18px;
+}
+.god-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 9px 12px;
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+}
+.god-row:hover {
+  border-color: #3a5f50;
+}
+.god-row.picked {
+  border-color: rgba(var(--accent-rgb), 0.45);
+}
+.god-tile {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  color: var(--fg-icon);
+}
+.god-row.picked .god-tile {
+  color: var(--accent);
+}
+.god-body {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.god-name {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font: 600 13px var(--font-sans);
+}
+.god-title {
+  font: 400 var(--fs-label) var(--font-mono);
+  color: var(--fg-3);
+  letter-spacing: 0.1em;
+}
+.god-sub {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+  margin-top: 2px;
+}
+.god-boon {
+  font: 500 var(--fs-hint) var(--font-mono);
+  color: var(--accent);
+  margin-top: 3px;
+}
+.god-big {
+  width: 64px;
+  height: 64px;
+  margin: 6px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  color: var(--accent);
+}
+.hint-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 18px;
+  text-align: left;
+}
+.hint-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 9px 12px;
+  font: 400 var(--fs-meta) var(--font-mono);
+  color: var(--fg-2);
+}
+.hint-row .icon {
+  flex: none;
+}
+
+/* ---- first steps -------------------------------------------------------------------------- */
+
+.steps {
+  margin-bottom: 14px;
+}
+.steps .card-head {
+  padding-bottom: 4px;
+}
+.steps .card-head .hint {
+  margin-left: 8px;
+}
+.steps-done {
+  font: 500 var(--fs-hint) var(--font-mono);
+  color: var(--accent);
+  margin-right: 10px;
+  animation: fadeSlide 0.3s ease both;
+}
+.steps.flash {
+  border-color: rgba(var(--accent-rgb), 0.35);
+}
+.steps-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px 10px;
+}
+.steps-row .body {
+  flex: 1;
+  min-width: 0;
+}
+.steps-row .name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font: 600 var(--fs-name) var(--font-sans);
+}
+.steps-row .sub {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+  margin-top: 2px;
+}
+.steps-tile {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  color: var(--fg-icon);
+  cursor: pointer;
+}
+.steps-tile:disabled {
+  cursor: default;
+}
+.steps-tile.on {
+  color: var(--accent);
+  border-color: rgba(var(--accent-rgb), 0.45);
+}
+.steps-count {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex: none;
+}
+.steps-count .n {
+  font: 500 var(--fs-meta) var(--font-mono);
+  color: var(--fg-2);
+}
+.steps-count .reward {
+  font: 500 var(--fs-hint) var(--font-mono);
+  color: var(--gold);
+}
+.steps-bar {
+  height: 3px;
+  background: var(--bg-track);
+}
+.steps-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width var(--dur-fast) ease;
+}
+.steps.done .steps-row {
+  padding: 12px 14px;
+}
+.chip.go {
+  cursor: pointer;
+  color: var(--accent);
+  border-color: rgba(var(--accent-rgb), 0.3);
+  font-weight: 500;
+}
+.chip.go:hover {
+  background: rgba(var(--accent-rgb), 0.1);
+}
+.chip.sworn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--accent);
+  border-color: rgba(var(--accent-rgb), 0.3);
+}
+.linkish.dim {
+  color: var(--fg-3);
+  font: 400 var(--fs-hint) var(--font-mono);
+}
+.linkish.dim:hover:not(:disabled) {
+  color: var(--fg);
+}
+.tag-quick {
+  font: 600 var(--fs-label) var(--font-mono);
+  color: var(--gold);
+  background: rgba(var(--gold-rgb), 0.1);
+  border: 1px solid rgba(var(--gold-rgb), 0.3);
+  border-radius: var(--radius-sm);
+  padding: 3px 7px;
+  letter-spacing: var(--tracking-chip);
+}
+.lock.needs {
+  color: var(--gold);
+}
+
 /* settings */
+.sworn-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.sworn-line .boon {
+  color: var(--accent);
+}
+.icon.accent {
+  color: var(--accent);
+}
+.note-line {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+  margin-top: 6px;
+}
 .settings-row {
   display: flex;
   align-items: center;

@@ -1,7 +1,8 @@
 /**
- * Smithing — Screen A's layout over recipes instead of veins. The design did not draw a crafting
- * screen; this keeps its skeleton (active card, list, drop feed) and swaps the list's rows for
- * recipes grouped by category tabs.
+ * A crafting skill — Screen A's layout over recipes instead of veins. The design did not draw
+ * a crafting screen; this keeps its skeleton (active card, list, drop feed) and swaps the
+ * list's rows for recipes, grouped by category tabs where a skill has several. Smithing,
+ * firemaking and cooking are this screen with different nouns.
  */
 import { useState } from 'react';
 import { content, simContext } from '../../content/index.ts';
@@ -12,32 +13,33 @@ import { BareIcon } from '../items/ItemTile.tsx';
 import { itemIconSpec } from '../items/spec.ts';
 import { Label, TileBox, UiIcon } from '../parts.tsx';
 import { ActiveCard, DropFeed, ScreenHead, XpRow } from './common.tsx';
-import type { ScreenProps } from './defs.ts';
+import type { CraftSkillDef, ScreenProps } from './defs.ts';
 
-const SKILL = 'smithing';
-
-export function SmithingScreen({ sim, dispatch, juice }: ScreenProps) {
-  const skill = content.skill(SKILL);
-  const sv = skillView(sim, SKILL, simContext);
+export function CraftScreen({ sim, dispatch, juice, def }: ScreenProps & { def: CraftSkillDef }) {
+  const skill = content.skill(def.skill);
+  const sv = skillView(sim, def.skill, simContext);
   const active = activeView(sim, simContext);
-  const mine = active !== null && active.skill === SKILL ? active : null;
-  const recipes = content.recipesFor(SKILL);
+  const mine = active !== null && active.skill === def.skill ? active : null;
+  const recipes = content.recipesFor(def.skill);
   const categories = [...new Set(recipes.map((r) => r.category))];
-  const [category, setCategory] = useState(categories[0] ?? 'bars');
+  const [category, setCategory] = useState(categories[0] ?? '');
   const views = recipeViews(
     sim,
-    recipes.filter((r) => r.category === category),
+    def.tabs ? recipes.filter((r) => r.category === category) : recipes,
     simContext,
   );
   const activeRecipe =
     mine && mine.request.kind === 'crafting' ? content.recipe(mine.request.recipe) : null;
-  const activeOutput = activeRecipe ? content.item(activeRecipe.outputs[0]!.item) : null;
+  const activeOutput = activeRecipe ? activeRecipe.outputs[0] : undefined;
+  const activeItem = activeOutput ? content.item(activeOutput.item) : null;
 
   return (
     <>
       <ScreenHead
         icon={skill.icon}
         title={skill.name}
+        skill={def.skill}
+        sim={sim}
         level={sv}
         rate={mine ? `${formatInt(mine.xpHr)} xp/hr` : null}
       />
@@ -47,50 +49,54 @@ export function SmithingScreen({ sim, dispatch, juice }: ScreenProps) {
           <ActiveCard
             sim={sim}
             juice={juice}
-            skill={SKILL}
+            skill={def.skill}
             active={mine}
             icon={
-              activeOutput ? (
-                <BareIcon spec={itemIconSpec(content, activeOutput)} size={34} />
+              activeItem ? (
+                <BareIcon spec={itemIconSpec(content, activeItem)} size={34} />
               ) : (
                 <UiIcon id={skill.icon} size={30} />
               )
             }
             sub={
               mine && activeRecipe
-                ? `${String(activeRecipe.xp)} xp · ${formatSeconds(mine.durationMs)} · ${inputsText(activeRecipe.inputs)}`
+                ? `${formatInt(mine.xp)} xp · ${formatSeconds(mine.durationMs)} · ${inputsText(activeRecipe.inputs)}`
                 : null
             }
-            idleHint="Pick a recipe below. It runs until the inputs run out."
+            idleHint={def.idleHint}
             onStop={() => dispatch({ type: 'action:stop' })}
           />
 
           <div className="card list">
             <div className="card-head">
-              <Label>Recipes</Label>
+              <Label>{def.noun}</Label>
               <span className="spacer" />
               <span className="hint">{String(recipes.length)} known</span>
             </div>
-            <div className="tabs">
-              {categories.map((c) => (
-                <button
-                  key={c}
-                  className={c === category ? 'filter active' : 'filter'}
-                  onClick={() => setCategory(c)}
-                >
-                  {c}
-                </button>
-              ))}
-            </div>
+            {def.tabs && (
+              <div className="tabs">
+                {categories.map((c) => (
+                  <button
+                    key={c}
+                    className={c === category ? 'filter active' : 'filter'}
+                    onClick={() => setCategory(c)}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+            )}
             {views.map((v) => {
-              const out = content.item(v.recipe.outputs[0]!.item);
-              const disabled = v.locked || (!v.active && !v.canAfford);
+              const out = v.recipe.outputs[0];
+              const shown = content.item(out ? out.item : v.recipe.inputs[0]!.item);
+              const blocked = v.locked || v.needs !== null;
+              const disabled = blocked || (!v.active && !v.canAfford);
               return (
                 <button
                   key={v.recipe.id}
-                  className={`row${v.active ? ' active' : ''}${v.locked ? ' locked' : ''}`}
+                  className={`row${v.active ? ' active' : ''}${blocked ? ' locked' : ''}`}
                   disabled={disabled}
-                  title={out.description}
+                  title={shown.description}
                   onClick={() => {
                     if (!v.active)
                       dispatch({
@@ -99,8 +105,8 @@ export function SmithingScreen({ sim, dispatch, juice }: ScreenProps) {
                       });
                   }}
                 >
-                  <TileBox size="md" dim={v.locked}>
-                    <BareIcon spec={itemIconSpec(content, out, v.locked)} size={24} />
+                  <TileBox size="md" dim={blocked}>
+                    <BareIcon spec={itemIconSpec(content, shown, blocked)} size={24} />
                   </TileBox>
                   <div className="body">
                     <div className="name">{v.recipe.name}</div>
@@ -109,7 +115,8 @@ export function SmithingScreen({ sim, dispatch, juice }: ScreenProps) {
                         ? `requires Lv ${String(v.recipe.level)}`
                         : `Lv ${String(v.recipe.level)}`}
                       {' · '}
-                      {String(v.recipe.xp)} xp · {formatSeconds(ticksToMs(v.recipe.durationTicks))}
+                      {formatInt(v.xp)} xp · {formatSeconds(ticksToMs(v.recipe.durationTicks))}
+                      {!v.locked && v.chance < 1 ? ` · ${String(Math.round(v.chance * 100))}%` : ''}
                       {' · '}
                       {v.recipe.inputs.map((i, n) => {
                         const have = countItem(sim.bank, i.item);
@@ -130,7 +137,13 @@ export function SmithingScreen({ sim, dispatch, juice }: ScreenProps) {
                       Lv {String(v.recipe.level)}
                     </span>
                   )}
-                  {!v.locked && !v.active && v.times > 0 && (
+                  {!v.locked && v.needs !== null && (
+                    <span className="lock needs" title="a level in another skill">
+                      <UiIcon id="lorc/padlock" size={12} />
+                      {v.needs}
+                    </span>
+                  )}
+                  {!blocked && !v.active && v.times > 0 && (
                     <span
                       className="hint"
                       style={{ font: '500 11px var(--font-mono)', color: 'var(--fg-3)' }}
@@ -144,7 +157,7 @@ export function SmithingScreen({ sim, dispatch, juice }: ScreenProps) {
           </div>
         </div>
         <div className="col-side">
-          <DropFeed sim={sim} skill={SKILL} juice={juice} />
+          <DropFeed sim={sim} skill={def.skill} juice={juice} />
         </div>
       </div>
     </>

@@ -1,6 +1,7 @@
 /** Pieces Screen A's layout is built from, shared by every skill screen. */
 import type { ReactNode } from 'react';
 import { content, simContext } from '../../content/index.ts';
+import { godOf, xpMultiplier } from '../../sim/perks.ts';
 import type { SimState } from '../../sim/save.ts';
 import {
   activeView,
@@ -23,13 +24,20 @@ export function ScreenHead({
   level,
   rate,
   chip,
+  skill,
+  sim,
 }: {
   icon: string;
   title: string;
   level?: SkillView;
   rate?: string | null;
   chip?: string;
+  /** With `sim`, shows the sworn god's bonus for this skill when there is one. */
+  skill?: string;
+  sim?: SimState;
 }) {
+  const bonus = skill !== undefined && sim !== undefined ? xpMultiplier(sim, skill, simContext) : 1;
+  const god = bonus > 1 && sim !== undefined ? godOf(sim, simContext) : null;
   return (
     <div className="screen-head">
       <UiIcon id={icon} size={20} />
@@ -40,6 +48,11 @@ export function ScreenHead({
         </span>
       )}
       {chip && <span className="chip">{chip}</span>}
+      {god && (
+        <span className="chip sworn" title={`sworn to ${god.name} ${god.title}`}>
+          <UiIcon id={god.icon} size={11} />+{String(Math.round((bonus - 1) * 100))}% xp
+        </span>
+      )}
       <span className="spacer" />
       {rate && <span className="rate">{rate}</span>}
     </div>
@@ -95,11 +108,13 @@ export function ActiveCard({
   const pops =
     juice === 'deadpan'
       ? []
-      : recentGains(sim, 11, skill).map((g) => ({
-          key: String(g.tick),
-          text: `+${formatInt(g.xp)} xp`,
-          x: popX(g.tick),
-        }));
+      : recentGains(sim, 11, skill)
+          .filter((g) => g.xp > 0)
+          .map((g) => ({
+            key: String(g.tick),
+            text: `+${formatInt(g.xp)} xp`,
+            x: popX(g.tick),
+          }));
   // Keyed on the lifetime cycle count so a new cycle remounts the fill instead of sliding back.
   const cycle = sim.stats.actions[skill] ?? 0;
   return (

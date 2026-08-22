@@ -31,6 +31,8 @@ export function GatherScreen({ sim, dispatch, juice, def }: ScreenProps & { def:
       <ScreenHead
         icon={skill.icon}
         title={skill.name}
+        skill={def.skill}
+        sim={sim}
         level={sv}
         rate={mine ? `${formatInt(mine.xpHr)} xp/hr` : null}
       />
@@ -51,7 +53,7 @@ export function GatherScreen({ sim, dispatch, juice, def }: ScreenProps & { def:
             }
             sub={
               mine && activeNode
-                ? `${String(activeNode.xp)} xp · ${formatSeconds(mine.durationMs)} · ${formatInt(mine.xpHr)} xp/hr`
+                ? `${formatInt(mine.xp)} xp · ${formatSeconds(mine.durationMs)} · ${formatInt(mine.xpHr)} xp/hr`
                 : null
             }
             idleHint={`Pick a ${def.noun.toLowerCase().replace(/s$/, '')} below to start.`}
@@ -91,6 +93,7 @@ export function GatherScreen({ sim, dispatch, juice, def }: ScreenProps & { def:
                 key={v.node.id}
                 className={`row${v.active ? ' active' : ''}${v.locked ? ' locked' : ''}`}
                 disabled={v.locked}
+                title={v.node.description}
                 onClick={() => {
                   if (!v.active)
                     dispatch({ type: 'action:start', request: def.request(v.node.id) });
@@ -106,11 +109,16 @@ export function GatherScreen({ sim, dispatch, juice, def }: ScreenProps & { def:
                       ? `requires Lv ${String(v.node.level)}`
                       : `Lv ${String(v.node.level)}`}
                     {' · '}
-                    {String(v.node.xp)} xp · {formatSeconds(ticksToMs(v.ticks))}
+                    {formatInt(v.xp)} xp · {formatSeconds(ticksToMs(v.ticks))}
                     {!v.locked && v.chance < 1 ? ` · ${String(Math.round(v.chance * 100))}%` : ''}
                     {!v.locked ? ` · ${formatInt(v.xpHr)} xp/hr` : ''}
                   </div>
                 </div>
+                {v.node.quick && !v.locked && (
+                  <span className="tag-quick" title={v.node.description}>
+                    QUICK
+                  </span>
+                )}
                 {v.active && <span className="tag-active">ACTIVE</span>}
                 {v.locked && (
                   <span className="lock">

@@ -9,6 +9,7 @@ import type { GatherNodeDef, ItemDef, RecipeDef } from '../sim/content/schema.ts
 import type { SimContext } from '../sim/context.ts';
 import { eventsOfType, type SimEventOf } from '../sim/events.ts';
 import type { ItemStack } from '../sim/items.ts';
+import { xpAwarded } from '../sim/perks.ts';
 import { skillXp } from '../sim/progress.ts';
 import type { SimState } from '../sim/save.ts';
 import { TOOL_SLOTS, type ToolSlot } from '../sim/slots.ts';
@@ -74,6 +75,8 @@ export interface NodeView {
   /** Ticks per cycle after the equipped tool. */
   ticks: number;
   chance: number;
+  /** XP per success after the god's bonus. */
+  xp: number;
   xpHr: number;
 }
 
@@ -91,24 +94,28 @@ export function nodeViews(
     const locked = level < node.level;
     const ticks = toolAdjustedTicks(sim, opts.toolSlot, node.durationTicks, ctx);
     const chance = locked ? 0 : handler.successChance(sim, req, ctx);
+    const xp = xpAwarded(sim, opts.skill, node.xp, ctx);
     return {
       node,
       locked,
       active: current !== undefined && requestNode(current) === node.id,
       ticks,
       chance,
-      xpHr: xpPerHour(node.xp, ticks, chance),
+      xp,
+      xpHr: xpPerHour(xp, ticks, chance),
     };
   });
 }
 
-/** The node (rock / tree) a request targets, or null for crafting. */
+/** The node (rock / tree / water) a request targets, or null for crafting. */
 export function requestNode(req: ActionRequest): string | null {
   switch (req.kind) {
     case 'mining':
       return req.rock;
     case 'woodcutting':
       return req.tree;
+    case 'fishing':
+      return req.water;
     case 'crafting':
       return null;
   }
@@ -123,11 +130,17 @@ export function requestRecipe(req: ActionRequest): string | null {
 export interface RecipeView {
   recipe: RecipeDef;
   locked: boolean;
+  /** A requirement in another skill not yet met: "Firemaking 15". */
+  needs: string | null;
   active: boolean;
   /** Whether the bank currently holds every input. */
   canAfford: boolean;
   /** How many times the bank could run it right now. */
   times: number;
+  /** Chance a cycle pays out at the current level (cooking burns below 1). */
+  chance: number;
+  /** XP per success after the god's bonus. */
+  xp: number;
   xpHr: number;
 }
 
@@ -140,13 +153,21 @@ export function recipeViews(sim: SimState, recipes: readonly RecipeDef[], ctx: S
     const times = Math.min(
       ...recipe.inputs.map((i) => Math.floor((have.get(i.item) ?? 0) / i.qty)),
     );
+    const short = recipe.requires.find((r) => skillView(sim, r.skill, ctx).level < r.level);
+    const locked = level < recipe.level;
+    const req = { kind: 'crafting', recipe: recipe.id, count: null } as const;
+    const chance = locked ? 0 : actionHandler('crafting').successChance(sim, req, ctx);
+    const xp = xpAwarded(sim, recipe.skill, recipe.xp, ctx);
     return {
       recipe,
-      locked: level < recipe.level,
+      locked,
+      needs: short ? `${ctx.content.skill(short.skill).name} ${String(short.level)}` : null,
       active: current !== undefined && requestRecipe(current) === recipe.id,
       canAfford: times > 0,
       times: Number.isFinite(times) ? times : 0,
-      xpHr: xpPerHour(recipe.xp, recipe.durationTicks),
+      chance,
+      xp,
+      xpHr: xpPerHour(xp, recipe.durationTicks, chance),
     };
   });
 }
@@ -173,19 +194,23 @@ export function activeView(sim: SimState, ctx: SimContext): ActiveView | null {
   const req = cur.request;
   const skill = skillOfRequest(req, ctx);
   let name: string;
-  let xp: number;
+  let base: number;
   switch (req.kind) {
     case 'mining':
-      ({ name, xp } = ctx.content.rock(req.rock));
+      ({ name, xp: base } = ctx.content.rock(req.rock));
       break;
     case 'woodcutting':
-      ({ name, xp } = ctx.content.tree(req.tree));
+      ({ name, xp: base } = ctx.content.tree(req.tree));
+      break;
+    case 'fishing':
+      ({ name, xp: base } = ctx.content.water(req.water));
       break;
     case 'crafting':
-      ({ name, xp } = ctx.content.recipe(req.recipe));
+      ({ name, xp: base } = ctx.content.recipe(req.recipe));
       break;
   }
   const chance = actionHandler(req.kind).successChance(sim, req, ctx);
+  const xp = xpAwarded(sim, skill, base, ctx);
   return {
     request: req,
     skill,
@@ -266,6 +291,18 @@ export function recentGains(sim: SimState, withinTicks: number, skill?: string) 
 export function recentStop(sim: SimState, withinTicks: number): SimEventOf<'stopped'> | null {
   const stops = eventsOfType(sim, 'stopped');
   const last = stops[stops.length - 1];
+  return last && sim.tick - last.tick < withinTicks ? last : null;
+}
+
+// ---- first steps --------------------------------------------------------------------------
+
+/** The newest first-steps completion younger than `withinTicks`, for the card's flash. */
+export function recentTutorialDone(
+  sim: SimState,
+  withinTicks: number,
+): SimEventOf<'tutorial'> | null {
+  const done = eventsOfType(sim, 'tutorial');
+  const last = done[done.length - 1];
   return last && sim.tick - last.tick < withinTicks ? last : null;
 }
 

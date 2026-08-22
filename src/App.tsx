@@ -17,9 +17,10 @@ import { Settings } from './ui/overlays/Settings.tsx';
 import { JuiceSchema, usePref, ViewSchema, type View } from './ui/prefs.ts';
 import { BankScreen } from './ui/screens/BankScreen.tsx';
 import { CombatScreen } from './ui/screens/CombatScreen.tsx';
-import { GATHER_SKILLS } from './ui/screens/defs.ts';
+import { CraftScreen } from './ui/screens/CraftScreen.tsx';
+import { CRAFT_SKILLS, GATHER_SKILLS } from './ui/screens/defs.ts';
+import { FirstSteps } from './ui/screens/FirstSteps.tsx';
 import { GatherScreen } from './ui/screens/GatherScreen.tsx';
-import { SmithingScreen } from './ui/screens/SmithingScreen.tsx';
 import { Shell } from './ui/Shell.tsx';
 import { useGameRuntime } from './ui/useGameHost.ts';
 import './ui/app.css';
@@ -49,18 +50,25 @@ export function App() {
   if (runtime === null || sim === null || role !== 'leader') return <BootingPage />;
 
   const dispatch = (cmd: Command) => runtime.host.dispatch(cmd);
-  if (sim.player.name === DEFAULT_PLAYER_NAME) {
-    return <Onboarding onName={(name) => dispatch({ type: 'player:rename', name })} />;
+  if (sim.player.name === DEFAULT_PLAYER_NAME || sim.player.god === null) {
+    return (
+      <Onboarding
+        name={sim.player.name === DEFAULT_PLAYER_NAME ? null : sim.player.name}
+        onName={(name) => dispatch({ type: 'player:rename', name })}
+        onSwear={(god) => dispatch({ type: 'player:swear', god })}
+      />
+    );
   }
 
   const gather = view.kind === 'skill' ? GATHER_SKILLS[view.id] : undefined;
+  const craft = view.kind === 'skill' ? CRAFT_SKILLS[view.id] : undefined;
   const screen =
     view.kind === 'bank' ? (
       <BankScreen sim={sim} dispatch={dispatch} juice={juice} />
     ) : gather ? (
       <GatherScreen sim={sim} dispatch={dispatch} juice={juice} def={gather} />
-    ) : view.id === 'smithing' ? (
-      <SmithingScreen sim={sim} dispatch={dispatch} juice={juice} />
+    ) : craft ? (
+      <CraftScreen sim={sim} dispatch={dispatch} juice={juice} def={craft} />
     ) : view.id === 'combat' ? (
       <CombatScreen sim={sim} dispatch={dispatch} juice={juice} />
     ) : (
@@ -77,6 +85,9 @@ export function App() {
             <span className="kind">COULD NOT</span>
             <span className="name">{snapshot.commandError}</span>
           </div>
+        )}
+        {!sim.tutorial.dismissed && (
+          <FirstSteps sim={sim} view={view} onGo={setView} dispatch={dispatch} juice={juice} />
         )}
         {screen}
       </Shell>
@@ -99,6 +110,7 @@ export function App() {
           juice={juice}
           onJuice={setJuice}
           onRename={(name) => dispatch({ type: 'player:rename', name })}
+          dispatch={dispatch}
           onClose={() => setSettingsOpen(false)}
         />
       )}

@@ -29,6 +29,7 @@ const SPECIFIC: Filter[] = [
   { id: 'bars', label: 'Bars', match: (i) => i.tags.includes('bar') },
   { id: 'gear', label: 'Gear', match: (i) => GEAR.has(i.class) },
   { id: 'gems', label: 'Gems', match: (i) => i.class === 'gem' },
+  { id: 'food', label: 'Food', match: (i) => i.tags.includes('fish') || i.class === 'consumable' },
 ];
 const FILTERS: Filter[] = [
   { id: 'all', label: 'All', match: () => true },
