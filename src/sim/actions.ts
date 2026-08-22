@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { IdSchema } from './content/schema.ts';
 import type { SimContext } from './context.ts';
+import { pushEvent } from './events.ts';
 import { nextFloat } from './rng.ts';
 import type { SimState } from './save.ts';
 import { craftingHandler } from './skills/crafting.ts';
@@ -109,17 +110,51 @@ export function tickAction(state: SimState, ctx: SimContext): SimState {
     success = f < chance;
     s = { ...s, rng };
   }
-  s = handler.resolve(s, req, success, ctx);
+  s = logLevelUps(s, handler.resolve(s, req, success, ctx), ctx);
+  s = countAction(s, skillOfRequest(cur.request, ctx));
 
   const remaining = cur.remaining === null ? null : cur.remaining - 1;
-  if (remaining !== 0 && handler.canStart(s, req, ctx).ok) {
-    const restart = beginAction(s, cur.request, ctx);
-    return {
-      ...restart,
-      action: { ...restart.action, current: { ...restart.action.current!, remaining } },
-    };
+  if (remaining !== 0) {
+    const again = handler.canStart(s, req, ctx);
+    if (again.ok) {
+      const restart = beginAction(s, cur.request, ctx);
+      return {
+        ...restart,
+        action: { ...restart.action, current: { ...restart.action.current!, remaining } },
+      };
+    }
+    s = pushEvent(s, { type: 'stopped', tick: s.tick, reason: again.reason });
   }
   return startNextQueued({ ...s, action: { ...s.action, current: null } }, ctx);
+}
+
+/** The skill a request trains. */
+export function skillOfRequest(req: ActionRequest, ctx: SimContext): string {
+  switch (req.kind) {
+    case 'mining':
+      return 'mining';
+    case 'woodcutting':
+      return 'woodcutting';
+    case 'crafting':
+      return ctx.content.recipe(req.recipe).skill;
+  }
+}
+
+function countAction(state: SimState, skill: string): SimState {
+  const actions = { ...state.stats.actions, [skill]: (state.stats.actions[skill] ?? 0) + 1 };
+  return { ...state, stats: { ...state.stats, actions } };
+}
+
+/** Compare skill levels before and after a resolve and log every level gained. */
+function logLevelUps(before: SimState, after: SimState, ctx: SimContext): SimState {
+  if (before.skills === after.skills) return after;
+  let s = after;
+  for (const skill of Object.keys(after.skills)) {
+    const from = ctx.xp.levelForXp(before.skills[skill]?.xp ?? 0);
+    const to = ctx.xp.levelForXp(after.skills[skill]?.xp ?? 0);
+    if (to > from) s = pushEvent(s, { type: 'level', tick: s.tick, skill, from, to });
+  }
+  return s;
 }
 
 /** Pop queued requests until one can start; requests that can no longer start are dropped. */

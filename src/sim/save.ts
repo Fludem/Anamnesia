@@ -1,11 +1,12 @@
 import { z } from 'zod';
 import { ActionQueueSchema } from './actions.ts';
 import { IdSchema } from './content/schema.ts';
+import { SimEventSchema } from './events.ts';
 import { ContainerSchema } from './items.ts';
 import { seedRng } from './rng.ts';
 import { EQUIPMENT_SLOTS, EquipmentSlotSchema } from './slots.ts';
 
-export const CURRENT_SAVE_VERSION = 3;
+export const CURRENT_SAVE_VERSION = 4;
 
 const Uint32 = z.number().int().min(0).max(0xffffffff);
 
@@ -34,9 +35,17 @@ export const SimStateSchema = z.object({
   /** Carried items: consumables a later combat loop draws from. Unused in Phase 1. */
   inventory: ContainerSchema,
   equipment: EquipmentSchema,
-  /** Main storage; gathering deposits here. */
+  /** Main storage; gathering deposits here. One slot per distinct item. */
   bank: ContainerSchema,
+  /** Extra bank slots bought with coins (capacity = BASE_BANK_SLOTS + this). */
+  bankSlotsBought: z.number().int().min(0),
+  /** Currency, kept apart from the bank so it never takes a slot. */
+  coins: z.number().int().min(0),
   action: ActionQueueSchema,
+  /** Recent events, oldest first; see events.ts. */
+  log: z.array(SimEventSchema),
+  /** Lifetime counters. `actions[skill]` = cycles completed in that skill. */
+  stats: z.object({ actions: z.record(IdSchema, z.number().int().min(0)) }),
 });
 export type SimState = z.infer<typeof SimStateSchema>;
 
@@ -71,7 +80,11 @@ export function createSimState(seed: number): SimState {
     inventory: [],
     equipment: emptyEquipment(),
     bank: [],
+    bankSlotsBought: 0,
+    coins: 0,
     action: { current: null, queue: [] },
+    log: [],
+    stats: { actions: {} },
   };
 }
 

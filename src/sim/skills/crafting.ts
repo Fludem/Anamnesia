@@ -1,5 +1,7 @@
 import type { ActionHandler } from '../actions.ts';
+import { roomFor } from '../bank.ts';
 import type { RecipeDef } from '../content/schema.ts';
+import { pushEvent } from '../events.ts';
 import type { Container } from '../items.ts';
 import { addItem, countItem, removeItem } from '../items.ts';
 import { addXp, skillLevel } from '../progress.ts';
@@ -25,6 +27,21 @@ export const craftingHandler: ActionHandler<'crafting'> = {
     }
     const short = missingInput(state.bank, recipe, ctx.content.item.bind(ctx.content));
     if (short !== null) return { ok: false, reason: short };
+    // Inputs leave before outputs arrive, so a recipe that empties a stack frees its slot.
+    const freed = new Set(
+      recipe.inputs.filter((i) => countItem(state.bank, i.item) === i.qty).map((i) => i.item),
+    );
+    const after = { ...state, bank: state.bank.filter((s) => !freed.has(s.item)) };
+    const room = roomFor(
+      after,
+      recipe.outputs.map((o) => o.item),
+    );
+    if (!room.ok) {
+      return {
+        ok: false,
+        reason: `bank is full (no slot for ${ctx.content.item(room.item).name})`,
+      };
+    }
     return { ok: true };
   },
 
@@ -45,7 +62,14 @@ export const craftingHandler: ActionHandler<'crafting'> = {
       if (bank === null) return state;
     }
     for (const output of recipe.outputs) bank = addItem(bank, output.item, output.qty);
-    return addXp({ ...state, bank }, recipe.skill, recipe.xp);
+    const next = addXp({ ...state, bank }, recipe.skill, recipe.xp);
+    return pushEvent(next, {
+      type: 'gain',
+      tick: next.tick,
+      skill: recipe.skill,
+      xp: recipe.xp,
+      items: recipe.outputs.map((o) => ({ item: o.item, qty: o.qty })),
+    });
   },
 };
 

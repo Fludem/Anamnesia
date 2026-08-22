@@ -91,6 +91,29 @@ describe('GameHost — single tab', () => {
     expect(host.getSnapshot().sim?.tick).toBe(60);
   });
 
+  it('a short absence gives no recap; five minutes away does, diffable against `before`', async () => {
+    const world = new FakeWorld(T0);
+    seeded(world);
+    const a = world.tab('A');
+    const host = boot(a);
+    await flushMicrotasks();
+    expect(host.getSnapshot().offline).toBeNull();
+
+    world.clock.advance(4 * 60 * 1_000);
+    await a.runTimers(100);
+    expect(host.getSnapshot().offline).toBeNull();
+
+    world.clock.advance(5 * 60 * 1_000);
+    await a.runTimers(100);
+    await a.runTimers(0);
+    const snap = host.getSnapshot();
+    expect(snap.offline).toMatchObject({ awayMs: 5 * 60 * 1_000, skippedTicks: 0 });
+    expect(snap.offline?.before.tick).toBe(2_400);
+    expect(snap.sim?.tick).toBe(5_400);
+    host.dismissOffline();
+    expect(host.getSnapshot().offline).toBeNull();
+  });
+
   it('saves periodically and on visibilitychange→hidden', async () => {
     const world = new FakeWorld(T0);
     const a = world.tab('A');
@@ -143,11 +166,12 @@ describe('GameHost — single tab', () => {
     expect(snap.role).toBe('leader');
     expect(snap.sim?.tick).toBe(OFFLINE_CAP_TICKS);
     expect(snap.wallMs).toBe(T0 + 13 * HOUR);
-    expect(snap.cappedNotice).toEqual({
+    expect(snap.offline).toMatchObject({
       skippedTicks: 36_000,
       awayMs: 13 * HOUR,
       capMs: 12 * HOUR,
     });
+    expect(snap.offline?.before.tick).toBe(0);
     expect(snap.catchUp).toBeNull();
     expect(progress.length).toBeGreaterThan(10);
     expect(progress.at(-1)).toBe(OFFLINE_CAP_TICKS);

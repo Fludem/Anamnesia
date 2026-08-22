@@ -1,8 +1,10 @@
 import type { ActionHandler, ActionKind, RequestOf } from '../actions.ts';
+import { roomFor } from '../bank.ts';
 import type { GatherNodeDef } from '../content/schema.ts';
 import type { SimContext } from '../context.ts';
 import { rollDropTable } from '../drops.ts';
-import { addStacks } from '../items.ts';
+import { pushEvent } from '../events.ts';
+import { addStacks, type ItemStack } from '../items.ts';
 import { addXp, skillLevel } from '../progress.ts';
 import type { SimState } from '../save.ts';
 import type { ToolSlot } from '../slots.ts';
@@ -44,6 +46,17 @@ export function gatheringHandler<K extends ActionKind>(def: GatheringSkill<K>): 
           reason: `requires ${def.skillName} level ${String(node.level)} (you are ${String(level)})`,
         };
       }
+      // A full bank stops the action before a drop that would need a new slot, never after.
+      const room = roomFor(
+        state,
+        node.drops.flatMap((t) => t.entries.map((e) => e.item)),
+      );
+      if (!room.ok) {
+        return {
+          ok: false,
+          reason: `bank is full (no slot for ${ctx.content.item(room.item).name})`,
+        };
+      }
       return { ok: true };
     },
 
@@ -64,12 +77,21 @@ export function gatheringHandler<K extends ActionKind>(def: GatheringSkill<K>): 
       const node = def.node(ctx, def.nodeId(req));
       let rng = state.rng;
       let bank = state.bank;
+      const landed: ItemStack[] = [];
       for (const table of node.drops) {
         let stacks;
         [stacks, rng] = rollDropTable(table, rng);
         bank = addStacks(bank, stacks);
+        landed.push(...stacks);
       }
-      return addXp({ ...state, rng, bank }, def.skill, node.xp);
+      const next = addXp({ ...state, rng, bank }, def.skill, node.xp);
+      return pushEvent(next, {
+        type: 'gain',
+        tick: next.tick,
+        skill: def.skill,
+        xp: node.xp,
+        items: landed,
+      });
     },
   };
 }

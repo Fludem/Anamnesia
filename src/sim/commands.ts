@@ -1,11 +1,21 @@
 import { z } from 'zod';
 import { ActionRequestSchema, beginAction, canStartAction, startNextQueued } from './actions.ts';
+import { bankFull, bankSlotCost, roomFor } from './bank.ts';
 import { IdSchema } from './content/schema.ts';
 import type { SimContext } from './context.ts';
 import { rollDropTable } from './drops.ts';
-import { addItem, addStacks, countItem, removeItem } from './items.ts';
+import { pushEvent } from './events.ts';
+import { addItem, addStacks, countItem, removeItem, type Container } from './items.ts';
 import type { SimState } from './save.ts';
 import { EquipmentSlotSchema } from './slots.ts';
+
+/** 3–16 visible characters; trimmed by the UI, checked here so a save never holds junk. */
+export const PlayerNameSchema = z
+  .string()
+  .trim()
+  .min(3)
+  .max(16)
+  .regex(/^[\p{L}\p{N} '._-]+$/u, "letters, numbers, spaces and ' . _ - only");
 
 /**
  * Player intents. Applied by the leader between ticks; followers send them over the channel.
@@ -23,6 +33,11 @@ export const CommandSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('unequip'), slot: EquipmentSlotSchema }),
   /** Open `qty` of a container item, rolling its table once per item. */
   z.object({ type: z.literal('open'), item: IdSchema, qty: z.number().int().min(1).default(1) }),
+  /** Sell `qty` of `item` from the bank at its listed value. */
+  z.object({ type: z.literal('sell'), item: IdSchema, qty: z.number().int().min(1).default(1) }),
+  /** Buy one more bank slot at the current price. */
+  z.object({ type: z.literal('bank:buy-slot') }),
+  z.object({ type: z.literal('player:rename'), name: PlayerNameSchema }),
 ]);
 export type Command = z.infer<typeof CommandSchema>;
 
@@ -84,17 +99,62 @@ export function applyCommand(state: SimState, cmd: Command, ctx: SimContext): Co
       if (item.opens === null) return reject(state, `${item.name} cannot be opened`);
       const have = countItem(state.bank, cmd.item);
       if (have < cmd.qty) return reject(state, `only ${String(have)} ${item.name} in the bank`);
+      // Opening the last one frees its slot; otherwise the container keeps it.
+      const after =
+        have === cmd.qty
+          ? { ...state, bank: removeItem(state.bank, cmd.item, have) ?? state.bank }
+          : state;
+      const room = roomFor(
+        after,
+        item.opens.entries.map((e) => e.item),
+      );
+      if (!room.ok) {
+        return reject(state, `bank is full (no slot for ${ctx.content.item(room.item).name})`);
+      }
       let bank = removeItem(state.bank, cmd.item, cmd.qty) ?? state.bank;
       let rng = state.rng;
+      let loot: Container = [];
       for (let i = 0; i < cmd.qty; i++) {
         let stacks;
         [stacks, rng] = rollDropTable(item.opens, rng);
         bank = addStacks(bank, stacks);
+        loot = addStacks(loot, stacks);
       }
-      return { ok: true, state: { ...state, bank, rng } };
+      return {
+        ok: true,
+        state: pushEvent(
+          { ...state, bank, rng },
+          { type: 'opened', tick: state.tick, item: cmd.item, qty: cmd.qty, items: loot },
+        ),
+      };
     }
+    case 'sell': {
+      if (!ctx.content.hasItem(cmd.item)) return reject(state, `unknown item "${cmd.item}"`);
+      const item = ctx.content.item(cmd.item);
+      const have = countItem(state.bank, cmd.item);
+      if (have < cmd.qty) return reject(state, `only ${String(have)} ${item.name} in the bank`);
+      const bank = removeItem(state.bank, cmd.item, cmd.qty) ?? state.bank;
+      return { ok: true, state: { ...state, bank, coins: state.coins + item.value * cmd.qty } };
+    }
+    case 'bank:buy-slot': {
+      const cost = bankSlotCost(state.bankSlotsBought);
+      if (state.coins < cost) {
+        return reject(
+          state,
+          `a bank slot costs ${String(cost)} gp (you have ${String(state.coins)})`,
+        );
+      }
+      return {
+        ok: true,
+        state: { ...state, coins: state.coins - cost, bankSlotsBought: state.bankSlotsBought + 1 },
+      };
+    }
+    case 'player:rename':
+      return { ok: true, state: { ...state, player: { ...state.player, name: cmd.name } } };
   }
 }
+
+export { bankFull };
 
 function reject(state: SimState, reason: string): CommandResult {
   return { ok: false, state, reason };

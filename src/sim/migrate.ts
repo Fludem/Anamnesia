@@ -42,6 +42,14 @@ export const MIGRATIONS: MigrationTable = {
       sim: { ...sim, equipment: { ...emptyEquipment(), ...asObject(sim['equipment']) } },
     };
   },
+  /** v3 → v4 (Phase 4): coins, bought bank slots, the event log and counters. All start empty. */
+  3: (raw) => {
+    const sim = asObject(raw['sim']);
+    return {
+      ...raw,
+      sim: { bankSlotsBought: 0, coins: 0, log: [], stats: { actions: {} }, ...sim },
+    };
+  },
 };
 
 function asObject(v: unknown): Record<string, unknown> {

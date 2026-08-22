@@ -39,10 +39,14 @@ describe('migrateSave', () => {
         applied.push(2);
         return r;
       },
+      3: (r) => {
+        applied.push(3);
+        return r;
+      },
     };
     const v0 = { ...fresh(), version: 0, writerId: undefined };
     const out = migrateSave(v0, migrations, CURRENT_SAVE_VERSION);
-    expect(applied).toEqual([0, 1, 2]);
+    expect(applied).toEqual([0, 1, 2, 3]);
     expect(out.version).toBe(CURRENT_SAVE_VERSION);
     expect(out.writerId).toBe('migrated-from-v0');
   });
@@ -61,7 +65,11 @@ describe('migrateSave', () => {
       inventory: [],
       equipment: emptyEquipment(),
       bank: [],
+      bankSlotsBought: 0,
+      coins: 0,
       action: { current: null, queue: [] },
+      log: [],
+      stats: { actions: {} },
     });
     expect('placeholder' in out.sim).toBe(false);
   });
@@ -77,8 +85,26 @@ describe('migrateSave', () => {
     v2['version'] = 2;
     sim['equipment'] = { ...equipment, weapon: 'copper-sword' };
     const out = migrateSave(v2);
-    expect(out.version).toBe(3);
+    expect(out.version).toBe(CURRENT_SAVE_VERSION);
     expect(out.sim.equipment).toEqual({ ...emptyEquipment(), weapon: 'copper-sword' });
+  });
+
+  it('migrates a v3 record to v4 by adding coins, bought slots and an empty log', () => {
+    const v3 = JSON.parse(JSON.stringify(fresh())) as Record<string, unknown>;
+    const sim = v3['sim'] as Record<string, unknown>;
+    delete sim['coins'];
+    delete sim['bankSlotsBought'];
+    delete sim['log'];
+    delete sim['stats'];
+    v3['version'] = 3;
+    sim['bank'] = [{ item: 'copper-ore', qty: 3 }];
+    const out = migrateSave(v3);
+    expect(out.version).toBe(4);
+    expect(out.sim.coins).toBe(0);
+    expect(out.sim.bankSlotsBought).toBe(0);
+    expect(out.sim.log).toEqual([]);
+    expect(out.sim.stats).toEqual({ actions: {} });
+    expect(out.sim.bank).toEqual([{ item: 'copper-ore', qty: 3 }]);
   });
 
   it('refuses a future version rather than guessing', () => {

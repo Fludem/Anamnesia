@@ -74,6 +74,9 @@ describe('open', () => {
     expect(countItem(r.state.bank, 'nest')).toBe(1);
     expect(countItem(r.state.bank, 'gem')).toBe(4);
     expect(r.state.rng).not.toEqual(s.rng);
+    expect(r.state.log).toEqual([
+      { type: 'opened', tick: 0, item: 'nest', qty: 2, items: [{ item: 'gem', qty: 4 }] },
+    ]);
   });
 
   it('rejects non-containers and short stacks', () => {

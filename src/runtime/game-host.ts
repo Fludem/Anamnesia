@@ -15,6 +15,9 @@ import { DEFAULT_BATCH_TICKS, runAdvance } from './catch-up.ts';
 import type { Env } from './env.ts';
 import { LeaderElection, LOCK_NAME } from './leader.ts';
 
+/** Five minutes of ticks: shorter absences are not worth a modal. */
+export const DEFAULT_OFFLINE_RECAP_MIN_TICKS = 3_000;
+
 export type HostRole = 'booting' | 'follower' | 'leader' | 'handing-over' | 'stale' | 'error';
 
 export interface CatchUpProgress {
@@ -22,11 +25,18 @@ export interface CatchUpProgress {
   total: number;
 }
 
-export interface CappedNotice {
-  /** Ticks that elapsed beyond the cap and were discarded. */
-  skippedTicks: number;
-  /** Total wall time the player was away (including the capped part). */
+/**
+ * What a long catch-up did, for the "welcome back" recap. Present after any single advance of at
+ * least `offlineRecapMinTicks` — a reload after a night away, or a leader tab waking from a
+ * laptop sleep. The UI diffs `before` against the current sim for XP and items.
+ */
+export interface OfflineRecap {
+  /** The sim as it was before the catch-up ran. */
+  before: SimState;
+  /** Total wall time the player was away, including any capped part. */
   awayMs: number;
+  /** Ticks that elapsed beyond the cap and were discarded; 0 when nothing was capped. */
+  skippedTicks: number;
   capMs: number;
 }
 
@@ -40,7 +50,7 @@ export interface HostSnapshot {
   saveCounter: number;
   lastSavedAtMs: number | null;
   catchUp: CatchUpProgress | null;
-  cappedNotice: CappedNotice | null;
+  offline: OfflineRecap | null;
   takeoverPending: boolean;
   /** Non-fatal condition the UI should show (e.g. guard-only mode). */
   warning: string | null;
@@ -58,6 +68,8 @@ export interface GameHostOptions {
   batchTicks?: number;
   /** Periodic save while leading. */
   saveIntervalMs?: number;
+  /** An advance of at least this many ticks produces an `offline` recap. */
+  offlineRecapMinTicks?: number;
   /** Minimum gap between broadcast snapshots while ticking. */
   snapshotIntervalMs?: number;
   /** How long a follower waits for takeover-ack before stealing anyway. */
@@ -121,6 +133,7 @@ export class GameHost {
       capTicks: options.capTicks ?? OFFLINE_CAP_TICKS,
       batchTicks: options.batchTicks ?? DEFAULT_BATCH_TICKS,
       saveIntervalMs: options.saveIntervalMs ?? 10_000,
+      offlineRecapMinTicks: options.offlineRecapMinTicks ?? DEFAULT_OFFLINE_RECAP_MIN_TICKS,
       snapshotIntervalMs: options.snapshotIntervalMs ?? 250,
       takeoverAckTimeoutMs: options.takeoverAckTimeoutMs ?? 2_000,
       handoverResumeMs: options.handoverResumeMs ?? 3_000,
@@ -139,7 +152,7 @@ export class GameHost {
       saveCounter: 0,
       lastSavedAtMs: null,
       catchUp: null,
-      cappedNotice: null,
+      offline: null,
       takeoverPending: false,
       warning: null,
       commandError: null,
@@ -254,8 +267,8 @@ export class GameHost {
     return this.save('manual');
   }
 
-  dismissCappedNotice(): void {
-    this.patch({ cappedNotice: null });
+  dismissOffline(): void {
+    this.patch({ offline: null });
   }
 
   /** Tear down timers, listeners and the channel. Releases the lock if held. */
@@ -389,15 +402,7 @@ export class GameHost {
       }
       return;
     }
-    if (plan.skippedTicks > 0) {
-      this.patch({
-        cappedNotice: {
-          skippedTicks: plan.skippedTicks,
-          awayMs: plan.newWallMs - plan.fromWallMs,
-          capMs: this.opts.capTicks * this.opts.tickMs,
-        },
-      });
-    }
+    const recapFrom = count >= this.opts.offlineRecapMinTicks ? this.sim : null;
 
     this.advancing = true;
     const showProgress = count > this.opts.batchTicks;
@@ -422,6 +427,16 @@ export class GameHost {
     } finally {
       this.advancing = false;
       if (showProgress && !session.signal.aborted) this.patch({ catchUp: null });
+    }
+    if (recapFrom !== null && !session.signal.aborted) {
+      this.patch({
+        offline: {
+          before: recapFrom,
+          awayMs: plan.newWallMs - plan.fromWallMs,
+          skippedTicks: plan.skippedTicks,
+          capMs: this.opts.capTicks * this.opts.tickMs,
+        },
+      });
     }
     if (!session.signal.aborted && this.role === 'leader') this.flushPendingActions();
   }
