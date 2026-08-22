@@ -4,6 +4,7 @@ import {
   type DropTable,
   type DropTableOrRef,
   type GatherNodeDef,
+  type GodDef,
   type ItemDef,
   type ItemSource,
   type MaterialDef,
@@ -13,6 +14,7 @@ import {
   type RockDef,
   type SkillDef,
   type TreeDef,
+  type WaterDef,
   type ZoneDef,
 } from './schema.ts';
 
@@ -23,9 +25,11 @@ interface ResolvedPack {
   items: readonly ItemDef[];
   rocks: readonly RockDef[];
   trees: readonly TreeDef[];
+  waters: readonly WaterDef[];
   recipes: readonly RecipeDef[];
   zones: readonly ZoneDef[];
   monsters: readonly MonsterDef[];
+  gods: readonly GodDef[];
 }
 
 export class ContentError extends Error {
@@ -54,17 +58,22 @@ export class ContentDb {
   readonly items: readonly ItemDef[];
   readonly rocks: readonly RockDef[];
   readonly trees: readonly TreeDef[];
+  readonly waters: readonly WaterDef[];
   readonly recipes: readonly RecipeDef[];
   /** Sorted by recommended level ascending. */
   readonly zones: readonly ZoneDef[];
   readonly monsters: readonly MonsterDef[];
+  /** In authored order — the order Screen D lists them. */
+  readonly gods: readonly GodDef[];
   private readonly skillById: ReadonlyMap<string, SkillDef>;
   private readonly materialById: ReadonlyMap<string, MaterialDef>;
   private readonly rarityById: ReadonlyMap<string, RarityDef>;
   private readonly itemById: ReadonlyMap<string, ItemDef>;
   private readonly rockById: ReadonlyMap<string, RockDef>;
   private readonly treeById: ReadonlyMap<string, TreeDef>;
+  private readonly waterById: ReadonlyMap<string, WaterDef>;
   private readonly recipeById: ReadonlyMap<string, RecipeDef>;
+  private readonly godById: ReadonlyMap<string, GodDef>;
   private readonly zoneById: ReadonlyMap<string, ZoneDef>;
   private readonly monsterById: ReadonlyMap<string, MonsterDef>;
 
@@ -75,16 +84,20 @@ export class ContentDb {
     this.items = pack.items;
     this.rocks = pack.rocks;
     this.trees = pack.trees;
+    this.waters = pack.waters;
     this.recipes = pack.recipes;
     this.zones = [...pack.zones].sort((a, b) => a.level - b.level);
     this.monsters = pack.monsters;
+    this.gods = pack.gods;
     this.skillById = new Map(pack.skills.map((s) => [s.id, s]));
     this.materialById = new Map(pack.materials.map((m) => [m.id, m]));
     this.rarityById = new Map(pack.rarities.map((r) => [r.id, r]));
     this.itemById = new Map(pack.items.map((i) => [i.id, i]));
     this.rockById = new Map(pack.rocks.map((r) => [r.id, r]));
     this.treeById = new Map(pack.trees.map((t) => [t.id, t]));
+    this.waterById = new Map(pack.waters.map((w) => [w.id, w]));
     this.recipeById = new Map(pack.recipes.map((r) => [r.id, r]));
+    this.godById = new Map(pack.gods.map((g) => [g.id, g]));
     this.zoneById = new Map(pack.zones.map((z) => [z.id, z]));
     this.monsterById = new Map(pack.monsters.map((m) => [m.id, m]));
   }
@@ -168,6 +181,14 @@ export class ContentDb {
       pack.trees.map((t) => t.id),
     );
     dupes(
+      'water',
+      pack.waters.map((w) => w.id),
+    );
+    dupes(
+      'god',
+      pack.gods.map((g) => g.id),
+    );
+    dupes(
       'recipe',
       pack.recipes.map((r) => r.id),
     );
@@ -205,13 +226,38 @@ export class ContentDb {
     };
     const rocks = pack.rocks.map((r) => node('rock', 'mining', r));
     const trees = pack.trees.map((t) => node('tree', 'woodcutting', t));
+    const waters = pack.waters.map((w) => node('water', 'fishing', w));
 
     for (const recipe of pack.recipes) {
       const owner = `recipe "${recipe.id}"`;
       if (!skillIds.has(recipe.skill)) problems.push(`${owner}: unknown skill "${recipe.skill}"`);
+      for (const r of recipe.requires) {
+        if (!skillIds.has(r.skill)) problems.push(`${owner}: requires unknown skill "${r.skill}"`);
+        if (r.skill === recipe.skill)
+          problems.push(`${owner}: requires its own skill; use "level" for that`);
+      }
       checkItemQty(`${owner} inputs`, recipe.inputs);
       checkItemQty(`${owner} outputs`, recipe.outputs);
+      checkItemQty(`${owner} failOutputs`, recipe.failOutputs);
+      if (recipe.outputs.length === 0 && recipe.failOutputs.length > 0)
+        problems.push(`${owner}: has failOutputs but no outputs`);
     }
+
+    const gods: GodDef[] = pack.gods.map((g) => {
+      const owner = `god "${g.id}"`;
+      for (const skill of Object.keys(g.perks.xp))
+        if (!skillIds.has(skill)) problems.push(`${owner}: xp perk for unknown skill "${skill}"`);
+      for (const d of g.perks.doubleYield)
+        if (!skillIds.has(d.skill))
+          problems.push(`${owner}: doubleYield for unknown skill "${d.skill}"`);
+      const extraDrops = g.perks.extraDrops.flatMap((e) => {
+        if (!skillIds.has(e.skill))
+          problems.push(`${owner}: extraDrops for unknown skill "${e.skill}"`);
+        const table = resolve(`${owner} extraDrops(${e.skill})`, e.table);
+        return table === null ? [] : [{ skill: e.skill, table }];
+      });
+      return { ...g, perks: { ...g.perks, extraDrops } };
+    });
 
     const monsters: MonsterDef[] = pack.monsters.map((m) => {
       const owner = `monster "${m.id}"`;
@@ -230,9 +276,11 @@ export class ContentDb {
       items,
       rocks,
       trees,
+      waters,
       recipes: pack.recipes,
       zones: pack.zones,
       monsters,
+      gods,
     });
   }
 
@@ -254,6 +302,12 @@ export class ContentDb {
   tree(id: string): TreeDef {
     return lookup(this.treeById, 'tree', id);
   }
+  water(id: string): WaterDef {
+    return lookup(this.waterById, 'water', id);
+  }
+  god(id: string): GodDef {
+    return lookup(this.godById, 'god', id);
+  }
   recipe(id: string): RecipeDef {
     return lookup(this.recipeById, 'recipe', id);
   }
@@ -272,8 +326,27 @@ export class ContentDb {
   hasTree(id: string): boolean {
     return this.treeById.has(id);
   }
+  hasWater(id: string): boolean {
+    return this.waterById.has(id);
+  }
+  hasGod(id: string): boolean {
+    return this.godById.has(id);
+  }
   hasRecipe(id: string): boolean {
     return this.recipeById.has(id);
+  }
+  /** The gathering nodes a skill trains on, or an empty list for crafting skills. */
+  nodesFor(skill: string): readonly GatherNodeDef[] {
+    switch (skill) {
+      case 'mining':
+        return this.rocks;
+      case 'woodcutting':
+        return this.trees;
+      case 'fishing':
+        return this.waters;
+      default:
+        return [];
+    }
   }
   /** Recipes for one skill in authored order. */
   recipesFor(skill: string): RecipeDef[] {

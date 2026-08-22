@@ -50,6 +50,25 @@ export const MIGRATIONS: MigrationTable = {
       sim: { bankSlotsBought: 0, coins: 0, log: [], stats: { actions: {} }, ...sim },
     };
   },
+  /**
+   * v4 → v5 (Phase 5): the rod slot, the sworn god (null: an old hero is asked on next load),
+   * lifetime item and sale counters, and first-steps progress — started, not dismissed, so an
+   * existing hero sees the card too and can put it away.
+   */
+  4: (raw) => {
+    const sim = asObject(raw['sim']);
+    const stats = asObject(sim['stats']);
+    return {
+      ...raw,
+      sim: {
+        ...sim,
+        player: { god: null, ...asObject(sim['player']) },
+        equipment: { ...emptyEquipment(), ...asObject(sim['equipment']) },
+        stats: { items: {}, sold: 0, ...stats, actions: stats['actions'] ?? {} },
+        tutorial: { done: [], dismissed: false },
+      },
+    };
+  },
 };
 
 function asObject(v: unknown): Record<string, unknown> {

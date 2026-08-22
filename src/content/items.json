@@ -1513,5 +1513,378 @@
     "rarity": "legendary",
     "value": 6000,
     "tags": ["legendary", "drop"]
+  },
+  {
+    "id": "raw-minnow",
+    "name": "Raw Minnow",
+    "description": "Small. It was going to stay small.",
+    "icon": "delapouite/tropical-fish",
+    "class": "resource",
+    "material": "silver",
+    "value": 2,
+    "tags": ["fish", "raw"]
+  },
+  {
+    "id": "minnow",
+    "name": "Minnow",
+    "description": "Three bites, none of them memorable.",
+    "icon": "darkzaitzev/fish-cooked",
+    "class": "consumable",
+    "material": "silver",
+    "stats": {
+      "heal": 3
+    },
+    "value": 5,
+    "tags": ["fish", "food"]
+  },
+  {
+    "id": "raw-perch",
+    "name": "Raw Perch",
+    "description": "Striped, and annoyed about it.",
+    "icon": "delapouite/clownfish",
+    "class": "resource",
+    "material": "oak",
+    "value": 5,
+    "tags": ["fish", "raw"]
+  },
+  {
+    "id": "perch",
+    "name": "Perch",
+    "description": "Bony. Eat around it.",
+    "icon": "darkzaitzev/fish-cooked",
+    "class": "consumable",
+    "material": "oak",
+    "stats": {
+      "heal": 5
+    },
+    "value": 11,
+    "tags": ["fish", "food"]
+  },
+  {
+    "id": "raw-sprat",
+    "name": "Raw Sprat",
+    "description": "One of a great many.",
+    "icon": "delapouite/school-of-fish",
+    "class": "resource",
+    "material": "iron",
+    "value": 1,
+    "tags": ["fish", "raw"]
+  },
+  {
+    "id": "sprat",
+    "name": "Sprat",
+    "description": "One of a great many, cooked.",
+    "icon": "darkzaitzev/fish-cooked",
+    "class": "consumable",
+    "material": "iron",
+    "stats": {
+      "heal": 2
+    },
+    "value": 2,
+    "tags": ["fish", "food"]
+  },
+  {
+    "id": "raw-trout",
+    "name": "Raw Trout",
+    "description": "Speckled. It came out of the cold rock cold.",
+    "icon": "cathelineau/flying-trout",
+    "class": "resource",
+    "material": "copper",
+    "value": 9,
+    "tags": ["fish", "raw"]
+  },
+  {
+    "id": "trout",
+    "name": "Trout",
+    "description": "Pink inside. A proper meal, by hill standards.",
+    "icon": "darkzaitzev/fish-cooked",
+    "class": "consumable",
+    "material": "copper",
+    "stats": {
+      "heal": 7
+    },
+    "value": 20,
+    "tags": ["fish", "food"]
+  },
+  {
+    "id": "raw-eel",
+    "name": "Raw Eel",
+    "description": "It was not pleased to be caught and has not stopped saying so.",
+    "icon": "delapouite/eel",
+    "class": "resource",
+    "material": "blight",
+    "value": 15,
+    "tags": ["fish", "raw"]
+  },
+  {
+    "id": "eel",
+    "name": "Eel",
+    "description": "Rich, dark, and easier to hold now.",
+    "icon": "darkzaitzev/fish-cooked",
+    "class": "consumable",
+    "material": "blight",
+    "stats": {
+      "heal": 10
+    },
+    "value": 33,
+    "tags": ["fish", "food"]
+  },
+  {
+    "id": "raw-bleak",
+    "name": "Raw Bleak",
+    "description": "A silver sliver. The tarn has thousands.",
+    "icon": "delapouite/double-fish",
+    "class": "resource",
+    "material": "silver",
+    "value": 2,
+    "tags": ["fish", "raw"]
+  },
+  {
+    "id": "bleak",
+    "name": "Bleak",
+    "description": "A silver sliver, browned.",
+    "icon": "darkzaitzev/fish-cooked",
+    "class": "consumable",
+    "material": "silver",
+    "stats": {
+      "heal": 3
+    },
+    "value": 5,
+    "tags": ["fish", "food"]
+  },
+  {
+    "id": "raw-pike",
+    "name": "Raw Pike",
+    "description": "Teeth first. It was hunting something when you interrupted.",
+    "icon": "delapouite/fish-monster",
+    "class": "resource",
+    "material": "pine",
+    "value": 28,
+    "tags": ["fish", "raw"]
+  },
+  {
+    "id": "pike",
+    "name": "Pike",
+    "description": "It tastes like what it ate, which was everything.",
+    "icon": "darkzaitzev/fish-cooked",
+    "class": "consumable",
+    "material": "pine",
+    "stats": {
+      "heal": 14
+    },
+    "value": 62,
+    "tags": ["fish", "food"]
+  },
+  {
+    "id": "raw-carp",
+    "name": "Raw Ghost Carp",
+    "description": "Pale, old, and heavy. It came up without a fight.",
+    "icon": "delapouite/flatfish",
+    "class": "resource",
+    "material": "gold",
+    "value": 48,
+    "tags": ["fish", "raw"]
+  },
+  {
+    "id": "carp",
+    "name": "Ghost Carp",
+    "description": "It fills you. It does not seem to mind.",
+    "icon": "darkzaitzev/fish-cooked",
+    "class": "consumable",
+    "material": "gold",
+    "stats": {
+      "heal": 18
+    },
+    "value": 105,
+    "tags": ["fish", "food"]
+  },
+  {
+    "id": "raw-smelt",
+    "name": "Raw Smelt",
+    "description": "Smells of cucumber. Nobody up here has seen a cucumber.",
+    "icon": "delapouite/circling-fish",
+    "class": "resource",
+    "material": "marble",
+    "value": 4,
+    "tags": ["fish", "raw"]
+  },
+  {
+    "id": "smelt",
+    "name": "Smelt",
+    "description": "Fried whole. Quick, like everything about it.",
+    "icon": "darkzaitzev/fish-cooked",
+    "class": "consumable",
+    "material": "marble",
+    "stats": {
+      "heal": 4
+    },
+    "value": 9,
+    "tags": ["fish", "food"]
+  },
+  {
+    "id": "raw-pale-fish",
+    "name": "Raw Pale Fish",
+    "description": "No eyes. It did not need them down there and will not need them now.",
+    "icon": "lorc/fish-corpse",
+    "class": "resource",
+    "material": "aether",
+    "value": 110,
+    "tags": ["fish", "raw"]
+  },
+  {
+    "id": "pale-fish",
+    "name": "Pale Fish",
+    "description": "Translucent even cooked. Heals more than it should.",
+    "icon": "darkzaitzev/fish-cooked",
+    "class": "consumable",
+    "material": "aether",
+    "stats": {
+      "heal": 24
+    },
+    "value": 240,
+    "tags": ["fish", "food"]
+  },
+  {
+    "id": "raw-char",
+    "name": "Raw Char",
+    "description": "Red-bellied, from water that is never warm.",
+    "icon": "cathelineau/flying-trout",
+    "class": "resource",
+    "material": "basalt",
+    "value": 10,
+    "tags": ["fish", "raw"]
+  },
+  {
+    "id": "char",
+    "name": "Char",
+    "description": "Orange inside. Warm, briefly.",
+    "icon": "darkzaitzev/fish-cooked",
+    "class": "consumable",
+    "material": "basalt",
+    "stats": {
+      "heal": 8
+    },
+    "value": 22,
+    "tags": ["fish", "food"]
+  },
+  {
+    "id": "charred-fish",
+    "name": "Charred Fish",
+    "description": "It was a fish. Now it is a lesson.",
+    "icon": "darkzaitzev/fried-fish",
+    "class": "misc",
+    "material": "blight",
+    "value": 1,
+    "tags": ["fish"]
+  },
+  {
+    "id": "kindling",
+    "name": "Kindling",
+    "description": "Twigs, mostly. Catches fast and gives little.",
+    "icon": "delapouite/wood-stick",
+    "class": "resource",
+    "material": "oak",
+    "value": 1,
+    "tags": ["wood", "fuel"]
+  },
+  {
+    "id": "ash",
+    "name": "Ash",
+    "description": "What is left. It is always what is left.",
+    "icon": "lorc/powder",
+    "class": "resource",
+    "material": "iron",
+    "value": 1,
+    "tags": ["misc"]
+  },
+  {
+    "id": "pine-rod",
+    "name": "Pine Rod",
+    "description": "A pine pole, a copper hook, and optimism.",
+    "icon": "delapouite/fishing-pole",
+    "class": "tool",
+    "material": "pine",
+    "rarity": "common",
+    "slot": "rod",
+    "stats": {
+      "gather": 5
+    },
+    "value": 14,
+    "tags": ["tool", "rod"]
+  },
+  {
+    "id": "oak-rod",
+    "name": "Oak Rod",
+    "description": "Stiffer. The fish notice the difference less than you do.",
+    "icon": "delapouite/fishing-pole",
+    "class": "tool",
+    "material": "oak",
+    "rarity": "common",
+    "slot": "rod",
+    "stats": {
+      "gather": 10
+    },
+    "value": 67,
+    "tags": ["tool", "rod"]
+  },
+  {
+    "id": "birch-rod",
+    "name": "Birch Rod",
+    "description": "Light and pale, with a basalt eye for the line.",
+    "icon": "delapouite/fishing-pole",
+    "class": "tool",
+    "material": "birch",
+    "rarity": "common",
+    "slot": "rod",
+    "stats": {
+      "gather": 15
+    },
+    "value": 77,
+    "tags": ["tool", "rod"]
+  },
+  {
+    "id": "willow-rod",
+    "name": "Willow Rod",
+    "description": "It bends with the fish. Bend with it.",
+    "icon": "delapouite/fishing-pole",
+    "class": "tool",
+    "material": "willow",
+    "rarity": "common",
+    "slot": "rod",
+    "stats": {
+      "gather": 20
+    },
+    "value": 665,
+    "tags": ["tool", "rod"]
+  },
+  {
+    "id": "blightwood-rod",
+    "name": "Blightwood Rod",
+    "description": "Grey wood, gold hook. Neither has anything to prove.",
+    "icon": "delapouite/fishing-pole",
+    "class": "tool",
+    "material": "blight",
+    "rarity": "common",
+    "slot": "rod",
+    "stats": {
+      "gather": 25
+    },
+    "value": 857,
+    "tags": ["tool", "rod"]
+  },
+  {
+    "id": "elder-rod",
+    "name": "Elder Rod",
+    "description": "It hums when the line goes tight. You do not ask why.",
+    "icon": "delapouite/fishing-pole",
+    "class": "tool",
+    "material": "aether",
+    "rarity": "epic",
+    "slot": "rod",
+    "stats": {
+      "gather": 30
+    },
+    "value": 18281,
+    "tags": ["tool", "rod"]
   }
 ]

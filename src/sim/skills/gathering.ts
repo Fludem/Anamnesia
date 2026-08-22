@@ -5,14 +5,17 @@ import type { SimContext } from '../context.ts';
 import { rollDropTable } from '../drops.ts';
 import { pushEvent } from '../events.ts';
 import { addStacks, type ItemStack } from '../items.ts';
-import { addXp, skillLevel } from '../progress.ts';
+import { awardXp, doubleYieldChance, extraDropTables, recordItems } from '../perks.ts';
+import { skillLevel } from '../progress.ts';
+import { nextFloat } from '../rng.ts';
 import type { SimState } from '../save.ts';
 import type { ToolSlot } from '../slots.ts';
 
 /**
  * The gathering primitive: pick a node, wait out its duration (shortened by the equipped
- * tool), roll success, then roll every drop table into the bank and award XP. Mining and
- * woodcutting are this with different content; a third gathering skill is one more call.
+ * tool), roll success, then roll every drop table into the bank and award XP. Mining,
+ * woodcutting and fishing are this with different content; a fourth gathering skill is one
+ * more call. The sworn god may add a table, double the haul, or pay more xp (perks.ts).
  */
 export interface GatheringSkill<K extends ActionKind> {
   skill: string;
@@ -47,9 +50,10 @@ export function gatheringHandler<K extends ActionKind>(def: GatheringSkill<K>): 
         };
       }
       // A full bank stops the action before a drop that would need a new slot, never after.
+      const tables = [...node.drops, ...extraDropTables(state, def.skill, ctx)];
       const room = roomFor(
         state,
-        node.drops.flatMap((t) => t.entries.map((e) => e.item)),
+        tables.flatMap((t) => t.entries.map((e) => e.item)),
       );
       if (!room.ok) {
         return {
@@ -76,20 +80,31 @@ export function gatheringHandler<K extends ActionKind>(def: GatheringSkill<K>): 
       if (!success) return state;
       const node = def.node(ctx, def.nodeId(req));
       let rng = state.rng;
-      let bank = state.bank;
-      const landed: ItemStack[] = [];
+      let landed: ItemStack[] = [];
       for (const table of node.drops) {
         let stacks;
         [stacks, rng] = rollDropTable(table, rng);
-        bank = addStacks(bank, stacks);
-        landed.push(...stacks);
+        landed = addStacks(landed, stacks);
       }
-      const next = addXp({ ...state, rng, bank }, def.skill, node.xp);
-      return pushEvent(next, {
+      // The god's double: the node's own haul twice, rolled once per cycle.
+      const twice = doubleYieldChance(state, def.skill, ctx);
+      if (twice > 0) {
+        let f;
+        [f, rng] = nextFloat(rng);
+        if (f < twice) landed = landed.map((s) => ({ ...s, qty: s.qty * 2 }));
+      }
+      for (const table of extraDropTables(state, def.skill, ctx)) {
+        let stacks;
+        [stacks, rng] = rollDropTable(table, rng);
+        landed = addStacks(landed, stacks);
+      }
+      const bank = addStacks(state.bank, landed);
+      const paid = awardXp(recordItems({ ...state, rng, bank }, landed), def.skill, node.xp, ctx);
+      return pushEvent(paid.state, {
         type: 'gain',
-        tick: next.tick,
+        tick: paid.state.tick,
         skill: def.skill,
-        xp: node.xp,
+        xp: paid.xp,
         items: landed,
       });
     },

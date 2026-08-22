@@ -6,6 +6,7 @@ import type { SimContext } from './context.ts';
 import { rollDropTable } from './drops.ts';
 import { pushEvent } from './events.ts';
 import { addItem, addStacks, countItem, removeItem, type Container } from './items.ts';
+import { recordItems } from './perks.ts';
 import type { SimState } from './save.ts';
 import { EquipmentSlotSchema } from './slots.ts';
 
@@ -38,6 +39,11 @@ export const CommandSchema = z.discriminatedUnion('type', [
   /** Buy one more bank slot at the current price. */
   z.object({ type: z.literal('bank:buy-slot') }),
   z.object({ type: z.literal('player:rename'), name: PlayerNameSchema }),
+  /** Swear to a god. Once: the hill does not take oaths back. */
+  z.object({ type: z.literal('player:swear'), god: IdSchema }),
+  /** Put the first-steps card away (skipped or finished), or bring it back. */
+  z.object({ type: z.literal('tutorial:dismiss') }),
+  z.object({ type: z.literal('tutorial:show') }),
 ]);
 export type Command = z.infer<typeof CommandSchema>;
 
@@ -122,10 +128,13 @@ export function applyCommand(state: SimState, cmd: Command, ctx: SimContext): Co
       }
       return {
         ok: true,
-        state: pushEvent(
-          { ...state, bank, rng },
-          { type: 'opened', tick: state.tick, item: cmd.item, qty: cmd.qty, items: loot },
-        ),
+        state: pushEvent(recordItems({ ...state, bank, rng }, loot), {
+          type: 'opened',
+          tick: state.tick,
+          item: cmd.item,
+          qty: cmd.qty,
+          items: loot,
+        }),
       };
     }
     case 'sell': {
@@ -134,7 +143,15 @@ export function applyCommand(state: SimState, cmd: Command, ctx: SimContext): Co
       const have = countItem(state.bank, cmd.item);
       if (have < cmd.qty) return reject(state, `only ${String(have)} ${item.name} in the bank`);
       const bank = removeItem(state.bank, cmd.item, cmd.qty) ?? state.bank;
-      return { ok: true, state: { ...state, bank, coins: state.coins + item.value * cmd.qty } };
+      return {
+        ok: true,
+        state: {
+          ...state,
+          bank,
+          coins: state.coins + item.value * cmd.qty,
+          stats: { ...state.stats, sold: state.stats.sold + cmd.qty },
+        },
+      };
     }
     case 'bank:buy-slot': {
       const cost = bankSlotCost(state.bankSlotsBought);
@@ -151,6 +168,17 @@ export function applyCommand(state: SimState, cmd: Command, ctx: SimContext): Co
     }
     case 'player:rename':
       return { ok: true, state: { ...state, player: { ...state.player, name: cmd.name } } };
+    case 'player:swear': {
+      if (!ctx.content.hasGod(cmd.god)) return reject(state, `unknown god "${cmd.god}"`);
+      if (state.player.god !== null) {
+        return reject(state, `already sworn to ${ctx.content.god(state.player.god).name}`);
+      }
+      return { ok: true, state: { ...state, player: { ...state.player, god: cmd.god } } };
+    }
+    case 'tutorial:dismiss':
+      return { ok: true, state: { ...state, tutorial: { ...state.tutorial, dismissed: true } } };
+    case 'tutorial:show':
+      return { ok: true, state: { ...state, tutorial: { ...state.tutorial, dismissed: false } } };
   }
 }
 

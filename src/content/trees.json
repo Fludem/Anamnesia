@@ -1,6 +1,6 @@
 [
   {
-    "$comment": "Woodcutting nodes, in the order Screen B lists them."
+    "$comment": "Woodcutting nodes, in the order Screen B lists them, tuned for ~34h to 99 on the trees. Brushwood, bramble, deadfall and scrub are the fast ones: quicker xp, kindling instead of logs."
   },
   {
     "id": "pine-stand",
@@ -9,7 +9,7 @@
     "material": "pine",
     "level": 1,
     "durationTicks": 24,
-    "xp": 14,
+    "xp": 16,
     "success": {
       "base": 0.85,
       "perLevel": 0.01
@@ -26,7 +26,8 @@
       {
         "$ref": "nest-drop"
       }
-    ]
+    ],
+    "description": "Soft, straight, plentiful. It grows out of spite."
   },
   {
     "id": "oak-grove",
@@ -35,7 +36,7 @@
     "material": "oak",
     "level": 12,
     "durationTicks": 28,
-    "xp": 28,
+    "xp": 34,
     "success": {
       "base": 0.7,
       "perLevel": 0.01
@@ -52,7 +53,34 @@
       {
         "$ref": "nest-drop"
       }
-    ]
+    ],
+    "description": "Slow wood. It took its time and so will you."
+  },
+  {
+    "id": "brushwood",
+    "name": "Brushwood",
+    "description": "Snaps off in the hand. Burns about as well.",
+    "icon": "lorc/tree-branch",
+    "material": "oak",
+    "level": 18,
+    "durationTicks": 16,
+    "xp": 20,
+    "success": {
+      "base": 0.9,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "kindling",
+            "weight": 1,
+            "quantity": [1, 1]
+          }
+        ]
+      }
+    ],
+    "quick": true
   },
   {
     "id": "birch-thicket",
@@ -61,7 +89,7 @@
     "material": "birch",
     "level": 24,
     "durationTicks": 29,
-    "xp": 40,
+    "xp": 60,
     "success": {
       "base": 0.65,
       "perLevel": 0.01
@@ -78,7 +106,8 @@
       {
         "$ref": "nest-drop"
       }
-    ]
+    ],
+    "description": "Pale bark, peeling. Nothing written on it."
   },
   {
     "id": "willow-grove",
@@ -87,7 +116,7 @@
     "material": "willow",
     "level": 35,
     "durationTicks": 30,
-    "xp": 52,
+    "xp": 100,
     "success": {
       "base": 0.6,
       "perLevel": 0.01
@@ -104,7 +133,34 @@
       {
         "$ref": "nest-drop"
       }
-    ]
+    ],
+    "description": "Bends rather than breaks. A strategy."
+  },
+  {
+    "id": "bramble-thicket",
+    "name": "Bramble Thicket",
+    "description": "It draws blood, and it knows it.",
+    "icon": "lorc/thorny-vine",
+    "material": "blight",
+    "level": 45,
+    "durationTicks": 20,
+    "xp": 65,
+    "success": {
+      "base": 0.85,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "kindling",
+            "weight": 1,
+            "quantity": [1, 2]
+          }
+        ]
+      }
+    ],
+    "quick": true
   },
   {
     "id": "blightwood-copse",
@@ -112,8 +168,8 @@
     "icon": "lorc/dead-wood",
     "material": "blight",
     "level": 52,
-    "durationTicks": 36,
-    "xp": 96,
+    "durationTicks": 38,
+    "xp": 215,
     "success": {
       "base": 0.5,
       "perLevel": 0.01
@@ -130,7 +186,34 @@
       {
         "$ref": "nest-drop"
       }
-    ]
+    ],
+    "description": "Grey right through. It was not always."
+  },
+  {
+    "id": "deadfall",
+    "name": "Deadfall",
+    "description": "Already down. You are only tidying.",
+    "icon": "delapouite/wood-pile",
+    "material": "birch",
+    "level": 70,
+    "durationTicks": 24,
+    "xp": 185,
+    "success": {
+      "base": 0.8,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "kindling",
+            "weight": 1,
+            "quantity": [2, 3]
+          }
+        ]
+      }
+    ],
+    "quick": true
   },
   {
     "id": "hollow-elder",
@@ -138,8 +221,8 @@
     "icon": "lorc/evil-tree",
     "material": "aether",
     "level": 78,
-    "durationTicks": 44,
-    "xp": 185,
+    "durationTicks": 48,
+    "xp": 800,
     "success": {
       "base": 0.4,
       "perLevel": 0.01
@@ -159,6 +242,33 @@
       {
         "$ref": "elder-leaf"
       }
-    ]
+    ],
+    "description": "Still standing. What you take was spare."
+  },
+  {
+    "id": "blight-scrub",
+    "name": "Blight Scrub",
+    "description": "Grew back wrong and kept growing.",
+    "icon": "lorc/thorn-helix",
+    "material": "blight",
+    "level": 90,
+    "durationTicks": 28,
+    "xp": 410,
+    "success": {
+      "base": 0.75,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "kindling",
+            "weight": 1,
+            "quantity": [3, 4]
+          }
+        ]
+      }
+    ],
+    "quick": true
   }
 ]

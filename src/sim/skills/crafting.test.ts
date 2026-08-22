@@ -76,3 +76,50 @@ describe('crafting handler', () => {
     expect(s.action.current).toBeNull();
   });
 });
+
+describe('recipes with requirements and a burn chance', () => {
+  const withFish = (n: number, firemaking = 0, cooking = 0): SimState => {
+    let s: SimState = { ...createSimState(7), bank: addItem([], 'fish', n) };
+    if (firemaking > 0) s = addXp(s, 'firemaking', firemaking);
+    if (cooking > 0) s = addXp(s, 'cooking', cooking);
+    return s;
+  };
+  const cook = { kind: 'crafting', recipe: 'cook', count: null } as const;
+
+  it('asks for the other skill’s level with a reason naming it', () => {
+    expect(canStartAction(withFish(3), cook, ctx)).toEqual({
+      ok: false,
+      reason: 'needs Firemaking level 5 (you are 1)',
+    });
+    expect(canStartAction(withFish(3, 500), cook, ctx)).toEqual({ ok: true });
+  });
+
+  it('a failed cycle eats the input, lands the fail output and pays no xp', () => {
+    // Level 1 cooking: 50/50. Over many cycles both outcomes happen and the counts add up.
+    const s = run(beginAction(withFish(40, 500), cook, ctx), 2 * 40 + 1);
+    const cooked = countItem(s.bank, 'cooked-fish');
+    const burnt = countItem(s.bank, 'burnt');
+    expect(countItem(s.bank, 'fish')).toBe(0);
+    expect(cooked + burnt).toBe(40);
+    expect(cooked).toBeGreaterThan(5);
+    expect(burnt).toBeGreaterThan(5);
+    expect(skillXp(s, 'cooking')).toBe(cooked * 9);
+    expect(s.stats.actions['cooking']).toBe(40);
+    expect(s.stats.items).toEqual({ 'cooked-fish': cooked, burnt });
+  });
+
+  it('stops burning once the level carries the chance to 1', () => {
+    // Level 11 cooking (0.5 + 0.05 × 10 = 1): every fish cooks.
+    const s = run(beginAction(withFish(20, 500, 1500), cook, ctx), 2 * 20 + 1);
+    expect(countItem(s.bank, 'cooked-fish')).toBe(20);
+    expect(countItem(s.bank, 'burnt')).toBe(0);
+  });
+
+  it('a recipe with no outputs consumes its input and pays xp', () => {
+    const s0: SimState = { ...createSimState(1), bank: addItem([], 'log', 3) };
+    const s = run(beginAction(s0, { kind: 'crafting', recipe: 'burn', count: null }, ctx), 7);
+    expect(s.bank).toEqual([]);
+    expect(skillXp(s, 'firemaking')).toBe(12);
+    expect(s.action.current).toBeNull();
+  });
+});

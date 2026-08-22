@@ -1,9 +1,40 @@
 [
   {
-    "$comment": "Display order. Fishing and Firemaking appear in the design's navigation but ship no content yet, so they are not listed."
+    "$comment": "Display order: the design's navigation (Mine / Wood / Fish / Fire / Smith / Fight / Bank) with Cooking after Firemaking. Combat ships no loop yet."
   },
-  { "id": "mining", "name": "Mining", "icon": "lorc/mining" },
-  { "id": "woodcutting", "name": "Woodcutting", "icon": "lorc/pine-tree" },
-  { "id": "smithing", "name": "Smithing", "icon": "lorc/anvil" },
-  { "id": "combat", "name": "Combat", "icon": "lorc/crossed-swords" }
+  {
+    "id": "mining",
+    "name": "Mining",
+    "icon": "lorc/mining"
+  },
+  {
+    "id": "woodcutting",
+    "name": "Woodcutting",
+    "icon": "lorc/pine-tree"
+  },
+  {
+    "id": "fishing",
+    "name": "Fishing",
+    "icon": "delapouite/fishing"
+  },
+  {
+    "id": "firemaking",
+    "name": "Firemaking",
+    "icon": "lorc/campfire"
+  },
+  {
+    "id": "cooking",
+    "name": "Cooking",
+    "icon": "delapouite/cooking-pot"
+  },
+  {
+    "id": "smithing",
+    "name": "Smithing",
+    "icon": "lorc/anvil"
+  },
+  {
+    "id": "combat",
+    "name": "Combat",
+    "icon": "lorc/crossed-swords"
+  }
 ]

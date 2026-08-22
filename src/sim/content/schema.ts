@@ -174,6 +174,8 @@ export type SuccessRule = z.infer<typeof SuccessRuleSchema>;
 export const GatherNodeDefSchema = z.object({
   id: IdSchema,
   name: z.string().min(1),
+  /** One dry line about what the node is for (or not for). Presentation only. */
+  description: z.string().default(''),
   icon: IconRefSchema,
   /** Material tier the node's icon is rendered in; null for the neutral icon colour. */
   material: IdSchema.nullable().default(null),
@@ -186,6 +188,11 @@ export const GatherNodeDefSchema = z.object({
   success: SuccessRuleSchema,
   /** Each table is rolled independently on success — e.g. the ore itself plus a rare gem table. */
   drops: z.array(DropTableOrRefSchema).min(1),
+  /**
+   * A quick method: more xp per hour than the tier's proper node, and little worth banking.
+   * The UI marks it; the progression model leaves it out of the "standard" path.
+   */
+  quick: z.boolean().default(false),
 });
 /** A node as authored (drops may be `$ref`s). */
 export type GatherNodeSource = z.infer<typeof GatherNodeDefSchema>;
@@ -195,10 +202,21 @@ export const RockDefSchema = GatherNodeDefSchema;
 export type RockDef = GatherNodeDef;
 export const TreeDefSchema = GatherNodeDefSchema;
 export type TreeDef = GatherNodeDef;
+export const WaterDefSchema = GatherNodeDefSchema;
+export type WaterDef = GatherNodeDef;
+
+/** A level in another skill a recipe asks for — cooking wants a hot enough fire, say. */
+export const SkillRequirementSchema = z.object({
+  skill: IdSchema,
+  level: z.number().int().min(1),
+});
+export type SkillRequirement = z.infer<typeof SkillRequirementSchema>;
 
 /**
  * A crafting recipe: consume `inputs` from the bank, wait `durationTicks`, receive `outputs`
  * and XP in `skill`. `category` groups recipes in the UI (bars, tools, weapons, armour…).
+ * `requires` adds levels in other skills; `success` is the chance the cycle pays out (cooking
+ * burns at low levels) and a failed cycle still eats the inputs and yields `failOutputs`.
  */
 export const RecipeDefSchema = z.object({
   id: IdSchema,
@@ -206,10 +224,13 @@ export const RecipeDefSchema = z.object({
   skill: IdSchema,
   category: z.string().min(1),
   level: z.number().int().min(1),
+  requires: z.array(SkillRequirementSchema).default([]),
   durationTicks: z.number().int().min(1),
   xp: z.number().min(0),
+  success: SuccessRuleSchema.default({ base: 1, perLevel: 0 }),
   inputs: z.array(ItemQtySchema).min(1),
-  outputs: z.array(ItemQtySchema).min(1),
+  outputs: z.array(ItemQtySchema).default([]),
+  failOutputs: z.array(ItemQtySchema).default([]),
 });
 export type RecipeDef = z.infer<typeof RecipeDefSchema>;
 
@@ -257,6 +278,38 @@ export const MonsterDefSchema = z.object({
 export type MonsterSource = z.infer<typeof MonsterDefSchema>;
 export type MonsterDef = Omit<MonsterSource, 'drops'> & { drops: readonly DropTable[] };
 
+/**
+ * What swearing to a god does. Every perk is data keyed by skill so a new god is a content
+ * entry: `xp` is a fractional bonus to xp gained in that skill (0.1 = +10%), `extraDrops`
+ * rolls one more table on every successful cycle of that skill, `doubleYield` is the chance a
+ * successful cycle of that skill lands twice.
+ */
+export const GodPerksSchema = z.object({
+  xp: z.record(IdSchema, z.number().min(0)).default({}),
+  extraDrops: z.array(z.object({ skill: IdSchema, table: DropTableOrRefSchema })).default([]),
+  doubleYield: z.array(z.object({ skill: IdSchema, chance: z.number().min(0).max(1) })).default([]),
+});
+export type GodPerksSource = z.infer<typeof GodPerksSchema>;
+export type GodPerks = Omit<GodPerksSource, 'extraDrops'> & {
+  extraDrops: readonly { skill: string; table: DropTable }[];
+};
+
+/** A god the hero may swear to once, at the start. Copy is Screen D's. */
+export const GodDefSchema = z.object({
+  id: IdSchema,
+  name: z.string().min(1),
+  /** "the Deep Delver" — the epithet shown beside the name. */
+  title: z.string().min(1),
+  icon: IconRefSchema,
+  /** "God of stone, ore, and stubbornness." */
+  description: z.string().default(''),
+  /** The boon as one line: "+10% Mining & Smithing xp". */
+  boon: z.string().min(1),
+  perks: GodPerksSchema.default({ xp: {}, extraDrops: [], doubleYield: [] }),
+});
+export type GodSource = z.infer<typeof GodDefSchema>;
+export type GodDef = Omit<GodSource, 'perks'> & { perks: GodPerks };
+
 function stripDollarKeys(v: unknown): unknown {
   if (typeof v !== 'object' || v === null || Array.isArray(v)) return v;
   return Object.fromEntries(Object.entries(v).filter(([k]) => !k.startsWith('$')));
@@ -292,7 +345,9 @@ export const ContentPackSchema = z.object({
   tables: z.preprocess(stripDollarKeys, z.record(z.string(), DropTableSchema)).default({}),
   rocks: contentList(RockDefSchema),
   trees: contentList(TreeDefSchema).default([]),
+  waters: contentList(WaterDefSchema).default([]),
   recipes: contentList(RecipeDefSchema).default([]),
+  gods: contentList(GodDefSchema).default([]),
   zones: contentList(ZoneDefSchema).default([]),
   monsters: contentList(MonsterDefSchema).default([]),
 });

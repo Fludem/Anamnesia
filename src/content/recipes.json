@@ -1,6 +1,6 @@
 [
   {
-    "$comment": "Smithing recipes. Tiered pieces need their tier's bar; silver and above also take a marble whetstone; spears take a log for the shaft."
+    "$comment": "Smithing: bars pay the tier's xp per bar (about 1.5× what mining the ore paid) and gear pays the same per bar in half the time, so smithing gear is the quicker route at the cost of more ore per hour. Silver and above also take a marble whetstone; spears and rods take a log for the shaft. Firemaking burns logs to ash. Cooking turns raw fish into food, burning some at low levels; each fish wants a hotter fire (a Firemaking level)."
   },
   {
     "id": "copper-bar",
@@ -8,8 +8,8 @@
     "skill": "smithing",
     "category": "bars",
     "level": 1,
-    "durationTicks": 30,
-    "xp": 10,
+    "durationTicks": 72,
+    "xp": 30,
     "inputs": [
       {
         "item": "copper-ore",
@@ -29,8 +29,8 @@
     "skill": "smithing",
     "category": "bars",
     "level": 10,
-    "durationTicks": 32,
-    "xp": 22,
+    "durationTicks": 84,
+    "xp": 115,
     "inputs": [
       {
         "item": "iron-ore",
@@ -50,8 +50,8 @@
     "skill": "smithing",
     "category": "bars",
     "level": 25,
-    "durationTicks": 34,
-    "xp": 40,
+    "durationTicks": 84,
+    "xp": 105,
     "inputs": [
       {
         "item": "basalt-ore",
@@ -71,8 +71,8 @@
     "skill": "smithing",
     "category": "bars",
     "level": 40,
-    "durationTicks": 30,
-    "xp": 48,
+    "durationTicks": 72,
+    "xp": 190,
     "inputs": [
       {
         "item": "marble-block",
@@ -92,8 +92,8 @@
     "skill": "smithing",
     "category": "bars",
     "level": 55,
-    "durationTicks": 36,
-    "xp": 72,
+    "durationTicks": 96,
+    "xp": 420,
     "inputs": [
       {
         "item": "silver-ore",
@@ -117,8 +117,8 @@
     "skill": "smithing",
     "category": "bars",
     "level": 65,
-    "durationTicks": 38,
-    "xp": 90,
+    "durationTicks": 108,
+    "xp": 720,
     "inputs": [
       {
         "item": "gold-ore",
@@ -142,8 +142,8 @@
     "skill": "smithing",
     "category": "bars",
     "level": 80,
-    "durationTicks": 50,
-    "xp": 240,
+    "durationTicks": 260,
+    "xp": 3420,
     "inputs": [
       {
         "item": "aether-shard",
@@ -167,8 +167,8 @@
     "skill": "smithing",
     "category": "tools",
     "level": 1,
-    "durationTicks": 40,
-    "xp": 25,
+    "durationTicks": 72,
+    "xp": 60,
     "inputs": [
       {
         "item": "copper-bar",
@@ -188,8 +188,8 @@
     "skill": "smithing",
     "category": "tools",
     "level": 1,
-    "durationTicks": 40,
-    "xp": 25,
+    "durationTicks": 72,
+    "xp": 60,
     "inputs": [
       {
         "item": "copper-bar",
@@ -209,8 +209,8 @@
     "skill": "smithing",
     "category": "weapons",
     "level": 3,
-    "durationTicks": 50,
-    "xp": 25,
+    "durationTicks": 72,
+    "xp": 60,
     "inputs": [
       {
         "item": "copper-bar",
@@ -230,8 +230,8 @@
     "skill": "smithing",
     "category": "weapons",
     "level": 2,
-    "durationTicks": 45,
-    "xp": 12,
+    "durationTicks": 36,
+    "xp": 30,
     "inputs": [
       {
         "item": "copper-bar",
@@ -255,8 +255,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 4,
-    "durationTicks": 55,
-    "xp": 38,
+    "durationTicks": 108,
+    "xp": 90,
     "inputs": [
       {
         "item": "copper-bar",
@@ -276,8 +276,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 5,
-    "durationTicks": 50,
-    "xp": 25,
+    "durationTicks": 72,
+    "xp": 60,
     "inputs": [
       {
         "item": "copper-bar",
@@ -297,8 +297,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 6,
-    "durationTicks": 70,
-    "xp": 62,
+    "durationTicks": 180,
+    "xp": 150,
     "inputs": [
       {
         "item": "copper-bar",
@@ -318,8 +318,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 7,
-    "durationTicks": 60,
-    "xp": 38,
+    "durationTicks": 108,
+    "xp": 90,
     "inputs": [
       {
         "item": "copper-bar",
@@ -339,8 +339,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 8,
-    "durationTicks": 40,
-    "xp": 12,
+    "durationTicks": 36,
+    "xp": 30,
     "inputs": [
       {
         "item": "copper-bar",
@@ -360,8 +360,8 @@
     "skill": "smithing",
     "category": "tools",
     "level": 10,
-    "durationTicks": 40,
-    "xp": 55,
+    "durationTicks": 84,
+    "xp": 230,
     "inputs": [
       {
         "item": "iron-bar",
@@ -381,8 +381,8 @@
     "skill": "smithing",
     "category": "tools",
     "level": 10,
-    "durationTicks": 40,
-    "xp": 55,
+    "durationTicks": 84,
+    "xp": 230,
     "inputs": [
       {
         "item": "iron-bar",
@@ -402,8 +402,8 @@
     "skill": "smithing",
     "category": "weapons",
     "level": 12,
-    "durationTicks": 50,
-    "xp": 55,
+    "durationTicks": 84,
+    "xp": 230,
     "inputs": [
       {
         "item": "iron-bar",
@@ -423,8 +423,8 @@
     "skill": "smithing",
     "category": "weapons",
     "level": 11,
-    "durationTicks": 45,
-    "xp": 28,
+    "durationTicks": 42,
+    "xp": 115,
     "inputs": [
       {
         "item": "iron-bar",
@@ -448,8 +448,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 13,
-    "durationTicks": 55,
-    "xp": 82,
+    "durationTicks": 126,
+    "xp": 345,
     "inputs": [
       {
         "item": "iron-bar",
@@ -469,8 +469,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 14,
-    "durationTicks": 50,
-    "xp": 55,
+    "durationTicks": 84,
+    "xp": 230,
     "inputs": [
       {
         "item": "iron-bar",
@@ -490,8 +490,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 15,
-    "durationTicks": 70,
-    "xp": 138,
+    "durationTicks": 210,
+    "xp": 575,
     "inputs": [
       {
         "item": "iron-bar",
@@ -511,8 +511,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 16,
-    "durationTicks": 60,
-    "xp": 82,
+    "durationTicks": 126,
+    "xp": 345,
     "inputs": [
       {
         "item": "iron-bar",
@@ -532,8 +532,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 17,
-    "durationTicks": 40,
-    "xp": 28,
+    "durationTicks": 42,
+    "xp": 115,
     "inputs": [
       {
         "item": "iron-bar",
@@ -553,8 +553,8 @@
     "skill": "smithing",
     "category": "tools",
     "level": 25,
-    "durationTicks": 40,
-    "xp": 100,
+    "durationTicks": 84,
+    "xp": 210,
     "inputs": [
       {
         "item": "basalt-core",
@@ -574,8 +574,8 @@
     "skill": "smithing",
     "category": "tools",
     "level": 25,
-    "durationTicks": 40,
-    "xp": 100,
+    "durationTicks": 84,
+    "xp": 210,
     "inputs": [
       {
         "item": "basalt-core",
@@ -595,8 +595,8 @@
     "skill": "smithing",
     "category": "weapons",
     "level": 27,
-    "durationTicks": 50,
-    "xp": 100,
+    "durationTicks": 84,
+    "xp": 210,
     "inputs": [
       {
         "item": "basalt-core",
@@ -616,8 +616,8 @@
     "skill": "smithing",
     "category": "weapons",
     "level": 26,
-    "durationTicks": 45,
-    "xp": 50,
+    "durationTicks": 42,
+    "xp": 105,
     "inputs": [
       {
         "item": "basalt-core",
@@ -641,8 +641,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 28,
-    "durationTicks": 55,
-    "xp": 150,
+    "durationTicks": 126,
+    "xp": 315,
     "inputs": [
       {
         "item": "basalt-core",
@@ -662,8 +662,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 29,
-    "durationTicks": 50,
-    "xp": 100,
+    "durationTicks": 84,
+    "xp": 210,
     "inputs": [
       {
         "item": "basalt-core",
@@ -683,8 +683,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 30,
-    "durationTicks": 70,
-    "xp": 250,
+    "durationTicks": 210,
+    "xp": 525,
     "inputs": [
       {
         "item": "basalt-core",
@@ -704,8 +704,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 31,
-    "durationTicks": 60,
-    "xp": 150,
+    "durationTicks": 126,
+    "xp": 315,
     "inputs": [
       {
         "item": "basalt-core",
@@ -725,8 +725,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 32,
-    "durationTicks": 40,
-    "xp": 50,
+    "durationTicks": 42,
+    "xp": 105,
     "inputs": [
       {
         "item": "basalt-core",
@@ -746,8 +746,8 @@
     "skill": "smithing",
     "category": "tools",
     "level": 55,
-    "durationTicks": 40,
-    "xp": 180,
+    "durationTicks": 96,
+    "xp": 840,
     "inputs": [
       {
         "item": "silver-bar",
@@ -771,8 +771,8 @@
     "skill": "smithing",
     "category": "tools",
     "level": 55,
-    "durationTicks": 40,
-    "xp": 180,
+    "durationTicks": 96,
+    "xp": 840,
     "inputs": [
       {
         "item": "silver-bar",
@@ -796,8 +796,8 @@
     "skill": "smithing",
     "category": "weapons",
     "level": 57,
-    "durationTicks": 50,
-    "xp": 180,
+    "durationTicks": 96,
+    "xp": 840,
     "inputs": [
       {
         "item": "silver-bar",
@@ -821,8 +821,8 @@
     "skill": "smithing",
     "category": "weapons",
     "level": 56,
-    "durationTicks": 45,
-    "xp": 90,
+    "durationTicks": 48,
+    "xp": 420,
     "inputs": [
       {
         "item": "silver-bar",
@@ -850,8 +850,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 58,
-    "durationTicks": 55,
-    "xp": 270,
+    "durationTicks": 144,
+    "xp": 1260,
     "inputs": [
       {
         "item": "silver-bar",
@@ -875,8 +875,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 59,
-    "durationTicks": 50,
-    "xp": 180,
+    "durationTicks": 96,
+    "xp": 840,
     "inputs": [
       {
         "item": "silver-bar",
@@ -900,8 +900,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 60,
-    "durationTicks": 70,
-    "xp": 450,
+    "durationTicks": 240,
+    "xp": 2100,
     "inputs": [
       {
         "item": "silver-bar",
@@ -925,8 +925,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 61,
-    "durationTicks": 60,
-    "xp": 270,
+    "durationTicks": 144,
+    "xp": 1260,
     "inputs": [
       {
         "item": "silver-bar",
@@ -950,8 +950,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 62,
-    "durationTicks": 40,
-    "xp": 90,
+    "durationTicks": 48,
+    "xp": 420,
     "inputs": [
       {
         "item": "silver-bar",
@@ -975,8 +975,8 @@
     "skill": "smithing",
     "category": "tools",
     "level": 65,
-    "durationTicks": 40,
-    "xp": 225,
+    "durationTicks": 108,
+    "xp": 1440,
     "inputs": [
       {
         "item": "gold-bar",
@@ -1000,8 +1000,8 @@
     "skill": "smithing",
     "category": "tools",
     "level": 65,
-    "durationTicks": 40,
-    "xp": 225,
+    "durationTicks": 108,
+    "xp": 1440,
     "inputs": [
       {
         "item": "gold-bar",
@@ -1025,8 +1025,8 @@
     "skill": "smithing",
     "category": "weapons",
     "level": 67,
-    "durationTicks": 50,
-    "xp": 225,
+    "durationTicks": 108,
+    "xp": 1440,
     "inputs": [
       {
         "item": "gold-bar",
@@ -1050,8 +1050,8 @@
     "skill": "smithing",
     "category": "weapons",
     "level": 66,
-    "durationTicks": 45,
-    "xp": 112,
+    "durationTicks": 54,
+    "xp": 720,
     "inputs": [
       {
         "item": "gold-bar",
@@ -1079,8 +1079,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 68,
-    "durationTicks": 55,
-    "xp": 338,
+    "durationTicks": 162,
+    "xp": 2160,
     "inputs": [
       {
         "item": "gold-bar",
@@ -1104,8 +1104,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 69,
-    "durationTicks": 50,
-    "xp": 225,
+    "durationTicks": 108,
+    "xp": 1440,
     "inputs": [
       {
         "item": "gold-bar",
@@ -1129,8 +1129,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 70,
-    "durationTicks": 70,
-    "xp": 562,
+    "durationTicks": 270,
+    "xp": 3600,
     "inputs": [
       {
         "item": "gold-bar",
@@ -1154,8 +1154,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 71,
-    "durationTicks": 60,
-    "xp": 338,
+    "durationTicks": 162,
+    "xp": 2160,
     "inputs": [
       {
         "item": "gold-bar",
@@ -1179,8 +1179,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 72,
-    "durationTicks": 40,
-    "xp": 112,
+    "durationTicks": 54,
+    "xp": 720,
     "inputs": [
       {
         "item": "gold-bar",
@@ -1204,8 +1204,8 @@
     "skill": "smithing",
     "category": "tools",
     "level": 80,
-    "durationTicks": 40,
-    "xp": 600,
+    "durationTicks": 260,
+    "xp": 6840,
     "inputs": [
       {
         "item": "aether-ingot",
@@ -1229,8 +1229,8 @@
     "skill": "smithing",
     "category": "tools",
     "level": 80,
-    "durationTicks": 40,
-    "xp": 600,
+    "durationTicks": 260,
+    "xp": 6840,
     "inputs": [
       {
         "item": "aether-ingot",
@@ -1254,8 +1254,8 @@
     "skill": "smithing",
     "category": "weapons",
     "level": 82,
-    "durationTicks": 50,
-    "xp": 600,
+    "durationTicks": 260,
+    "xp": 6840,
     "inputs": [
       {
         "item": "aether-ingot",
@@ -1279,8 +1279,8 @@
     "skill": "smithing",
     "category": "weapons",
     "level": 81,
-    "durationTicks": 45,
-    "xp": 300,
+    "durationTicks": 130,
+    "xp": 3420,
     "inputs": [
       {
         "item": "aether-ingot",
@@ -1308,8 +1308,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 83,
-    "durationTicks": 55,
-    "xp": 900,
+    "durationTicks": 390,
+    "xp": 10260,
     "inputs": [
       {
         "item": "aether-ingot",
@@ -1333,8 +1333,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 84,
-    "durationTicks": 50,
-    "xp": 600,
+    "durationTicks": 260,
+    "xp": 6840,
     "inputs": [
       {
         "item": "aether-ingot",
@@ -1358,8 +1358,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 85,
-    "durationTicks": 70,
-    "xp": 1500,
+    "durationTicks": 650,
+    "xp": 17100,
     "inputs": [
       {
         "item": "aether-ingot",
@@ -1383,8 +1383,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 86,
-    "durationTicks": 60,
-    "xp": 900,
+    "durationTicks": 390,
+    "xp": 10260,
     "inputs": [
       {
         "item": "aether-ingot",
@@ -1408,8 +1408,8 @@
     "skill": "smithing",
     "category": "armour",
     "level": 87,
-    "durationTicks": 40,
-    "xp": 300,
+    "durationTicks": 130,
+    "xp": 3420,
     "inputs": [
       {
         "item": "aether-ingot",
@@ -1433,8 +1433,8 @@
     "skill": "smithing",
     "category": "jewellery",
     "level": 58,
-    "durationTicks": 50,
-    "xp": 110,
+    "durationTicks": 96,
+    "xp": 840,
     "inputs": [
       {
         "item": "silver-bar",
@@ -1454,8 +1454,8 @@
     "skill": "smithing",
     "category": "jewellery",
     "level": 66,
-    "durationTicks": 40,
-    "xp": 100,
+    "durationTicks": 54,
+    "xp": 720,
     "inputs": [
       {
         "item": "gold-bar",
@@ -1475,8 +1475,8 @@
     "skill": "smithing",
     "category": "jewellery",
     "level": 70,
-    "durationTicks": 55,
-    "xp": 180,
+    "durationTicks": 54,
+    "xp": 1080,
     "inputs": [
       {
         "item": "gold-bar",
@@ -1500,8 +1500,8 @@
     "skill": "smithing",
     "category": "jewellery",
     "level": 74,
-    "durationTicks": 60,
-    "xp": 220,
+    "durationTicks": 108,
+    "xp": 2160,
     "inputs": [
       {
         "item": "gold-bar",
@@ -1516,6 +1516,716 @@
       {
         "item": "amethyst-amulet",
         "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "pine-rod",
+    "name": "Pine Rod",
+    "skill": "smithing",
+    "category": "tools",
+    "level": 1,
+    "durationTicks": 36,
+    "xp": 30,
+    "inputs": [
+      {
+        "item": "copper-bar",
+        "qty": 1
+      },
+      {
+        "item": "pine-logs",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "pine-rod",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "oak-rod",
+    "name": "Oak Rod",
+    "skill": "smithing",
+    "category": "tools",
+    "level": 10,
+    "durationTicks": 42,
+    "xp": 115,
+    "inputs": [
+      {
+        "item": "iron-bar",
+        "qty": 1
+      },
+      {
+        "item": "oak-logs",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "oak-rod",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "birch-rod",
+    "name": "Birch Rod",
+    "skill": "smithing",
+    "category": "tools",
+    "level": 25,
+    "durationTicks": 42,
+    "xp": 105,
+    "inputs": [
+      {
+        "item": "basalt-core",
+        "qty": 1
+      },
+      {
+        "item": "birch-logs",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "birch-rod",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "willow-rod",
+    "name": "Willow Rod",
+    "skill": "smithing",
+    "category": "tools",
+    "level": 55,
+    "durationTicks": 48,
+    "xp": 420,
+    "inputs": [
+      {
+        "item": "silver-bar",
+        "qty": 1
+      },
+      {
+        "item": "willow-logs",
+        "qty": 1
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "willow-rod",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "blightwood-rod",
+    "name": "Blightwood Rod",
+    "skill": "smithing",
+    "category": "tools",
+    "level": 65,
+    "durationTicks": 54,
+    "xp": 720,
+    "inputs": [
+      {
+        "item": "gold-bar",
+        "qty": 1
+      },
+      {
+        "item": "blightwood-logs",
+        "qty": 1
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "blightwood-rod",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "elder-rod",
+    "name": "Elder Rod",
+    "skill": "smithing",
+    "category": "tools",
+    "level": 80,
+    "durationTicks": 130,
+    "xp": 3420,
+    "inputs": [
+      {
+        "item": "aether-ingot",
+        "qty": 1
+      },
+      {
+        "item": "elder-logs",
+        "qty": 1
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "elder-rod",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "burn-kindling",
+    "name": "Kindling Fire",
+    "skill": "firemaking",
+    "category": "fires",
+    "level": 1,
+    "durationTicks": 16,
+    "xp": 5,
+    "inputs": [
+      {
+        "item": "kindling",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "ash",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "burn-pine",
+    "name": "Pine Fire",
+    "skill": "firemaking",
+    "category": "fires",
+    "level": 1,
+    "durationTicks": 40,
+    "xp": 22,
+    "inputs": [
+      {
+        "item": "pine-logs",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "ash",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "burn-oak",
+    "name": "Oak Fire",
+    "skill": "firemaking",
+    "category": "fires",
+    "level": 12,
+    "durationTicks": 44,
+    "xp": 45,
+    "inputs": [
+      {
+        "item": "oak-logs",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "ash",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "burn-birch",
+    "name": "Birch Fire",
+    "skill": "firemaking",
+    "category": "fires",
+    "level": 24,
+    "durationTicks": 48,
+    "xp": 80,
+    "inputs": [
+      {
+        "item": "birch-logs",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "ash",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "burn-willow",
+    "name": "Willow Fire",
+    "skill": "firemaking",
+    "category": "fires",
+    "level": 35,
+    "durationTicks": 52,
+    "xp": 130,
+    "inputs": [
+      {
+        "item": "willow-logs",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "ash",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "burn-blightwood",
+    "name": "Blightwood Fire",
+    "skill": "firemaking",
+    "category": "fires",
+    "level": 52,
+    "durationTicks": 56,
+    "xp": 280,
+    "inputs": [
+      {
+        "item": "blightwood-logs",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "ash",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "burn-elder",
+    "name": "Elder Fire",
+    "skill": "firemaking",
+    "category": "fires",
+    "level": 78,
+    "durationTicks": 68,
+    "xp": 1040,
+    "inputs": [
+      {
+        "item": "elder-logs",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "ash",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "cook-minnow",
+    "name": "Minnow",
+    "skill": "cooking",
+    "category": "fish",
+    "level": 1,
+    "durationTicks": 48,
+    "xp": 24,
+    "success": {
+      "base": 0.6,
+      "perLevel": 0.02
+    },
+    "inputs": [
+      {
+        "item": "raw-minnow",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "minnow",
+        "qty": 1
+      }
+    ],
+    "failOutputs": [
+      {
+        "item": "charred-fish",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "cook-perch",
+    "name": "Perch",
+    "skill": "cooking",
+    "category": "fish",
+    "level": 10,
+    "durationTicks": 52,
+    "xp": 52,
+    "success": {
+      "base": 0.6,
+      "perLevel": 0.02
+    },
+    "inputs": [
+      {
+        "item": "raw-perch",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "perch",
+        "qty": 1
+      }
+    ],
+    "failOutputs": [
+      {
+        "item": "charred-fish",
+        "qty": 1
+      }
+    ],
+    "requires": [
+      {
+        "skill": "firemaking",
+        "level": 5
+      }
+    ]
+  },
+  {
+    "id": "cook-sprat",
+    "name": "Sprat",
+    "skill": "cooking",
+    "category": "fish",
+    "level": 15,
+    "durationTicks": 32,
+    "xp": 20,
+    "success": {
+      "base": 0.7,
+      "perLevel": 0.02
+    },
+    "inputs": [
+      {
+        "item": "raw-sprat",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "sprat",
+        "qty": 1
+      }
+    ],
+    "failOutputs": [
+      {
+        "item": "charred-fish",
+        "qty": 1
+      }
+    ],
+    "requires": [
+      {
+        "skill": "firemaking",
+        "level": 8
+      }
+    ]
+  },
+  {
+    "id": "cook-trout",
+    "name": "Trout",
+    "skill": "cooking",
+    "category": "fish",
+    "level": 22,
+    "durationTicks": 54,
+    "xp": 90,
+    "success": {
+      "base": 0.6,
+      "perLevel": 0.02
+    },
+    "inputs": [
+      {
+        "item": "raw-trout",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "trout",
+        "qty": 1
+      }
+    ],
+    "failOutputs": [
+      {
+        "item": "charred-fish",
+        "qty": 1
+      }
+    ],
+    "requires": [
+      {
+        "skill": "firemaking",
+        "level": 15
+      }
+    ]
+  },
+  {
+    "id": "cook-eel",
+    "name": "Eel",
+    "skill": "cooking",
+    "category": "fish",
+    "level": 35,
+    "durationTicks": 58,
+    "xp": 155,
+    "success": {
+      "base": 0.6,
+      "perLevel": 0.02
+    },
+    "inputs": [
+      {
+        "item": "raw-eel",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "eel",
+        "qty": 1
+      }
+    ],
+    "failOutputs": [
+      {
+        "item": "charred-fish",
+        "qty": 1
+      }
+    ],
+    "requires": [
+      {
+        "skill": "firemaking",
+        "level": 25
+      }
+    ]
+  },
+  {
+    "id": "cook-bleak",
+    "name": "Bleak",
+    "skill": "cooking",
+    "category": "fish",
+    "level": 45,
+    "durationTicks": 36,
+    "xp": 55,
+    "success": {
+      "base": 0.7,
+      "perLevel": 0.02
+    },
+    "inputs": [
+      {
+        "item": "raw-bleak",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bleak",
+        "qty": 1
+      }
+    ],
+    "failOutputs": [
+      {
+        "item": "charred-fish",
+        "qty": 1
+      }
+    ],
+    "requires": [
+      {
+        "skill": "firemaking",
+        "level": 30
+      }
+    ]
+  },
+  {
+    "id": "cook-pike",
+    "name": "Pike",
+    "skill": "cooking",
+    "category": "fish",
+    "level": 50,
+    "durationTicks": 60,
+    "xp": 280,
+    "success": {
+      "base": 0.6,
+      "perLevel": 0.02
+    },
+    "inputs": [
+      {
+        "item": "raw-pike",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "pike",
+        "qty": 1
+      }
+    ],
+    "failOutputs": [
+      {
+        "item": "charred-fish",
+        "qty": 1
+      }
+    ],
+    "requires": [
+      {
+        "skill": "firemaking",
+        "level": 40
+      }
+    ]
+  },
+  {
+    "id": "cook-carp",
+    "name": "Ghost Carp",
+    "skill": "cooking",
+    "category": "fish",
+    "level": 65,
+    "durationTicks": 64,
+    "xp": 495,
+    "success": {
+      "base": 0.6,
+      "perLevel": 0.02
+    },
+    "inputs": [
+      {
+        "item": "raw-carp",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "carp",
+        "qty": 1
+      }
+    ],
+    "failOutputs": [
+      {
+        "item": "charred-fish",
+        "qty": 1
+      }
+    ],
+    "requires": [
+      {
+        "skill": "firemaking",
+        "level": 50
+      }
+    ]
+  },
+  {
+    "id": "cook-smelt",
+    "name": "Smelt",
+    "skill": "cooking",
+    "category": "fish",
+    "level": 70,
+    "durationTicks": 38,
+    "xp": 160,
+    "success": {
+      "base": 0.7,
+      "perLevel": 0.02
+    },
+    "inputs": [
+      {
+        "item": "raw-smelt",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "smelt",
+        "qty": 1
+      }
+    ],
+    "failOutputs": [
+      {
+        "item": "charred-fish",
+        "qty": 1
+      }
+    ],
+    "requires": [
+      {
+        "skill": "firemaking",
+        "level": 55
+      }
+    ]
+  },
+  {
+    "id": "cook-pale-fish",
+    "name": "Pale Fish",
+    "skill": "cooking",
+    "category": "fish",
+    "level": 80,
+    "durationTicks": 70,
+    "xp": 1070,
+    "success": {
+      "base": 0.6,
+      "perLevel": 0.02
+    },
+    "inputs": [
+      {
+        "item": "raw-pale-fish",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "pale-fish",
+        "qty": 1
+      }
+    ],
+    "failOutputs": [
+      {
+        "item": "charred-fish",
+        "qty": 1
+      }
+    ],
+    "requires": [
+      {
+        "skill": "firemaking",
+        "level": 65
+      }
+    ]
+  },
+  {
+    "id": "cook-char",
+    "name": "Char",
+    "skill": "cooking",
+    "category": "fish",
+    "level": 90,
+    "durationTicks": 42,
+    "xp": 320,
+    "success": {
+      "base": 0.7,
+      "perLevel": 0.02
+    },
+    "inputs": [
+      {
+        "item": "raw-char",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "char",
+        "qty": 1
+      }
+    ],
+    "failOutputs": [
+      {
+        "item": "charred-fish",
+        "qty": 1
+      }
+    ],
+    "requires": [
+      {
+        "skill": "firemaking",
+        "level": 75
       }
     ]
   }

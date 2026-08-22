@@ -4,13 +4,15 @@ import type { RecipeDef } from '../content/schema.ts';
 import { pushEvent } from '../events.ts';
 import type { Container } from '../items.ts';
 import { addItem, countItem, removeItem } from '../items.ts';
-import { addXp, skillLevel } from '../progress.ts';
+import { awardXp, recordItems } from '../perks.ts';
+import { skillLevel } from '../progress.ts';
 
 /**
  * Crafting: consume a recipe's inputs from the bank, wait, receive its outputs and XP. The
- * recipe names the skill, so smithing (and any later crafting skill) is this one handler.
+ * recipe names the skill, so smithing, firemaking and cooking are this one handler.
  * Inputs are taken when the cycle completes, not when it starts, so stopping early costs
  * nothing; `canStart` is re-checked before every cycle, so the action ends when inputs run out.
+ * A recipe may fail (cooking burns): the inputs still go, `failOutputs` land, no xp is paid.
  */
 export const craftingHandler: ActionHandler<'crafting'> = {
   canStart(state, req, ctx) {
@@ -25,6 +27,16 @@ export const craftingHandler: ActionHandler<'crafting'> = {
         reason: `requires ${skill} level ${String(recipe.level)} (you are ${String(level)})`,
       };
     }
+    for (const r of recipe.requires) {
+      const have = skillLevel(state, r.skill, ctx);
+      if (have < r.level) {
+        const skill = ctx.content.skill(r.skill).name;
+        return {
+          ok: false,
+          reason: `needs ${skill} level ${String(r.level)} (you are ${String(have)})`,
+        };
+      }
+    }
     const short = missingInput(state.bank, recipe, ctx.content.item.bind(ctx.content));
     if (short !== null) return { ok: false, reason: short };
     // Inputs leave before outputs arrive, so a recipe that empties a stack frees its slot.
@@ -34,7 +46,7 @@ export const craftingHandler: ActionHandler<'crafting'> = {
     const after = { ...state, bank: state.bank.filter((s) => !freed.has(s.item)) };
     const room = roomFor(
       after,
-      recipe.outputs.map((o) => o.item),
+      [...recipe.outputs, ...recipe.failOutputs].map((o) => o.item),
     );
     if (!room.ok) {
       return {
@@ -49,11 +61,14 @@ export const craftingHandler: ActionHandler<'crafting'> = {
     return ctx.content.recipe(req.recipe).durationTicks;
   },
 
-  successChance() {
-    return 1;
+  successChance(state, req, ctx) {
+    const recipe = ctx.content.recipe(req.recipe);
+    const level = skillLevel(state, recipe.skill, ctx);
+    const chance = recipe.success.base + recipe.success.perLevel * (level - recipe.level);
+    return Math.max(0, Math.min(1, chance));
   },
 
-  resolve(state, req, _success, ctx) {
+  resolve(state, req, success, ctx) {
     const recipe = ctx.content.recipe(req.recipe);
     let bank: Container | null = state.bank;
     for (const input of recipe.inputs) {
@@ -61,14 +76,19 @@ export const craftingHandler: ActionHandler<'crafting'> = {
       // Inputs vanished mid-cycle (a follower command, say): the cycle simply yields nothing.
       if (bank === null) return state;
     }
-    for (const output of recipe.outputs) bank = addItem(bank, output.item, output.qty);
-    const next = addXp({ ...state, bank }, recipe.skill, recipe.xp);
-    return pushEvent(next, {
+    const outputs = (success ? recipe.outputs : recipe.failOutputs).map((o) => ({
+      item: o.item,
+      qty: o.qty,
+    }));
+    for (const output of outputs) bank = addItem(bank, output.item, output.qty);
+    const landed = recordItems({ ...state, bank }, outputs);
+    const paid = success ? awardXp(landed, recipe.skill, recipe.xp, ctx) : { state: landed, xp: 0 };
+    return pushEvent(paid.state, {
       type: 'gain',
-      tick: next.tick,
+      tick: paid.state.tick,
       skill: recipe.skill,
-      xp: recipe.xp,
-      items: recipe.outputs.map((o) => ({ item: o.item, qty: o.qty })),
+      xp: paid.xp,
+      items: outputs,
     });
   },
 };

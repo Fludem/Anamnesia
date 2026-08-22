@@ -43,10 +43,14 @@ describe('migrateSave', () => {
         applied.push(3);
         return r;
       },
+      4: (r) => {
+        applied.push(4);
+        return r;
+      },
     };
     const v0 = { ...fresh(), version: 0, writerId: undefined };
     const out = migrateSave(v0, migrations, CURRENT_SAVE_VERSION);
-    expect(applied).toEqual([0, 1, 2, 3]);
+    expect(applied).toEqual([0, 1, 2, 3, 4]);
     expect(out.version).toBe(CURRENT_SAVE_VERSION);
     expect(out.writerId).toBe('migrated-from-v0');
   });
@@ -60,7 +64,7 @@ describe('migrateSave', () => {
     expect(out.sim).toEqual({
       tick: 432_010,
       rng: V1_RECORD.sim.rng,
-      player: { name: 'Nameless' },
+      player: { name: 'Nameless', god: null },
       skills: {},
       inventory: [],
       equipment: emptyEquipment(),
@@ -69,7 +73,8 @@ describe('migrateSave', () => {
       coins: 0,
       action: { current: null, queue: [] },
       log: [],
-      stats: { actions: {} },
+      stats: { actions: {}, items: {}, sold: 0 },
+      tutorial: { done: [], dismissed: false },
     });
     expect('placeholder' in out.sim).toBe(false);
   });
@@ -99,12 +104,30 @@ describe('migrateSave', () => {
     v3['version'] = 3;
     sim['bank'] = [{ item: 'copper-ore', qty: 3 }];
     const out = migrateSave(v3);
-    expect(out.version).toBe(4);
+    expect(out.version).toBe(CURRENT_SAVE_VERSION);
     expect(out.sim.coins).toBe(0);
     expect(out.sim.bankSlotsBought).toBe(0);
     expect(out.sim.log).toEqual([]);
-    expect(out.sim.stats).toEqual({ actions: {} });
+    expect(out.sim.stats).toEqual({ actions: {}, items: {}, sold: 0 });
     expect(out.sim.bank).toEqual([{ item: 'copper-ore', qty: 3 }]);
+  });
+
+  it('migrates a v4 record to v5: rod slot, unsworn god, counters, first steps kept open', () => {
+    const v4 = JSON.parse(JSON.stringify(fresh())) as Record<string, unknown>;
+    const sim = v4['sim'] as Record<string, unknown>;
+    v4['version'] = 4;
+    sim['player'] = { name: 'Elpis' };
+    sim['stats'] = { actions: { mining: 12 } };
+    delete sim['tutorial'];
+    const equipment = sim['equipment'] as Record<string, unknown>;
+    delete equipment['rod'];
+    equipment['pickaxe'] = 'copper-pick';
+    const out = migrateSave(v4);
+    expect(out.version).toBe(CURRENT_SAVE_VERSION);
+    expect(out.sim.player).toEqual({ name: 'Elpis', god: null });
+    expect(out.sim.equipment).toEqual({ ...emptyEquipment(), pickaxe: 'copper-pick' });
+    expect(out.sim.stats).toEqual({ actions: { mining: 12 }, items: {}, sold: 0 });
+    expect(out.sim.tutorial).toEqual({ done: [], dismissed: false });
   });
 
   it('refuses a future version rather than guessing', () => {

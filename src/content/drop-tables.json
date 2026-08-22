@@ -73,5 +73,36 @@
         "weight": 0.5
       }
     ]
+  },
+  "vessith-seeds": {
+    "nothingWeight": 49,
+    "entries": [
+      {
+        "item": "acorn",
+        "weight": 0.5,
+        "quantity": [1, 2]
+      },
+      {
+        "item": "pine-seed",
+        "weight": 0.3
+      },
+      {
+        "item": "willow-seed",
+        "weight": 0.15
+      },
+      {
+        "item": "maple-seed",
+        "weight": 0.05
+      }
+    ]
+  },
+  "river-coins": {
+    "nothingWeight": 199,
+    "entries": [
+      {
+        "item": "obol",
+        "weight": 1
+      }
+    ]
   }
 }

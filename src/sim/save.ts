@@ -6,7 +6,7 @@ import { ContainerSchema } from './items.ts';
 import { seedRng } from './rng.ts';
 import { EQUIPMENT_SLOTS, EquipmentSlotSchema } from './slots.ts';
 
-export const CURRENT_SAVE_VERSION = 4;
+export const CURRENT_SAVE_VERSION = 5;
 
 const Uint32 = z.number().int().min(0).max(0xffffffff);
 
@@ -29,7 +29,11 @@ export const SimStateSchema = z.object({
   /** Number of ticks processed so far. The single source of truth for elapsed game time. */
   tick: z.number().int().min(0),
   rng: RngStateSchema,
-  player: z.object({ name: z.string().min(1) }),
+  player: z.object({
+    name: z.string().min(1),
+    /** The god sworn to at the start (content id), or null while still choosing. */
+    god: IdSchema.nullable(),
+  }),
   /** Keyed by skill id; a skill absent here has 0 xp. */
   skills: z.record(IdSchema, SkillProgressSchema),
   /** Carried items: consumables a later combat loop draws from. Unused in Phase 1. */
@@ -44,8 +48,17 @@ export const SimStateSchema = z.object({
   action: ActionQueueSchema,
   /** Recent events, oldest first; see events.ts. */
   log: z.array(SimEventSchema),
-  /** Lifetime counters. `actions[skill]` = cycles completed in that skill. */
-  stats: z.object({ actions: z.record(IdSchema, z.number().int().min(0)) }),
+  /**
+   * Lifetime counters. `actions[skill]` = cycles completed in that skill; `items[id]` = units
+   * of that item ever gained (gathered, crafted, looted); `sold` = units ever sold.
+   */
+  stats: z.object({
+    actions: z.record(IdSchema, z.number().int().min(0)),
+    items: z.record(IdSchema, z.number().int().min(0)),
+    sold: z.number().int().min(0),
+  }),
+  /** First-steps progress: step ids completed in order, and whether the card was put away. */
+  tutorial: z.object({ done: z.array(z.string().min(1)), dismissed: z.boolean() }),
 });
 export type SimState = z.infer<typeof SimStateSchema>;
 
@@ -75,7 +88,7 @@ export function createSimState(seed: number): SimState {
   return {
     tick: 0,
     rng: seedRng(seed),
-    player: { name: DEFAULT_PLAYER_NAME },
+    player: { name: DEFAULT_PLAYER_NAME, god: null },
     skills: {},
     inventory: [],
     equipment: emptyEquipment(),
@@ -84,7 +97,8 @@ export function createSimState(seed: number): SimState {
     coins: 0,
     action: { current: null, queue: [] },
     log: [],
-    stats: { actions: {} },
+    stats: { actions: {}, items: {}, sold: 0 },
+    tutorial: { done: [], dismissed: false },
   };
 }
 

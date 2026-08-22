@@ -67,12 +67,42 @@ describe('ContentDb', () => {
     expect(list[0]).toMatch(/^rocks\.0\.durationTicks/);
   });
 
-  it('nodes without their skill are a content error', () => {
-    expect(problems({ ...FIXTURE_PACK, skills: [] })).toEqual([
-      'rocks exist but there is no "mining" skill',
-      'trees exist but there is no "woodcutting" skill',
-      'recipe "bar": unknown skill "smithing"',
-      'recipe "gated-bar": unknown skill "smithing"',
+  it('nodes, recipes, requirements and god perks without their skill are content errors', () => {
+    const list = problems({ ...FIXTURE_PACK, skills: [] });
+    expect(list).toContain('rocks exist but there is no "mining" skill');
+    expect(list).toContain('trees exist but there is no "woodcutting" skill');
+    expect(list).toContain('waters exist but there is no "fishing" skill');
+    expect(list).toContain('recipe "bar": unknown skill "smithing"');
+    expect(list).toContain('recipe "cook": unknown skill "cooking"');
+    expect(list).toContain('recipe "cook": requires unknown skill "firemaking"');
+    expect(list).toContain('god "stone-god": xp perk for unknown skill "mining"');
+    expect(list).toContain('god "sea-god": doubleYield for unknown skill "fishing"');
+    expect(list).toContain('god "green-god": extraDrops for unknown skill "woodcutting"');
+  });
+
+  it('a recipe may not require its own skill, and fail outputs need outputs', () => {
+    const list = problems({
+      ...FIXTURE_PACK,
+      recipes: [
+        ...FIXTURE_PACK.recipes,
+        {
+          id: 'odd',
+          name: 'Odd',
+          skill: 'smithing',
+          category: 'bars',
+          level: 1,
+          requires: [{ skill: 'smithing', level: 5 }],
+          durationTicks: 1,
+          xp: 1,
+          inputs: [{ item: 'ore' }],
+          failOutputs: [{ item: 'nope' }],
+        },
+      ],
+    });
+    expect(list).toEqual([
+      'recipe "odd": requires its own skill; use "level" for that',
+      'recipe "odd" failOutputs: unknown item "nope"',
+      'recipe "odd": has failOutputs but no outputs',
     ]);
   });
 

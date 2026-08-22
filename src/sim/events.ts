@@ -39,6 +39,13 @@ export const SimEventSchema = z.discriminatedUnion('type', [
     tick: z.number().int().min(0),
     reason: z.string().min(1),
   }),
+  /** A first-steps step was completed and its reward paid. */
+  z.object({
+    type: z.literal('tutorial'),
+    tick: z.number().int().min(0),
+    step: z.string().min(1),
+    reward: z.number().int().min(0),
+  }),
 ]);
 export type SimEvent = z.infer<typeof SimEventSchema>;
 export type SimEventOf<T extends SimEvent['type']> = Extract<SimEvent, { type: T }>;

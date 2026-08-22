@@ -14,9 +14,12 @@ const tableItems = (t: DropTable) => t.entries.map((e) => e.item);
 /** Every item id something in the game hands out. */
 function obtainable(): Set<string> {
   const out = new Set<string>();
-  for (const node of [...content.rocks, ...content.trees])
+  for (const node of [...content.rocks, ...content.trees, ...content.waters])
     for (const t of node.drops) tableItems(t).forEach((i) => out.add(i));
-  for (const r of content.recipes) for (const o of r.outputs) out.add(o.item);
+  for (const g of content.gods)
+    for (const e of g.perks.extraDrops) tableItems(e.table).forEach((i) => out.add(i));
+  for (const r of content.recipes)
+    for (const o of [...r.outputs, ...r.failOutputs]) out.add(o.item);
   for (const m of content.monsters) {
     for (const t of m.drops) tableItems(t).forEach((i) => out.add(i));
     for (const a of m.always) out.add(a.item);
@@ -27,16 +30,21 @@ function obtainable(): Set<string> {
 }
 
 describe('shipped content', () => {
-  it('ships the roster Phase 3 set out', () => {
+  it('ships the roster Phase 3 set out, plus Phase 5’s three skills and four gods', () => {
     expect(content.skills.map((s) => s.id)).toEqual([
       'mining',
       'woodcutting',
+      'fishing',
+      'firemaking',
+      'cooking',
       'smithing',
       'combat',
     ]);
     expect(content.rarities.map((r) => r.id)).toEqual(['common', 'rare', 'epic', 'legendary']);
-    expect(content.rocks.length).toBe(7);
-    expect(content.trees.length).toBe(6);
+    expect(content.rocks.length).toBe(11);
+    expect(content.trees.length).toBe(10);
+    expect(content.waters.length).toBe(11);
+    expect(content.gods.map((g) => g.name)).toEqual(['Tharok', 'Vessith', 'Maren', 'Ashkar']);
     expect(content.zones.length).toBe(5);
     expect(content.monsters.length).toBeGreaterThanOrEqual(20);
     expect(content.items.length).toBeGreaterThanOrEqual(100);
@@ -57,44 +65,79 @@ describe('shipped content', () => {
       ...content.items,
       ...content.rocks,
       ...content.trees,
+      ...content.waters,
       ...content.zones,
       ...content.monsters,
+      ...content.gods,
     ].map((x) => x.icon);
     for (const ref of refs) expect(() => icons.get(ref), ref).not.toThrow();
   });
 
   it('every skill has something to do and every level requirement is reachable', () => {
-    expect(content.rocks.length).toBeGreaterThan(0);
-    expect(content.trees.length).toBeGreaterThan(0);
-    expect(content.recipesFor('smithing').length).toBeGreaterThan(0);
+    for (const skill of ['mining', 'woodcutting', 'fishing'])
+      expect(content.nodesFor(skill).length, skill).toBeGreaterThan(0);
+    for (const skill of ['smithing', 'firemaking', 'cooking'])
+      expect(content.recipesFor(skill).length, skill).toBeGreaterThan(0);
     for (const z of content.zones) expect(content.monstersIn(z.id).length, z.id).toBeGreaterThan(0);
     const max = DEFAULT_XP_CURVE.maxLevel;
-    for (const x of [...content.rocks, ...content.trees, ...content.recipes, ...content.zones])
+    for (const x of [
+      ...content.rocks,
+      ...content.trees,
+      ...content.waters,
+      ...content.recipes,
+      ...content.zones,
+    ])
       expect(x.level, x.id).toBeLessThanOrEqual(max);
+    for (const r of content.recipes)
+      for (const q of r.requires) expect(q.level, r.id).toBeLessThanOrEqual(max);
     // Each skill's first node/recipe is available at level 1, so a new save can start anywhere.
-    expect(Math.min(...content.rocks.map((r) => r.level))).toBe(1);
-    expect(Math.min(...content.trees.map((t) => t.level))).toBe(1);
-    expect(Math.min(...content.recipesFor('smithing').map((r) => r.level))).toBe(1);
+    for (const skill of ['mining', 'woodcutting', 'fishing'])
+      expect(Math.min(...content.nodesFor(skill).map((n) => n.level)), skill).toBe(1);
+    for (const skill of ['smithing', 'firemaking', 'cooking'])
+      expect(Math.min(...content.recipesFor(skill).map((r) => r.level)), skill).toBe(1);
   });
 
-  it('nodes get harder as they go: levels, xp and time all rise with the list order', () => {
-    for (const list of [content.rocks, content.trees]) {
-      for (let i = 1; i < list.length; i++) {
-        const a = list[i - 1]!;
-        const b = list[i]!;
-        expect(b.level, b.id).toBeGreaterThan(a.level);
-        expect(b.xp, b.id).toBeGreaterThan(a.xp);
-        expect(b.durationTicks, b.id).toBeGreaterThanOrEqual(a.durationTicks);
+  it('nodes get harder as they go: levels rise with the list; xp and time rise along each path', () => {
+    for (const skill of ['mining', 'woodcutting', 'fishing']) {
+      const list = content.nodesFor(skill);
+      for (let i = 1; i < list.length; i++)
+        expect(list[i]!.level, list[i]!.id).toBeGreaterThan(list[i - 1]!.level);
+      for (const quick of [false, true]) {
+        const path = list.filter((n) => n.quick === quick);
+        for (let i = 1; i < path.length; i++) {
+          const a = path[i - 1]!;
+          const b = path[i]!;
+          expect(b.xp, b.id).toBeGreaterThan(a.xp);
+          expect(b.durationTicks, b.id).toBeGreaterThanOrEqual(a.durationTicks);
+        }
       }
     }
   });
 
-  it('a recipe never destroys value, and tier recipes unlock at or after their bar', () => {
+  it('quick nodes out-earn the tier they sit in and bank nothing worth keeping', () => {
+    for (const skill of ['mining', 'woodcutting', 'fishing']) {
+      const list = content.nodesFor(skill);
+      for (const q of list.filter((n) => n.quick)) {
+        const tier = [...list].reverse().find((n) => !n.quick && n.level <= q.level)!;
+        const rate = (n: (typeof list)[number]) => (n.xp * n.success.base) / n.durationTicks;
+        expect(rate(q), `${q.id} vs ${tier.id}`).toBeGreaterThan(rate(tier));
+        // Its guaranteed drop (if any) is worth less per cycle than the tier's.
+        const worth = (n: (typeof list)[number]) =>
+          n.drops
+            .filter((t) => t.nothingWeight === 0)
+            .reduce((s, t) => s + Math.max(...t.entries.map((e) => content.item(e.item).value)), 0);
+        expect(worth(q), q.id).toBeLessThan(worth(tier));
+      }
+    }
+  });
+
+  it('a recipe never destroys value (except a fire, which is the point), and tier recipes unlock at or after their bar', () => {
     const value = (id: string) => content.item(id).value;
     for (const r of content.recipes) {
       const inValue = r.inputs.reduce((s, i) => s + value(i.item) * i.qty, 0);
       const outValue = r.outputs.reduce((s, o) => s + value(o.item) * o.qty, 0);
-      expect(outValue, r.id).toBeGreaterThanOrEqual(inValue);
+      if (r.skill === 'firemaking') expect(outValue, r.id).toBeLessThanOrEqual(inValue);
+      else expect(outValue, r.id).toBeGreaterThanOrEqual(inValue);
       for (const i of r.inputs) {
         const producer = content.recipes.find((p) => p.outputs.some((o) => o.item === i.item));
         if (producer)

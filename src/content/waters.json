@@ -1,0 +1,285 @@
+[
+  {
+    "$comment": "Fishing nodes, lowest first, tuned for ~36h to 99 on the still waters. Shoals and runs are the fast ones: quicker xp, small fish that cook into small meals."
+  },
+  {
+    "id": "rain-pool",
+    "name": "Rain Pool",
+    "description": "It rained once. The pool remembers.",
+    "icon": "lorc/water-splash",
+    "material": "silver",
+    "level": 1,
+    "durationTicks": 24,
+    "xp": 18,
+    "success": {
+      "base": 0.85,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "raw-minnow",
+            "weight": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "the-cistern",
+    "name": "The Cistern",
+    "description": "Somebody dug it. The fish got in anyway.",
+    "icon": "delapouite/well",
+    "material": "iron",
+    "level": 10,
+    "durationTicks": 28,
+    "xp": 40,
+    "success": {
+      "base": 0.7,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "raw-perch",
+            "weight": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "sprat-shoal",
+    "name": "Sprat Shoal",
+    "description": "Many, small, and quick. So is the xp.",
+    "icon": "delapouite/school-of-fish",
+    "material": "silver",
+    "level": 15,
+    "durationTicks": 16,
+    "xp": 25,
+    "success": {
+      "base": 0.9,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "raw-sprat",
+            "weight": 1
+          }
+        ]
+      }
+    ],
+    "quick": true
+  },
+  {
+    "id": "cold-spring",
+    "name": "Cold Spring",
+    "description": "Comes out of the rock already cold.",
+    "icon": "delapouite/waterfall",
+    "material": "gem",
+    "level": 22,
+    "durationTicks": 30,
+    "xp": 70,
+    "success": {
+      "base": 0.6,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "raw-trout",
+            "weight": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "the-river",
+    "name": "The River",
+    "description": "At the bottom of the hill. You have been now.",
+    "icon": "delapouite/river",
+    "material": "basalt",
+    "level": 35,
+    "durationTicks": 32,
+    "xp": 120,
+    "success": {
+      "base": 0.55,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "raw-eel",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "$ref": "river-coins"
+      }
+    ]
+  },
+  {
+    "id": "bleak-shoal",
+    "name": "Bleak Shoal",
+    "description": "The name is the fish. It is also the outlook.",
+    "icon": "delapouite/double-fish",
+    "material": "silver",
+    "level": 45,
+    "durationTicks": 20,
+    "xp": 70,
+    "success": {
+      "base": 0.85,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "raw-bleak",
+            "weight": 1
+          }
+        ]
+      }
+    ],
+    "quick": true
+  },
+  {
+    "id": "black-tarn",
+    "name": "Black Tarn",
+    "description": "Still, dark, and deeper than the hill is high.",
+    "icon": "lorc/waves",
+    "material": "blight",
+    "level": 50,
+    "durationTicks": 36,
+    "xp": 215,
+    "success": {
+      "base": 0.5,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "raw-pike",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "$ref": "river-coins"
+      }
+    ]
+  },
+  {
+    "id": "the-still-water",
+    "name": "The Still Water",
+    "description": "Hers. Nothing moves on it. Things move under it.",
+    "icon": "lorc/wave-crest",
+    "material": "marble",
+    "level": 65,
+    "durationTicks": 40,
+    "xp": 380,
+    "success": {
+      "base": 0.45,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "raw-carp",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "$ref": "river-coins"
+      }
+    ]
+  },
+  {
+    "id": "smelt-run",
+    "name": "Smelt Run",
+    "description": "They come through once a year. Here it is always that day.",
+    "icon": "delapouite/circling-fish",
+    "material": "marble",
+    "level": 70,
+    "durationTicks": 24,
+    "xp": 180,
+    "success": {
+      "base": 0.8,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "raw-smelt",
+            "weight": 1
+          }
+        ]
+      }
+    ],
+    "quick": true
+  },
+  {
+    "id": "the-drowned-quarry",
+    "name": "The Drowned Quarry",
+    "description": "They cut stone here until the water came. The fish have no eyes and need none.",
+    "icon": "delapouite/sea-cliff",
+    "material": "aether",
+    "level": 80,
+    "durationTicks": 46,
+    "xp": 820,
+    "success": {
+      "base": 0.35,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "raw-pale-fish",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "$ref": "river-coins"
+      }
+    ]
+  },
+  {
+    "id": "char-run",
+    "name": "Char Run",
+    "description": "Cold fish for a cold hour.",
+    "icon": "cathelineau/flying-trout",
+    "material": "copper",
+    "level": 90,
+    "durationTicks": 28,
+    "xp": 385,
+    "success": {
+      "base": 0.75,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "raw-char",
+            "weight": 1
+          }
+        ]
+      }
+    ],
+    "quick": true
+  }
+]

@@ -13,6 +13,9 @@ export const FIXTURE_PACK = {
     { id: 'mining', name: 'Mining', icon: 'lorc/mining' },
     { id: 'woodcutting', name: 'Woodcutting', icon: 'lorc/pine-tree' },
     { id: 'smithing', name: 'Smithing', icon: 'lorc/anvil' },
+    { id: 'fishing', name: 'Fishing', icon: 'delapouite/fishing' },
+    { id: 'firemaking', name: 'Firemaking', icon: 'lorc/campfire' },
+    { id: 'cooking', name: 'Cooking', icon: 'delapouite/cooking-pot' },
   ],
   items: [
     { id: 'stone', name: 'Stone', icon: 'lorc/rock', value: 1 },
@@ -40,6 +43,61 @@ export const FIXTURE_PACK = {
       slot: 'axe',
       stats: { gather: 10 },
       value: 20,
+    },
+    { id: 'fish', name: 'Fish', icon: 'delapouite/flatfish', value: 3 },
+    { id: 'cooked-fish', name: 'Cooked fish', icon: 'darkzaitzev/fish-cooked', value: 8 },
+    { id: 'burnt', name: 'Burnt', icon: 'darkzaitzev/fried-fish', value: 0 },
+    { id: 'seed', name: 'Seed', icon: 'delapouite/plant-seed', value: 1 },
+    /** A −50% rod. */
+    {
+      id: 'rod',
+      name: 'Rod',
+      icon: 'delapouite/fishing-pole',
+      class: 'tool',
+      slot: 'rod',
+      stats: { gather: 50 },
+      value: 20,
+    },
+  ],
+  waters: [
+    {
+      id: 'sure-water',
+      name: 'Sure water',
+      icon: 'lorc/waves',
+      level: 1,
+      durationTicks: 4,
+      xp: 6,
+      success: { base: 1 },
+      drops: [{ entries: [{ item: 'fish', weight: 1 }] }],
+    },
+  ],
+  gods: [
+    /** Half again on mining xp. */
+    {
+      id: 'stone-god',
+      name: 'Stone god',
+      title: 'of the test',
+      icon: 'lorc/rune-stone',
+      boon: '+50% Mining xp',
+      perks: { xp: { mining: 0.5 } },
+    },
+    /** Every catch lands twice, for determinism. */
+    {
+      id: 'sea-god',
+      name: 'Sea god',
+      title: 'of the test',
+      icon: 'delapouite/fishing',
+      boon: '+10% Fishing xp · always double catch',
+      perks: { xp: { fishing: 0.1 }, doubleYield: [{ skill: 'fishing', chance: 1 }] },
+    },
+    /** A seed with every log. */
+    {
+      id: 'green-god',
+      name: 'Green god',
+      title: 'of the test',
+      icon: 'lorc/sprout',
+      boon: 'seeds',
+      perks: { extraDrops: [{ skill: 'woodcutting', table: { $ref: 'seed' } }] },
     },
   ],
   trees: [
@@ -78,8 +136,35 @@ export const FIXTURE_PACK = {
       inputs: [{ item: 'ore', qty: 1 }],
       outputs: [{ item: 'bar', qty: 1 }],
     },
+    /** Cooking: half the cycles burn at level 1, none from level 11; wants Firemaking 5. */
+    {
+      id: 'cook',
+      name: 'Cook fish',
+      skill: 'cooking',
+      category: 'fish',
+      level: 1,
+      requires: [{ skill: 'firemaking', level: 5 }],
+      durationTicks: 2,
+      xp: 9,
+      success: { base: 0.5, perLevel: 0.05 },
+      inputs: [{ item: 'fish', qty: 1 }],
+      outputs: [{ item: 'cooked-fish', qty: 1 }],
+      failOutputs: [{ item: 'burnt', qty: 1 }],
+    },
+    /** Firemaking: a log goes in, nothing comes out. */
+    {
+      id: 'burn',
+      name: 'Burn log',
+      skill: 'firemaking',
+      category: 'fires',
+      level: 1,
+      durationTicks: 2,
+      xp: 4,
+      inputs: [{ item: 'log', qty: 1 }],
+    },
   ],
   tables: {
+    seed: { entries: [{ item: 'seed', weight: 1 }] },
     gems: {
       nothingWeight: 8,
       entries: [

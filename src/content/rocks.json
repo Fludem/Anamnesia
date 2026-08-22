@@ -1,6 +1,6 @@
 [
   {
-    "$comment": "Mining nodes, in the order Screen A lists them. Levels, xp and durations are the design's numbers."
+    "$comment": "Mining nodes, in the order Screen A lists them, tuned for ~39h to 99 on the veins (scripts: see progression.test.ts). Scree, shale, pumice and cinder are the fast ones: quicker xp, nothing to bank but the odd gem."
   },
   {
     "id": "copper-vein",
@@ -9,7 +9,7 @@
     "material": "copper",
     "level": 1,
     "durationTicks": 22,
-    "xp": 18,
+    "xp": 20,
     "success": {
       "base": 0.85,
       "perLevel": 0.01
@@ -26,7 +26,8 @@
       {
         "$ref": "gems"
       }
-    ]
+    ],
+    "description": "Green where it shows. It lets you."
   },
   {
     "id": "iron-vein",
@@ -35,7 +36,7 @@
     "material": "iron",
     "level": 10,
     "durationTicks": 26,
-    "xp": 34,
+    "xp": 38,
     "success": {
       "base": 0.7,
       "perLevel": 0.01
@@ -52,7 +53,28 @@
       {
         "$ref": "gems"
       }
-    ]
+    ],
+    "description": "Heavier going. Heavier ore."
+  },
+  {
+    "id": "loose-scree",
+    "name": "Loose Scree",
+    "description": "Quick work. Nothing to show for it but the work.",
+    "icon": "delapouite/stone-pile",
+    "material": "iron",
+    "level": 15,
+    "durationTicks": 16,
+    "xp": 25,
+    "success": {
+      "base": 0.9,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "$ref": "gems"
+      }
+    ],
+    "quick": true
   },
   {
     "id": "basalt-seam",
@@ -61,7 +83,7 @@
     "material": "basalt",
     "level": 25,
     "durationTicks": 27,
-    "xp": 68,
+    "xp": 70,
     "success": {
       "base": 0.6,
       "perLevel": 0.01
@@ -78,7 +100,8 @@
       {
         "$ref": "gems"
       }
-    ]
+    ],
+    "description": "Cooled in a hurry; does not come out in one."
   },
   {
     "id": "marble-quarry",
@@ -87,7 +110,7 @@
     "material": "marble",
     "level": 40,
     "durationTicks": 34,
-    "xp": 92,
+    "xp": 125,
     "success": {
       "base": 0.55,
       "perLevel": 0.01
@@ -104,7 +127,28 @@
       {
         "$ref": "gems"
       }
-    ]
+    ],
+    "description": "Cut square by someone. Finish the job."
+  },
+  {
+    "id": "shale-bank",
+    "name": "Shale Bank",
+    "description": "Splits along its own lines. Fast, and it takes the hint.",
+    "icon": "delapouite/stone-stack",
+    "material": "basalt",
+    "level": 45,
+    "durationTicks": 20,
+    "xp": 65,
+    "success": {
+      "base": 0.85,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "$ref": "gems"
+      }
+    ],
+    "quick": true
   },
   {
     "id": "silver-vein",
@@ -113,7 +157,7 @@
     "material": "silver",
     "level": 55,
     "durationTicks": 38,
-    "xp": 120,
+    "xp": 210,
     "success": {
       "base": 0.5,
       "perLevel": 0.01
@@ -130,7 +174,8 @@
       {
         "$ref": "gems"
       }
-    ]
+    ],
+    "description": "Dull in the rock. It does not shine for you."
   },
   {
     "id": "gold-seam",
@@ -139,7 +184,7 @@
     "material": "gold",
     "level": 65,
     "durationTicks": 42,
-    "xp": 150,
+    "xp": 340,
     "success": {
       "base": 0.45,
       "perLevel": 0.01
@@ -156,7 +201,28 @@
       {
         "$ref": "gems"
       }
-    ]
+    ],
+    "description": "Nobody up here has anything to buy."
+  },
+  {
+    "id": "pumice-field",
+    "name": "Pumice Field",
+    "description": "Light enough to float, if there were anywhere to float it.",
+    "icon": "lorc/stone-sphere",
+    "material": "marble",
+    "level": 70,
+    "durationTicks": 24,
+    "xp": 150,
+    "success": {
+      "base": 0.8,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "$ref": "gems"
+      }
+    ],
+    "quick": true
   },
   {
     "id": "aether-lode",
@@ -165,7 +231,7 @@
     "material": "aether",
     "level": 80,
     "durationTicks": 46,
-    "xp": 210,
+    "xp": 760,
     "success": {
       "base": 0.35,
       "perLevel": 0.01
@@ -182,6 +248,27 @@
       {
         "$ref": "gems"
       }
-    ]
+    ],
+    "description": "It comes away without being asked."
+  },
+  {
+    "id": "cinder-slope",
+    "name": "Cinder Slope",
+    "description": "Warm underfoot. Nobody has asked why.",
+    "icon": "lorc/falling-boulder",
+    "material": "blight",
+    "level": 90,
+    "durationTicks": 28,
+    "xp": 355,
+    "success": {
+      "base": 0.75,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "$ref": "gems"
+      }
+    ],
+    "quick": true
   }
 ]

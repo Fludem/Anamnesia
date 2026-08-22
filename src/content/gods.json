@@ -1,0 +1,73 @@
+[
+  {
+    "$comment": "Screen D's four gods, copy verbatim. Perks are data: xp is a fraction per skill, extraDrops rolls one more table per successful cycle of that skill, doubleYield is the chance a cycle lands twice."
+  },
+  {
+    "id": "tharok",
+    "name": "Tharok",
+    "title": "the Deep Delver",
+    "icon": "lorc/rune-stone",
+    "description": "God of stone, ore, and stubbornness.",
+    "boon": "+10% Mining & Smithing xp",
+    "perks": {
+      "xp": {
+        "mining": 0.1,
+        "smithing": 0.1
+      }
+    }
+  },
+  {
+    "id": "vessith",
+    "name": "Vessith",
+    "title": "the Verdant",
+    "icon": "lorc/sprout",
+    "description": "Goddess of growth and green things.",
+    "boon": "+10% Woodcutting xp · rare seed drops",
+    "perks": {
+      "xp": {
+        "woodcutting": 0.1
+      },
+      "extraDrops": [
+        {
+          "skill": "woodcutting",
+          "table": {
+            "$ref": "vessith-seeds"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "maren",
+    "name": "Maren",
+    "title": "of the Still Water",
+    "icon": "delapouite/fishing",
+    "description": "Goddess of tides, patience, and lunch.",
+    "boon": "+10% Fishing xp · +5% double catch",
+    "perks": {
+      "xp": {
+        "fishing": 0.1
+      },
+      "doubleYield": [
+        {
+          "skill": "fishing",
+          "chance": 0.05
+        }
+      ]
+    }
+  },
+  {
+    "id": "ashkar",
+    "name": "Ashkar",
+    "title": "the Everburning",
+    "icon": "lorc/campfire",
+    "description": "God of flame and poor impulse control.",
+    "boon": "+10% Firemaking & Cooking xp",
+    "perks": {
+      "xp": {
+        "firemaking": 0.1,
+        "cooking": 0.1
+      }
+    }
+  }
+]
