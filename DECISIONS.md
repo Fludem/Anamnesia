@@ -752,3 +752,54 @@ shard each. Every recipe still pays more than it eats.
 - The content audit now checks that every body slot fills from the anvil at every tier, that
   every listed non-combat skill finds exactly its own cape at the same odds, and that only
   worn items carry an xp boost.
+
+## Phase 9 — highscores: the hill's other names
+
+The ask was highscores for each skill, wealth and total level. A highscore is a rank, and a
+rank needs other names; the game is single-player with no backend (see "Screen D's login is
+not built"). So the board ranks the hero against a roster of people who are also on the hill.
+
+### The others are curves, not players
+
+`src/content/rivals.json` holds sixteen names — faintly Greek, one dry line each, a sworn god
+or none. None of them is simulated. Each skill entry is `hours` (how far along that skill's
+standard climb in the progression model they were when the hero arrived) and `pace` (how many
+climb-hours they add per hour of the hero's game time); wealth is a line the same way.
+`src/sim/highscores.ts` turns the climb into a per-level xp/hour table (the best method open
+at each level, with the tier's tool — combat from `combatClimb`) and integrates: "forty hours
+of mining" is exactly where a full-time miner would be, and retuning the content moves the
+roster with it. Hitpoints is never authored; it follows combat at `HITPOINTS_XP_SHARE`, as the
+hero's does. Past 99 the top rate keeps paying, so there is always someone above to catch.
+
+The board reads `sim.tick` and nothing else — game time, offline catch-up included — so it is
+deterministic, needs no save change, and the same save shows the same board in every tab.
+
+A rival's paces add up to at most one: they are one person each (the content audit checks).
+The climb is front-loaded (level 50 near one hour, 70 near five), so the roster spreads: three
+at the cap on purpose (Old Demos in mining, Xanthe in firemaking, The Quiet One in combat),
+specialists in the 70s–90s, everybody dabbling somewhere in the 20s–50s, and Pyrrha, who
+arrived a week before the hero and is passed in the first hour. The audit pins that every skill
+has someone at 80+ on day one, at most two at the cap, and that a fresh hero is last on every
+board.
+
+### What a board is
+
+Total level is every skill added up, hitpoints included, with total xp breaking ties. Wealth
+is coins plus the bank at sale value plus everything worn, tools and ammo included — what the
+hero would have if they sold up. A skill board is xp, level shown. Ties go to whoever was here
+first: rivals before the hero, then roster order.
+
+### The screen
+
+`HighscoresScreen`: the hero's own standing on every board (rank, level, xp) on the left — it
+doubles as the board picker — and the chosen board on the right, best first, the hero's row
+lit, rank 1 in the design's gold, each name's line as the row's sub and their god's mark as a
+small icon. Under 700px the standing list becomes a two-column strip of pickers and the lines
+drop. The view pref remembers which board was open. No design screen exists for it; it is
+built from Screen A's rows and Screen E's columns.
+
+### When accounts arrive
+
+The roster is the placeholder for real names: a server would replace `content.rivals` rows
+with fetched ones and the ranking, the screen and the tie rule stay. Nothing in the save
+references a rival.

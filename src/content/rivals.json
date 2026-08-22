@@ -1,0 +1,446 @@
+[
+  {
+    "$comment": "The highscores' other names. Nobody here is simulated: `hours` is how far along a skill's standard climb (src/sim/progression.ts) they were when the hero arrived, `pace` how many climb-hours they add per hour of the hero's game time; wealth is a line the same way. Hitpoints follows combat at the sim's share. Paces sum to at most 1 — they are one person each (the content audit checks). The climb is front-loaded (level 50 near one hour, 70 near five, 99 near thirty-six), so a dabble of a tenth of an hour is already level twenty."
+  },
+  {
+    "id": "old-demos",
+    "name": "Old Demos",
+    "god": "tharok",
+    "line": "Reached the top of the mining some time ago. Kept mining.",
+    "skills": {
+      "mining": {
+        "hours": 95,
+        "pace": 0.05
+      },
+      "smithing": {
+        "hours": 24
+      },
+      "combat": {
+        "hours": 0.5
+      },
+      "firemaking": {
+        "hours": 0.3
+      },
+      "cooking": {
+        "hours": 0.2
+      }
+    },
+    "wealth": {
+      "start": 180000,
+      "perHour": 40
+    }
+  },
+  {
+    "id": "kallias",
+    "name": "Kallias",
+    "god": "tharok",
+    "line": "Makes the same bar every day and calls it practice.",
+    "skills": {
+      "smithing": {
+        "hours": 30,
+        "pace": 0.45
+      },
+      "mining": {
+        "hours": 22,
+        "pace": 0.35
+      },
+      "combat": {
+        "hours": 1.5
+      },
+      "firemaking": {
+        "hours": 0.6
+      },
+      "woodcutting": {
+        "hours": 0.2
+      }
+    },
+    "wealth": {
+      "start": 64000,
+      "perHour": 900
+    }
+  },
+  {
+    "id": "phaedra",
+    "name": "Phaedra",
+    "god": "vessith",
+    "line": "Cuts a tree, burns a tree. Calls it even.",
+    "skills": {
+      "woodcutting": {
+        "hours": 26,
+        "pace": 0.5
+      },
+      "firemaking": {
+        "hours": 13,
+        "pace": 0.3
+      },
+      "foraging": {
+        "hours": 1.2
+      },
+      "fishing": {
+        "hours": 0.4
+      },
+      "cooking": {
+        "hours": 0.3
+      }
+    },
+    "wealth": {
+      "start": 21000,
+      "perHour": 300
+    }
+  },
+  {
+    "id": "ione",
+    "name": "Ione",
+    "god": "maren",
+    "line": "Has never once been asked what is for lunch.",
+    "skills": {
+      "fishing": {
+        "hours": 31,
+        "pace": 0.45
+      },
+      "cooking": {
+        "hours": 19,
+        "pace": 0.35
+      },
+      "foraging": {
+        "hours": 0.8
+      },
+      "woodcutting": {
+        "hours": 0.3
+      },
+      "firemaking": {
+        "hours": 0.5
+      }
+    },
+    "wealth": {
+      "start": 38000,
+      "perHour": 500
+    }
+  },
+  {
+    "id": "nikandros",
+    "name": "Nikandros",
+    "god": "ashkar",
+    "line": "Fights the same goats. The goats have noticed.",
+    "skills": {
+      "combat": {
+        "hours": 27,
+        "pace": 0.6
+      },
+      "smithing": {
+        "hours": 3,
+        "pace": 0.1
+      },
+      "mining": {
+        "hours": 2
+      },
+      "cooking": {
+        "hours": 1
+      },
+      "fishing": {
+        "hours": 0.4
+      }
+    },
+    "wealth": {
+      "start": 12000,
+      "perHour": 250
+    }
+  },
+  {
+    "id": "thessaly",
+    "name": "Thessaly",
+    "god": "vessith",
+    "line": "Knows which patch is which. Will not say.",
+    "skills": {
+      "foraging": {
+        "hours": 23,
+        "pace": 0.5
+      },
+      "cooking": {
+        "hours": 6,
+        "pace": 0.2
+      },
+      "woodcutting": {
+        "hours": 0.9
+      },
+      "fishing": {
+        "hours": 0.2
+      }
+    },
+    "wealth": {
+      "start": 9500,
+      "perHour": 200
+    }
+  },
+  {
+    "id": "lykon",
+    "name": "Lykon",
+    "god": "ashkar",
+    "line": "Makes his own sword and loses it on schedule.",
+    "skills": {
+      "combat": {
+        "hours": 12,
+        "pace": 0.3
+      },
+      "smithing": {
+        "hours": 10,
+        "pace": 0.3
+      },
+      "mining": {
+        "hours": 8,
+        "pace": 0.2
+      },
+      "firemaking": {
+        "hours": 0.7
+      },
+      "cooking": {
+        "hours": 0.5
+      }
+    },
+    "wealth": {
+      "start": 4200,
+      "perHour": 150
+    }
+  },
+  {
+    "id": "melitta",
+    "name": "Melitta",
+    "god": "maren",
+    "line": "Burns about a third. Calls the rest seasoning.",
+    "skills": {
+      "cooking": {
+        "hours": 25,
+        "pace": 0.5
+      },
+      "fishing": {
+        "hours": 9,
+        "pace": 0.25
+      },
+      "firemaking": {
+        "hours": 3
+      },
+      "foraging": {
+        "hours": 0.6
+      }
+    },
+    "wealth": {
+      "start": 26000,
+      "perHour": 350
+    }
+  },
+  {
+    "id": "agathon",
+    "name": "Agathon",
+    "god": null,
+    "line": "Swore to nobody. Is equally far along in everything.",
+    "skills": {
+      "mining": {
+        "hours": 2.5,
+        "pace": 0.1
+      },
+      "woodcutting": {
+        "hours": 2.5,
+        "pace": 0.1
+      },
+      "fishing": {
+        "hours": 2.5,
+        "pace": 0.1
+      },
+      "foraging": {
+        "hours": 2.5,
+        "pace": 0.1
+      },
+      "firemaking": {
+        "hours": 2.5,
+        "pace": 0.1
+      },
+      "cooking": {
+        "hours": 2.5,
+        "pace": 0.1
+      },
+      "smithing": {
+        "hours": 2.5,
+        "pace": 0.1
+      },
+      "combat": {
+        "hours": 2.5,
+        "pace": 0.1
+      }
+    },
+    "wealth": {
+      "start": 7000,
+      "perHour": 120
+    }
+  },
+  {
+    "id": "chloris",
+    "name": "Chloris",
+    "god": "vessith",
+    "line": "Comes back with leaves. Says the leaves are the point.",
+    "skills": {
+      "foraging": {
+        "hours": 14,
+        "pace": 0.4
+      },
+      "woodcutting": {
+        "hours": 10,
+        "pace": 0.2
+      },
+      "cooking": {
+        "hours": 0.3
+      },
+      "fishing": {
+        "hours": 0.1
+      }
+    },
+    "wealth": {
+      "start": 3800,
+      "perHour": 110
+    }
+  },
+  {
+    "id": "dorian",
+    "name": "Dorian",
+    "god": "tharok",
+    "line": "Has a favourite rock. It is an ordinary rock.",
+    "skills": {
+      "mining": {
+        "hours": 36,
+        "pace": 0.5
+      },
+      "combat": {
+        "hours": 4,
+        "pace": 0.1
+      },
+      "smithing": {
+        "hours": 6
+      },
+      "firemaking": {
+        "hours": 0.1
+      }
+    },
+    "wealth": {
+      "start": 95000,
+      "perHour": 1200
+    }
+  },
+  {
+    "id": "xanthe",
+    "name": "Xanthe",
+    "god": "ashkar",
+    "line": "Keeps a fire lit. Has not said for whom.",
+    "skills": {
+      "firemaking": {
+        "hours": 33,
+        "pace": 0.6
+      },
+      "woodcutting": {
+        "hours": 7
+      },
+      "combat": {
+        "hours": 0.2
+      }
+    },
+    "wealth": {
+      "start": 1500,
+      "perHour": 30
+    }
+  },
+  {
+    "id": "eumelos",
+    "name": "Eumelos",
+    "god": "maren",
+    "line": "Fishes until something bites back, then fights it.",
+    "skills": {
+      "combat": {
+        "hours": 18,
+        "pace": 0.4
+      },
+      "fishing": {
+        "hours": 8,
+        "pace": 0.2
+      },
+      "cooking": {
+        "hours": 2
+      },
+      "woodcutting": {
+        "hours": 0.2
+      }
+    },
+    "wealth": {
+      "start": 5600,
+      "perHour": 180
+    }
+  },
+  {
+    "id": "rhoda",
+    "name": "Rhoda",
+    "god": "vessith",
+    "line": "Sells everything. Keeps the coins. Sleeps fine.",
+    "skills": {
+      "smithing": {
+        "hours": 16,
+        "pace": 0.2
+      },
+      "woodcutting": {
+        "hours": 14,
+        "pace": 0.2
+      },
+      "mining": {
+        "hours": 6,
+        "pace": 0.1
+      },
+      "fishing": {
+        "hours": 1.5
+      },
+      "foraging": {
+        "hours": 1
+      }
+    },
+    "wealth": {
+      "start": 2400000,
+      "perHour": 9000
+    }
+  },
+  {
+    "id": "the-quiet-one",
+    "name": "The Quiet One",
+    "god": null,
+    "line": "Arrived before the rest. Has not said a word since.",
+    "skills": {
+      "combat": {
+        "hours": 44,
+        "pace": 0.2
+      },
+      "mining": {
+        "hours": 0.1
+      }
+    },
+    "wealth": {
+      "start": 300
+    }
+  },
+  {
+    "id": "pyrrha",
+    "name": "Pyrrha",
+    "god": "maren",
+    "line": "Arrived the week before you. Still deciding.",
+    "skills": {
+      "fishing": {
+        "hours": 0.08,
+        "pace": 0.15
+      },
+      "woodcutting": {
+        "hours": 0.03,
+        "pace": 0.05
+      },
+      "cooking": {
+        "hours": 0.02
+      }
+    },
+    "wealth": {
+      "start": 120,
+      "perHour": 15
+    }
+  }
+]

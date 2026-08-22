@@ -14,6 +14,7 @@ import monsters from './monsters.json';
 import patches from './patches.json';
 import rarities from './rarities.json';
 import recipes from './recipes.json';
+import rivals from './rivals.json';
 import rocks from './rocks.json';
 import skills from './skills.json';
 import trees from './trees.json';
@@ -34,6 +35,7 @@ export const content: ContentDb = ContentDb.fromPack({
   zones,
   monsters,
   gods,
+  rivals,
 });
 
 export const simContext: SimContext = { content, xp: DEFAULT_XP_CURVE };

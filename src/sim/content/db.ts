@@ -12,6 +12,7 @@ import {
   type PatchDef,
   type RarityDef,
   type RecipeDef,
+  type RivalDef,
   type RockDef,
   type SkillDef,
   type TreeDef,
@@ -32,6 +33,7 @@ interface ResolvedPack {
   zones: readonly ZoneDef[];
   monsters: readonly MonsterDef[];
   gods: readonly GodDef[];
+  rivals: readonly RivalDef[];
 }
 
 export class ContentError extends Error {
@@ -68,6 +70,8 @@ export class ContentDb {
   readonly monsters: readonly MonsterDef[];
   /** In authored order — the order Screen D lists them. */
   readonly gods: readonly GodDef[];
+  /** The highscores' other names, in authored order. */
+  readonly rivals: readonly RivalDef[];
   private readonly skillById: ReadonlyMap<string, SkillDef>;
   private readonly materialById: ReadonlyMap<string, MaterialDef>;
   private readonly rarityById: ReadonlyMap<string, RarityDef>;
@@ -94,6 +98,7 @@ export class ContentDb {
     this.zones = [...pack.zones].sort((a, b) => a.level - b.level);
     this.monsters = pack.monsters;
     this.gods = pack.gods;
+    this.rivals = pack.rivals;
     this.skillById = new Map(pack.skills.map((s) => [s.id, s]));
     this.materialById = new Map(pack.materials.map((m) => [m.id, m]));
     this.rarityById = new Map(pack.rarities.map((r) => [r.id, r]));
@@ -210,6 +215,10 @@ export class ContentDb {
       'monster',
       pack.monsters.map((m) => m.id),
     );
+    dupes(
+      'rival',
+      pack.rivals.map((r) => r.id),
+    );
     for (const [name, table] of tables) checkTable(`table "${name}"`, table);
 
     const skills: SkillDef[] = pack.skills.map((skill) => {
@@ -288,6 +297,14 @@ export class ContentDb {
       checkItemQty(`${owner} always`, m.always);
       return { ...m, drops: resolveAll(owner, m.drops) };
     });
+    const godIds = new Set(pack.gods.map((g) => g.id));
+    for (const r of pack.rivals) {
+      const owner = `rival "${r.id}"`;
+      if (r.god !== null && !godIds.has(r.god)) problems.push(`${owner}: unknown god "${r.god}"`);
+      for (const skill of Object.keys(r.skills)) {
+        if (!skillIds.has(skill)) problems.push(`${owner}: unknown skill "${skill}"`);
+      }
+    }
     // Duplicate problems from a table checked through several owners are not informative.
     const unique = [...new Set(problems)];
     if (unique.length) throw new ContentError(unique);
@@ -304,6 +321,7 @@ export class ContentDb {
       zones: pack.zones,
       monsters,
       gods,
+      rivals: pack.rivals,
     });
   }
 

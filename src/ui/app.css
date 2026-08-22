@@ -2494,3 +2494,207 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ---- Highscores --------------------------------------------------------------------------- */
+
+.scores-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: flex-start;
+  margin-top: 16px;
+}
+.scores-standing {
+  flex: 0 1 300px;
+  min-width: 240px;
+}
+.scores-board {
+  flex: 1 1 360px;
+  min-width: 280px;
+}
+.scores-columns .card-head .hint {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.scores-columns .card-head .icon {
+  color: var(--fg-icon);
+}
+.scores-columns .card-head .spacer {
+  min-width: 8px;
+}
+
+/* the hero's own row on every board */
+.row.standing {
+  padding: 8px 16px;
+}
+.row.standing .icon {
+  color: var(--fg-icon);
+  flex: none;
+}
+.row.standing.active .icon {
+  color: var(--accent);
+}
+.row.standing .name {
+  font-size: var(--fs-body);
+}
+.row.standing .rank,
+.row.standing .lvl,
+.row.standing .score {
+  font: 500 var(--fs-meta) var(--font-mono);
+  color: var(--fg-2);
+  text-align: right;
+  flex: none;
+}
+.row.standing .rank {
+  width: 30px;
+  color: var(--fg-3);
+}
+.row.standing .lvl {
+  width: 24px;
+  color: var(--fg);
+}
+.row.standing .score {
+  width: 76px;
+  color: var(--fg-3);
+}
+.row.standing .rank.first,
+.board-row .rank.first {
+  color: var(--gold);
+}
+
+/* the board */
+.board-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 16px 6px;
+  font: 500 var(--fs-label) var(--font-mono);
+  color: var(--fg-3);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.board-head .body {
+  flex: 1;
+  /* lines up with the name: the rank column plus the god mark plus two gaps */
+  padding-left: 42px;
+}
+.board-head .rank {
+  width: 18px;
+}
+.board-head .lvl {
+  width: 36px;
+  text-align: right;
+}
+.board-head .score {
+  width: 92px;
+  text-align: right;
+}
+.board-row {
+  cursor: default;
+}
+.board-row:hover:not(:disabled) {
+  background: transparent;
+}
+.board-row .rank {
+  width: 18px;
+  font: 500 var(--fs-body) var(--font-mono);
+  color: var(--fg-3);
+  text-align: right;
+  flex: none;
+}
+.board-row.first .rank {
+  color: var(--gold);
+}
+.board-row .god {
+  width: 18px;
+  display: inline-flex;
+  justify-content: center;
+  color: var(--fg-icon);
+  flex: none;
+}
+.board-row .god .none {
+  color: var(--fg-disabled);
+}
+.board-row .name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.board-row .name .tag-active {
+  font-size: var(--fs-tag);
+  padding: 1px 5px;
+}
+.board-row .lvl {
+  width: 36px;
+  font: 500 var(--fs-body) var(--font-mono);
+  color: var(--fg);
+  text-align: right;
+  flex: none;
+}
+.board-row .score {
+  width: 92px;
+  font: 500 var(--fs-body) var(--font-mono);
+  color: var(--fg-2);
+  text-align: right;
+  flex: none;
+}
+.board-row.you,
+.board-row.you:hover:not(:disabled) {
+  background: rgba(var(--accent-rgb), 0.05);
+}
+.board-row.you .name {
+  color: var(--accent-hi);
+}
+.board-row.you .lvl {
+  color: var(--accent);
+}
+
+@media (max-width: 700px) {
+  /* the standing list becomes a picker strip: icon, name, rank */
+  .scores-standing {
+    flex: 1 1 100%;
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px;
+  }
+  .scores-standing .card-head {
+    display: none;
+  }
+  .row.standing {
+    width: auto;
+    flex: 1 1 calc(50% - 6px);
+    gap: 8px;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg-inset);
+  }
+  .row.standing.active {
+    border-color: var(--accent);
+  }
+  .row.standing .lvl,
+  .row.standing .score {
+    display: none;
+  }
+  .row.standing .rank {
+    width: auto;
+  }
+  .scores-board {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  .board-row .sub,
+  .board-head .body {
+    padding-left: 0;
+  }
+  .board-row .sub {
+    display: none;
+  }
+  .board-head .score,
+  .board-row .score {
+    width: 72px;
+  }
+}

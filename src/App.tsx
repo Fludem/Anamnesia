@@ -22,6 +22,7 @@ import { EquipmentScreen } from './ui/screens/EquipmentScreen.tsx';
 import { CRAFT_SKILLS, GATHER_SKILLS } from './ui/screens/defs.ts';
 import { FirstSteps } from './ui/screens/FirstSteps.tsx';
 import { GatherScreen } from './ui/screens/GatherScreen.tsx';
+import { HighscoresScreen } from './ui/screens/HighscoresScreen.tsx';
 import { Shell } from './ui/Shell.tsx';
 import { useGameRuntime } from './ui/useGameHost.ts';
 import './ui/app.css';
@@ -72,6 +73,12 @@ export function App() {
       <BankScreen sim={sim} dispatch={dispatch} juice={juice} />
     ) : view.kind === 'equipment' ? (
       <EquipmentScreen sim={sim} dispatch={dispatch} juice={juice} />
+    ) : view.kind === 'highscores' ? (
+      <HighscoresScreen
+        sim={sim}
+        board={view.board}
+        onBoard={(board) => setView({ kind: 'highscores', board })}
+      />
     ) : gather ? (
       <GatherScreen key={gather.skill} sim={sim} dispatch={dispatch} juice={juice} def={gather} />
     ) : craft ? (

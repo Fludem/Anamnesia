@@ -9,6 +9,7 @@ import { skillView } from './derive.ts';
 import { formatInt } from './format.ts';
 import { Label, UiIcon } from './parts.tsx';
 import type { View } from './prefs.ts';
+import { HIGHSCORES_ICON } from './screens/HighscoresScreen.tsx';
 
 export const BANK_ICON = 'delapouite/chest';
 export const COIN_ICON = 'delapouite/coins';
@@ -91,6 +92,15 @@ export function Shell({ sim, view, onView, onSettings, children }: ShellProps) {
             <UiIcon id={EQUIPMENT_ICON} size={17} />
             <span className="grow">Equipment</span>
           </button>
+          <button
+            className={view.kind === 'highscores' ? 'nav-row active' : 'nav-row'}
+            onClick={() =>
+              onView(view.kind === 'highscores' ? view : { kind: 'highscores', board: 'total' })
+            }
+          >
+            <UiIcon id={HIGHSCORES_ICON} size={17} />
+            <span className="grow">Highscores</span>
+          </button>
           <div className="spacer" />
           <AvatarMenu name={sim.player.name} onSettings={onSettings} />
         </aside>
@@ -122,6 +132,15 @@ export function Shell({ sim, view, onView, onSettings, children }: ShellProps) {
         >
           <UiIcon id={EQUIPMENT_ICON} size={20} />
           Gear
+        </button>
+        <button
+          className={view.kind === 'highscores' ? 'tab active' : 'tab'}
+          onClick={() =>
+            onView(view.kind === 'highscores' ? view : { kind: 'highscores', board: 'total' })
+          }
+        >
+          <UiIcon id={HIGHSCORES_ICON} size={20} />
+          Scores
         </button>
         <button className="tab" onClick={onSettings}>
           <UiIcon id="lorc/cog" size={20} />

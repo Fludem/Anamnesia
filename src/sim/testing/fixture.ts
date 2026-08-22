@@ -359,6 +359,19 @@ export const FIXTURE_PACK = {
       drops: [{ entries: [{ item: 'ore', weight: 1 }] }],
     },
   ],
+  rivals: [
+    /** An hour into the mining climb when the hero arrives, and a third of full pace after. */
+    {
+      id: 'old-hand',
+      name: 'Old hand',
+      god: 'stone-god',
+      line: 'Was here first.',
+      skills: { mining: { hours: 1, pace: 1 / 3 }, combat: { hours: 0.001 } },
+      wealth: { start: 100, perHour: 10 },
+    },
+    /** Trains nothing; sits on a thousand coins. */
+    { id: 'idler', name: 'Idler', line: 'Sits.', wealth: { start: 1000 } },
+  ],
 };
 
 export const fixtureContent: ContentDb = ContentDb.fromPack(FIXTURE_PACK);

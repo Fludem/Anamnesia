@@ -65,19 +65,25 @@ twenty to the bar, one thrown from the bank with every swing that lands; rings a
 from copper to aether. `scripts/tune-gear.ts` prints what javelins buy and cost. Save v8 adds
 a thrown counter.
 
+Phase 9 is in: highscores for every skill, total level and wealth. The game has no backend,
+so the board ranks the hero against sixteen names from the hill (`src/content/rivals.json`)
+who are curves through the progression model rather than players: a head start in hours on
+each skill's climb and a pace per hour of the hero's game time. `src/sim/highscores.ts` does
+the ranking; the screen shows the hero's standing on every board and the chosen board.
+
 ## Layout
 
-| Path            | Layer                                                                                                                                                                                    |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/sim/`      | Pure simulation: save schema, migrations, PRNG, actions, skills. No DOM.                                                                                                                 |
-| `src/content/`  | Game content as JSON (skills, gods, materials, rarities, items, rocks, trees, waters, recipes, zones, monsters, drop tables), validated at load; `progression.test.ts` pins hours-to-99. |
-| `src/runtime/`  | Browser orchestration: save store, leader election, channel, GameHost.                                                                                                                   |
-| `src/ui/`       | React: `Shell`, `screens/`, `overlays/`, `derive.ts` (pure view helpers), `app.css` (the design's classes over the tokens).                                                              |
-| `src/icons/`    | Icon registry, SVG renderer + cache, badge glyphs, procedural sword geometry.                                                                                                            |
-| `src/ui/theme/` | Design tokens (CSS custom properties + TS object) and fonts.                                                                                                                             |
-| `src/ui/items/` | Maps content onto renderer specs; `<ItemTile>` / `<BareIcon>`.                                                                                                                           |
-| `design/`       | Claude Design reference screens the tokens were extracted from.                                                                                                                          |
-| `scripts/`      | Icon vendoring / indexing pipeline; `tune-combat.ts` retunes monsters against the progression model; `tune-boons.ts` compares the gods' boons; `tune-gear.ts` prices javelins.           |
+| Path            | Layer                                                                                                                                                                                            |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/sim/`      | Pure simulation: save schema, migrations, PRNG, actions, skills, `highscores.ts`. No DOM.                                                                                                        |
+| `src/content/`  | Game content as JSON (skills, gods, materials, rarities, items, rocks, trees, waters, recipes, zones, monsters, rivals, drop tables), validated at load; `progression.test.ts` pins hours-to-99. |
+| `src/runtime/`  | Browser orchestration: save store, leader election, channel, GameHost.                                                                                                                           |
+| `src/ui/`       | React: `Shell`, `screens/`, `overlays/`, `derive.ts` (pure view helpers), `app.css` (the design's classes over the tokens).                                                                      |
+| `src/icons/`    | Icon registry, SVG renderer + cache, badge glyphs, procedural sword geometry.                                                                                                                    |
+| `src/ui/theme/` | Design tokens (CSS custom properties + TS object) and fonts.                                                                                                                                     |
+| `src/ui/items/` | Maps content onto renderer specs; `<ItemTile>` / `<BareIcon>`.                                                                                                                                   |
+| `design/`       | Claude Design reference screens the tokens were extracted from.                                                                                                                                  |
+| `scripts/`      | Icon vendoring / indexing pipeline; `tune-combat.ts` retunes monsters against the progression model; `tune-boons.ts` compares the gods' boons; `tune-gear.ts` prices javelins.                   |
 
 ## Commands
 
