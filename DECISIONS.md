@@ -438,3 +438,96 @@ save: two devices may prefer different feels for the same hero.
   dev buttons confirm in place.
 - The Phase 1 panels, banners and debug panel are gone; the debug buttons live under Settings →
   Dev in dev builds only.
+
+## Phase 5 — gods, three skills, first steps, the 36-hour climb
+
+No new design screen arrived for this phase; the brief was the rest of Screen D (choose your
+god, the ready card), "build it like a tutorial", and two tuning asks: skills should average
+about 36 hours of idle time to 99, and skills should feed each other, with quicker methods that
+yield less and slower ones with other tradeoffs. Combat was explicitly deferred.
+
+### Screen D's gods are real, and their boons are data
+
+The design names four gods with boons that mention fishing, firemaking and cooking — skills the
+game did not have. Building the picker with fake perks would have been the login form all over
+again, so the skills came with it. A god is a content entry (`gods.json`) whose `perks` are
+three generic knobs: `xp` (fraction per skill), `extraDrops` (one more table per successful
+cycle of a skill), `doubleYield` (chance a cycle lands twice). The handlers read those through
+`perks.ts` and never know a god by name. Vessith's "rare seed drops" is an `extraDrops` table
+at 2% per cut; Maren's "+5% double catch" is `doubleYield` on fishing. The oath is one command,
+once: the hill does not take oaths back (a later altar could, for gp). Xp is stored to a tenth
+(18 × 1.1 = 19.8) rather than rounded per gain, so the bonus is exact over a night.
+
+An old save with a name and no god lands on step 2; the onboarding writes the name at step 1
+and swears only on the last button, so Back works until then. Copy on the god rows is the
+design's verbatim; the ready card's lines are re-voiced for the hill as before.
+
+### Three skills on the two primitives
+
+Fishing is `gatheringHandler` over waters with the rod as its tool; firemaking and cooking are
+`craftingHandler` over recipes. The recipe schema grew three things the skills needed and
+nothing else: `requires` (levels in other skills — each dish wants a hotter fire, a Firemaking
+level), `success` (cooking burns below a level, 0.6 + 2%/level, like a node's success rule) and
+`failOutputs` (a burnt cycle still eats the fish and lands Charred Fish — one item, one bank
+slot, sells for 1). A recipe may have no outputs: a fire makes ash, and ash is deliberately
+worth 1 so that firemaking is the skill that burns value for xp. The content audit's "a recipe
+never destroys value" rule has that one exception written into it.
+
+The skill web: Mining → Smithing (bars, gear, tools) → faster Mining / Woodcutting / Fishing.
+Woodcutting → Firemaking (fuel) and Smithing (spear shafts, rod handles). Fishing → Cooking →
+food for the combat loop. Cooking is gated on Firemaking level, so Ashkar's two skills are one
+path. Rods are smithing recipes (bar + log, whetstone at silver and above), so Fishing's speed
+is bought with Mining and Woodcutting.
+
+### Quick methods: more xp, nothing to bank
+
+Every gathering skill has four `quick` nodes (scree, shale, pumice, cinder; brushwood, bramble,
+deadfall, scrub; sprat shoal, bleak shoal, smelt run, char run) at levels 15/45/70/90. Each is
+tuned to about +25% xp/hr over the tier's proper node at its unlock, and yields nothing worth
+keeping: rocks give only the gem table, brushwood gives kindling (the weakest fuel), shoals
+give fish that cook into small meals. They are flagged in content (`quick: true`), tagged QUICK
+in the list, and left out of the progression model's standard path — a player who takes them
+reaches 99 about 10% sooner and has less to show for it. The tier's node grows into them: by
+ten levels past the quick node's unlock the proper node has usually caught up, since success
+chance rises per level, so the choice keeps mattering. Smithing's version of the tradeoff is
+gear: a piece pays the same xp per bar as smelting in half the time, so smithing gear is the
+quicker route at the cost of more ore per hour.
+
+### The 36-hour climb is a model and a test
+
+`src/sim/progression.ts` computes hours to the cap for a skill by training the best open method
+at every level, expected values only, with the tier's tool (a stated assumption, not a sim
+rule) and no god. `src/content/progression.test.ts` asserts each trainable skill lands in
+27–45 hours and the mean in 33–39; at the time of writing: mining 39.4, woodcutting 35.5,
+fishing 35.7, cooking 36.0, smithing 33.7, firemaking 30.7 — mean 35.2. Mining is slowest on
+purpose (ore is the most useful yield); firemaking fastest (it destroys what it trains on).
+
+The measure is a skill's **own** action time on its standard method. Crafting skills also cost
+feeder hours: smithing 99 on bars eats about 22,000 ore, cooking 99 about 19,000 fish,
+firemaking 99 about 17,500 logs. Each crafting xp is priced at roughly 1.5× the gatherer's xp
+per unit, so the feeder is always less time than the skill itself; the tuner prints the feeder
+count and it is recorded here rather than hidden. The curve stays RuneScape's, so xp per
+action rises steeply with tier (copper 20, aether 760): the last ten levels are 60% of the
+total, and that is where the hours go. Level 64 from twelve hours of copper is still true —
+and still only 3% of the way.
+
+### First steps are the sim's, not the screen's
+
+The tutorial is ten linear steps in `tutorial.ts`, each a title, a hint in the hill's voice,
+the screen it happens on, a reward, and a progress function over **lifetime** counters
+(`stats.items`, `stats.sold`, slots bought, the pick in its slot) so a step, once met, stays
+met even if the bank is sold down. The sim checks the current step once per tick while the
+walk is unfinished and logs a `tutorial` event; the card above every screen shows one step at
+a time, links to the right screen, flashes the completion, and can be put away or brought back
+from settings. Rewards sum to 550 gp — a little more than the first bank slot, which is the
+last step. Migrated saves get the card too: every counter starts at zero for them, which is
+honest about what the sim can know, and the skip is one click.
+
+### Fixed along the way
+
+- A `stopped` event now carries its skill, so an idle card only shows its own skill's reason.
+  The 4→5 migration drops v4 stops, which have none.
+- Skill screens are keyed by skill: the crafting screens shared a React instance and the
+  category tab leaked from cooking into smithing, emptying the list.
+- UI-only icons (hourglass, footprint) must be in `content/icon-manifest.json`; a test now
+  scans `src/ui` for icon ids and fails if one is not shipped.

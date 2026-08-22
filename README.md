@@ -33,19 +33,28 @@ moment, the rare-drop toast, the offline recap (honest about the cap) and the ca
 states for other-tab / catching-up / stale / save-error. Save v4 adds coins, bank slots, an
 event log and action counters to carry it. Combat is still data only.
 
+Phase 5 is in: the rest of Screen D's onboarding (choose a god, the ready card), four gods whose
+boons are data, three more skills — fishing, firemaking, cooking — that feed and gate each other
+(smithing makes rods from bars and logs; cooking wants a hotter fire; fires eat logs), a "quick"
+method in every gathering skill that out-earns its tier and banks nothing worth keeping, ten
+first steps checked by the sim with small rewards, and a progression model (`src/sim/progression.ts`)
+pinned by a test so every skill takes 27–45 hours of its own idle time to 99 and the mean sits
+near 36. Save v5 adds the sworn god, lifetime counters, first-steps progress and the rod slot.
+Combat is still data only.
+
 ## Layout
 
-| Path            | Layer                                                                                                                              |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `src/sim/`      | Pure simulation: save schema, migrations, PRNG, actions, skills. No DOM.                                                           |
-| `src/content/`  | Game content as JSON (skills, materials, rarities, items, rocks, trees, recipes, zones, monsters, drop tables), validated at load. |
-| `src/runtime/`  | Browser orchestration: save store, leader election, channel, GameHost.                                                             |
-| `src/ui/`       | React: `Shell`, `screens/`, `overlays/`, `derive.ts` (pure view helpers), `app.css` (the design's classes over the tokens).        |
-| `src/icons/`    | Icon registry, SVG renderer + cache, badge glyphs, procedural sword geometry.                                                      |
-| `src/ui/theme/` | Design tokens (CSS custom properties + TS object) and fonts.                                                                       |
-| `src/ui/items/` | Maps content onto renderer specs; `<ItemTile>` / `<BareIcon>`.                                                                     |
-| `design/`       | Claude Design reference screens the tokens were extracted from.                                                                    |
-| `scripts/`      | Icon vendoring / indexing pipeline.                                                                                                |
+| Path            | Layer                                                                                                                                                                                    |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/sim/`      | Pure simulation: save schema, migrations, PRNG, actions, skills. No DOM.                                                                                                                 |
+| `src/content/`  | Game content as JSON (skills, gods, materials, rarities, items, rocks, trees, waters, recipes, zones, monsters, drop tables), validated at load; `progression.test.ts` pins hours-to-99. |
+| `src/runtime/`  | Browser orchestration: save store, leader election, channel, GameHost.                                                                                                                   |
+| `src/ui/`       | React: `Shell`, `screens/`, `overlays/`, `derive.ts` (pure view helpers), `app.css` (the design's classes over the tokens).                                                              |
+| `src/icons/`    | Icon registry, SVG renderer + cache, badge glyphs, procedural sword geometry.                                                                                                            |
+| `src/ui/theme/` | Design tokens (CSS custom properties + TS object) and fonts.                                                                                                                             |
+| `src/ui/items/` | Maps content onto renderer specs; `<ItemTile>` / `<BareIcon>`.                                                                                                                           |
+| `design/`       | Claude Design reference screens the tokens were extracted from.                                                                                                                          |
+| `scripts/`      | Icon vendoring / indexing pipeline.                                                                                                                                                      |
 
 ## Commands
 
