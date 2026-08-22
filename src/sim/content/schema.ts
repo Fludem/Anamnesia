@@ -370,30 +370,6 @@ export const GodDefSchema = z.object({
 export type GodSource = z.infer<typeof GodDefSchema>;
 export type GodDef = Omit<GodSource, 'perks'> & { perks: GodPerks };
 
-/**
- * One of the hill's other names: the people the highscores rank the hero against. They are
- * not simulated — each is a curve. `hours` is how far along a skill's standard climb they
- * were when the hero arrived; `pace` is how many climb-hours they add per hour of the hero's
- * game time. Wealth is a line the same way. Hitpoints is never authored: it follows combat at
- * the sim's share, as the hero's does.
- */
-export const RivalSkillSchema = z.object({
-  hours: z.number().min(0),
-  pace: z.number().min(0).default(0),
-});
-export const RivalDefSchema = z.object({
-  id: IdSchema,
-  name: z.string().min(1),
-  /** The god they swore to, or null for one who never did. */
-  god: IdSchema.nullable().default(null),
-  /** One dry line. */
-  line: z.string().min(1),
-  /** A skill absent here is never trained. */
-  skills: z.record(IdSchema, RivalSkillSchema).default({}),
-  wealth: z.object({ start: z.number().int().min(0), perHour: z.number().min(0).default(0) }),
-});
-export type RivalDef = z.infer<typeof RivalDefSchema>;
-
 /** What a ware does once bought. Effects are engine-known, like a god's perks. */
 export const WareEffectSchema = z.discriminatedUnion('kind', [
   /** Offline progress counts for this many hours instead of the base cap. */
@@ -465,8 +441,6 @@ export const ContentPackSchema = z.object({
   gods: contentList(GodDefSchema).default([]),
   zones: contentList(ZoneDefSchema).default([]),
   monsters: contentList(MonsterDefSchema).default([]),
-  /** The highscores' other names. */
-  rivals: contentList(RivalDefSchema).default([]),
   /** What the trader sells. */
   wares: contentList(WareDefSchema).default([]),
 });

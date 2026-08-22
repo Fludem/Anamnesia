@@ -800,9 +800,8 @@ built from Screen A's rows and Screen E's columns.
 
 ### When accounts arrive
 
-The roster is the placeholder for real names: a server would replace `content.rivals` rows
-with fetched ones and the ranking, the screen and the tie rule stay. Nothing in the save
-references a rival.
+The roster was the placeholder for real names. Phase 11 brought the names and removed the
+roster; the ranking, the screen and the tie rule stayed.
 
 ### Fixed along the way
 
@@ -884,3 +883,103 @@ adds ~2.9M gp an hour by the model; an aether cuirass sells for 45,641), so past
 fixed price means anything and only the ferryman scales. That is the content's value ladder,
 set in Phase 3 before anything spent coins, and the real fix is a retune of `value` across the
 top tiers — a later phase, because the bank curve and every sale price move with it.
+
+## Phase 11 — the register: names, passwords, saves on the server, real highscores
+
+The user's ask: "multiplayer with a DB and a login system and register system". For an idle
+game that means three things — an account, a save that follows the account, and boards
+that rank accounts — and not a fourth: nobody fights anybody; the hill is shared only through
+the board.
+
+### One process, node's own parts, no new dependencies
+
+The server is `node:http` + `node:sqlite` + `crypto.scrypt`, in TypeScript under `server/`,
+importing the sim it shares with the game. No framework, no ORM, no Postgres to run: the
+register is one file in `data/`, the production server is one bundled file (`vite build
+--ssr`) serving `dist/` and `/api` from one port, and in development the same handler mounts
+inside Vite (`server/vite.ts`) so `npm run dev` is still the whole game. Sharing the sim is the
+point: the server validates a save with the same `SaveRecordSchema`, scores it with the same
+`standingsOf`, against the same content — there is no second definition of anything. Node 24+
+is required for `node:sqlite`; the user has 26.
+
+### The save store did not change shape
+
+`SaveStore` (load + compare-and-swap write on `saveCounter`) was designed for tabs fighting
+over IndexedDB; a server is the same fight with more contestants. `ServerSaveStore` speaks
+the same interface over `GET`/`PUT /api/save`, the server's `writeSave` is the same guard in
+SQL (`409` carries what is stored), and the host needed two additions rather than a rewrite:
+
+- A write can now come back `unreachable` as well as `stale`. A laptop waking before its wifi
+  does fires the periodic save into nothing; before, a store throw ended the game with an
+  error page. Now the host keeps playing, shows "not saved … trying again" in settings, and the
+  next save clears it. Only the register refusing a save outright (400/413) is fatal — better
+  to stop than to play unsaved.
+- `onStale: 'hold'`. With IndexedDB a stale write meant a tab back from the cache: reload and
+  carry on. With a server it means another browser or device took the save, and reloading
+  would claim it back — the two would take turns overwriting each other forever. The stale tab
+  now stops, keeps the Web Lock (so no follower tab here promotes itself into the same fight)
+  and shows "This tab stepped back … Play here instead". The player chooses which device
+  plays. The other device gets the same page on its next save.
+
+One allowance in the guard: a reply can be lost after a write lands, and the tab would then
+be stale against its own save. The server accepts a write one counter behind when the stored
+record's `writerId` is the same tab — the record it holds is newer than the one it wrote, so
+this is safe, and it is exactly the lost-reply case and nothing else.
+
+### The name is the hero's name
+
+The design's login screen asked for an email; the register asks for a name — the hero's, 3–16
+characters by the sim's own `PlayerNameSchema`, unique without regard to case — and a
+password of eight or more. No email means no password reset by mail; `scripts/reset-password.ts`
+is the operator's way back, and that is flagged below. Step 1 of the onboarding ("name your
+hero") became the registration form; steps 2 and 3 (the god, the ready card) stayed. The host
+writes the account's name over the save's on load and the server stamps it on every write, so
+rename went from settings: a name is an account now. `player:rename` is still a command the
+sim accepts; nothing sends it.
+
+### What the server trusts
+
+The client. The sim runs in the browser as before; the server stores what it is sent,
+validates the shape, and scores it. A player who edits their save in the console is on the
+board with whatever they wrote. Re-simulating every account server-side would make the
+register authoritative and is the right next step if strangers ever play; for a hill of
+friends, the honest note in the README is the cheaper guard.
+
+Passwords are scrypt (N=16384) with a fresh salt, stored as one string that names its
+parameters. Sessions are 32 random bytes in an `HttpOnly; SameSite=Lax` cookie, ninety days
+sliding, hashed at rest; a copy of the register logs nobody in. State-changing routes require
+`Content-Type: application/json`, which with `SameSite=Lax` is the CSRF guard without a token
+dance. Wrong passwords are limited per name and per address; new names per address. The same
+message answers an unknown name and a wrong password.
+
+### The board ranks saves, not play
+
+A standing is recomputed on every save write (every ten seconds while playing) into a
+`standings` table keyed by board, so a board is one indexed query, ranked by `key1 DESC, key2
+DESC, user id ASC` — ties to whoever made their name first, the same rule as before with
+"made their name" for "was here first". The screen reads `GET /api/highscores/:board` (the
+top hundred plus the caller's own row if further down, and the caller's standing on every
+board) when the board changes, after each of this tab's saves, and every half minute. So a
+row can be a save behind the game; "last seen" on each row is when that name last saved, and
+within ninety seconds reads "on the hill now". Anyone may read a board; only a name that has
+saved is on one.
+
+### The browser's old save is offered, once
+
+Before names, the save lived in IndexedDB. The first time a name plays in a browser and has
+no save of its own, `runtime/adopt.ts` migrates and reconciles the local save, writes it as
+the name's first, and clears it locally so a second name on the same browser does not inherit
+it too. A name that already has a save leaves the local one alone. The user's phase-1 save
+with its hundreds of hours on the clock is how the rivals got to 99; it will now be theirs.
+
+### Flagged
+
+- No email, so no password reset but the operator's script. No account deletion either.
+- The server trusts the client's save (above).
+- The follower page still says "another tab" when the save was taken by another device; a
+  follower cannot tell. The stale page covers both.
+- The hero's own row on the board lags the game by up to a save. The standing column is
+  server-side too, so a level gained in the last ten seconds shows on the skill screen first.
+- One process, one SQLite file: fine for a hill of friends; not a deployment story beyond
+  "run it somewhere with a disk and put TLS in front" (the cookie is `Secure` whenever the
+  request arrives over https, directly or by `x-forwarded-proto`).

@@ -280,6 +280,44 @@ describe('GameHost — single tab', () => {
     expect(sim.tick).toBe(HOUR / 100);
   });
 
+  it('writes the account’s name over the save’s own', async () => {
+    const world = new FakeWorld(T0);
+    seeded(world, { player: { name: 'Old Name', god: null } });
+    const a = world.tab('A');
+    const host = boot(a, { ...FIXTURE, playerName: 'Sisyphus' });
+    await flushMicrotasks();
+    expect(host.getSnapshot().sim?.player.name).toBe('Sisyphus');
+    expect(world.store.peek('main')?.sim.player.name).toBe('Sisyphus');
+  });
+
+  it('keeps playing when the store cannot be reached, and says so until a save lands', async () => {
+    const world = new FakeWorld(T0);
+    let down = false;
+    const flaky: SaveStore = {
+      load: (slot) => world.store.load(slot),
+      write: (slot, record, expected) =>
+        down
+          ? Promise.resolve({ ok: false, reason: 'unreachable', message: 'no road' })
+          : world.store.write(slot, record, expected),
+      clear: (slot) => world.store.clear(slot),
+    };
+    const a = world.tab('A', { store: flaky });
+    const host = boot(a, { ...FIXTURE, saveIntervalMs: 1_000 });
+    await flushMicrotasks();
+    expect(host.role).toBe('leader');
+    down = true;
+    await elapse(world, [a], 1_100);
+    expect(host.role).toBe('leader');
+    expect(host.getSnapshot().saveProblem).toBe('no road');
+    expect(host.getSnapshot().error).toBeNull();
+    expect(world.store.peek('main')?.sim.tick).toBe(0);
+    expect(host.getSnapshot().sim?.tick).toBe(11);
+    down = false;
+    await elapse(world, [a], 1_000);
+    expect(host.getSnapshot().saveProblem).toBeNull();
+    expect(world.store.peek('main')?.sim.tick).toBeGreaterThanOrEqual(20);
+  });
+
   it('refuses to start over an unreadable save', async () => {
     const world = new FakeWorld(T0);
     world.store['slots'].set('main', { version: 42 } as unknown as SaveRecord);
@@ -379,6 +417,35 @@ describe('GameHost — two tabs', () => {
     expect(stored?.writerId).toBe('A');
     expect(stored?.saveCounter).toBe(2);
     expect(stored?.sim.tick).toBe(3);
+  });
+
+  it('with onStale: hold, a rejected write stops the tab, keeps the lock and reloads nothing', async () => {
+    const world = new FakeWorld(T0);
+    const a = world.tab('A');
+    const c = world.tab('C');
+    const ha = boot(a, { onStale: 'hold' });
+    await flushMicrotasks();
+    const hc = boot(c, { onStale: 'hold' });
+    await flushMicrotasks();
+    await elapse(world, [a, c], 300);
+    expect(hc.role).toBe('follower');
+
+    // B is another device: no shared lock. It loads the save at counter 1 and claims it.
+    const b = world.tab('B', { locks: null });
+    const hb = boot(b, { onStale: 'hold' });
+    await flushMicrotasks();
+    expect(hb.role).toBe('leader');
+    expect(world.store.peek('main')?.writerId).toBe('B');
+
+    // A's next save is the stale one: A stops without reloading, and C is not promoted.
+    await ha.saveNow();
+    expect(ha.role).toBe('stale');
+    expect(a.reloads).toBe(0);
+    expect(world.locks.isHeld('anamnesia:leader')).toBe(true);
+    await elapse(world, [a, b, c], 500);
+    expect(hc.role).toBe('follower');
+    expect(hb.role).toBe('leader');
+    expect(world.store.peek('main')?.writerId).toBe('B');
   });
 
   it('catch-up is applied only by the tab holding the lock', async () => {

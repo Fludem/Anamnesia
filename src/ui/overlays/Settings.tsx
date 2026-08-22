@@ -1,12 +1,15 @@
 /**
- * Settings: feel (how much the UI celebrates), rename, a save export, and — in dev builds — the
- * runtime inspection buttons from Phase 0.5 (simulate time away, reset).
+ * Settings: feel (how much the UI celebrates), who is logged in and the way out, a save export,
+ * and — in dev builds — the runtime inspection buttons from Phase 0.5 (simulate time away,
+ * reset).
  */
 import { useState } from 'react';
 import type { GameRuntime } from '../useGameHost.ts';
 import { simContext } from '../../content/index.ts';
 import type { HostSnapshot } from '../../runtime/game-host.ts';
-import { PlayerNameSchema, type Command } from '../../sim/commands.ts';
+import type { User } from '../../api/protocol.ts';
+import type { Command } from '../../sim/commands.ts';
+import { createNewSave } from '../../sim/save.ts';
 import { godOf } from '../../sim/perks.ts';
 import { nightHours } from '../derive-trader.ts';
 import { formatInt } from '../format.ts';
@@ -25,25 +28,27 @@ const FEELS: { id: Juice; label: string; hint: string }[] = [
 export function Settings({
   runtime,
   snapshot,
+  user,
   juice,
   onJuice,
-  onRename,
+  onSignOut,
   dispatch,
   onClose,
 }: {
   runtime: GameRuntime;
   snapshot: HostSnapshot;
+  user: User;
   juice: Juice;
   onJuice: (j: Juice) => void;
-  onRename: (name: string) => void;
+  /** Saves, stops the game here and ends the session. */
+  onSignOut: () => Promise<void>;
   dispatch: (cmd: Command) => void;
   onClose: () => void;
 }) {
   const sim = snapshot.sim;
   const god = sim ? godOf(sim, simContext) : null;
-  const [name, setName] = useState(sim?.player.name ?? '');
-  const parsed = PlayerNameSchema.safeParse(name);
   const leader = snapshot.role === 'leader';
+  const [leaving, setLeaving] = useState(false);
 
   const simulateAway = async (hours: number) => {
     const { host } = runtime;
@@ -59,13 +64,22 @@ export function Settings({
     if (result.ok) runtime.env.reloadPage();
   };
   const [confirmReset, setConfirmReset] = useState(false);
+  /** A fresh save written over this one, through the same guarded write as any other. */
   const reset = async () => {
     if (!confirmReset) {
       setConfirmReset(true);
       return;
     }
-    await runtime.env.store.clear('main');
-    runtime.env.reloadPage();
+    const { env, host } = runtime;
+    await host.saveNow();
+    const stored = await env.store.load('main');
+    const fresh = createNewSave({
+      seed: env.randomSeed(),
+      nowMs: env.clock.now(),
+      writerId: stored?.writerId ?? env.tabId,
+    });
+    const result = await env.store.write('main', fresh, stored?.saveCounter ?? 0);
+    if (result.ok) env.reloadPage();
   };
 
   return (
@@ -90,29 +104,23 @@ export function Settings({
 
       <div className="settings-section">
         <Label>Name</Label>
-        <form
-          className="settings-row"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (parsed.success && sim && parsed.data !== sim.player.name) onRename(parsed.data);
-          }}
-        >
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            maxLength={16}
-            style={{ flex: 1, minWidth: 0 }}
-            aria-label="Hero name"
-          />
+        <div className="settings-row">
+          <span className="kv" style={{ flex: 1 }}>
+            on the hill as <b>{user.name}</b>
+          </span>
           <button
             className="btn"
-            type="submit"
             style={{ flex: 'none' }}
-            disabled={!parsed.success || !sim || parsed.data === sim.player.name}
+            disabled={leaving}
+            onClick={() => {
+              setLeaving(true);
+              void onSignOut();
+            }}
           >
-            Rename
+            {leaving ? 'Leaving' : 'Log out'}
           </button>
-        </form>
+        </div>
+        <div className="note-line">The hill keeps climbing while you are logged out.</div>
       </div>
 
       <div className="settings-section">
@@ -169,6 +177,11 @@ export function Settings({
         {snapshot.warning && (
           <div className="kv" style={{ color: 'var(--gold)' }}>
             {snapshot.warning}
+          </div>
+        )}
+        {snapshot.saveProblem && (
+          <div className="kv" style={{ color: 'var(--gold)' }}>
+            not saved: {snapshot.saveProblem} · trying again
           </div>
         )}
         <div className="settings-row">

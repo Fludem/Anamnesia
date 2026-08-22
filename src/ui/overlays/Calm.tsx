@@ -1,12 +1,12 @@
 /**
- * Screen D's card on the drifting backdrop — the calm full-page states: naming the hero on first
+ * Screen D's card on the drifting backdrop — the calm full-page states: choosing a god on first
  * run, "running in another tab", the catch-up in progress, a stale tab, and a save error.
- * None of these show game panels: the point is one clear sentence and one button.
+ * None of these show game panels: the point is one clear sentence and one button. Logging in
+ * and making a name are on the same card (Auth.tsx).
  */
 import { useState, type ReactNode } from 'react';
 import { content, simContext } from '../../content/index.ts';
 import type { HostSnapshot } from '../../runtime/game-host.ts';
-import { PlayerNameSchema } from '../../sim/commands.ts';
 import { skillOfRequest } from '../../sim/actions.ts';
 import { formatInt } from '../format.ts';
 import { Label, UiIcon } from '../parts.tsx';
@@ -47,76 +47,34 @@ export function CalmPage({ children }: { children: ReactNode }) {
 }
 
 /**
- * Screen D's onboarding: name the hero, choose a god, and a last card that says what the game
- * does. The name is written as soon as step 1 is done (a reload lands on step 2); the oath is
- * sworn only on the final button, so Back still works until then. An old save that has a name
- * but no god starts at step 2.
+ * Screen D's onboarding after the name is made: choose a god, and a last card that says what
+ * the game does. The oath is sworn only on the final button, so Back works until then.
  */
 export function Onboarding({
-  name: savedName,
+  heroName,
   nightHours = 12,
-  onName,
   onSwear,
 }: {
-  /** The name already in the save, or null while the hero is still Nameless. */
-  name: string | null;
+  /** The name the register gave the hero. */
+  heroName: string;
   /** How long the night is, in hours (12 unless the trader's lamp says otherwise). */
   nightHours?: number;
-  onName: (name: string) => void;
   onSwear: (god: string) => void;
 }) {
-  const [step, setStep] = useState<1 | 2 | 3>(savedName === null ? 1 : 2);
-  const [name, setName] = useState(savedName ?? '');
+  const [step, setStep] = useState<1 | 2>(1);
   const [god, setGod] = useState<string>(content.gods[0]?.id ?? '');
-  const parsed = PlayerNameSchema.safeParse(name);
-  const letter = name.trim().slice(0, 1).toUpperCase() || '?';
   const chosen = content.hasGod(god) ? content.god(god) : null;
-  const heroName = parsed.success ? parsed.data : (savedName ?? '');
 
   return (
     <CalmPage>
       <div className="dots">
-        {[1, 2, 3].map((n) => (
+        {[1, 2].map((n) => (
           <span key={n} className={n === step ? 'dot now' : n < step ? 'dot on' : 'dot'} />
         ))}
-        <span className="step">STEP {String(step)} / 3</span>
+        <span className="step">STEP {String(step)} / 2</span>
       </div>
 
       {step === 1 && (
-        <form
-          key="name"
-          className="fade"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (!parsed.success) return;
-            if (parsed.data !== savedName) onName(parsed.data);
-            setStep(2);
-          }}
-        >
-          <h2>Name your hero</h2>
-          <div className="lead">This is what the hill will call you.</div>
-          <div className="form">
-            <div className="form-row">
-              <span className="avatar big">{letter}</span>
-              <input
-                className="hero"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Sisyphus"
-                maxLength={16}
-                autoFocus
-                aria-label="Hero name"
-              />
-            </div>
-          </div>
-          <div className="note">3–16 characters. You can change it later in settings.</div>
-          <button className="btn solid" type="submit" disabled={!parsed.success}>
-            Continue
-          </button>
-        </form>
-      )}
-
-      {step === 2 && (
         <div key="god" className="fade">
           <h2>Choose your god</h2>
           <div className="lead">Devotion has perks. Pick who you kneel to.</div>
@@ -154,14 +112,11 @@ export function Onboarding({
             })}
           </div>
           <div className="btn-row">
-            <button className="btn quiet" type="button" onClick={() => setStep(1)}>
-              Back
-            </button>
             <button
               className="btn solid grow"
               type="button"
               disabled={chosen === null}
-              onClick={() => setStep(3)}
+              onClick={() => setStep(2)}
             >
               Continue
             </button>
@@ -169,13 +124,13 @@ export function Onboarding({
         </div>
       )}
 
-      {step === 3 && chosen && (
+      {step === 2 && chosen && (
         <div key="ready" className="fade centred">
           <span className="god-big">
             <UiIcon id={chosen.icon} size={30} />
           </span>
           <h2 style={{ marginTop: 16 }}>
-            {heroName ? `${heroName}, sworn to ${chosen.name}` : `Sworn to ${chosen.name}`}
+            {heroName}, sworn to {chosen.name}
           </h2>
           <div className="lead tall">
             The hill keeps going when you close the tab.
@@ -205,7 +160,7 @@ export function Onboarding({
             Start the climb
           </button>
           <div className="link-row" style={{ marginTop: 12 }}>
-            <button className="linkish" type="button" onClick={() => setStep(2)}>
+            <button className="linkish" type="button" onClick={() => setStep(1)}>
               Back
             </button>
           </div>
@@ -297,14 +252,16 @@ export function StalePage({ onReload }: { onReload: () => void }) {
     <CalmPage>
       <h2>This tab stepped back</h2>
       <div className="lead">
-        It was restored from the browser's cache after another tab had been writing the save. Reload
-        to pick up where the game actually is.
+        The save was taken up somewhere else — another browser, another device, or this tab coming
+        back from the cache — so this one stopped rather than write over it. The hill is still being
+        climbed there.
       </div>
       <div className="form">
         <button className="btn solid" onClick={onReload}>
-          Reload
+          Play here instead
         </button>
       </div>
+      <div className="note">Wherever it was playing will stop the same way.</div>
     </CalmPage>
   );
 }

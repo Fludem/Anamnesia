@@ -58,6 +58,8 @@ export interface HostSnapshot {
   warning: string | null;
   /** Why the last local command was rejected by the sim; cleared by the next accepted one. */
   commandError: string | null;
+  /** Why the last save did not land (the store was unreachable); null once one does. */
+  saveProblem: string | null;
   /** Fatal condition; the host has stopped. */
   error: string | null;
 }
@@ -94,6 +96,19 @@ export interface GameHostOptions {
    * `capTicks` is used. Defaults to the shipped content's wares.
    */
   capTicksFor?: (sim: SimState) => number;
+  /**
+   * The name the save must carry, when an account owns it: written over the save's own on
+   * load. Null keeps whatever the save says (the hero names themself on first run).
+   */
+  playerName?: string | null;
+  /**
+   * What to do when a write finds someone else wrote first. `reload` (the in-browser case: a
+   * tab restored from the cache) loads what is there and carries on. `hold` (the server case:
+   * another browser or device took the save) stops this tab and keeps the lock, so no other
+   * tab here promotes itself and the two devices do not take turns overwriting each other;
+   * the player decides which one plays.
+   */
+  onStale?: 'reload' | 'hold';
 }
 
 /** The shipped content's reconcile; says what it dropped, since the player will not be told. */
@@ -162,6 +177,8 @@ export class GameHost {
       reconcile: options.reconcile ?? defaultReconcile,
       onAction: options.onAction,
       capTicksFor: options.capTicksFor ?? ((sim) => offlineCapTicks(sim, simContext)),
+      playerName: options.playerName ?? null,
+      onStale: options.onStale ?? 'reload',
     };
     this.channel = new GameChannel(env.openChannel(CHANNEL_NAME));
     this.election = env.locks ? new LeaderElection(env.locks, LOCK_NAME) : null;
@@ -178,6 +195,7 @@ export class GameHost {
       takeoverPending: false,
       warning: null,
       commandError: null,
+      saveProblem: null,
       error: null,
     };
   }
@@ -375,7 +393,11 @@ export class GameHost {
       );
       return;
     }
-    this.sim = this.opts.reconcile(record.sim);
+    let sim = this.opts.reconcile(record.sim);
+    const name = this.opts.playerName;
+    if (name !== null && sim.player.name !== name)
+      sim = { ...sim, player: { ...sim.player, name } };
+    this.sim = sim;
     this.wallMs = record.wallMs;
     this.saveCounter = record.saveCounter;
     this.patch({ sim: this.sim, wallMs: this.wallMs, saveCounter: this.saveCounter });
@@ -503,11 +525,20 @@ export class GameHost {
         return;
       }
       if (!result.ok) {
+        if (result.reason === 'unreachable') {
+          // Nothing is known about the slot; keep playing and try again on the next save.
+          this.patch({ saveProblem: result.message });
+          return;
+        }
         this.becomeStale();
         return;
       }
       this.saveCounter = result.saveCounter;
-      this.patch({ saveCounter: this.saveCounter, lastSavedAtMs: this.env.clock.now() });
+      this.patch({
+        saveCounter: this.saveCounter,
+        lastSavedAtMs: this.env.clock.now(),
+        saveProblem: null,
+      });
       this.broadcastSnapshot(true);
     };
     this.saveChain = this.saveChain.then(run, run);
@@ -517,6 +548,10 @@ export class GameHost {
   /** Someone else wrote after us: the lock failed or we woke from a frozen state. Never overwrite. */
   private becomeStale(): void {
     this.stopLeading();
+    if (this.opts.onStale === 'hold') {
+      this.patch({ role: 'stale', leaderId: null });
+      return;
+    }
     this.election?.release();
     this.patch({ role: 'stale', leaderId: null });
     this.env.reloadPage();

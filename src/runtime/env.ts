@@ -6,6 +6,7 @@
  * eslint.config.js). Tests pass fakes from src/runtime/testing.
  */
 import { warmLockManager } from './leader.ts';
+import { ServerSaveStore } from './server-store.ts';
 import { IndexedDbSaveStore, type SaveStore } from './store.ts';
 
 export interface Clock {
@@ -83,7 +84,17 @@ function randomId(): string {
   return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-export function browserEnv(): Env {
+/** The save of whoever is logged in, over the server. */
+export function serverSaveStore(): SaveStore {
+  return new ServerSaveStore((input, init) => fetch(input, init));
+}
+
+/** This browser's own IndexedDB slot — where saves lived before there were names. */
+export function localSaveStore(): SaveStore {
+  return new IndexedDbSaveStore(indexedDB);
+}
+
+export function browserEnv(store: SaveStore = localSaveStore()): Env {
   const locks =
     typeof navigator !== 'undefined' && 'locks' in navigator
       ? warmLockManager(navigator.locks)
@@ -103,7 +114,7 @@ export function browserEnv(): Env {
         close: () => bc.close(),
       };
     },
-    store: new IndexedDbSaveStore(indexedDB),
+    store,
     lifecycle: {
       onHidden(cb) {
         const handler = () => {

@@ -6,21 +6,20 @@
 import { ContentDb } from '../sim/content/db.ts';
 import type { SimContext } from '../sim/context.ts';
 import { DEFAULT_XP_CURVE } from '../sim/xp.ts';
-import tables from './drop-tables.json';
-import gods from './gods.json';
-import items from './items.json';
-import materials from './materials.json';
-import monsters from './monsters.json';
-import patches from './patches.json';
-import rarities from './rarities.json';
-import recipes from './recipes.json';
-import rivals from './rivals.json';
-import rocks from './rocks.json';
-import skills from './skills.json';
-import trader from './trader.json';
-import trees from './trees.json';
-import waters from './waters.json';
-import zones from './zones.json';
+import tables from './drop-tables.json' with { type: 'json' };
+import gods from './gods.json' with { type: 'json' };
+import items from './items.json' with { type: 'json' };
+import materials from './materials.json' with { type: 'json' };
+import monsters from './monsters.json' with { type: 'json' };
+import patches from './patches.json' with { type: 'json' };
+import rarities from './rarities.json' with { type: 'json' };
+import recipes from './recipes.json' with { type: 'json' };
+import rocks from './rocks.json' with { type: 'json' };
+import skills from './skills.json' with { type: 'json' };
+import trader from './trader.json' with { type: 'json' };
+import trees from './trees.json' with { type: 'json' };
+import waters from './waters.json' with { type: 'json' };
+import zones from './zones.json' with { type: 'json' };
 
 export const content: ContentDb = ContentDb.fromPack({
   skills,
@@ -36,7 +35,6 @@ export const content: ContentDb = ContentDb.fromPack({
   zones,
   monsters,
   gods,
-  rivals,
   wares: trader,
 });
 

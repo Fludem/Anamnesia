@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import type { User } from './api/protocol.ts';
 import type { Command } from './sim/commands.ts';
-import { DEFAULT_PLAYER_NAME } from './sim/save.ts';
 import { oathsReleased } from './sim/trader.ts';
 import { simContext } from './content/index.ts';
 import { nightHours } from './ui/derive-trader.ts';
 import { recentLevelUp } from './ui/derive.ts';
+import { AuthPage } from './ui/overlays/Auth.tsx';
 import {
   BootingPage,
   CatchUpPage,
@@ -29,22 +30,44 @@ import { HighscoresScreen } from './ui/screens/HighscoresScreen.tsx';
 import { TraderScreen } from './ui/screens/TraderScreen.tsx';
 import { Shell } from './ui/Shell.tsx';
 import { useGameRuntime } from './ui/useGameHost.ts';
+import { useSession } from './ui/useSession.ts';
 import './ui/app.css';
 
 const LEVEL_UP_TICKS = 40;
 const DEFAULT_VIEW: View = { kind: 'skill', id: 'mining' };
 
 /**
+ * The door: who is logged in decides whether the tab shows the login card or the game. The
+ * game is keyed by the name so a different login gets a fresh runtime.
+ */
+export function App() {
+  const door = useSession();
+  const { session } = door;
+  if (session.kind === 'checking') return <BootingPage />;
+  if (session.kind === 'out')
+    return <AuthPage notice={session.error} onLogin={door.login} onRegister={door.register} />;
+  return <Game key={session.user.id} user={session.user} onSignOut={door.signOut} />;
+}
+
+/**
  * Chooses what the tab shows: one of the calm full-page states while the runtime is not ready
  * to play here, otherwise the shell with the current screen and any moment-overlays on top.
  */
-export function App() {
-  const { runtime, snapshot } = useGameRuntime();
+function Game({ user, onSignOut }: { user: User; onSignOut: () => Promise<void> }) {
+  const { runtime, snapshot } = useGameRuntime(user);
   const [juice, setJuice] = usePref('juice', JuiceSchema, 'juicy');
   const [view, setView] = usePref('view', ViewSchema, DEFAULT_VIEW);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { sim, role } = snapshot;
   const reload = () => runtime?.env.reloadPage();
+  /** Save, stop the game here, then end the session: the last save is the one that counts. */
+  const signOut = async () => {
+    if (runtime) {
+      await runtime.host.saveNow();
+      runtime.host.stop();
+    }
+    await onSignOut();
+  };
 
   if (snapshot.error !== null) return <ErrorPage message={snapshot.error} onReload={reload} />;
   if (role === 'stale') return <StalePage onReload={reload} />;
@@ -56,12 +79,11 @@ export function App() {
   if (runtime === null || sim === null || role !== 'leader') return <BootingPage />;
 
   const dispatch = (cmd: Command) => runtime.host.dispatch(cmd);
-  if (sim.player.name === DEFAULT_PLAYER_NAME || sim.player.god === null) {
+  if (sim.player.god === null) {
     return (
       <Onboarding
-        name={sim.player.name === DEFAULT_PLAYER_NAME ? null : sim.player.name}
+        heroName={sim.player.name}
         nightHours={nightHours(sim, simContext)}
-        onName={(name) => dispatch({ type: 'player:rename', name })}
         onSwear={(god) => {
           dispatch({ type: 'player:swear', god });
           // A new hero starts where first steps start, whatever this browser last looked at;
@@ -86,6 +108,7 @@ export function App() {
         sim={sim}
         board={view.board}
         onBoard={(board) => setView({ kind: 'highscores', board })}
+        savedAtMs={snapshot.lastSavedAtMs}
       />
     ) : gather ? (
       <GatherScreen key={gather.skill} sim={sim} dispatch={dispatch} juice={juice} def={gather} />
@@ -129,9 +152,10 @@ export function App() {
         <Settings
           runtime={runtime}
           snapshot={snapshot}
+          user={user}
           juice={juice}
           onJuice={setJuice}
-          onRename={(name) => dispatch({ type: 'player:rename', name })}
+          onSignOut={signOut}
           dispatch={dispatch}
           onClose={() => setSettingsOpen(false)}
         />

@@ -65,11 +65,16 @@ twenty to the bar, one thrown from the bank with every swing that lands; rings a
 from copper to aether. `scripts/tune-gear.ts` prints what javelins buy and cost. Save v8 adds
 a thrown counter.
 
-Phase 9 is in: highscores for every skill, total level and wealth. The game has no backend,
-so the board ranks the hero against sixteen names from the hill (`src/content/rivals.json`)
-who are curves through the progression model rather than players: a head start in hours on
-each skill's climb and a pace per hour of the hero's game time. `src/sim/highscores.ts` does
-the ranking; the screen shows the hero's standing on every board and the chosen board.
+Phase 9 is in: highscores for every skill, total level and wealth — the hero's standing on
+every board, and the chosen board best first. Until Phase 11 the other names were curves;
+now they are players.
+
+Phase 11 is in: the hill has a register. A name and a password make an account (`server/`,
+node's own HTTP server and SQLite, no new dependencies); the save lives on the server and
+travels between browsers and devices through the same compare-and-swap the tabs already
+used; the highscores rank every account's last save. In dev the API mounts inside Vite, so
+`npm run dev` is still the whole game; in production `npm run build && npm start` serves the
+game and the API from one port. The NPC roster is gone.
 
 Phase 10 is the coin sink. The ferryman: when the hero falls, an obol in the bank settles the
 crossing, else twice the lost item's worth in coins if the hero pays him (on by default), else
@@ -84,9 +89,11 @@ ferryman setting and spent/ferried counters.
 
 | Path            | Layer                                                                                                                                                                                                                                     |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/sim/`      | Pure simulation: save schema, migrations, PRNG, actions, skills, `highscores.ts`. No DOM.                                                                                                                                                 |
-| `src/content/`  | Game content as JSON (skills, gods, materials, rarities, items, rocks, trees, waters, recipes, zones, monsters, rivals, the trader's wares, drop tables), validated at load; `progression.test.ts` pins hours-to-99.                      |
-| `src/runtime/`  | Browser orchestration: save store, leader election, channel, GameHost.                                                                                                                                                                    |
+| `src/sim/`      | Pure simulation: save schema, migrations, PRNG, actions, skills, `highscores.ts` (what a standing is). No DOM.                                                                                                                            |
+| `src/content/`  | Game content as JSON (skills, gods, materials, rarities, items, rocks, trees, waters, recipes, zones, monsters, drop tables), validated at load; `progression.test.ts` pins hours-to-99.                                                  |
+| `src/runtime/`  | Browser orchestration: save stores (IndexedDB and the server), leader election, channel, GameHost.                                                                                                                                        |
+| `src/api/`      | The wire: `protocol.ts` (zod schemas both ends import) and `client.ts` (the game's calls).                                                                                                                                                |
+| `server/`       | The register: `db.ts` (SQLite schema), `auth.ts` (scrypt, sessions, cookies, rate limits), `register.ts` (SQL), `app.ts` (routes + static files), `main.ts` (production), `vite.ts` (dev).                                                |
 | `src/ui/`       | React: `Shell`, `screens/`, `overlays/`, `derive.ts` (pure view helpers), `app.css` (the design's classes over the tokens).                                                                                                               |
 | `src/icons/`    | Icon registry, SVG renderer + cache, badge glyphs, procedural sword geometry.                                                                                                                                                             |
 | `src/ui/theme/` | Design tokens (CSS custom properties + TS object) and fonts.                                                                                                                                                                              |
@@ -96,15 +103,17 @@ ferryman setting and spent/ferried counters.
 
 ## Commands
 
-| Command                                 | What it does                                                                                              |
-| --------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `npm run dev`                           | Vite dev server. Game at `/`, icon browser at `/dev/icons.html`, item contact sheet at `/dev/items.html`. |
-| `npm run build`                         | Typecheck + production build (game entry only).                                                           |
-| `npm test`                              | Vitest, single run.                                                                                       |
-| `npm run typecheck` / `lint` / `format` | The usual.                                                                                                |
-| `npm run icons:vendor -- --refresh`     | Re-fetch `vendor/game-icons` (checked in) at the commit pinned in `scripts/game-icons.lock.json`.         |
-| `npm run icons:index`                   | Rebuild `src/assets/icon-index.json` from the vendored SVGs.                                              |
-| `npm run icons:ship`                    | Rebuild the shipped icon subset and `ATTRIBUTION.md` (runs automatically before `dev`/`build`).           |
+| Command                                 | What it does                                                                                                                                                   |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`                           | Vite dev server with the API mounted (register in `data/dev.sqlite`). Game at `/`, icon browser at `/dev/icons.html`, item contact sheet at `/dev/items.html`. |
+| `npm run build`                         | Typecheck + production build of the game (`dist/`) and the server (`dist-server/main.js`).                                                                     |
+| `npm start`                             | Serve `dist/` and the API from one port. `PORT` (8787), `ANAMNESIA_DB` (`data/anamnesia.sqlite`), `ANAMNESIA_STATIC` (`dist`). Needs Node 24+.                 |
+| `npx tsx scripts/reset-password.ts`     | Change a name's password from the command line; there is no email, so this is the only way back.                                                               |
+| `npm test`                              | Vitest, single run.                                                                                                                                            |
+| `npm run typecheck` / `lint` / `format` | The usual.                                                                                                                                                     |
+| `npm run icons:vendor -- --refresh`     | Re-fetch `vendor/game-icons` (checked in) at the commit pinned in `scripts/game-icons.lock.json`.                                                              |
+| `npm run icons:index`                   | Rebuild `src/assets/icon-index.json` from the vendored SVGs.                                                                                                   |
+| `npm run icons:ship`                    | Rebuild the shipped icon subset and `ATTRIBUTION.md` (runs automatically before `dev`/`build`).                                                                |
 
 ## Icons
 

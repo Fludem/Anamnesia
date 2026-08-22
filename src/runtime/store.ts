@@ -1,7 +1,11 @@
 import type { SaveRecord } from '../sim/save.ts';
 
 export type WriteResult =
-  { ok: true; saveCounter: number } | { ok: false; reason: 'stale'; stored: SaveRecord };
+  | { ok: true; saveCounter: number }
+  /** Someone else wrote first; `stored` is what is there now (null if the slot has gone). */
+  | { ok: false; reason: 'stale'; stored: SaveRecord | null }
+  /** The store could not be reached; nothing is known about the slot. Try again later. */
+  | { ok: false; reason: 'unreachable'; message: string };
 
 /**
  * Persistent save storage with a compare-and-swap guard.
@@ -35,7 +39,11 @@ export class MemorySaveStore implements SaveStore {
     const stored = this.slots.get(slot);
     const current = stored?.saveCounter ?? 0;
     if (current !== expectedCounter) {
-      return Promise.resolve({ ok: false, reason: 'stale', stored: structuredClone(stored!) });
+      return Promise.resolve({
+        ok: false,
+        reason: 'stale',
+        stored: stored ? structuredClone(stored) : null,
+      });
     }
     const next = structuredClone({ ...record, saveCounter: expectedCounter + 1 });
     this.slots.set(slot, next);
@@ -120,7 +128,7 @@ export class IndexedDbSaveStore implements SaveStore {
         const stored = get.result as SaveRecord | undefined;
         const current = stored?.saveCounter ?? 0;
         if (current !== expectedCounter) {
-          outcome = { ok: false, reason: 'stale', stored: stored! };
+          outcome = { ok: false, reason: 'stale', stored: stored ?? null };
           tx.abort();
           return;
         }

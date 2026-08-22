@@ -43,10 +43,9 @@ describe.each(impls)('%s', (_name, make) => {
     await store.write('main', save('a', 10), 1); // counter now 2
     const r = await store.write('main', save('b', 3), 1);
     expect(r.ok).toBe(false);
-    if (r.ok) throw new Error('unreachable');
-    expect(r.reason).toBe('stale');
-    expect(r.stored.writerId).toBe('a');
-    expect(r.stored.sim.tick).toBe(10);
+    if (r.ok || r.reason !== 'stale') throw new Error('expected stale');
+    expect(r.stored?.writerId).toBe('a');
+    expect(r.stored?.sim.tick).toBe(10);
     // Nothing was overwritten.
     expect((await store.load('main'))?.sim.tick).toBe(10);
   });

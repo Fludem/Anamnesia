@@ -3,11 +3,16 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "dev": "vite",
     "predev": "npm run icons:ship",
-    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "build": "tsc -p tsconfig.json --noEmit && vite build && npm run build:server",
     "prebuild": "npm run icons:ship",
+    "build:server": "vite build --ssr server/main.ts --outDir dist-server",
+    "start": "node dist-server/main.js",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",

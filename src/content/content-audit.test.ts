@@ -6,10 +6,8 @@
 import { describe, expect, it } from 'vitest';
 import { icons } from '../icons/registry.ts';
 import type { DropTable } from '../sim/content/schema.ts';
-import { board, rivalXp } from '../sim/highscores.ts';
-import { createSimState } from '../sim/save.ts';
 import { DEFAULT_XP_CURVE } from '../sim/xp.ts';
-import { content, simContext } from './index.ts';
+import { content } from './index.ts';
 
 const tableItems = (t: DropTable) => t.entries.map((e) => e.item);
 const GATHERING = ['mining', 'woodcutting', 'fishing', 'foraging'];
@@ -306,62 +304,5 @@ describe('shipped content', () => {
     for (const i of content.items) byRarity.set(i.rarity, (byRarity.get(i.rarity) ?? 0) + 1);
     for (const r of content.rarities) expect(byRarity.get(r.id) ?? 0, r.id).toBeGreaterThan(0);
     expect(byRarity.get('legendary')).toBeLessThanOrEqual(5);
-  });
-});
-
-/**
- * The highscores' other names (src/content/rivals.json). Each is one person: their paces add
- * up to at most a full-time climber's. The board has to be worth climbing from the first
- * minute — someone well up every skill, nobody already out of reach except on purpose.
- */
-describe('the hill’s other names', () => {
-  const skills = content.skills.map((s) => s.id);
-  const trainable = skills.filter((s) => s !== 'hitpoints');
-
-  it('are one person each, never author hitpoints, and speak in one dry line', () => {
-    expect(content.rivals.length).toBeGreaterThanOrEqual(12);
-    const names = content.rivals.map((r) => r.name);
-    expect(new Set(names).size).toBe(names.length);
-    const minor = new Set(['of', 'the', 'and']);
-    for (const r of content.rivals) {
-      for (const [i, w] of r.name.split(' ').entries()) {
-        if (i > 0 && minor.has(w)) continue;
-        expect(w, `${r.id}: "${r.name}"`).toMatch(/^[A-Z]/);
-      }
-      expect(r.skills, r.id).not.toHaveProperty('hitpoints');
-      const pace = Object.values(r.skills).reduce((n, s) => n + s.pace, 0);
-      expect(pace, `${r.id} works ${String(pace)} of a full day`).toBeLessThanOrEqual(1);
-      expect(r.line.length, r.id).toBeLessThanOrEqual(140);
-      expect(r.line, r.id).toMatch(/\.$/);
-      expect(r.line, r.id).not.toMatch(/[!\n]/);
-    }
-  });
-
-  it('give every skill someone worth chasing on day one, and leave the top open', () => {
-    const fresh = createSimState(1);
-    for (const skill of trainable) {
-      const levels = content.rivals.map((r) =>
-        simContext.xp.levelForXp(rivalXp(r, skill, 0, simContext)),
-      );
-      expect(Math.max(...levels), skill).toBeGreaterThanOrEqual(80);
-      expect(
-        levels.filter((l) => l >= 99).length,
-        `${skill}: too many at the cap`,
-      ).toBeLessThanOrEqual(2);
-      // A fresh hero is last on every board; nobody is tied with them above the floor.
-      const rows = board(fresh, skill, simContext);
-      expect(rows.at(-1)?.rival, skill).toBeNull();
-    }
-    expect(board(fresh, 'total', simContext).at(-1)?.rival).toBeNull();
-    expect(board(fresh, 'wealth', simContext).at(-1)?.rival).toBeNull();
-  });
-
-  it('total level and wealth spread out rather than bunch', () => {
-    const fresh = createSimState(1);
-    const totals = board(fresh, 'total', simContext).map((r) => r.level ?? 0);
-    expect(new Set(totals).size).toBeGreaterThanOrEqual(content.rivals.length - 2);
-    const wealth = board(fresh, 'wealth', simContext).map((r) => r.score);
-    expect(new Set(wealth).size).toBe(wealth.length);
-    expect(Math.max(...wealth) / Math.min(...wealth.filter((w) => w > 0))).toBeGreaterThan(100);
   });
 });

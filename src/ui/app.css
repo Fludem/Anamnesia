@@ -2495,6 +2495,33 @@
   }
 }
 
+/* the door (Screen D: login and make a name) */
+.calm-card .field > .label {
+  font-size: var(--fs-hint);
+}
+.calm-card form .btn.quiet.wide {
+  width: 100%;
+  padding: 11px;
+  margin-top: 0;
+}
+.calm-card .or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 12px;
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+  letter-spacing: var(--tracking-chip);
+  text-transform: uppercase;
+}
+.calm-card .or::before,
+.calm-card .or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
 /* ---- Highscores --------------------------------------------------------------------------- */
 
 .scores-columns {
@@ -2648,6 +2675,20 @@
 }
 .board-row.you .lvl {
   color: var(--accent);
+}
+
+/* a board with nothing to show yet, or one the register would not give */
+.row.board-note {
+  cursor: default;
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+  padding: 14px 16px;
+}
+.row.board-note:hover:not(:disabled) {
+  background: transparent;
+}
+.row.board-note.warn {
+  color: var(--gold);
 }
 
 @media (max-width: 700px) {
