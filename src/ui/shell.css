@@ -227,6 +227,36 @@
   color: var(--fg-2);
 }
 
+.bank li {
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.bank li.selected {
+  outline: 1px solid var(--accent);
+}
+
+.selected-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+}
+
+.tabs {
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.tabs button {
+  text-transform: capitalize;
+}
+
 .command-error {
   color: var(--gold);
   margin: 8px 0 0;

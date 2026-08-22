@@ -67,10 +67,105 @@ describe('ContentDb', () => {
     expect(list[0]).toMatch(/^rocks\.0\.durationTicks/);
   });
 
-  it('rocks without a mining skill are a content error', () => {
+  it('nodes without their skill are a content error', () => {
     expect(problems({ ...FIXTURE_PACK, skills: [] })).toEqual([
       'rocks exist but there is no "mining" skill',
+      'trees exist but there is no "woodcutting" skill',
+      'recipe "bar": unknown skill "smithing"',
+      'recipe "gated-bar": unknown skill "smithing"',
     ]);
+  });
+
+  it('checks recipes, zones, monsters, containers, tools and procedural flags', () => {
+    const list = problems({
+      ...FIXTURE_PACK,
+      items: [
+        ...FIXTURE_PACK.items,
+        { id: 'hat', name: 'Hat', icon: 'sbed/helmet', class: 'armour', slot: 'pickaxe', value: 1 },
+        { id: 'saw', name: 'Saw', icon: 'lorc/wood-axe', class: 'tool', slot: 'weapon', value: 1 },
+        { id: 'nest', name: 'Nest', icon: 'delapouite/nest-eggs', class: 'container', value: 1 },
+        { id: 'box', name: 'Box', icon: 'delapouite/chest', opens: { $ref: 'gems' }, value: 1 },
+        { id: 'wand', name: 'Wand', icon: 'lorc/wood-axe', procedural: 'sword', value: 1 },
+      ],
+      recipes: [
+        ...FIXTURE_PACK.recipes,
+        {
+          id: 'bad',
+          name: 'Bad',
+          skill: 'alchemy',
+          category: 'x',
+          level: 1,
+          durationTicks: 1,
+          xp: 0,
+          inputs: [{ item: 'nope' }],
+          outputs: [{ item: 'bar' }],
+        },
+      ],
+      monsters: [
+        {
+          id: 'goat',
+          name: 'Goat',
+          icon: 'skoll/goat',
+          zone: 'nowhere',
+          level: 1,
+          hp: 1,
+          stats: { attack: 0, strength: 0, defence: 0, speed: 1 },
+          xp: 0,
+          drops: [{ $ref: 'missing' }],
+          always: [{ item: 'nope' }],
+        },
+      ],
+    });
+    expect(list).toEqual([
+      'item "hat": only tools go in the "pickaxe" slot',
+      'item "saw": tools go in a tool slot',
+      'item "nest": a container must say what it opens into',
+      'item "box": only containers can be opened',
+      'item "wand": only weapons are procedural',
+      'recipe "bad": unknown skill "alchemy"',
+      'recipe "bad" inputs: unknown item "nope"',
+      'monster "goat": unknown zone "nowhere"',
+      'monster "goat" always: unknown item "nope"',
+      'monster "goat" drops[0]: unknown drop table "missing"',
+    ]);
+  });
+
+  it('resolves container contents and exposes trees, recipes, zones and monsters', () => {
+    const db = ContentDb.fromPack({
+      ...FIXTURE_PACK,
+      items: [
+        ...FIXTURE_PACK.items,
+        {
+          id: 'nest',
+          name: 'Nest',
+          icon: 'delapouite/nest-eggs',
+          class: 'container',
+          opens: { $ref: 'gems' },
+          value: 1,
+        },
+      ],
+      zones: [{ id: 'slope', name: 'Slope', icon: 'lorc/crags', level: 1 }],
+      monsters: [
+        {
+          id: 'goat',
+          name: 'Goat',
+          icon: 'skoll/goat',
+          zone: 'slope',
+          level: 1,
+          hp: 1,
+          stats: { attack: 0, strength: 0, defence: 0, speed: 1 },
+          xp: 0,
+          drops: [{ $ref: 'gems' }],
+        },
+      ],
+    });
+    expect(db.item('nest').opens?.entries.map((e) => e.item)).toEqual(['gem', 'rare-gem']);
+    expect(db.item('stone').opens).toBeNull();
+    expect(db.tree('sure-tree').drops).toHaveLength(1);
+    expect(db.recipesFor('smithing').map((r) => r.id)).toEqual(['bar', 'gated-bar']);
+    expect(db.monstersIn('slope').map((m) => m.id)).toEqual(['goat']);
+    expect(db.monster('goat').drops[0]?.nothingWeight).toBe(8);
+    expect(db.zone('slope').level).toBe(1);
   });
 
   it('lookups throw on unknown ids (a content bug, not a fallback)', () => {

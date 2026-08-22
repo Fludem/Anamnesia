@@ -1,0 +1,164 @@
+[
+  {
+    "$comment": "Woodcutting nodes, in the order Screen B lists them."
+  },
+  {
+    "id": "pine-stand",
+    "name": "Pine Stand",
+    "icon": "lorc/pine-tree",
+    "material": "pine",
+    "level": 1,
+    "durationTicks": 24,
+    "xp": 14,
+    "success": {
+      "base": 0.85,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "pine-logs",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "$ref": "nest-drop"
+      }
+    ]
+  },
+  {
+    "id": "oak-grove",
+    "name": "Oak Grove",
+    "icon": "lorc/oak",
+    "material": "oak",
+    "level": 12,
+    "durationTicks": 28,
+    "xp": 28,
+    "success": {
+      "base": 0.7,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "oak-logs",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "$ref": "nest-drop"
+      }
+    ]
+  },
+  {
+    "id": "birch-thicket",
+    "name": "Birch Thicket",
+    "icon": "caro-asercion/birch-trees",
+    "material": "birch",
+    "level": 24,
+    "durationTicks": 29,
+    "xp": 40,
+    "success": {
+      "base": 0.65,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "birch-logs",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "$ref": "nest-drop"
+      }
+    ]
+  },
+  {
+    "id": "willow-grove",
+    "name": "Willow Grove",
+    "icon": "caro-asercion/willow-tree",
+    "material": "willow",
+    "level": 35,
+    "durationTicks": 30,
+    "xp": 52,
+    "success": {
+      "base": 0.6,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "willow-logs",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "$ref": "nest-drop"
+      }
+    ]
+  },
+  {
+    "id": "blightwood-copse",
+    "name": "Blightwood Copse",
+    "icon": "lorc/dead-wood",
+    "material": "blight",
+    "level": 52,
+    "durationTicks": 36,
+    "xp": 96,
+    "success": {
+      "base": 0.5,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "blightwood-logs",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "$ref": "nest-drop"
+      }
+    ]
+  },
+  {
+    "id": "hollow-elder",
+    "name": "Hollow Elder",
+    "icon": "lorc/evil-tree",
+    "material": "aether",
+    "level": 78,
+    "durationTicks": 44,
+    "xp": 185,
+    "success": {
+      "base": 0.4,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "elder-logs",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "$ref": "nest-drop"
+      },
+      {
+        "$ref": "elder-leaf"
+      }
+    ]
+  }
+]

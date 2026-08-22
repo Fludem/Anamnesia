@@ -9,7 +9,13 @@ import {
   WarningBanner,
 } from './ui/Banners.tsx';
 import { DebugPanel } from './ui/DebugPanel.tsx';
-import { BankPanel, MiningPanel, SkillsPanel } from './ui/GamePanels.tsx';
+import {
+  BankPanel,
+  EquipmentPanel,
+  GatherPanels,
+  SkillsPanel,
+  SmithingPanel,
+} from './ui/GamePanels.tsx';
 import './ui/shell.css';
 
 /** Phase 1 shell: the runtime banners plus just enough UI to play mining. Real UI is Phase 4. */
@@ -24,7 +30,9 @@ export function App() {
   return (
     <main className="shell">
       <h1>Anamnesia Idle</h1>
-      <p className="subtitle">Phase 1 — mining, end to end. One tab ticks; the rest watch.</p>
+      <p className="subtitle">
+        Phase 3 — mining, woodcutting, smithing. One tab ticks; the rest watch.
+      </p>
 
       {snapshot.error && <ErrorBanner message={snapshot.error} />}
       {snapshot.warning && <WarningBanner message={snapshot.warning} />}
@@ -51,8 +59,10 @@ export function App() {
       {sim && (
         <>
           <SkillsPanel sim={sim} />
-          <MiningPanel sim={sim} dispatch={dispatch} />
-          <BankPanel sim={sim} />
+          <GatherPanels sim={sim} dispatch={dispatch} />
+          <SmithingPanel sim={sim} dispatch={dispatch} />
+          <EquipmentPanel sim={sim} dispatch={dispatch} />
+          <BankPanel sim={sim} dispatch={dispatch} />
         </>
       )}
 

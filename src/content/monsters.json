@@ -1,0 +1,820 @@
+[
+  {
+    "$comment": "Monsters by zone. Data only until the combat loop exists; drops roll per kill, `always` is guaranteed, `coins` is a per-kill range."
+  },
+  {
+    "id": "hill-goat",
+    "name": "Hill Goat",
+    "description": "It has been up the hill more times than you have. It does not make anything of it.",
+    "icon": "skoll/goat",
+    "material": "oak",
+    "zone": "lower-slope",
+    "level": 1,
+    "hp": 10,
+    "stats": {
+      "attack": 1,
+      "strength": 1,
+      "defence": 1,
+      "speed": 30
+    },
+    "xp": 4,
+    "coins": [0, 2],
+    "drops": [
+      {
+        "nothingWeight": 0,
+        "entries": [
+          {
+            "item": "goat-hide",
+            "weight": 3
+          },
+          {
+            "item": "goat-meat",
+            "weight": 2
+          }
+        ]
+      }
+    ],
+    "always": [
+      {
+        "item": "bone",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "quarry-rat",
+    "name": "Quarry Rat",
+    "description": "Fat on something. There is nothing up here to be fat on.",
+    "icon": "delapouite/rat",
+    "material": "iron",
+    "zone": "lower-slope",
+    "level": 2,
+    "hp": 8,
+    "stats": {
+      "attack": 1,
+      "strength": 1,
+      "defence": 0,
+      "speed": 25
+    },
+    "xp": 3,
+    "coins": [0, 1],
+    "drops": [
+      {
+        "nothingWeight": 4,
+        "entries": [
+          {
+            "item": "copper-ore",
+            "weight": 1,
+            "quantity": [1, 2]
+          }
+        ]
+      }
+    ],
+    "always": []
+  },
+  {
+    "id": "carrion-crow",
+    "name": "Carrion Crow",
+    "description": "Waiting. Crows are good at it, but you are better.",
+    "icon": "lorc/raven",
+    "material": "basalt",
+    "zone": "lower-slope",
+    "level": 3,
+    "hp": 12,
+    "stats": {
+      "attack": 1,
+      "strength": 2,
+      "defence": 1,
+      "speed": 28
+    },
+    "xp": 5,
+    "coins": [0, 0],
+    "drops": [
+      {
+        "nothingWeight": 1,
+        "entries": [
+          {
+            "item": "feather",
+            "weight": 3,
+            "quantity": [1, 2]
+          }
+        ]
+      }
+    ],
+    "always": []
+  },
+  {
+    "id": "adder",
+    "name": "Adder",
+    "description": "Sunning itself on the path. It was here first and it knows it.",
+    "icon": "lorc/snake",
+    "material": "pine",
+    "zone": "lower-slope",
+    "level": 5,
+    "hp": 14,
+    "stats": {
+      "attack": 2,
+      "strength": 3,
+      "defence": 1,
+      "speed": 30
+    },
+    "xp": 8,
+    "coins": [0, 0],
+    "drops": [
+      {
+        "nothingWeight": 4,
+        "entries": [
+          {
+            "item": "venom",
+            "weight": 1
+          }
+        ]
+      }
+    ],
+    "always": []
+  },
+  {
+    "id": "boar",
+    "name": "Boar",
+    "description": "Rooting under the blighted trees. Whatever it finds, it eats.",
+    "icon": "caro-asercion/boar",
+    "material": "copper",
+    "zone": "the-copse",
+    "level": 10,
+    "hp": 30,
+    "stats": {
+      "attack": 4,
+      "strength": 6,
+      "defence": 3,
+      "speed": 35
+    },
+    "xp": 18,
+    "coins": [2, 6],
+    "drops": [
+      {
+        "nothingWeight": 0,
+        "entries": [
+          {
+            "item": "boar-hide",
+            "weight": 3
+          },
+          {
+            "item": "boar-meat",
+            "weight": 3
+          },
+          {
+            "item": "honeycomb",
+            "weight": 1
+          },
+          {
+            "item": "acorn",
+            "weight": 2,
+            "quantity": [1, 2]
+          }
+        ]
+      }
+    ],
+    "always": []
+  },
+  {
+    "id": "blight-wolf",
+    "name": "Blight Wolf",
+    "description": "Grey to the bone. It hunts alone now; the pack went grey first.",
+    "icon": "lorc/wolf-head",
+    "material": "blight",
+    "zone": "the-copse",
+    "level": 14,
+    "hp": 36,
+    "stats": {
+      "attack": 6,
+      "strength": 6,
+      "defence": 4,
+      "speed": 26
+    },
+    "xp": 24,
+    "coins": [1, 4],
+    "drops": [
+      {
+        "nothingWeight": 2,
+        "entries": [
+          {
+            "item": "wolf-pelt",
+            "weight": 3
+          },
+          {
+            "item": "bone",
+            "weight": 2
+          }
+        ]
+      }
+    ],
+    "always": []
+  },
+  {
+    "id": "hollow-owl",
+    "name": "Hollow Owl",
+    "description": "Nests in the elder. Sees you long before you see it, and is unimpressed.",
+    "icon": "lorc/owl",
+    "material": "birch",
+    "zone": "the-copse",
+    "level": 17,
+    "hp": 28,
+    "stats": {
+      "attack": 7,
+      "strength": 5,
+      "defence": 5,
+      "speed": 30
+    },
+    "xp": 26,
+    "coins": [0, 0],
+    "drops": [
+      {
+        "nothingWeight": 3,
+        "entries": [
+          {
+            "item": "feather",
+            "weight": 4
+          },
+          {
+            "item": "birds-nest",
+            "weight": 1
+          }
+        ]
+      }
+    ],
+    "always": []
+  },
+  {
+    "id": "pale-spider",
+    "name": "Pale Spider",
+    "description": "White as a statue and roughly as patient.",
+    "icon": "carl-olsen/spider-alt",
+    "material": "marble",
+    "zone": "the-copse",
+    "level": 20,
+    "hp": 40,
+    "stats": {
+      "attack": 8,
+      "strength": 7,
+      "defence": 5,
+      "speed": 24
+    },
+    "xp": 32,
+    "coins": [0, 3],
+    "drops": [
+      {
+        "nothingWeight": 0,
+        "entries": [
+          {
+            "item": "spider-silk",
+            "weight": 4,
+            "quantity": [1, 3]
+          },
+          {
+            "item": "venom",
+            "weight": 1
+          }
+        ]
+      }
+    ],
+    "always": []
+  },
+  {
+    "id": "quarryman-shade",
+    "name": "Quarryman's Shade",
+    "description": "Still cutting. Still waiting for the foreman. The foreman is also here, somewhere.",
+    "icon": "lorc/ghost",
+    "material": "silver",
+    "zone": "the-quarry",
+    "level": 25,
+    "hp": 55,
+    "stats": {
+      "attack": 10,
+      "strength": 9,
+      "defence": 8,
+      "speed": 30
+    },
+    "xp": 45,
+    "coins": [5, 15],
+    "drops": [
+      {
+        "nothingWeight": 3,
+        "entries": [
+          {
+            "item": "copper-ore",
+            "weight": 3,
+            "quantity": [2, 4]
+          },
+          {
+            "item": "iron-ore",
+            "weight": 2,
+            "quantity": [1, 2]
+          },
+          {
+            "item": "hard-bread",
+            "weight": 2
+          }
+        ]
+      },
+      {
+        "$ref": "shade-coins"
+      }
+    ],
+    "always": []
+  },
+  {
+    "id": "stone-lizard",
+    "name": "Stone Lizard",
+    "description": "You take it for a rock until the rock blinks.",
+    "icon": "lorc/lizard-tongue",
+    "material": "basalt",
+    "zone": "the-quarry",
+    "level": 28,
+    "hp": 60,
+    "stats": {
+      "attack": 11,
+      "strength": 10,
+      "defence": 12,
+      "speed": 32
+    },
+    "xp": 50,
+    "coins": [0, 0],
+    "drops": [
+      {
+        "nothingWeight": 3,
+        "entries": [
+          {
+            "item": "basalt-ore",
+            "weight": 4,
+            "quantity": [1, 2]
+          },
+          {
+            "item": "rough-gem",
+            "weight": 1
+          }
+        ]
+      }
+    ],
+    "always": []
+  },
+  {
+    "id": "basalt-warden",
+    "name": "Basalt Warden",
+    "description": "Somebody carved it to guard the quarry. Nobody told it the quarry closed.",
+    "icon": "delapouite/rock-golem",
+    "material": "basalt",
+    "zone": "the-quarry",
+    "level": 34,
+    "hp": 90,
+    "stats": {
+      "attack": 12,
+      "strength": 14,
+      "defence": 16,
+      "speed": 40
+    },
+    "xp": 75,
+    "coins": [0, 0],
+    "drops": [
+      {
+        "nothingWeight": 2,
+        "entries": [
+          {
+            "item": "basalt-ore",
+            "weight": 5,
+            "quantity": [2, 5]
+          },
+          {
+            "item": "basalt-core",
+            "weight": 2
+          },
+          {
+            "item": "rough-gem",
+            "weight": 1
+          }
+        ]
+      }
+    ],
+    "always": []
+  },
+  {
+    "id": "discobolus",
+    "name": "Discobolus",
+    "description": "Mid-throw, forever. It has not let go of the discus in three thousand years and it is not starting with you.",
+    "icon": "delapouite/discobolus",
+    "material": "marble",
+    "zone": "the-quarry",
+    "level": 38,
+    "hp": 80,
+    "stats": {
+      "attack": 14,
+      "strength": 12,
+      "defence": 14,
+      "speed": 30
+    },
+    "xp": 70,
+    "coins": [0, 0],
+    "drops": [
+      {
+        "nothingWeight": 3,
+        "entries": [
+          {
+            "item": "marble-block",
+            "weight": 4,
+            "quantity": [1, 2]
+          },
+          {
+            "item": "marble-whetstone",
+            "weight": 2
+          },
+          {
+            "item": "emerald",
+            "weight": 0.5
+          }
+        ]
+      }
+    ],
+    "always": []
+  },
+  {
+    "id": "cave-bat",
+    "name": "Cave Bat",
+    "description": "Too many of them, and then none, and then too many.",
+    "icon": "skoll/bat",
+    "material": "blight",
+    "zone": "the-deep",
+    "level": 45,
+    "hp": 70,
+    "stats": {
+      "attack": 16,
+      "strength": 12,
+      "defence": 10,
+      "speed": 20
+    },
+    "xp": 60,
+    "coins": [0, 0],
+    "drops": [
+      {
+        "nothingWeight": 2,
+        "entries": [
+          {
+            "item": "bat-wing",
+            "weight": 5,
+            "quantity": [1, 2]
+          }
+        ]
+      }
+    ],
+    "always": []
+  },
+  {
+    "id": "the-unburied",
+    "name": "The Unburied",
+    "description": "Nobody paid the ferryman. Nobody paid anyone.",
+    "icon": "skoll/skeleton",
+    "material": "marble",
+    "zone": "the-deep",
+    "level": 50,
+    "hp": 110,
+    "stats": {
+      "attack": 18,
+      "strength": 16,
+      "defence": 15,
+      "speed": 30
+    },
+    "xp": 95,
+    "coins": [10, 30],
+    "drops": [
+      {
+        "nothingWeight": 2,
+        "entries": [
+          {
+            "item": "bone",
+            "weight": 5,
+            "quantity": [2, 4]
+          },
+          {
+            "item": "iron-bar",
+            "weight": 1
+          },
+          {
+            "item": "silver-ore",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "$ref": "shade-coins"
+      }
+    ],
+    "always": [
+      {
+        "item": "bone",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "harpy",
+    "name": "Harpy",
+    "description": "It takes things. Mostly food. Once, a helmet, and it was wearing the helmet.",
+    "icon": "lorc/harpy",
+    "material": "birch",
+    "zone": "the-deep",
+    "level": 55,
+    "hp": 100,
+    "stats": {
+      "attack": 20,
+      "strength": 17,
+      "defence": 12,
+      "speed": 24
+    },
+    "xp": 105,
+    "coins": [0, 0],
+    "drops": [
+      {
+        "nothingWeight": 1,
+        "entries": [
+          {
+            "item": "feather",
+            "weight": 4,
+            "quantity": [2, 4]
+          },
+          {
+            "item": "olives",
+            "weight": 3,
+            "quantity": [1, 3]
+          },
+          {
+            "item": "hard-bread",
+            "weight": 2
+          },
+          {
+            "item": "silver-ore",
+            "weight": 2
+          },
+          {
+            "item": "amethyst",
+            "weight": 0.5
+          }
+        ]
+      }
+    ],
+    "always": []
+  },
+  {
+    "id": "hound-of-the-deep",
+    "name": "Hound of the Deep",
+    "description": "One head. It makes up for it.",
+    "icon": "lorc/hound",
+    "material": "iron",
+    "zone": "the-deep",
+    "level": 60,
+    "hp": 150,
+    "stats": {
+      "attack": 22,
+      "strength": 20,
+      "defence": 18,
+      "speed": 26
+    },
+    "xp": 140,
+    "coins": [0, 0],
+    "drops": [
+      {
+        "nothingWeight": 2,
+        "entries": [
+          {
+            "item": "hound-tooth",
+            "weight": 3
+          },
+          {
+            "item": "wolf-pelt",
+            "weight": 2
+          },
+          {
+            "item": "gold-ore",
+            "weight": 1
+          }
+        ]
+      }
+    ],
+    "always": []
+  },
+  {
+    "id": "debtors-shade",
+    "name": "Debtor's Shade",
+    "description": "Owes something to somebody and has decided it might be you.",
+    "icon": "lorc/spectre",
+    "material": "aether",
+    "zone": "the-deep",
+    "level": 64,
+    "hp": 130,
+    "stats": {
+      "attack": 24,
+      "strength": 18,
+      "defence": 20,
+      "speed": 30
+    },
+    "xp": 150,
+    "coins": [20, 60],
+    "drops": [
+      {
+        "nothingWeight": 2,
+        "entries": [
+          {
+            "item": "obol",
+            "weight": 4,
+            "quantity": [1, 3]
+          },
+          {
+            "item": "rune-stone",
+            "weight": 1
+          },
+          {
+            "item": "gold-ore",
+            "weight": 2
+          },
+          {
+            "item": "lyre",
+            "weight": 0.02
+          }
+        ]
+      }
+    ],
+    "always": []
+  },
+  {
+    "id": "marble-sentinel",
+    "name": "Marble Sentinel",
+    "description": "Set to watch the top of the hill. Nothing has ever reached it, so it watches you.",
+    "icon": "delapouite/gargoyle",
+    "material": "marble",
+    "zone": "the-summit",
+    "level": 70,
+    "hp": 220,
+    "stats": {
+      "attack": 26,
+      "strength": 24,
+      "defence": 30,
+      "speed": 36
+    },
+    "xp": 220,
+    "coins": [0, 0],
+    "drops": [
+      {
+        "nothingWeight": 2,
+        "entries": [
+          {
+            "item": "marble-block",
+            "weight": 5,
+            "quantity": [2, 4]
+          },
+          {
+            "item": "silver-bar",
+            "weight": 2
+          },
+          {
+            "item": "sentinel-helm",
+            "weight": 0.3
+          },
+          {
+            "item": "sentinel-cuirass",
+            "weight": 0.2
+          },
+          {
+            "item": "sentinel-greaves",
+            "weight": 0.3
+          }
+        ]
+      }
+    ],
+    "always": []
+  },
+  {
+    "id": "cyclops",
+    "name": "Cyclops",
+    "description": "One eye, and it is on you.",
+    "icon": "lorc/cyclops",
+    "material": "basalt",
+    "zone": "the-summit",
+    "level": 76,
+    "hp": 300,
+    "stats": {
+      "attack": 30,
+      "strength": 34,
+      "defence": 22,
+      "speed": 44
+    },
+    "xp": 300,
+    "coins": [30, 90],
+    "drops": [
+      {
+        "nothingWeight": 2,
+        "entries": [
+          {
+            "item": "gold-ore",
+            "weight": 4,
+            "quantity": [1, 3]
+          },
+          {
+            "item": "bone",
+            "weight": 3,
+            "quantity": [3, 6]
+          },
+          {
+            "item": "gold-bar",
+            "weight": 1
+          }
+        ]
+      }
+    ],
+    "always": []
+  },
+  {
+    "id": "minotaur",
+    "name": "Minotaur",
+    "description": "There is no maze. It built one anyway, out of habit, out of you.",
+    "icon": "lorc/minotaur",
+    "material": "copper",
+    "zone": "the-summit",
+    "level": 82,
+    "hp": 340,
+    "stats": {
+      "attack": 34,
+      "strength": 32,
+      "defence": 28,
+      "speed": 34
+    },
+    "xp": 360,
+    "coins": [40, 120],
+    "drops": [
+      {
+        "nothingWeight": 2,
+        "entries": [
+          {
+            "item": "bull-horn",
+            "weight": 3
+          },
+          {
+            "item": "gold-bar",
+            "weight": 2,
+            "quantity": [1, 2]
+          },
+          {
+            "item": "aether-shard",
+            "weight": 0.5
+          }
+        ]
+      }
+    ],
+    "always": [
+      {
+        "item": "bone",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "the-stone",
+    "name": "The Stone",
+    "description": "You know this one.",
+    "icon": "lorc/stone-sphere",
+    "material": "basalt",
+    "zone": "the-summit",
+    "level": 90,
+    "hp": 800,
+    "stats": {
+      "attack": 40,
+      "strength": 40,
+      "defence": 45,
+      "speed": 50
+    },
+    "xp": 1200,
+    "coins": [0, 0],
+    "drops": [
+      {
+        "nothingWeight": 1,
+        "entries": [
+          {
+            "item": "aether-shard",
+            "weight": 5,
+            "quantity": [1, 3]
+          },
+          {
+            "item": "piece-of-the-stone",
+            "weight": 0.2
+          },
+          {
+            "item": "laurel-crown",
+            "weight": 0.1
+          }
+        ]
+      }
+    ],
+    "always": [
+      {
+        "item": "basalt-ore",
+        "qty": 3
+      }
+    ]
+  }
+]

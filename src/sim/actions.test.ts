@@ -7,6 +7,12 @@ import { createSimState, type SimState } from './save.ts';
 import { stepTick } from './step.ts';
 import { fixtureContext as ctx } from './testing/fixture.ts';
 
+/** The rock of the current mining request, if any. */
+const currentRock = (s: SimState): string | undefined => {
+  const r = s.action.current?.request;
+  return r?.kind === 'mining' ? r.rock : undefined;
+};
+
 const run = (s: SimState, ticks: number): SimState => {
   for (let i = 0; i < ticks; i++) s = stepTick(s, ctx);
   return s;
@@ -45,7 +51,7 @@ describe('action queue', () => {
     s = r.state;
     expect(s.action.queue).toHaveLength(1);
     s = run(s, 5);
-    expect(s.action.current?.request.rock).toBe('sure-rock');
+    expect(currentRock(s)).toBe('sure-rock');
     s = run(s, 1);
     expect(countItem(s.bank, 'stone')).toBe(2);
     expect(s.action.current).toMatchObject({
@@ -59,7 +65,7 @@ describe('action queue', () => {
 
   it('enqueue on an idle state starts immediately', () => {
     const r = applyCommand(createSimState(1), { type: 'action:enqueue', request: sure() }, ctx);
-    expect(r.ok && r.state.action.current?.request.rock).toBe('sure-rock');
+    expect(r.ok && currentRock(r.state)).toBe('sure-rock');
   });
 
   it('start replaces the current action and clears the queue; progress is lost', () => {
@@ -104,7 +110,7 @@ describe('action queue', () => {
       },
     };
     const s = startNextQueued(s0, ctx);
-    expect(s.action.current?.request.rock).toBe('sure-rock');
+    expect(currentRock(s)).toBe('sure-rock');
     expect(s.action.queue).toEqual([]);
   });
 

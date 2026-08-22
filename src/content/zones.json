@@ -1,0 +1,40 @@
+[
+  {
+    "$comment": "Combat areas, lowest first. `level` is the recommended combat level."
+  },
+  {
+    "id": "lower-slope",
+    "name": "The Lower Slope",
+    "description": "Where everyone starts. The hill has not noticed you yet.",
+    "icon": "delapouite/mountain-road",
+    "level": 1
+  },
+  {
+    "id": "the-copse",
+    "name": "The Copse",
+    "description": "Trees that grew back wrong, and what lives under them.",
+    "icon": "delapouite/forest",
+    "level": 10
+  },
+  {
+    "id": "the-quarry",
+    "name": "The Quarry",
+    "description": "Cut stone, and the people who cut it, and did not leave.",
+    "icon": "lorc/crags",
+    "level": 25
+  },
+  {
+    "id": "the-deep",
+    "name": "The Deep",
+    "description": "Under the hill. It is the same hill.",
+    "icon": "delapouite/cave-entrance",
+    "level": 45
+  },
+  {
+    "id": "the-summit",
+    "name": "The Summit",
+    "description": "Almost. Always almost.",
+    "icon": "lorc/mountaintop",
+    "level": 70
+  }
+]

@@ -46,3 +46,13 @@ export function nextInt(s: RngState, min: number, max: number): [number, RngStat
   const [f, next] = nextFloat(s);
   return [min + Math.floor(f * (max - min + 1)), next];
 }
+
+/** FNV-1a 32-bit hash of a string, for seeding a generator from a stable id. */
+export function seedFromString(text: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) {
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h;
+}

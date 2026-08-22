@@ -31,6 +31,17 @@ export const MIGRATIONS: MigrationTable = {
       },
     };
   },
+  /**
+   * v2 → v3 (Phase 3): per-skill tool slots (`pickaxe`, `axe`) join the equipment record.
+   * Every slot must be present, so fill the new ones with null and keep what was equipped.
+   */
+  2: (raw) => {
+    const sim = asObject(raw['sim']);
+    return {
+      ...raw,
+      sim: { ...sim, equipment: { ...emptyEquipment(), ...asObject(sim['equipment']) } },
+    };
+  },
 };
 
 function asObject(v: unknown): Record<string, unknown> {

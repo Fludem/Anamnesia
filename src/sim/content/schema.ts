@@ -7,7 +7,8 @@ import { EquipmentSlotSchema } from '../slots.ts';
  * against at load. Adding an item, rock or skill never touches engine code.
  *
  * Ids are stable identifiers used in saves; names and descriptions are presentation and may
- * change freely (Phase 3 decides setting and tone).
+ * change freely. Setting and tone (Phase 3): the hill — plain geological and material words,
+ * dry one-line descriptions, faintly Greek underneath. See DECISIONS.md.
  */
 
 export const IdSchema = z.string().regex(/^[a-z0-9][a-z0-9-]*$/, 'ids are lowercase-kebab');
@@ -32,11 +33,13 @@ export const PaletteSchema = z.object({
 });
 export type Palette = z.infer<typeof PaletteSchema>;
 
-/** A material tier: the colour an item or node is rendered in. Names are placeholders until Phase 3. */
+/** A material tier: the colour an item or node is rendered in. */
 export const MaterialDefSchema = z.object({
   id: IdSchema,
   name: z.string().min(1),
   palette: PaletteSchema,
+  /** Position on the equipment ladder (0 = first tier); scales procedural stats. 0 for non-tier palettes. */
+  tier: z.number().int().min(0).default(0),
 });
 export type MaterialDef = z.infer<typeof MaterialDefSchema>;
 
@@ -65,33 +68,26 @@ export const ItemClassSchema = z.enum([
 ]);
 export type ItemClass = z.infer<typeof ItemClassSchema>;
 
-export const StatKeySchema = z.enum(['attack', 'strength', 'defence', 'speed', 'gather']);
+/**
+ * `gather` is a tool's percentage cut to its skill's action time (10 = −10%). `heal` is the
+ * hitpoints a consumable restores. The rest are combat stats.
+ */
+export const StatKeySchema = z.enum(['attack', 'strength', 'defence', 'speed', 'gather', 'heal']);
 export type StatKey = z.infer<typeof StatKeySchema>;
 export const ItemStatsSchema = z.partialRecord(StatKeySchema, z.number());
 export type ItemStats = z.infer<typeof ItemStatsSchema>;
 
 /** Corner marks layered over an item's icon. Each maps to a badge glyph in the renderer. */
-export const BadgeKindSchema = z.enum(['enchanted', 'upgraded', 'burning', 'locked', 'cursed']);
+export const BadgeKindSchema = z.enum([
+  'enchanted',
+  'upgraded',
+  'burning',
+  'locked',
+  'cursed',
+  'set',
+  'poison',
+]);
 export type BadgeKind = z.infer<typeof BadgeKindSchema>;
-
-export const ItemDefSchema = z.object({
-  id: IdSchema,
-  name: z.string().min(1),
-  /** Base icon geometry; the renderer recolours it by material and layers rarity + badges on top. */
-  icon: IconRefSchema,
-  class: ItemClassSchema.default('resource'),
-  /** Material tier id, or null to render in the neutral icon colour. */
-  material: IdSchema.nullable().default(null),
-  rarity: IdSchema.default(COMMON_RARITY.id),
-  /** Equipment slot for wearables; null for everything else. */
-  slot: EquipmentSlotSchema.nullable().default(null),
-  stats: ItemStatsSchema.default({}),
-  badges: z.array(BadgeKindSchema).default([]),
-  /** Base sell value in coins. */
-  value: z.number().int().min(0),
-  tags: z.array(z.string()).default([]),
-});
-export type ItemDef = z.infer<typeof ItemDefSchema>;
 
 /** One weighted line of a drop table. `quantity` is inclusive `[min, max]`. */
 export const DropEntrySchema = z.object({
@@ -122,6 +118,45 @@ export const DropTableOrRefSchema = z.union([
 ]);
 export type DropTableOrRef = z.infer<typeof DropTableOrRefSchema>;
 
+/** A stack of one item as content refers to it (recipe inputs/outputs, guaranteed drops). */
+export const ItemQtySchema = z.object({
+  item: IdSchema,
+  qty: z.number().int().min(1).default(1),
+});
+export type ItemQty = z.infer<typeof ItemQtySchema>;
+
+export const ItemDefSchema = z.object({
+  id: IdSchema,
+  name: z.string().min(1),
+  /** One dry line. Presentation only; may be empty for fixtures. */
+  description: z.string().default(''),
+  /** Base icon geometry; the renderer recolours it by material and layers rarity + badges on top. */
+  icon: IconRefSchema,
+  class: ItemClassSchema.default('resource'),
+  /** Material tier id, or null to render in the neutral icon colour. */
+  material: IdSchema.nullable().default(null),
+  rarity: IdSchema.default(COMMON_RARITY.id),
+  /** Equipment slot for wearables; null for everything else. */
+  slot: EquipmentSlotSchema.nullable().default(null),
+  stats: ItemStatsSchema.default({}),
+  badges: z.array(BadgeKindSchema).default([]),
+  /**
+   * Rendered from a procedural generator instead of a fixed icon. The icon is still required
+   * (it is the fallback and what the icon index ships); the generator is seeded from the item id
+   * until rolled item instances exist.
+   */
+  procedural: z.enum(['sword']).nullable().default(null),
+  /** For `container` items: the table rolled once per opened item. */
+  opens: DropTableOrRefSchema.nullable().default(null),
+  /** Base sell value in coins. */
+  value: z.number().int().min(0),
+  tags: z.array(z.string()).default([]),
+});
+/** An item as authored (`opens` may be a `$ref`). */
+export type ItemSource = z.infer<typeof ItemDefSchema>;
+/** An item as the sim sees it: container contents resolved inline. */
+export type ItemDef = Omit<ItemSource, 'opens'> & { opens: DropTable | null };
+
 /**
  * Chance an action cycle succeeds: `min(1, base + perLevel * (level - requiredLevel))`.
  * `{ base: 1 }` never fails. Failure consumes the cycle and awards nothing.
@@ -132,14 +167,17 @@ export const SuccessRuleSchema = z.object({
 });
 export type SuccessRule = z.infer<typeof SuccessRuleSchema>;
 
-/** A mineable node. Every gathering node in later skills is a variation of this shape. */
-export const RockDefSchema = z.object({
+/**
+ * A gathering node: a rock for mining, a tree for woodcutting. One shape, one handler; only
+ * the skill and the content list differ.
+ */
+export const GatherNodeDefSchema = z.object({
   id: IdSchema,
   name: z.string().min(1),
   icon: IconRefSchema,
   /** Material tier the node's icon is rendered in; null for the neutral icon colour. */
   material: IdSchema.nullable().default(null),
-  /** Mining level required to start. */
+  /** Skill level required to start. */
   level: z.number().int().min(1),
   /** Ticks per cycle (100 ms each). */
   durationTicks: z.number().int().min(1),
@@ -149,10 +187,75 @@ export const RockDefSchema = z.object({
   /** Each table is rolled independently on success — e.g. the ore itself plus a rare gem table. */
   drops: z.array(DropTableOrRefSchema).min(1),
 });
-/** A rock as authored (drops may be `$ref`s). */
-export type RockSource = z.infer<typeof RockDefSchema>;
-/** A rock as the sim sees it: every drop table resolved inline. */
-export type RockDef = Omit<RockSource, 'drops'> & { drops: readonly DropTable[] };
+/** A node as authored (drops may be `$ref`s). */
+export type GatherNodeSource = z.infer<typeof GatherNodeDefSchema>;
+/** A node as the sim sees it: every drop table resolved inline. */
+export type GatherNodeDef = Omit<GatherNodeSource, 'drops'> & { drops: readonly DropTable[] };
+export const RockDefSchema = GatherNodeDefSchema;
+export type RockDef = GatherNodeDef;
+export const TreeDefSchema = GatherNodeDefSchema;
+export type TreeDef = GatherNodeDef;
+
+/**
+ * A crafting recipe: consume `inputs` from the bank, wait `durationTicks`, receive `outputs`
+ * and XP in `skill`. `category` groups recipes in the UI (bars, tools, weapons, armour…).
+ */
+export const RecipeDefSchema = z.object({
+  id: IdSchema,
+  name: z.string().min(1),
+  skill: IdSchema,
+  category: z.string().min(1),
+  level: z.number().int().min(1),
+  durationTicks: z.number().int().min(1),
+  xp: z.number().min(0),
+  inputs: z.array(ItemQtySchema).min(1),
+  outputs: z.array(ItemQtySchema).min(1),
+});
+export type RecipeDef = z.infer<typeof RecipeDefSchema>;
+
+/** A combat area. `level` is the combat level the UI recommends before entering. */
+export const ZoneDefSchema = z.object({
+  id: IdSchema,
+  name: z.string().min(1),
+  description: z.string().default(''),
+  icon: IconRefSchema,
+  level: z.number().int().min(1),
+});
+export type ZoneDef = z.infer<typeof ZoneDefSchema>;
+
+/** Combat numbers shared by monsters (and, later, the player). `speed` is ticks between attacks. */
+export const CombatStatsSchema = z.object({
+  attack: z.number().int().min(0),
+  strength: z.number().int().min(0),
+  defence: z.number().int().min(0),
+  speed: z.number().int().min(1),
+});
+export type CombatStats = z.infer<typeof CombatStatsSchema>;
+
+/**
+ * A monster. Data only until the combat loop lands: `drops` are rolled per kill, `always` is
+ * guaranteed per kill, `coins` is an inclusive range per kill.
+ */
+export const MonsterDefSchema = z.object({
+  id: IdSchema,
+  name: z.string().min(1),
+  description: z.string().default(''),
+  icon: IconRefSchema,
+  material: IdSchema.nullable().default(null),
+  zone: IdSchema,
+  level: z.number().int().min(1),
+  hp: z.number().int().min(1),
+  stats: CombatStatsSchema,
+  xp: z.number().min(0),
+  coins: z
+    .tuple([z.number().int().min(0), z.number().int().min(0)])
+    .refine(([min, max]) => max >= min, 'coins max must be >= min')
+    .default([0, 0]),
+  drops: z.array(DropTableOrRefSchema).default([]),
+  always: z.array(ItemQtySchema).default([]),
+});
+export type MonsterSource = z.infer<typeof MonsterDefSchema>;
+export type MonsterDef = Omit<MonsterSource, 'drops'> & { drops: readonly DropTable[] };
 
 function stripDollarKeys(v: unknown): unknown {
   if (typeof v !== 'object' || v === null || Array.isArray(v)) return v;
@@ -188,5 +291,9 @@ export const ContentPackSchema = z.object({
   /** Named drop tables shared between nodes. Keys starting with `$` are ignored (comments). */
   tables: z.preprocess(stripDollarKeys, z.record(z.string(), DropTableSchema)).default({}),
   rocks: contentList(RockDefSchema),
+  trees: contentList(TreeDefSchema).default([]),
+  recipes: contentList(RecipeDefSchema).default([]),
+  zones: contentList(ZoneDefSchema).default([]),
+  monsters: contentList(MonsterDefSchema).default([]),
 });
 export type ContentPack = z.infer<typeof ContentPackSchema>;

@@ -7,8 +7,9 @@ import { icons } from '../../icons/registry.ts';
 import { swordSpec, type SwordPalettes } from '../../icons/procedural/sword.ts';
 import type { Fill, IconSpec, Palette, TileSpec } from '../../icons/render.ts';
 import type { ContentDb } from '../../sim/content/db.ts';
-import type { BadgeKind, ItemDef, RockDef } from '../../sim/content/schema.ts';
-import type { SwordParts } from '../../sim/procedural/sword.ts';
+import type { BadgeKind, ItemDef, MonsterDef, RockDef } from '../../sim/content/schema.ts';
+import { rollSword, type SwordParts } from '../../sim/procedural/sword.ts';
+import { seedFromString } from '../../sim/rng.ts';
 import { color, rarity as rarityTheme, tile as tileSizes } from '../theme/theme.ts';
 import { badgeMark } from './badges.ts';
 
@@ -30,10 +31,28 @@ export function materialFill(content: ContentDb, materialId: string | null, lock
 }
 
 export function itemIconSpec(content: ContentDb, item: ItemDef, locked = false): IconSpec {
+  if (item.procedural === 'sword' && item.material !== null && !locked) {
+    return swordIconSpec(content, proceduralSwordParts(content, item), item.material, item.rarity);
+  }
   const entry = icons.get(item.icon);
   return {
     layers: [{ id: entry.id, d: entry.d, fill: materialFill(content, item.material, locked) }],
   };
+}
+
+/**
+ * The archetype look of a procedural item def: rolled from its id, so every "Copper Sword" in
+ * every bank is the same sword until rolled instances carry their own parts.
+ */
+export function proceduralSwordParts(content: ContentDb, item: ItemDef): SwordParts {
+  const materialRank = item.material === null ? 0 : content.material(item.material).tier;
+  const rarityRank = content.rarity(item.rarity).rank;
+  return rollSword(seedFromString(item.id), { materialRank, rarityRank }).parts;
+}
+
+export function monsterIconSpec(content: ContentDb, monster: MonsterDef): IconSpec {
+  const entry = icons.get(monster.icon);
+  return { layers: [{ id: entry.id, d: entry.d, fill: materialFill(content, monster.material) }] };
 }
 
 export function rockIconSpec(content: ContentDb, rock: RockDef, locked = false): IconSpec {

@@ -100,6 +100,18 @@ export const rarity: Readonly<Record<string, RarityTreatment>> = {
     glowFeed: 'rgba(143,99,232,.45)',
     tagBorder: 'rgba(201,164,255,.4)',
   },
+  /**
+   * The fourth tier (brief asked for four; the design drew three). Built from the design's gold
+   * tokens — the coin colour — rather than a new hue: #d2a04c text, its shadow stop as border.
+   */
+  legendary: {
+    color: '#d2a04c',
+    border: '#8a6524',
+    borderFeed: '#d2a04c',
+    glow: 'rgba(210,160,76,.3)',
+    glowFeed: 'rgba(210,160,76,.45)',
+    tagBorder: 'rgba(245,217,138,.4)',
+  },
 };
 
 export const font = {

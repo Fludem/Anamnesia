@@ -1,0 +1,1522 @@
+[
+  {
+    "$comment": "Smithing recipes. Tiered pieces need their tier's bar; silver and above also take a marble whetstone; spears take a log for the shaft."
+  },
+  {
+    "id": "copper-bar",
+    "name": "Copper Bar",
+    "skill": "smithing",
+    "category": "bars",
+    "level": 1,
+    "durationTicks": 30,
+    "xp": 10,
+    "inputs": [
+      {
+        "item": "copper-ore",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "copper-bar",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "iron-bar",
+    "name": "Iron Bar",
+    "skill": "smithing",
+    "category": "bars",
+    "level": 10,
+    "durationTicks": 32,
+    "xp": 22,
+    "inputs": [
+      {
+        "item": "iron-ore",
+        "qty": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "iron-bar",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "basalt-core",
+    "name": "Basalt Core",
+    "skill": "smithing",
+    "category": "bars",
+    "level": 25,
+    "durationTicks": 34,
+    "xp": 40,
+    "inputs": [
+      {
+        "item": "basalt-ore",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "basalt-core",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "marble-whetstone",
+    "name": "Marble Whetstone",
+    "skill": "smithing",
+    "category": "bars",
+    "level": 40,
+    "durationTicks": 30,
+    "xp": 48,
+    "inputs": [
+      {
+        "item": "marble-block",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "marble-whetstone",
+        "qty": 2
+      }
+    ]
+  },
+  {
+    "id": "silver-bar",
+    "name": "Silver Bar",
+    "skill": "smithing",
+    "category": "bars",
+    "level": 55,
+    "durationTicks": 36,
+    "xp": 72,
+    "inputs": [
+      {
+        "item": "silver-ore",
+        "qty": 1
+      },
+      {
+        "item": "basalt-ore",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "silver-bar",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "gold-bar",
+    "name": "Gold Bar",
+    "skill": "smithing",
+    "category": "bars",
+    "level": 65,
+    "durationTicks": 38,
+    "xp": 90,
+    "inputs": [
+      {
+        "item": "gold-ore",
+        "qty": 1
+      },
+      {
+        "item": "basalt-ore",
+        "qty": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "gold-bar",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "aether-ingot",
+    "name": "Aether Ingot",
+    "skill": "smithing",
+    "category": "bars",
+    "level": 80,
+    "durationTicks": 50,
+    "xp": 240,
+    "inputs": [
+      {
+        "item": "aether-shard",
+        "qty": 3
+      },
+      {
+        "item": "marble-block",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "aether-ingot",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "copper-pick",
+    "name": "Copper Pick",
+    "skill": "smithing",
+    "category": "tools",
+    "level": 1,
+    "durationTicks": 40,
+    "xp": 25,
+    "inputs": [
+      {
+        "item": "copper-bar",
+        "qty": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "copper-pick",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "copper-axe",
+    "name": "Copper Axe",
+    "skill": "smithing",
+    "category": "tools",
+    "level": 1,
+    "durationTicks": 40,
+    "xp": 25,
+    "inputs": [
+      {
+        "item": "copper-bar",
+        "qty": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "copper-axe",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "copper-sword",
+    "name": "Copper Sword",
+    "skill": "smithing",
+    "category": "weapons",
+    "level": 3,
+    "durationTicks": 50,
+    "xp": 25,
+    "inputs": [
+      {
+        "item": "copper-bar",
+        "qty": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "copper-sword",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "copper-spear",
+    "name": "Copper Spear",
+    "skill": "smithing",
+    "category": "weapons",
+    "level": 2,
+    "durationTicks": 45,
+    "xp": 12,
+    "inputs": [
+      {
+        "item": "copper-bar",
+        "qty": 1
+      },
+      {
+        "item": "pine-logs",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "copper-spear",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "copper-shield",
+    "name": "Copper Shield",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 4,
+    "durationTicks": 55,
+    "xp": 38,
+    "inputs": [
+      {
+        "item": "copper-bar",
+        "qty": 3
+      }
+    ],
+    "outputs": [
+      {
+        "item": "copper-shield",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "copper-helm",
+    "name": "Copper Helm",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 5,
+    "durationTicks": 50,
+    "xp": 25,
+    "inputs": [
+      {
+        "item": "copper-bar",
+        "qty": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "copper-helm",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "copper-cuirass",
+    "name": "Copper Cuirass",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 6,
+    "durationTicks": 70,
+    "xp": 62,
+    "inputs": [
+      {
+        "item": "copper-bar",
+        "qty": 5
+      }
+    ],
+    "outputs": [
+      {
+        "item": "copper-cuirass",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "copper-greaves",
+    "name": "Copper Greaves",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 7,
+    "durationTicks": 60,
+    "xp": 38,
+    "inputs": [
+      {
+        "item": "copper-bar",
+        "qty": 3
+      }
+    ],
+    "outputs": [
+      {
+        "item": "copper-greaves",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "copper-boots",
+    "name": "Copper Boots",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 8,
+    "durationTicks": 40,
+    "xp": 12,
+    "inputs": [
+      {
+        "item": "copper-bar",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "copper-boots",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "iron-pick",
+    "name": "Iron Pick",
+    "skill": "smithing",
+    "category": "tools",
+    "level": 10,
+    "durationTicks": 40,
+    "xp": 55,
+    "inputs": [
+      {
+        "item": "iron-bar",
+        "qty": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "iron-pick",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "iron-axe",
+    "name": "Iron Axe",
+    "skill": "smithing",
+    "category": "tools",
+    "level": 10,
+    "durationTicks": 40,
+    "xp": 55,
+    "inputs": [
+      {
+        "item": "iron-bar",
+        "qty": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "iron-axe",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "iron-sword",
+    "name": "Iron Sword",
+    "skill": "smithing",
+    "category": "weapons",
+    "level": 12,
+    "durationTicks": 50,
+    "xp": 55,
+    "inputs": [
+      {
+        "item": "iron-bar",
+        "qty": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "iron-sword",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "iron-spear",
+    "name": "Iron Spear",
+    "skill": "smithing",
+    "category": "weapons",
+    "level": 11,
+    "durationTicks": 45,
+    "xp": 28,
+    "inputs": [
+      {
+        "item": "iron-bar",
+        "qty": 1
+      },
+      {
+        "item": "oak-logs",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "iron-spear",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "iron-shield",
+    "name": "Iron Shield",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 13,
+    "durationTicks": 55,
+    "xp": 82,
+    "inputs": [
+      {
+        "item": "iron-bar",
+        "qty": 3
+      }
+    ],
+    "outputs": [
+      {
+        "item": "iron-shield",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "iron-helm",
+    "name": "Iron Helm",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 14,
+    "durationTicks": 50,
+    "xp": 55,
+    "inputs": [
+      {
+        "item": "iron-bar",
+        "qty": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "iron-helm",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "iron-cuirass",
+    "name": "Iron Cuirass",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 15,
+    "durationTicks": 70,
+    "xp": 138,
+    "inputs": [
+      {
+        "item": "iron-bar",
+        "qty": 5
+      }
+    ],
+    "outputs": [
+      {
+        "item": "iron-cuirass",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "iron-greaves",
+    "name": "Iron Greaves",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 16,
+    "durationTicks": 60,
+    "xp": 82,
+    "inputs": [
+      {
+        "item": "iron-bar",
+        "qty": 3
+      }
+    ],
+    "outputs": [
+      {
+        "item": "iron-greaves",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "iron-boots",
+    "name": "Iron Boots",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 17,
+    "durationTicks": 40,
+    "xp": 28,
+    "inputs": [
+      {
+        "item": "iron-bar",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "iron-boots",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "basalt-pick",
+    "name": "Basalt Pick",
+    "skill": "smithing",
+    "category": "tools",
+    "level": 25,
+    "durationTicks": 40,
+    "xp": 100,
+    "inputs": [
+      {
+        "item": "basalt-core",
+        "qty": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "basalt-pick",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "basalt-axe",
+    "name": "Basalt Axe",
+    "skill": "smithing",
+    "category": "tools",
+    "level": 25,
+    "durationTicks": 40,
+    "xp": 100,
+    "inputs": [
+      {
+        "item": "basalt-core",
+        "qty": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "basalt-axe",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "basalt-sword",
+    "name": "Basalt Sword",
+    "skill": "smithing",
+    "category": "weapons",
+    "level": 27,
+    "durationTicks": 50,
+    "xp": 100,
+    "inputs": [
+      {
+        "item": "basalt-core",
+        "qty": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "basalt-sword",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "basalt-spear",
+    "name": "Basalt Spear",
+    "skill": "smithing",
+    "category": "weapons",
+    "level": 26,
+    "durationTicks": 45,
+    "xp": 50,
+    "inputs": [
+      {
+        "item": "basalt-core",
+        "qty": 1
+      },
+      {
+        "item": "birch-logs",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "basalt-spear",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "basalt-shield",
+    "name": "Basalt Shield",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 28,
+    "durationTicks": 55,
+    "xp": 150,
+    "inputs": [
+      {
+        "item": "basalt-core",
+        "qty": 3
+      }
+    ],
+    "outputs": [
+      {
+        "item": "basalt-shield",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "basalt-helm",
+    "name": "Basalt Helm",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 29,
+    "durationTicks": 50,
+    "xp": 100,
+    "inputs": [
+      {
+        "item": "basalt-core",
+        "qty": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "basalt-helm",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "basalt-cuirass",
+    "name": "Basalt Cuirass",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 30,
+    "durationTicks": 70,
+    "xp": 250,
+    "inputs": [
+      {
+        "item": "basalt-core",
+        "qty": 5
+      }
+    ],
+    "outputs": [
+      {
+        "item": "basalt-cuirass",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "basalt-greaves",
+    "name": "Basalt Greaves",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 31,
+    "durationTicks": 60,
+    "xp": 150,
+    "inputs": [
+      {
+        "item": "basalt-core",
+        "qty": 3
+      }
+    ],
+    "outputs": [
+      {
+        "item": "basalt-greaves",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "basalt-boots",
+    "name": "Basalt Boots",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 32,
+    "durationTicks": 40,
+    "xp": 50,
+    "inputs": [
+      {
+        "item": "basalt-core",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "basalt-boots",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "silver-pick",
+    "name": "Silver Pick",
+    "skill": "smithing",
+    "category": "tools",
+    "level": 55,
+    "durationTicks": 40,
+    "xp": 180,
+    "inputs": [
+      {
+        "item": "silver-bar",
+        "qty": 2
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "silver-pick",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "silver-axe",
+    "name": "Silver Axe",
+    "skill": "smithing",
+    "category": "tools",
+    "level": 55,
+    "durationTicks": 40,
+    "xp": 180,
+    "inputs": [
+      {
+        "item": "silver-bar",
+        "qty": 2
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "silver-axe",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "silver-sword",
+    "name": "Silver Sword",
+    "skill": "smithing",
+    "category": "weapons",
+    "level": 57,
+    "durationTicks": 50,
+    "xp": 180,
+    "inputs": [
+      {
+        "item": "silver-bar",
+        "qty": 2
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "silver-sword",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "silver-spear",
+    "name": "Silver Spear",
+    "skill": "smithing",
+    "category": "weapons",
+    "level": 56,
+    "durationTicks": 45,
+    "xp": 90,
+    "inputs": [
+      {
+        "item": "silver-bar",
+        "qty": 1
+      },
+      {
+        "item": "willow-logs",
+        "qty": 1
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "silver-spear",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "silver-shield",
+    "name": "Silver Shield",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 58,
+    "durationTicks": 55,
+    "xp": 270,
+    "inputs": [
+      {
+        "item": "silver-bar",
+        "qty": 3
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "silver-shield",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "silver-helm",
+    "name": "Silver Helm",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 59,
+    "durationTicks": 50,
+    "xp": 180,
+    "inputs": [
+      {
+        "item": "silver-bar",
+        "qty": 2
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "silver-helm",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "silver-cuirass",
+    "name": "Silver Cuirass",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 60,
+    "durationTicks": 70,
+    "xp": 450,
+    "inputs": [
+      {
+        "item": "silver-bar",
+        "qty": 5
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "silver-cuirass",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "silver-greaves",
+    "name": "Silver Greaves",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 61,
+    "durationTicks": 60,
+    "xp": 270,
+    "inputs": [
+      {
+        "item": "silver-bar",
+        "qty": 3
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "silver-greaves",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "silver-boots",
+    "name": "Silver Boots",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 62,
+    "durationTicks": 40,
+    "xp": 90,
+    "inputs": [
+      {
+        "item": "silver-bar",
+        "qty": 1
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "silver-boots",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "gold-pick",
+    "name": "Gold Pick",
+    "skill": "smithing",
+    "category": "tools",
+    "level": 65,
+    "durationTicks": 40,
+    "xp": 225,
+    "inputs": [
+      {
+        "item": "gold-bar",
+        "qty": 2
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "gold-pick",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "gold-axe",
+    "name": "Gold Axe",
+    "skill": "smithing",
+    "category": "tools",
+    "level": 65,
+    "durationTicks": 40,
+    "xp": 225,
+    "inputs": [
+      {
+        "item": "gold-bar",
+        "qty": 2
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "gold-axe",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "gold-sword",
+    "name": "Gold Sword",
+    "skill": "smithing",
+    "category": "weapons",
+    "level": 67,
+    "durationTicks": 50,
+    "xp": 225,
+    "inputs": [
+      {
+        "item": "gold-bar",
+        "qty": 2
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "gold-sword",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "gold-spear",
+    "name": "Gold Spear",
+    "skill": "smithing",
+    "category": "weapons",
+    "level": 66,
+    "durationTicks": 45,
+    "xp": 112,
+    "inputs": [
+      {
+        "item": "gold-bar",
+        "qty": 1
+      },
+      {
+        "item": "blightwood-logs",
+        "qty": 1
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "gold-spear",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "gold-shield",
+    "name": "Gold Shield",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 68,
+    "durationTicks": 55,
+    "xp": 338,
+    "inputs": [
+      {
+        "item": "gold-bar",
+        "qty": 3
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "gold-shield",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "gold-helm",
+    "name": "Gold Helm",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 69,
+    "durationTicks": 50,
+    "xp": 225,
+    "inputs": [
+      {
+        "item": "gold-bar",
+        "qty": 2
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "gold-helm",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "gold-cuirass",
+    "name": "Gold Cuirass",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 70,
+    "durationTicks": 70,
+    "xp": 562,
+    "inputs": [
+      {
+        "item": "gold-bar",
+        "qty": 5
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "gold-cuirass",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "gold-greaves",
+    "name": "Gold Greaves",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 71,
+    "durationTicks": 60,
+    "xp": 338,
+    "inputs": [
+      {
+        "item": "gold-bar",
+        "qty": 3
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "gold-greaves",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "gold-boots",
+    "name": "Gold Boots",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 72,
+    "durationTicks": 40,
+    "xp": 112,
+    "inputs": [
+      {
+        "item": "gold-bar",
+        "qty": 1
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "gold-boots",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "aether-pick",
+    "name": "Aether Pick",
+    "skill": "smithing",
+    "category": "tools",
+    "level": 80,
+    "durationTicks": 40,
+    "xp": 600,
+    "inputs": [
+      {
+        "item": "aether-ingot",
+        "qty": 2
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "aether-pick",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "aether-axe",
+    "name": "Aether Axe",
+    "skill": "smithing",
+    "category": "tools",
+    "level": 80,
+    "durationTicks": 40,
+    "xp": 600,
+    "inputs": [
+      {
+        "item": "aether-ingot",
+        "qty": 2
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "aether-axe",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "aether-sword",
+    "name": "Aether Sword",
+    "skill": "smithing",
+    "category": "weapons",
+    "level": 82,
+    "durationTicks": 50,
+    "xp": 600,
+    "inputs": [
+      {
+        "item": "aether-ingot",
+        "qty": 2
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "aether-sword",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "aether-spear",
+    "name": "Aether Spear",
+    "skill": "smithing",
+    "category": "weapons",
+    "level": 81,
+    "durationTicks": 45,
+    "xp": 300,
+    "inputs": [
+      {
+        "item": "aether-ingot",
+        "qty": 1
+      },
+      {
+        "item": "elder-logs",
+        "qty": 1
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "aether-spear",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "aether-shield",
+    "name": "Aether Shield",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 83,
+    "durationTicks": 55,
+    "xp": 900,
+    "inputs": [
+      {
+        "item": "aether-ingot",
+        "qty": 3
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "aether-shield",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "aether-helm",
+    "name": "Aether Helm",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 84,
+    "durationTicks": 50,
+    "xp": 600,
+    "inputs": [
+      {
+        "item": "aether-ingot",
+        "qty": 2
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "aether-helm",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "aether-cuirass",
+    "name": "Aether Cuirass",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 85,
+    "durationTicks": 70,
+    "xp": 1500,
+    "inputs": [
+      {
+        "item": "aether-ingot",
+        "qty": 5
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "aether-cuirass",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "aether-greaves",
+    "name": "Aether Greaves",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 86,
+    "durationTicks": 60,
+    "xp": 900,
+    "inputs": [
+      {
+        "item": "aether-ingot",
+        "qty": 3
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "aether-greaves",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "aether-boots",
+    "name": "Aether Boots",
+    "skill": "smithing",
+    "category": "armour",
+    "level": 87,
+    "durationTicks": 40,
+    "xp": 300,
+    "inputs": [
+      {
+        "item": "aether-ingot",
+        "qty": 1
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "aether-boots",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "silver-torc",
+    "name": "Silver Torc",
+    "skill": "smithing",
+    "category": "jewellery",
+    "level": 58,
+    "durationTicks": 50,
+    "xp": 110,
+    "inputs": [
+      {
+        "item": "silver-bar",
+        "qty": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "silver-torc",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "gold-ring",
+    "name": "Gold Ring",
+    "skill": "smithing",
+    "category": "jewellery",
+    "level": 66,
+    "durationTicks": 40,
+    "xp": 100,
+    "inputs": [
+      {
+        "item": "gold-bar",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "gold-ring",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "emerald-ring",
+    "name": "Emerald Ring",
+    "skill": "smithing",
+    "category": "jewellery",
+    "level": 70,
+    "durationTicks": 55,
+    "xp": 180,
+    "inputs": [
+      {
+        "item": "gold-bar",
+        "qty": 1
+      },
+      {
+        "item": "emerald",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "emerald-ring",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "amethyst-amulet",
+    "name": "Amethyst Amulet",
+    "skill": "smithing",
+    "category": "jewellery",
+    "level": 74,
+    "durationTicks": 60,
+    "xp": 220,
+    "inputs": [
+      {
+        "item": "gold-bar",
+        "qty": 2
+      },
+      {
+        "item": "amethyst",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "amethyst-amulet",
+        "qty": 1
+      }
+    ]
+  }
+]

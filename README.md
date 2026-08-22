@@ -18,19 +18,26 @@ composes inline SVG from icon geometry + material gradient + rarity treatment + 
 swords are generated from seeded parts whose stats match their shape; rendered markup is cached
 by its inputs. `/dev/items.html` is the contact sheet.
 
+Phase 3 is in: the content. Setting and tone are the hill — plain material words, one dry line
+each (see DECISIONS.md). Seven veins, six trees, 65 smithing recipes across a six-tier equipment
+ladder, five combat zones with 21 monsters (data only until the combat loop), 110 items, four
+rarities. Mining, woodcutting and smithing are playable end to end; tools equip into per-skill
+slots and shorten actions; containers open. A content audit test checks that everything is
+obtainable, the economy never destroys value, and names and descriptions keep the house style.
+
 ## Layout
 
-| Path            | Layer                                                                                             |
-| --------------- | ------------------------------------------------------------------------------------------------- |
-| `src/sim/`      | Pure simulation: save schema, migrations, PRNG, actions, skills. No DOM.                          |
-| `src/content/`  | Game content as JSON (skills, materials, rarities, items, rocks, drop tables), validated at load. |
-| `src/runtime/`  | Browser orchestration: save store, leader election, channel, GameHost.                            |
-| `src/ui/`       | React shell (thin).                                                                               |
-| `src/icons/`    | Icon registry, SVG renderer + cache, badge glyphs, procedural sword geometry.                     |
-| `src/ui/theme/` | Design tokens (CSS custom properties + TS object) and fonts.                                      |
-| `src/ui/items/` | Maps content onto renderer specs; `<ItemTile>` / `<BareIcon>`.                                    |
-| `design/`       | Claude Design reference screens the tokens were extracted from.                                   |
-| `scripts/`      | Icon vendoring / indexing pipeline.                                                               |
+| Path            | Layer                                                                                                                              |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `src/sim/`      | Pure simulation: save schema, migrations, PRNG, actions, skills. No DOM.                                                           |
+| `src/content/`  | Game content as JSON (skills, materials, rarities, items, rocks, trees, recipes, zones, monsters, drop tables), validated at load. |
+| `src/runtime/`  | Browser orchestration: save store, leader election, channel, GameHost.                                                             |
+| `src/ui/`       | React shell (thin).                                                                                                                |
+| `src/icons/`    | Icon registry, SVG renderer + cache, badge glyphs, procedural sword geometry.                                                      |
+| `src/ui/theme/` | Design tokens (CSS custom properties + TS object) and fonts.                                                                       |
+| `src/ui/items/` | Maps content onto renderer specs; `<ItemTile>` / `<BareIcon>`.                                                                     |
+| `design/`       | Claude Design reference screens the tokens were extracted from.                                                                    |
+| `scripts/`      | Icon vendoring / indexing pipeline.                                                                                                |
 
 ## Commands
 

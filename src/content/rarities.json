@@ -1,8 +1,9 @@
 [
   {
-    "$comment": "rank orders tiers; tag is the letter a bank cell shows. Treatment colours are in src/ui/theme/theme.ts keyed by id."
+    "$comment": "rank orders tiers; tag is the letter a bank cell shows. Treatment colours are in src/ui/theme/theme.ts keyed by id. Legendary is the fourth tier the brief asked for; the design drew three, so its treatment borrows the design's gold."
   },
   { "id": "common", "name": "Common", "rank": 0, "tag": null },
   { "id": "rare", "name": "Rare", "rank": 1, "tag": "R" },
-  { "id": "epic", "name": "Epic", "rank": 2, "tag": "E" }
+  { "id": "epic", "name": "Epic", "rank": 2, "tag": "E" },
+  { "id": "legendary", "name": "Legendary", "rank": 3, "tag": "L" }
 ]

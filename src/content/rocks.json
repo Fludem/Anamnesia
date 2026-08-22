@@ -1,14 +1,17 @@
 [
   {
-    "id": "copper-rock",
-    "name": "Copper rock",
-    "icon": "lorc/rock",
+    "$comment": "Mining nodes, in the order Screen A lists them. Levels, xp and durations are the design's numbers."
+  },
+  {
+    "id": "copper-vein",
+    "name": "Copper Vein",
+    "icon": "faithtoken/ore",
     "material": "copper",
     "level": 1,
-    "durationTicks": 30,
-    "xp": 7,
+    "durationTicks": 22,
+    "xp": 18,
     "success": {
-      "base": 0.8,
+      "base": 0.85,
       "perLevel": 0.01
     },
     "drops": [
@@ -26,41 +29,15 @@
     ]
   },
   {
-    "id": "tin-rock",
-    "name": "Tin rock",
-    "icon": "lorc/rock",
-    "material": null,
-    "level": 1,
-    "durationTicks": 30,
-    "xp": 7,
-    "success": {
-      "base": 0.8,
-      "perLevel": 0.01
-    },
-    "drops": [
-      {
-        "entries": [
-          {
-            "item": "tin-ore",
-            "weight": 1
-          }
-        ]
-      },
-      {
-        "$ref": "gems"
-      }
-    ]
-  },
-  {
-    "id": "iron-rock",
-    "name": "Iron rock",
-    "icon": "lorc/rock",
+    "id": "iron-vein",
+    "name": "Iron Vein",
+    "icon": "faithtoken/ore",
     "material": "iron",
-    "level": 15,
-    "durationTicks": 40,
-    "xp": 17,
+    "level": 10,
+    "durationTicks": 26,
+    "xp": 34,
     "success": {
-      "base": 0.6,
+      "base": 0.7,
       "perLevel": 0.01
     },
     "drops": [
@@ -78,22 +55,22 @@
     ]
   },
   {
-    "id": "coal-rock",
-    "name": "Coal rock",
-    "icon": "lorc/rock",
+    "id": "basalt-seam",
+    "name": "Basalt Seam",
+    "icon": "faithtoken/minerals",
     "material": "basalt",
-    "level": 30,
-    "durationTicks": 50,
-    "xp": 30,
+    "level": 25,
+    "durationTicks": 27,
+    "xp": 68,
     "success": {
-      "base": 0.5,
+      "base": 0.6,
       "perLevel": 0.01
     },
     "drops": [
       {
         "entries": [
           {
-            "item": "coal",
+            "item": "basalt-ore",
             "weight": 1
           }
         ]
@@ -104,13 +81,39 @@
     ]
   },
   {
-    "id": "silver-rock",
-    "name": "Silver rock",
-    "icon": "lorc/rock",
-    "material": "silver",
+    "id": "marble-quarry",
+    "name": "Marble Quarry",
+    "icon": "lorc/stone-block",
+    "material": "marble",
     "level": 40,
-    "durationTicks": 60,
-    "xp": 40,
+    "durationTicks": 34,
+    "xp": 92,
+    "success": {
+      "base": 0.55,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "marble-block",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "$ref": "gems"
+      }
+    ]
+  },
+  {
+    "id": "silver-vein",
+    "name": "Silver Vein",
+    "icon": "faithtoken/ore",
+    "material": "silver",
+    "level": 55,
+    "durationTicks": 38,
+    "xp": 120,
     "success": {
       "base": 0.5,
       "perLevel": 0.01
@@ -130,13 +133,13 @@
     ]
   },
   {
-    "id": "gold-rock",
-    "name": "Gold rock",
-    "icon": "lorc/rock",
+    "id": "gold-seam",
+    "name": "Gold Seam",
+    "icon": "faithtoken/ore",
     "material": "gold",
-    "level": 50,
-    "durationTicks": 70,
-    "xp": 65,
+    "level": 65,
+    "durationTicks": 42,
+    "xp": 150,
     "success": {
       "base": 0.45,
       "perLevel": 0.01
@@ -146,6 +149,32 @@
         "entries": [
           {
             "item": "gold-ore",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "$ref": "gems"
+      }
+    ]
+  },
+  {
+    "id": "aether-lode",
+    "name": "Aether Lode",
+    "icon": "lorc/crystal-cluster",
+    "material": "aether",
+    "level": 80,
+    "durationTicks": 46,
+    "xp": 210,
+    "success": {
+      "base": 0.35,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "aether-shard",
             "weight": 1
           }
         ]

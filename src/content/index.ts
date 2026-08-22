@@ -9,9 +9,13 @@ import { DEFAULT_XP_CURVE } from '../sim/xp.ts';
 import tables from './drop-tables.json';
 import items from './items.json';
 import materials from './materials.json';
+import monsters from './monsters.json';
 import rarities from './rarities.json';
+import recipes from './recipes.json';
 import rocks from './rocks.json';
 import skills from './skills.json';
+import trees from './trees.json';
+import zones from './zones.json';
 
 export const content: ContentDb = ContentDb.fromPack({
   skills,
@@ -20,6 +24,10 @@ export const content: ContentDb = ContentDb.fromPack({
   items,
   tables,
   rocks,
+  trees,
+  recipes,
+  zones,
+  monsters,
 });
 
 export const simContext: SimContext = { content, xp: DEFAULT_XP_CURVE };

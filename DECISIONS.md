@@ -286,3 +286,71 @@ aether) is the design's mining ladder reused. All of it is Phase 3's to rename a
 
 `crypto.randomUUID` is secure-context only, so the app threw before guard-only mode could engage
 on a plain-http LAN address. `browserEnv` now falls back to `getRandomValues`.
+
+## Phase 3 — content
+
+### Setting and tone: the hill
+
+Asked first, as the brief required. The user chose the world the design screens already imply:
+a Sisyphus-adjacent hill — plain geological and material words (Copper Vein, Basalt Seam,
+Hollow Elder), faintly Greek underneath (obols, shades, a discobolus, a laurel crown), no
+elves, orcs or dragons. Names are Title Case, as the screens write them. Every item, zone and
+monster gets one dry line: an observation, not lore. The content audit test enforces the
+mechanics of the style (Title Case, one sentence, ≤ 140 characters, ends with a full stop);
+taste is the user's to veto. Two lines the audit can't check but the house style rules: no
+exclamation marks, and the hill never speaks.
+
+### Scope: the focused roster
+
+Mining (7 veins, the design's six plus a gold seam), woodcutting (the design's six trees),
+smithing (65 recipes: bars, tools, weapons, armour, jewellery), five combat zones with 21
+monsters, and 110 items. Fishing and firemaking appear in the design's navigation but ship no
+content, so `skills.json` does not list them. Combat is **data only**: monsters, zones, drops
+and coin ranges validate and render, but there is no combat loop yet — that is the next sim
+phase, not a content one.
+
+### The equipment ladder is the design's mining ladder
+
+copper → iron → basalt → silver → gold → aether, carried on `material.tier` so the procedural
+sword stats scale from data. Marble is worked stone, not a tier: quarried as blocks, cut into
+whetstones that silver-and-above pieces need, and the binder for aether ingots. Basalt is
+"knapped, not smelted" (a Basalt Core), which keeps a stone tier honest without inventing a
+metal. Spears take a log for the shaft, the one cross-skill input between woodcutting and
+smithing. A recipe may never output less value than it consumes (tested).
+
+### Gathering is one handler; crafting is one more
+
+`gatheringHandler()` takes a skill, a tool slot and a node lookup; mining and woodcutting are
+two calls. `craftingHandler` consumes inputs when the cycle _completes_ (stopping early costs
+nothing), and `tickAction` now re-checks `canStart` before restarting a cycle, so an action ends
+by itself when inputs run out and falls through to the queue. Rocks and trees share
+`GatherNodeDefSchema`; a third gathering skill is a content list plus one call.
+
+### Tools are equipment in per-skill slots
+
+`pickaxe` and `axe` join `EQUIPMENT_SLOTS` (save v2 → v3 fills them with null). A tool's
+`gather` stat is a percentage cut to its skill's action time — the design's "Iron Axe −10%
+action time" — applied at cycle start and rounded, never below one tick. Tools only fit tool
+slots and nothing else does (content check).
+
+### Containers open by command; procedural items roll from their id
+
+`opens` on an item is a drop table rolled once per opened unit (the design's Bird's Nest).
+`procedural: 'sword'` marks an item whose look comes from `rollSword(seedFromString(id))`, so
+every "Copper Sword" is the same sword until rolled instances carry their own parts; the
+authored `stats` are what the sim will use, the roll only draws the picture. Both are hooks for
+later phases, not mechanics.
+
+### Four rarities, two more badges
+
+Legendary (rank 3, tag L) is the fourth tier the brief asked for. The design drew three, so its
+treatment is built from the design's gold tokens (#d2a04c text, its shadow stop as border)
+rather than a new hue. Three legendaries ship, all from the summit. The `set` (four tiles) and
+`poison` (droplet) badge glyphs were drawn here in the design's badge style because the design
+has none — replace them when it does.
+
+### Equip, unequip, open
+
+Three new commands so the content is reachable without Phase 4: equip swaps the worn item back
+to the bank, unequip returns it, open rolls a container. Followers send them over the channel
+like any other command.

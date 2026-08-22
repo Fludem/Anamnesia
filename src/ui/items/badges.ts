@@ -10,6 +10,8 @@ const BADGE_STYLE: Record<BadgeKind, { glyph: BadgeGlyph; color: string }> = {
   burning: { glyph: 'fire', color: color.gold },
   locked: { glyph: 'lock', color: color.fg3 },
   cursed: { glyph: 'exclamation', color: color.fgSoft },
+  set: { glyph: 'grid', color: rarity['rare']?.color ?? color.accent },
+  poison: { glyph: 'drop', color: color.accent },
 };
 
 export function badgeMark(kind: BadgeKind): BadgeMark {

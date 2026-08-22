@@ -49,6 +49,14 @@
   --epic-glow-feed: rgba(143, 99, 232, 0.45);
   --epic-tag-border: rgba(201, 164, 255, 0.4);
 
+  /* legendary: the design's gold, not a new hue */
+  --legendary: #d2a04c;
+  --legendary-border: #8a6524;
+  --legendary-border-feed: #d2a04c;
+  --legendary-glow: rgba(210, 160, 76, 0.3);
+  --legendary-glow-feed: rgba(210, 160, 76, 0.45);
+  --legendary-tag-border: rgba(245, 217, 138, 0.4);
+
   --overlay: rgba(10, 11, 13, 0.7);
   --overlay-soft: rgba(10, 11, 13, 0.62);
 

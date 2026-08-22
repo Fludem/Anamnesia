@@ -1,96 +1,1517 @@
 [
   {
+    "$comment": "Every item in the game. Setting and tone: the hill — plain material words, one dry line each. See DECISIONS.md (Phase 3)."
+  },
+  {
     "id": "copper-ore",
-    "name": "Copper ore",
+    "name": "Copper Ore",
+    "description": "Green where it has been waiting longest.",
     "icon": "faithtoken/ore",
     "class": "resource",
     "material": "copper",
-    "value": 4,
-    "tags": ["ore", "mining"]
-  },
-  {
-    "id": "tin-ore",
-    "name": "Tin ore",
-    "icon": "faithtoken/ore",
-    "class": "resource",
-    "material": null,
+    "rarity": "common",
     "value": 4,
     "tags": ["ore", "mining"]
   },
   {
     "id": "iron-ore",
-    "name": "Iron ore",
+    "name": "Iron Ore",
+    "description": "Heavy for its size. Most things here are.",
     "icon": "faithtoken/ore",
     "class": "resource",
     "material": "iron",
-    "value": 17,
+    "rarity": "common",
+    "value": 11,
     "tags": ["ore", "mining"]
   },
   {
-    "id": "coal",
-    "name": "Coal",
-    "icon": "delapouite/coal-pile",
+    "id": "basalt-ore",
+    "name": "Basalt Ore",
+    "description": "Cooled in a hurry, a long time ago.",
+    "icon": "faithtoken/minerals",
     "class": "resource",
     "material": "basalt",
-    "value": 45,
-    "tags": ["ore", "mining", "fuel"]
+    "rarity": "common",
+    "value": 26,
+    "tags": ["ore", "mining", "flux"]
+  },
+  {
+    "id": "marble-block",
+    "name": "Marble Block",
+    "description": "Cut square. The hill did not do that.",
+    "icon": "lorc/stone-block",
+    "class": "resource",
+    "material": "marble",
+    "rarity": "common",
+    "value": 58,
+    "tags": ["stone", "mining"]
   },
   {
     "id": "silver-ore",
-    "name": "Silver ore",
+    "name": "Silver Ore",
+    "description": "Dull until worked. It will not work itself.",
     "icon": "faithtoken/ore",
     "class": "resource",
     "material": "silver",
-    "value": 75,
+    "rarity": "common",
+    "value": 120,
     "tags": ["ore", "mining"]
   },
   {
     "id": "gold-ore",
-    "name": "Gold ore",
+    "name": "Gold Ore",
+    "description": "Nobody up here has anything to buy.",
     "icon": "faithtoken/ore",
     "class": "resource",
     "material": "gold",
-    "value": 150,
+    "rarity": "common",
+    "value": 200,
     "tags": ["ore", "mining"]
   },
   {
-    "id": "uncut-sapphire",
-    "name": "Uncut sapphire",
-    "icon": "lorc/crystal-growth",
+    "id": "aether-shard",
+    "name": "Aether Shard",
+    "description": "Lighter than it looks. Lighter than anything.",
+    "icon": "lorc/crystal-cluster",
+    "class": "gem",
+    "material": "aether",
+    "rarity": "epic",
+    "value": 2400,
+    "tags": ["gem", "mining", "aether"]
+  },
+  {
+    "id": "rough-gem",
+    "name": "Rough Gem",
+    "description": "Something in the rock that is not rock.",
+    "icon": "lorc/cut-diamond",
     "class": "gem",
     "material": "gem",
     "rarity": "rare",
-    "value": 25,
-    "tags": ["gem", "uncut"]
+    "value": 210,
+    "tags": ["gem"]
   },
   {
-    "id": "uncut-emerald",
-    "name": "Uncut emerald",
-    "icon": "lorc/crystal-growth",
+    "id": "emerald",
+    "name": "Emerald",
+    "description": "Green, and unconcerned with the season.",
+    "icon": "lorc/emerald",
     "class": "gem",
     "material": "willow",
     "rarity": "rare",
-    "value": 50,
-    "tags": ["gem", "uncut"]
+    "value": 640,
+    "tags": ["gem"]
   },
   {
-    "id": "uncut-ruby",
-    "name": "Uncut ruby",
-    "icon": "lorc/crystal-growth",
+    "id": "amethyst",
+    "name": "Amethyst",
+    "description": "Said to keep you sober. Nobody has tested it.",
+    "icon": "skoll/amethyst",
     "class": "gem",
+    "material": "aether",
+    "rarity": "rare",
+    "value": 820,
+    "tags": ["gem"]
+  },
+  {
+    "id": "pine-logs",
+    "name": "Pine Logs",
+    "description": "Soft, straight, and plentiful. The hill grows it out of spite.",
+    "icon": "delapouite/log",
+    "class": "resource",
+    "material": "pine",
+    "rarity": "common",
+    "value": 3,
+    "tags": ["log", "woodcutting"]
+  },
+  {
+    "id": "oak-logs",
+    "name": "Oak Logs",
+    "description": "Slow wood. It took its time and so will you.",
+    "icon": "delapouite/log",
+    "class": "resource",
+    "material": "oak",
+    "rarity": "common",
+    "value": 9,
+    "tags": ["log", "woodcutting"]
+  },
+  {
+    "id": "birch-logs",
+    "name": "Birch Logs",
+    "description": "Pale bark that peels like paper. Nothing written on it.",
+    "icon": "delapouite/log",
+    "class": "resource",
+    "material": "birch",
+    "rarity": "common",
+    "value": 14,
+    "tags": ["log", "woodcutting"]
+  },
+  {
+    "id": "willow-logs",
+    "name": "Willow Logs",
+    "description": "Bends rather than breaks. A strategy.",
+    "icon": "delapouite/log",
+    "class": "resource",
+    "material": "willow",
+    "rarity": "common",
+    "value": 19,
+    "tags": ["log", "woodcutting"]
+  },
+  {
+    "id": "blightwood-logs",
+    "name": "Blightwood Logs",
+    "description": "Grey right through. It was not always.",
+    "icon": "delapouite/log",
+    "class": "resource",
+    "material": "blight",
+    "rarity": "common",
+    "value": 40,
+    "tags": ["log", "woodcutting"]
+  },
+  {
+    "id": "elder-logs",
+    "name": "Elder Logs",
+    "description": "From the hollow tree. It is still standing; this was spare.",
+    "icon": "delapouite/log",
+    "class": "resource",
+    "material": "aether",
+    "rarity": "common",
+    "value": 120,
+    "tags": ["log", "woodcutting"]
+  },
+  {
+    "id": "aether-leaf",
+    "name": "Aether Leaf",
+    "description": "It fell upward for a moment before it fell down.",
+    "icon": "lorc/curled-leaf",
+    "class": "gem",
+    "material": "aether",
+    "rarity": "epic",
+    "value": 1900,
+    "tags": ["gem", "woodcutting", "aether"]
+  },
+  {
+    "id": "birds-nest",
+    "name": "Bird's Nest",
+    "description": "Abandoned, or the bird is very patient.",
+    "icon": "delapouite/nest-eggs",
+    "class": "container",
+    "material": "gem",
+    "rarity": "rare",
+    "opens": {
+      "$ref": "nest"
+    },
+    "value": 85,
+    "tags": ["container", "woodcutting"]
+  },
+  {
+    "id": "acorn",
+    "name": "Acorn",
+    "description": "An oak, in principle.",
+    "icon": "lorc/acorn",
+    "class": "misc",
+    "material": "oak",
+    "rarity": "common",
+    "value": 2,
+    "tags": ["seed"]
+  },
+  {
+    "id": "pine-seed",
+    "name": "Pine Seed",
+    "description": "Small. The tree will also be small for a long time.",
+    "icon": "delapouite/plant-seed",
+    "class": "misc",
+    "material": "pine",
+    "rarity": "common",
+    "value": 8,
+    "tags": ["seed"]
+  },
+  {
+    "id": "willow-seed",
+    "name": "Willow Seed",
+    "description": "Wants water. There is a river at the bottom of the hill; you have not been.",
+    "icon": "lorc/sprout",
+    "class": "misc",
+    "material": "willow",
+    "rarity": "common",
+    "value": 65,
+    "tags": ["seed"]
+  },
+  {
+    "id": "maple-seed",
+    "name": "Maple Seed",
+    "description": "No maple grows on the hill. Somebody brought this.",
+    "icon": "lorc/maple-leaf",
+    "class": "misc",
     "material": "copper",
     "rarity": "rare",
-    "value": 100,
-    "tags": ["gem", "uncut"]
+    "value": 140,
+    "tags": ["seed"]
   },
   {
-    "id": "uncut-diamond",
-    "name": "Uncut diamond",
-    "icon": "lorc/crystal-growth",
-    "class": "gem",
+    "id": "copper-bar",
+    "name": "Copper Bar",
+    "description": "Soft enough to mark with a thumbnail. You will not need to.",
+    "icon": "lorc/metal-bar",
+    "class": "resource",
+    "material": "copper",
+    "rarity": "common",
+    "value": 6,
+    "tags": ["bar", "smithing"]
+  },
+  {
+    "id": "iron-bar",
+    "name": "Iron Bar",
+    "description": "Two ores, one bar, some of your afternoon.",
+    "icon": "lorc/metal-bar",
+    "class": "resource",
+    "material": "iron",
+    "rarity": "common",
+    "value": 28,
+    "tags": ["bar", "smithing"]
+  },
+  {
+    "id": "basalt-core",
+    "name": "Basalt Core",
+    "description": "Not smelted. Struck until the useful part was left.",
+    "icon": "lorc/stone-block",
+    "class": "resource",
+    "material": "basalt",
+    "rarity": "common",
+    "value": 32,
+    "tags": ["bar", "smithing"]
+  },
+  {
+    "id": "marble-whetstone",
+    "name": "Marble Whetstone",
+    "description": "For edges that deserve it.",
+    "icon": "delapouite/stone-wheel",
+    "class": "resource",
     "material": "marble",
+    "rarity": "common",
+    "value": 34,
+    "tags": ["smithing", "whetstone"]
+  },
+  {
+    "id": "silver-bar",
+    "name": "Silver Bar",
+    "description": "It needed the basalt to run. So do you, most days.",
+    "icon": "lorc/metal-bar",
+    "class": "resource",
+    "material": "silver",
+    "rarity": "common",
+    "value": 260,
+    "tags": ["bar", "smithing"]
+  },
+  {
+    "id": "gold-bar",
+    "name": "Gold Bar",
+    "description": "Worth a great deal somewhere else.",
+    "icon": "willdabeast/gold-bar",
+    "class": "resource",
+    "material": "gold",
+    "rarity": "common",
+    "value": 340,
+    "tags": ["bar", "smithing"]
+  },
+  {
+    "id": "aether-ingot",
+    "name": "Aether Ingot",
+    "description": "Three shards, a block of marble, and an argument with the furnace.",
+    "icon": "lorc/crystal-bars",
+    "class": "resource",
+    "material": "aether",
     "rarity": "epic",
-    "value": 200,
-    "tags": ["gem", "uncut"]
+    "value": 7600,
+    "tags": ["bar", "smithing", "aether"]
+  },
+  {
+    "id": "copper-pick",
+    "name": "Copper Pick",
+    "description": "Bites copper and not much else. Everything starts here.",
+    "icon": "delapouite/war-pick",
+    "class": "tool",
+    "material": "copper",
+    "rarity": "common",
+    "slot": "pickaxe",
+    "stats": {
+      "gather": 5
+    },
+    "value": 14,
+    "tags": ["tool", "smithing", "copper", "tool"]
+  },
+  {
+    "id": "copper-axe",
+    "name": "Copper Axe",
+    "description": "Blunts on oak. Be patient with pine.",
+    "icon": "lorc/wood-axe",
+    "class": "tool",
+    "material": "copper",
+    "rarity": "common",
+    "slot": "axe",
+    "stats": {
+      "gather": 5
+    },
+    "value": 14,
+    "tags": ["tool", "smithing", "copper", "tool"]
+  },
+  {
+    "id": "copper-sword",
+    "name": "Copper Sword",
+    "description": "A blade, in the sense that it has an edge.",
+    "icon": "lorc/broadsword",
+    "class": "weapon",
+    "material": "copper",
+    "rarity": "common",
+    "slot": "weapon",
+    "stats": {
+      "attack": 10,
+      "strength": 4
+    },
+    "procedural": "sword",
+    "value": 14,
+    "tags": ["weapon", "smithing", "copper"]
+  },
+  {
+    "id": "copper-spear",
+    "name": "Copper Spear",
+    "description": "A point on a pine pole. Keep the goats at arm's length.",
+    "icon": "lorc/spears",
+    "class": "weapon",
+    "material": "copper",
+    "rarity": "common",
+    "slot": "weapon",
+    "stats": {
+      "attack": 8,
+      "strength": 6,
+      "speed": -1
+    },
+    "value": 11,
+    "tags": ["weapon", "smithing", "copper"]
+  },
+  {
+    "id": "copper-shield",
+    "name": "Copper Shield",
+    "description": "Dents easily. So do you.",
+    "icon": "sbed/shield",
+    "class": "armour",
+    "material": "copper",
+    "rarity": "common",
+    "slot": "shield",
+    "stats": {
+      "defence": 4
+    },
+    "value": 22,
+    "tags": ["armour", "smithing", "copper"]
+  },
+  {
+    "id": "copper-helm",
+    "name": "Copper Helm",
+    "description": "Keeps the rain off and some of the rocks.",
+    "icon": "sbed/helmet",
+    "class": "armour",
+    "material": "copper",
+    "rarity": "common",
+    "slot": "head",
+    "stats": {
+      "defence": 3
+    },
+    "value": 14,
+    "tags": ["armour", "smithing", "copper"]
+  },
+  {
+    "id": "copper-cuirass",
+    "name": "Copper Cuirass",
+    "description": "Five bars of copper around your ribs. Better than none.",
+    "icon": "lorc/breastplate",
+    "class": "armour",
+    "material": "copper",
+    "rarity": "common",
+    "slot": "body",
+    "stats": {
+      "defence": 6
+    },
+    "value": 36,
+    "tags": ["armour", "smithing", "copper"]
+  },
+  {
+    "id": "copper-greaves",
+    "name": "Copper Greaves",
+    "description": "Your shins will thank you. Nothing else will.",
+    "icon": "delapouite/greaves",
+    "class": "armour",
+    "material": "copper",
+    "rarity": "common",
+    "slot": "legs",
+    "stats": {
+      "defence": 5
+    },
+    "value": 22,
+    "tags": ["armour", "smithing", "copper"]
+  },
+  {
+    "id": "copper-boots",
+    "name": "Copper Boots",
+    "description": "Copper-toed. The toes are the part that hits the rock.",
+    "icon": "lorc/boots",
+    "class": "armour",
+    "material": "copper",
+    "rarity": "common",
+    "slot": "feet",
+    "stats": {
+      "defence": 2
+    },
+    "value": 7,
+    "tags": ["armour", "smithing", "copper"]
+  },
+  {
+    "id": "iron-pick",
+    "name": "Iron Pick",
+    "description": "Keeps an edge for a week. Then it keeps a different edge.",
+    "icon": "delapouite/war-pick",
+    "class": "tool",
+    "material": "iron",
+    "rarity": "common",
+    "slot": "pickaxe",
+    "stats": {
+      "gather": 10
+    },
+    "value": 67,
+    "tags": ["tool", "smithing", "iron", "tool"]
+  },
+  {
+    "id": "iron-axe",
+    "name": "Iron Axe",
+    "description": "The hill's standard issue. Nobody issued it.",
+    "icon": "lorc/wood-axe",
+    "class": "tool",
+    "material": "iron",
+    "rarity": "common",
+    "slot": "axe",
+    "stats": {
+      "gather": 10
+    },
+    "value": 67,
+    "tags": ["tool", "smithing", "iron", "tool"]
+  },
+  {
+    "id": "iron-sword",
+    "name": "Iron Sword",
+    "description": "Plain and dependable. The goats do not respect it.",
+    "icon": "lorc/broadsword",
+    "class": "weapon",
+    "material": "iron",
+    "rarity": "common",
+    "slot": "weapon",
+    "stats": {
+      "attack": 14,
+      "strength": 5
+    },
+    "procedural": "sword",
+    "value": 67,
+    "tags": ["weapon", "smithing", "iron"]
+  },
+  {
+    "id": "iron-spear",
+    "name": "Iron Spear",
+    "description": "Oak shaft, iron head. Reach is a kind of armour.",
+    "icon": "lorc/spears",
+    "class": "weapon",
+    "material": "iron",
+    "rarity": "common",
+    "slot": "weapon",
+    "stats": {
+      "attack": 11,
+      "strength": 8,
+      "speed": -1
+    },
+    "value": 44,
+    "tags": ["weapon", "smithing", "iron"]
+  },
+  {
+    "id": "iron-shield",
+    "name": "Iron Shield",
+    "description": "A round of iron with a strap. It has stopped worse than goats.",
+    "icon": "sbed/shield",
+    "class": "armour",
+    "material": "iron",
+    "rarity": "common",
+    "slot": "shield",
+    "stats": {
+      "defence": 5
+    },
+    "value": 101,
+    "tags": ["armour", "smithing", "iron"]
+  },
+  {
+    "id": "iron-helm",
+    "name": "Iron Helm",
+    "description": "A cap of iron. Your own thoughts sound different inside it.",
+    "icon": "sbed/helmet",
+    "class": "armour",
+    "material": "iron",
+    "rarity": "common",
+    "slot": "head",
+    "stats": {
+      "defence": 4
+    },
+    "value": 67,
+    "tags": ["armour", "smithing", "iron"]
+  },
+  {
+    "id": "iron-cuirass",
+    "name": "Iron Cuirass",
+    "description": "Plates over the chest and back. You can still breathe, barely.",
+    "icon": "lorc/breastplate",
+    "class": "armour",
+    "material": "iron",
+    "rarity": "common",
+    "slot": "body",
+    "stats": {
+      "defence": 8
+    },
+    "value": 168,
+    "tags": ["armour", "smithing", "iron"]
+  },
+  {
+    "id": "iron-greaves",
+    "name": "Iron Greaves",
+    "description": "Iron on the legs for a job that is mostly legs.",
+    "icon": "delapouite/greaves",
+    "class": "armour",
+    "material": "iron",
+    "rarity": "common",
+    "slot": "legs",
+    "stats": {
+      "defence": 7
+    },
+    "value": 101,
+    "tags": ["armour", "smithing", "iron"]
+  },
+  {
+    "id": "iron-boots",
+    "name": "Iron Boots",
+    "description": "Iron-shod. Heavy going, and it is all going.",
+    "icon": "lorc/boots",
+    "class": "armour",
+    "material": "iron",
+    "rarity": "common",
+    "slot": "feet",
+    "stats": {
+      "defence": 3
+    },
+    "value": 34,
+    "tags": ["armour", "smithing", "iron"]
+  },
+  {
+    "id": "basalt-pick",
+    "name": "Basalt Pick",
+    "description": "Stone on stone. The quarry does not appreciate the irony.",
+    "icon": "delapouite/war-pick",
+    "class": "tool",
+    "material": "basalt",
+    "rarity": "common",
+    "slot": "pickaxe",
+    "stats": {
+      "gather": 15
+    },
+    "value": 77,
+    "tags": ["tool", "smithing", "basalt", "tool"]
+  },
+  {
+    "id": "basalt-axe",
+    "name": "Basalt Axe",
+    "description": "Chipped, not forged. Splits wood along lines it did not know it had.",
+    "icon": "lorc/wood-axe",
+    "class": "tool",
+    "material": "basalt",
+    "rarity": "common",
+    "slot": "axe",
+    "stats": {
+      "gather": 15
+    },
+    "value": 77,
+    "tags": ["tool", "smithing", "basalt", "tool"]
+  },
+  {
+    "id": "basalt-sword",
+    "name": "Basalt Sword",
+    "description": "Black glass on a stone spine. Sharper than the metal ones, for a while.",
+    "icon": "lorc/broadsword",
+    "class": "weapon",
+    "material": "basalt",
+    "rarity": "common",
+    "slot": "weapon",
+    "stats": {
+      "attack": 17,
+      "strength": 7
+    },
+    "procedural": "sword",
+    "value": 77,
+    "tags": ["weapon", "smithing", "basalt"]
+  },
+  {
+    "id": "basalt-spear",
+    "name": "Basalt Spear",
+    "description": "The head is basalt; the shaft is birch; the idea is old.",
+    "icon": "lorc/spears",
+    "class": "weapon",
+    "material": "basalt",
+    "rarity": "common",
+    "slot": "weapon",
+    "stats": {
+      "attack": 14,
+      "strength": 10,
+      "speed": -1
+    },
+    "value": 55,
+    "tags": ["weapon", "smithing", "basalt"]
+  },
+  {
+    "id": "basalt-shield",
+    "name": "Basalt Shield",
+    "description": "A slab with a handle. Heavy, honest, unpleasant to carry uphill.",
+    "icon": "sbed/shield",
+    "class": "armour",
+    "material": "basalt",
+    "rarity": "common",
+    "slot": "shield",
+    "stats": {
+      "defence": 7
+    },
+    "value": 115,
+    "tags": ["armour", "smithing", "basalt"]
+  },
+  {
+    "id": "basalt-helm",
+    "name": "Basalt Helm",
+    "description": "Cold in the morning and worse at noon.",
+    "icon": "sbed/helmet",
+    "class": "armour",
+    "material": "basalt",
+    "rarity": "common",
+    "slot": "head",
+    "stats": {
+      "defence": 5
+    },
+    "value": 77,
+    "tags": ["armour", "smithing", "basalt"]
+  },
+  {
+    "id": "basalt-cuirass",
+    "name": "Basalt Cuirass",
+    "description": "Stone over the heart. The hill approves.",
+    "icon": "lorc/breastplate",
+    "class": "armour",
+    "material": "basalt",
+    "rarity": "common",
+    "slot": "body",
+    "stats": {
+      "defence": 10
+    },
+    "value": 192,
+    "tags": ["armour", "smithing", "basalt"]
+  },
+  {
+    "id": "basalt-greaves",
+    "name": "Basalt Greaves",
+    "description": "Basalt plates, strapped on. Walking is now a decision.",
+    "icon": "delapouite/greaves",
+    "class": "armour",
+    "material": "basalt",
+    "rarity": "common",
+    "slot": "legs",
+    "stats": {
+      "defence": 8
+    },
+    "value": 115,
+    "tags": ["armour", "smithing", "basalt"]
+  },
+  {
+    "id": "basalt-boots",
+    "name": "Basalt Boots",
+    "description": "Stone soles. They will outlast the path.",
+    "icon": "lorc/boots",
+    "class": "armour",
+    "material": "basalt",
+    "rarity": "common",
+    "slot": "feet",
+    "stats": {
+      "defence": 3
+    },
+    "value": 38,
+    "tags": ["armour", "smithing", "basalt"]
+  },
+  {
+    "id": "silver-pick",
+    "name": "Silver Pick",
+    "description": "Too fine for the work and it shows in the work.",
+    "icon": "delapouite/war-pick",
+    "class": "tool",
+    "material": "silver",
+    "rarity": "common",
+    "slot": "pickaxe",
+    "stats": {
+      "gather": 20
+    },
+    "value": 665,
+    "tags": ["tool", "smithing", "silver", "tool"]
+  },
+  {
+    "id": "silver-axe",
+    "name": "Silver Axe",
+    "description": "Bright enough to shave in. Not recommended.",
+    "icon": "lorc/wood-axe",
+    "class": "tool",
+    "material": "silver",
+    "rarity": "common",
+    "slot": "axe",
+    "stats": {
+      "gather": 20
+    },
+    "value": 665,
+    "tags": ["tool", "smithing", "silver", "tool"]
+  },
+  {
+    "id": "silver-sword",
+    "name": "Silver Sword",
+    "description": "The shades flinch from it. The living do not.",
+    "icon": "lorc/broadsword",
+    "class": "weapon",
+    "material": "silver",
+    "rarity": "common",
+    "slot": "weapon",
+    "stats": {
+      "attack": 20,
+      "strength": 8
+    },
+    "procedural": "sword",
+    "value": 665,
+    "tags": ["weapon", "smithing", "silver"]
+  },
+  {
+    "id": "silver-spear",
+    "name": "Silver Spear",
+    "description": "Long, light, and bright at the end.",
+    "icon": "lorc/spears",
+    "class": "weapon",
+    "material": "silver",
+    "rarity": "common",
+    "slot": "weapon",
+    "stats": {
+      "attack": 16,
+      "strength": 12,
+      "speed": -1
+    },
+    "value": 376,
+    "tags": ["weapon", "smithing", "silver"]
+  },
+  {
+    "id": "silver-shield",
+    "name": "Silver Shield",
+    "description": "Polished until it shows you your face. You hold it away from you.",
+    "icon": "sbed/shield",
+    "class": "armour",
+    "material": "silver",
+    "rarity": "common",
+    "slot": "shield",
+    "stats": {
+      "defence": 8
+    },
+    "value": 977,
+    "tags": ["armour", "smithing", "silver"]
+  },
+  {
+    "id": "silver-helm",
+    "name": "Silver Helm",
+    "description": "A bright helm for a dim hill.",
+    "icon": "sbed/helmet",
+    "class": "armour",
+    "material": "silver",
+    "rarity": "common",
+    "slot": "head",
+    "stats": {
+      "defence": 6
+    },
+    "value": 665,
+    "tags": ["armour", "smithing", "silver"]
+  },
+  {
+    "id": "silver-cuirass",
+    "name": "Silver Cuirass",
+    "description": "Silver plate. The shades look at it a long time.",
+    "icon": "lorc/breastplate",
+    "class": "armour",
+    "material": "silver",
+    "rarity": "common",
+    "slot": "body",
+    "stats": {
+      "defence": 12
+    },
+    "value": 1601,
+    "tags": ["armour", "smithing", "silver"]
+  },
+  {
+    "id": "silver-greaves",
+    "name": "Silver Greaves",
+    "description": "Silver greaves. Mud does not show on them, which is a lie.",
+    "icon": "delapouite/greaves",
+    "class": "armour",
+    "material": "silver",
+    "rarity": "common",
+    "slot": "legs",
+    "stats": {
+      "defence": 10
+    },
+    "value": 977,
+    "tags": ["armour", "smithing", "silver"]
+  },
+  {
+    "id": "silver-boots",
+    "name": "Silver Boots",
+    "description": "Silver boots. You can hear yourself coming.",
+    "icon": "lorc/boots",
+    "class": "armour",
+    "material": "silver",
+    "rarity": "common",
+    "slot": "feet",
+    "stats": {
+      "defence": 4
+    },
+    "value": 353,
+    "tags": ["armour", "smithing", "silver"]
+  },
+  {
+    "id": "gold-pick",
+    "name": "Gold Pick",
+    "description": "A gold pick. You had the bar, and nothing else to do with it.",
+    "icon": "delapouite/war-pick",
+    "class": "tool",
+    "material": "gold",
+    "rarity": "common",
+    "slot": "pickaxe",
+    "stats": {
+      "gather": 25
+    },
+    "value": 857,
+    "tags": ["tool", "smithing", "gold", "tool"]
+  },
+  {
+    "id": "gold-axe",
+    "name": "Gold Axe",
+    "description": "Heavy, soft, and magnificent. Trees fall out of courtesy.",
+    "icon": "lorc/wood-axe",
+    "class": "tool",
+    "material": "gold",
+    "rarity": "common",
+    "slot": "axe",
+    "stats": {
+      "gather": 25
+    },
+    "value": 857,
+    "tags": ["tool", "smithing", "gold", "tool"]
+  },
+  {
+    "id": "gold-sword",
+    "name": "Gold Sword",
+    "description": "Ornamental, which is the polite word.",
+    "icon": "lorc/broadsword",
+    "class": "weapon",
+    "material": "gold",
+    "rarity": "common",
+    "slot": "weapon",
+    "stats": {
+      "attack": 24,
+      "strength": 10
+    },
+    "procedural": "sword",
+    "value": 857,
+    "tags": ["weapon", "smithing", "gold"]
+  },
+  {
+    "id": "gold-spear",
+    "name": "Gold Spear",
+    "description": "The head is gold and the shaft is blightwood. One of them will outlast you.",
+    "icon": "lorc/spears",
+    "class": "weapon",
+    "material": "gold",
+    "rarity": "common",
+    "slot": "weapon",
+    "stats": {
+      "attack": 19,
+      "strength": 14,
+      "speed": -1
+    },
+    "value": 497,
+    "tags": ["weapon", "smithing", "gold"]
+  },
+  {
+    "id": "gold-shield",
+    "name": "Gold Shield",
+    "description": "It catches the light. Mostly it catches the light.",
+    "icon": "sbed/shield",
+    "class": "armour",
+    "material": "gold",
+    "rarity": "common",
+    "slot": "shield",
+    "stats": {
+      "defence": 10
+    },
+    "value": 1265,
+    "tags": ["armour", "smithing", "gold"]
+  },
+  {
+    "id": "gold-helm",
+    "name": "Gold Helm",
+    "description": "Heavier than it needs to be. Crowns usually are.",
+    "icon": "sbed/helmet",
+    "class": "armour",
+    "material": "gold",
+    "rarity": "common",
+    "slot": "head",
+    "stats": {
+      "defence": 7
+    },
+    "value": 857,
+    "tags": ["armour", "smithing", "gold"]
+  },
+  {
+    "id": "gold-cuirass",
+    "name": "Gold Cuirass",
+    "description": "Dented gold is still gold, which is the problem with it.",
+    "icon": "lorc/breastplate",
+    "class": "armour",
+    "material": "gold",
+    "rarity": "common",
+    "slot": "body",
+    "stats": {
+      "defence": 14
+    },
+    "value": 2081,
+    "tags": ["armour", "smithing", "gold"]
+  },
+  {
+    "id": "gold-greaves",
+    "name": "Gold Greaves",
+    "description": "Gold on the shins. The hill has seen stranger.",
+    "icon": "delapouite/greaves",
+    "class": "armour",
+    "material": "gold",
+    "rarity": "common",
+    "slot": "legs",
+    "stats": {
+      "defence": 12
+    },
+    "value": 1265,
+    "tags": ["armour", "smithing", "gold"]
+  },
+  {
+    "id": "gold-boots",
+    "name": "Gold Boots",
+    "description": "Gold boots leave gold scuffs. Somebody will find them.",
+    "icon": "lorc/boots",
+    "class": "armour",
+    "material": "gold",
+    "rarity": "common",
+    "slot": "feet",
+    "stats": {
+      "defence": 5
+    },
+    "value": 449,
+    "tags": ["armour", "smithing", "gold"]
+  },
+  {
+    "id": "aether-pick",
+    "name": "Aether Pick",
+    "description": "It does not seem to touch the rock. The rock comes away anyway.",
+    "icon": "delapouite/war-pick",
+    "class": "tool",
+    "material": "aether",
+    "rarity": "epic",
+    "slot": "pickaxe",
+    "stats": {
+      "gather": 30
+    },
+    "value": 18281,
+    "tags": ["tool", "smithing", "aether", "tool"]
+  },
+  {
+    "id": "aether-axe",
+    "name": "Aether Axe",
+    "description": "Cuts cleanly through wood and, so far, nothing else.",
+    "icon": "lorc/wood-axe",
+    "class": "tool",
+    "material": "aether",
+    "rarity": "epic",
+    "slot": "axe",
+    "stats": {
+      "gather": 30
+    },
+    "value": 18281,
+    "tags": ["tool", "smithing", "aether", "tool"]
+  },
+  {
+    "id": "aether-sword",
+    "name": "Aether Sword",
+    "description": "It weighs nothing. You keep checking your hand.",
+    "icon": "lorc/broadsword",
+    "class": "weapon",
+    "material": "aether",
+    "rarity": "epic",
+    "slot": "weapon",
+    "stats": {
+      "attack": 28,
+      "strength": 11
+    },
+    "procedural": "sword",
+    "value": 18281,
+    "tags": ["weapon", "smithing", "aether"]
+  },
+  {
+    "id": "aether-spear",
+    "name": "Aether Spear",
+    "description": "Elder wood under an aether point. It hums, faintly, when nothing is happening.",
+    "icon": "lorc/spears",
+    "class": "weapon",
+    "material": "aether",
+    "rarity": "epic",
+    "slot": "weapon",
+    "stats": {
+      "attack": 22,
+      "strength": 16,
+      "speed": -1
+    },
+    "value": 9305,
+    "tags": ["weapon", "smithing", "aether"]
+  },
+  {
+    "id": "aether-shield",
+    "name": "Aether Shield",
+    "description": "Blows land on it and seem to forget what they were for.",
+    "icon": "sbed/shield",
+    "class": "armour",
+    "material": "aether",
+    "rarity": "epic",
+    "slot": "shield",
+    "stats": {
+      "defence": 11
+    },
+    "value": 27401,
+    "tags": ["armour", "smithing", "aether"]
+  },
+  {
+    "id": "aether-helm",
+    "name": "Aether Helm",
+    "description": "It does not feel like wearing anything. That is the worrying part.",
+    "icon": "sbed/helmet",
+    "class": "armour",
+    "material": "aether",
+    "rarity": "epic",
+    "slot": "head",
+    "stats": {
+      "defence": 8
+    },
+    "value": 18281,
+    "tags": ["armour", "smithing", "aether"]
+  },
+  {
+    "id": "aether-cuirass",
+    "name": "Aether Cuirass",
+    "description": "The blows arrive and do not seem to have come from anywhere.",
+    "icon": "lorc/breastplate",
+    "class": "armour",
+    "material": "aether",
+    "rarity": "epic",
+    "slot": "body",
+    "stats": {
+      "defence": 16
+    },
+    "value": 45641,
+    "tags": ["armour", "smithing", "aether"]
+  },
+  {
+    "id": "aether-greaves",
+    "name": "Aether Greaves",
+    "description": "You climb without the climb costing what it used to.",
+    "icon": "delapouite/greaves",
+    "class": "armour",
+    "material": "aether",
+    "rarity": "epic",
+    "slot": "legs",
+    "stats": {
+      "defence": 14
+    },
+    "value": 27401,
+    "tags": ["armour", "smithing", "aether"]
+  },
+  {
+    "id": "aether-boots",
+    "name": "Aether Boots",
+    "description": "They do not leave prints. You checked.",
+    "icon": "lorc/boots",
+    "class": "armour",
+    "material": "aether",
+    "rarity": "epic",
+    "slot": "feet",
+    "stats": {
+      "defence": 6
+    },
+    "value": 9161,
+    "tags": ["armour", "smithing", "aether"]
+  },
+  {
+    "id": "silver-torc",
+    "name": "Silver Torc",
+    "description": "A ring for the neck. Open at the front, as if it might be leaving.",
+    "icon": "cathelineau/torc",
+    "class": "armour",
+    "material": "silver",
+    "rarity": "common",
+    "slot": "amulet",
+    "stats": {
+      "defence": 2,
+      "attack": 2
+    },
+    "value": 700,
+    "tags": ["jewellery", "smithing", "silver"]
+  },
+  {
+    "id": "gold-ring",
+    "name": "Gold Ring",
+    "description": "A plain band. It fits; that is all it does.",
+    "icon": "delapouite/ring",
+    "class": "armour",
+    "material": "gold",
+    "rarity": "common",
+    "slot": "ring",
+    "stats": {
+      "strength": 2
+    },
+    "value": 450,
+    "tags": ["jewellery", "smithing", "gold"]
+  },
+  {
+    "id": "emerald-ring",
+    "name": "Emerald Ring",
+    "description": "Gold around green. The green does most of the work.",
+    "icon": "delapouite/diamond-ring",
+    "class": "armour",
+    "material": "willow",
+    "rarity": "rare",
+    "slot": "ring",
+    "stats": {
+      "strength": 3,
+      "defence": 2
+    },
+    "value": 1400,
+    "tags": ["jewellery", "smithing", "gold"]
+  },
+  {
+    "id": "amethyst-amulet",
+    "name": "Amethyst Amulet",
+    "description": "Worn against drunkenness, once. Here it is worn against the hill.",
+    "icon": "lorc/gem-pendant",
+    "class": "armour",
+    "material": "aether",
+    "rarity": "rare",
+    "slot": "amulet",
+    "stats": {
+      "attack": 4,
+      "defence": 3
+    },
+    "value": 1600,
+    "tags": ["jewellery", "smithing", "gold"]
+  },
+  {
+    "id": "bone",
+    "name": "Bone",
+    "description": "Somebody's. Not yours, yet.",
+    "icon": "lorc/crossed-bones",
+    "class": "misc",
+    "material": "marble",
+    "rarity": "common",
+    "value": 1,
+    "tags": ["bone", "drop"]
+  },
+  {
+    "id": "goat-hide",
+    "name": "Goat Hide",
+    "description": "Coarse, warm, and smelling strongly of goat.",
+    "icon": "delapouite/animal-hide",
+    "class": "misc",
+    "material": "oak",
+    "rarity": "common",
+    "value": 5,
+    "tags": ["hide", "drop"]
+  },
+  {
+    "id": "boar-hide",
+    "name": "Boar Hide",
+    "description": "Thick enough to turn a copper point. You have tested this.",
+    "icon": "delapouite/animal-hide",
+    "class": "misc",
+    "material": "copper",
+    "rarity": "common",
+    "value": 12,
+    "tags": ["hide", "drop"]
+  },
+  {
+    "id": "wolf-pelt",
+    "name": "Wolf Pelt",
+    "description": "Grey, with a greyer patch where the blight took it.",
+    "icon": "delapouite/animal-hide",
+    "class": "misc",
+    "material": "iron",
+    "rarity": "common",
+    "value": 30,
+    "tags": ["hide", "drop"]
+  },
+  {
+    "id": "feather",
+    "name": "Feather",
+    "description": "One of many. The bird is not sentimental.",
+    "icon": "lorc/feather",
+    "class": "misc",
+    "material": "birch",
+    "rarity": "common",
+    "value": 3,
+    "tags": ["drop"]
+  },
+  {
+    "id": "spider-silk",
+    "name": "Spider Silk",
+    "description": "Stronger than it looks, which is the spider's whole approach.",
+    "icon": "lorc/spider-web",
+    "class": "misc",
+    "material": "birch",
+    "rarity": "common",
+    "value": 12,
+    "tags": ["drop"]
+  },
+  {
+    "id": "bat-wing",
+    "name": "Bat Wing",
+    "description": "Leather, cheaply made.",
+    "icon": "lorc/bat-wing",
+    "class": "misc",
+    "material": "blight",
+    "rarity": "common",
+    "value": 6,
+    "tags": ["drop"]
+  },
+  {
+    "id": "hound-tooth",
+    "name": "Hound Tooth",
+    "description": "From a dog that was guarding something. It was not clear what.",
+    "icon": "lorc/tooth",
+    "class": "misc",
+    "material": "marble",
+    "rarity": "common",
+    "value": 45,
+    "tags": ["drop"]
+  },
+  {
+    "id": "bull-horn",
+    "name": "Bull Horn",
+    "description": "One of a pair. He kept the other.",
+    "icon": "lorc/bull-horns",
+    "class": "misc",
+    "material": "marble",
+    "rarity": "rare",
+    "value": 260,
+    "tags": ["drop"]
+  },
+  {
+    "id": "venom",
+    "name": "Venom",
+    "description": "Adder, spider; it does not matter to the blood.",
+    "icon": "lorc/potion-ball",
+    "class": "misc",
+    "material": "pine",
+    "rarity": "common",
+    "badges": ["poison"],
+    "value": 20,
+    "tags": ["drop", "poison"]
+  },
+  {
+    "id": "obol",
+    "name": "Obol",
+    "description": "One coin for the ferryman. He has stopped counting.",
+    "icon": "lorc/crown-coin",
+    "class": "misc",
+    "material": "silver",
+    "rarity": "rare",
+    "value": 100,
+    "tags": ["drop", "coin"]
+  },
+  {
+    "id": "rune-stone",
+    "name": "Rune Stone",
+    "description": "A mark cut in a pebble by someone who wanted to remember something.",
+    "icon": "lorc/rune-stone",
+    "class": "misc",
+    "material": "aether",
+    "rarity": "rare",
+    "value": 505,
+    "tags": ["drop", "aether"]
+  },
+  {
+    "id": "goat-meat",
+    "name": "Goat Meat",
+    "description": "Tough. Chew it on the way up.",
+    "icon": "lorc/meat",
+    "class": "consumable",
+    "material": "copper",
+    "rarity": "common",
+    "stats": {
+      "heal": 5
+    },
+    "value": 4,
+    "tags": ["food", "drop"]
+  },
+  {
+    "id": "boar-meat",
+    "name": "Boar Meat",
+    "description": "Better than goat. Everything is better than goat.",
+    "icon": "lorc/meat",
+    "class": "consumable",
+    "material": "copper",
+    "rarity": "common",
+    "stats": {
+      "heal": 8
+    },
+    "value": 9,
+    "tags": ["food", "drop"]
+  },
+  {
+    "id": "hard-bread",
+    "name": "Hard Bread",
+    "description": "Baked somewhere with an oven, a long time ago.",
+    "icon": "delapouite/bread",
+    "class": "consumable",
+    "material": "oak",
+    "rarity": "common",
+    "stats": {
+      "heal": 4
+    },
+    "value": 5,
+    "tags": ["food", "drop"]
+  },
+  {
+    "id": "olives",
+    "name": "Olives",
+    "description": "Bitter, salted, and the nearest thing to a meal the hill allows.",
+    "icon": "delapouite/olive",
+    "class": "consumable",
+    "material": "willow",
+    "rarity": "common",
+    "stats": {
+      "heal": 3
+    },
+    "value": 6,
+    "tags": ["food", "drop"]
+  },
+  {
+    "id": "honeycomb",
+    "name": "Honeycomb",
+    "description": "The bees had plans for this.",
+    "icon": "lorc/honeycomb",
+    "class": "consumable",
+    "material": "gold",
+    "rarity": "common",
+    "stats": {
+      "heal": 12
+    },
+    "value": 24,
+    "tags": ["food", "drop"]
+  },
+  {
+    "id": "sentinel-helm",
+    "name": "Sentinel Helm",
+    "description": "One of three. The sentinels wore the whole set; you are working up to it.",
+    "icon": "sbed/helmet",
+    "class": "armour",
+    "material": "marble",
+    "rarity": "rare",
+    "slot": "head",
+    "stats": {
+      "defence": 9,
+      "attack": 2
+    },
+    "badges": ["set"],
+    "value": 3200,
+    "tags": ["armour", "set", "drop"]
+  },
+  {
+    "id": "sentinel-cuirass",
+    "name": "Sentinel Cuirass",
+    "description": "One of three. The sentinels wore the whole set; you are working up to it.",
+    "icon": "lorc/breastplate",
+    "class": "armour",
+    "material": "marble",
+    "rarity": "rare",
+    "slot": "body",
+    "stats": {
+      "defence": 16,
+      "attack": 3
+    },
+    "badges": ["set"],
+    "value": 5200,
+    "tags": ["armour", "set", "drop"]
+  },
+  {
+    "id": "sentinel-greaves",
+    "name": "Sentinel Greaves",
+    "description": "One of three. The sentinels wore the whole set; you are working up to it.",
+    "icon": "delapouite/greaves",
+    "class": "armour",
+    "material": "marble",
+    "rarity": "rare",
+    "slot": "legs",
+    "stats": {
+      "defence": 12,
+      "attack": 2
+    },
+    "badges": ["set"],
+    "value": 3800,
+    "tags": ["armour", "set", "drop"]
+  },
+  {
+    "id": "piece-of-the-stone",
+    "name": "Piece of the Stone",
+    "description": "It came off. That was not supposed to be possible.",
+    "icon": "lorc/stone-sphere",
+    "class": "misc",
+    "material": "basalt",
+    "rarity": "legendary",
+    "value": 10000,
+    "tags": ["legendary", "drop"]
+  },
+  {
+    "id": "laurel-crown",
+    "name": "Laurel Crown",
+    "description": "For the winner. Nobody has asked what was won.",
+    "icon": "lorc/laurel-crown",
+    "class": "armour",
+    "material": "gold",
+    "rarity": "legendary",
+    "slot": "head",
+    "stats": {
+      "defence": 8,
+      "attack": 6,
+      "strength": 4
+    },
+    "value": 8000,
+    "tags": ["legendary", "armour", "drop"]
+  },
+  {
+    "id": "lyre",
+    "name": "Lyre",
+    "description": "Seven strings. One of them is still in tune.",
+    "icon": "lorc/lyre",
+    "class": "misc",
+    "material": "gold",
+    "rarity": "legendary",
+    "value": 6000,
+    "tags": ["legendary", "drop"]
   }
 ]

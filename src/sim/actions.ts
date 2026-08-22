@@ -3,7 +3,9 @@ import { IdSchema } from './content/schema.ts';
 import type { SimContext } from './context.ts';
 import { nextFloat } from './rng.ts';
 import type { SimState } from './save.ts';
+import { craftingHandler } from './skills/crafting.ts';
 import { miningHandler } from './skills/mining.ts';
+import { woodcuttingHandler } from './skills/woodcutting.ts';
 
 /**
  * The one primitive every activity is built on: an action with a duration in ticks, a success
@@ -12,12 +14,11 @@ import { miningHandler } from './skills/mining.ts';
  */
 
 /** What the player asked for. `count: null` repeats until stopped. */
+const Count = z.number().int().min(1).nullable().default(null);
 export const ActionRequestSchema = z.discriminatedUnion('kind', [
-  z.object({
-    kind: z.literal('mining'),
-    rock: IdSchema,
-    count: z.number().int().min(1).nullable().default(null),
-  }),
+  z.object({ kind: z.literal('mining'), rock: IdSchema, count: Count }),
+  z.object({ kind: z.literal('woodcutting'), tree: IdSchema, count: Count }),
+  z.object({ kind: z.literal('crafting'), recipe: IdSchema, count: Count }),
 ]);
 export type ActionRequest = z.infer<typeof ActionRequestSchema>;
 export type ActionKind = ActionRequest['kind'];
@@ -53,6 +54,8 @@ export interface ActionHandler<K extends ActionKind> {
 
 const HANDLERS: { [K in ActionKind]: ActionHandler<K> } = {
   mining: miningHandler,
+  woodcutting: woodcuttingHandler,
+  crafting: craftingHandler,
 };
 
 export function actionHandler<K extends ActionKind>(kind: K): ActionHandler<K> {
@@ -84,7 +87,9 @@ export function beginAction(state: SimState, req: ActionRequest, ctx: SimContext
 /**
  * Advance the active action by one tick. When a cycle completes: roll success (one float draw,
  * skipped when the chance is exactly 1), apply the outcome, then either restart the cycle or move
- * on to the queue. Tick numbers are not touched here; `stepTick` owns that.
+ * on to the queue. A cycle only restarts if the request can still start (crafting runs out of
+ * inputs; a level can never drop, but the check is the handler's to make). Tick numbers are not
+ * touched here; `stepTick` owns that.
  */
 export function tickAction(state: SimState, ctx: SimContext): SimState {
   const cur = state.action.current;
@@ -107,7 +112,7 @@ export function tickAction(state: SimState, ctx: SimContext): SimState {
   s = handler.resolve(s, req, success, ctx);
 
   const remaining = cur.remaining === null ? null : cur.remaining - 1;
-  if (remaining !== 0) {
+  if (remaining !== 0 && handler.canStart(s, req, ctx).ok) {
     const restart = beginAction(s, cur.request, ctx);
     return {
       ...restart,

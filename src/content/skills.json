@@ -1,1 +1,9 @@
-[{ "id": "mining", "name": "Mining", "icon": "lorc/mining" }]
+[
+  {
+    "$comment": "Display order. Fishing and Firemaking appear in the design's navigation but ship no content yet, so they are not listed."
+  },
+  { "id": "mining", "name": "Mining", "icon": "lorc/mining" },
+  { "id": "woodcutting", "name": "Woodcutting", "icon": "lorc/pine-tree" },
+  { "id": "smithing", "name": "Smithing", "icon": "lorc/anvil" },
+  { "id": "combat", "name": "Combat", "icon": "lorc/crossed-swords" }
+]

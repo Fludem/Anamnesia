@@ -9,7 +9,12 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { content } from '../content/index.ts';
 import { icons } from '../icons/registry.ts';
 import { renderCache, type IconSpec } from '../icons/render.ts';
-import type { BadgeKind, ItemStats, MaterialDef } from '../sim/content/schema.ts';
+import {
+  BadgeKindSchema,
+  type BadgeKind,
+  type ItemStats,
+  type MaterialDef,
+} from '../sim/content/schema.ts';
 import {
   BLADES,
   GRIPS,
@@ -22,6 +27,7 @@ import {
 import { ItemTile } from '../ui/items/ItemTile.tsx';
 import {
   itemTileSpec,
+  monsterIconSpec,
   rockIconSpec,
   swordIconSpec,
   tileSpec,
@@ -30,9 +36,12 @@ import {
 import type { Juice } from '../ui/theme/theme.ts';
 
 /** Weapon tier ladder for the sheet: the design's mining tiers, in order. Placeholder until Phase 3. */
-const WEAPON_LADDER = ['copper', 'iron', 'basalt', 'silver', 'gold', 'aether'] as const;
+/** The equipment ladder is whatever content says it is: materials with a tier, in tier order. */
+const WEAPON_LADDER = [...content.materials]
+  .filter((m) => m.tier > 0 || m.id === 'copper')
+  .sort((a, b) => a.tier - b.tier);
 const SAMPLE_ICONS = ['faithtoken/ore', 'lorc/broadsword'] as const;
-const BADGE_KINDS: BadgeKind[] = ['enchanted', 'upgraded', 'burning', 'locked', 'cursed'];
+const BADGE_KINDS: BadgeKind[] = BadgeKindSchema.options;
 
 function iconSpec(iconId: string, material: MaterialDef | null): IconSpec {
   const e = icons.get(iconId);
@@ -96,10 +105,17 @@ export function ContactSheet() {
       rarity: string;
     }[] = [];
     for (let seed = 1; seed <= 50; seed++) {
-      const material = WEAPON_LADDER[(seed - 1) % WEAPON_LADDER.length] ?? 'copper';
-      const rarityId = seed % 9 === 0 ? 'epic' : seed % 4 === 0 ? 'rare' : 'common';
+      const material = WEAPON_LADDER[(seed - 1) % WEAPON_LADDER.length]?.id ?? 'copper';
+      const rarityId =
+        seed % 25 === 0
+          ? 'legendary'
+          : seed % 9 === 0
+            ? 'epic'
+            : seed % 4 === 0
+              ? 'rare'
+              : 'common';
       const roll = rollSword(seed, {
-        materialRank: WEAPON_LADDER.indexOf(material),
+        materialRank: content.material(material).tier,
         rarityRank: content.rarity(rarityId).rank,
       });
       out.push({ seed, parts: roll.parts, stats: roll.stats, material, rarity: rarityId });
@@ -342,7 +358,7 @@ export function ContactSheet() {
 
       <Section
         title="Shipped content"
-        sub="Every item and rock in src/content, rendered from its own material and rarity."
+        sub={`Every item (${String(content.items.length)}), node and monster in src/content, rendered from its own material and rarity. Procedural swords roll from their id.`}
       >
         <div className="grid">
           {content.items.map((item) => (
@@ -356,7 +372,7 @@ export function ContactSheet() {
               <span className="name">{item.name}</span>
             </div>
           ))}
-          {content.rocks.map((rock) => (
+          {[...content.rocks, ...content.trees].map((rock) => (
             <div className="card" key={rock.id}>
               <ItemTile
                 spec={tileSpec(content, rockIconSpec(content, rock), 'common', [], { size })}
@@ -364,6 +380,19 @@ export function ContactSheet() {
                 title={rock.name}
               />
               <span className="name">{rock.name}</span>
+            </div>
+          ))}
+          {content.monsters.map((m) => (
+            <div className="card" key={m.id}>
+              <ItemTile
+                spec={tileSpec(content, monsterIconSpec(content, m), 'common', [], { size })}
+                juice={juice}
+                title={m.name}
+              />
+              <span className="name">{m.name}</span>
+              <span className="stats">
+                Lv {m.level} · {m.hp} hp
+              </span>
             </div>
           ))}
           {content.rocks.slice(0, 2).map((rock) => (

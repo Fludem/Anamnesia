@@ -1,0 +1,169 @@
+/**
+ * Audits the shipped content pack as a whole. The schema and ContentDb check references; this
+ * checks that the content makes a game: everything is obtainable, the economy is not upside
+ * down, every skill has something to do, and names and descriptions follow the house style.
+ */
+import { describe, expect, it } from 'vitest';
+import { icons } from '../icons/registry.ts';
+import type { DropTable } from '../sim/content/schema.ts';
+import { DEFAULT_XP_CURVE } from '../sim/xp.ts';
+import { content } from './index.ts';
+
+const tableItems = (t: DropTable) => t.entries.map((e) => e.item);
+
+/** Every item id something in the game hands out. */
+function obtainable(): Set<string> {
+  const out = new Set<string>();
+  for (const node of [...content.rocks, ...content.trees])
+    for (const t of node.drops) tableItems(t).forEach((i) => out.add(i));
+  for (const r of content.recipes) for (const o of r.outputs) out.add(o.item);
+  for (const m of content.monsters) {
+    for (const t of m.drops) tableItems(t).forEach((i) => out.add(i));
+    for (const a of m.always) out.add(a.item);
+  }
+  for (const item of content.items)
+    if (item.opens !== null) tableItems(item.opens).forEach((i) => out.add(i));
+  return out;
+}
+
+describe('shipped content', () => {
+  it('ships the roster Phase 3 set out', () => {
+    expect(content.skills.map((s) => s.id)).toEqual([
+      'mining',
+      'woodcutting',
+      'smithing',
+      'combat',
+    ]);
+    expect(content.rarities.map((r) => r.id)).toEqual(['common', 'rare', 'epic', 'legendary']);
+    expect(content.rocks.length).toBe(7);
+    expect(content.trees.length).toBe(6);
+    expect(content.zones.length).toBe(5);
+    expect(content.monsters.length).toBeGreaterThanOrEqual(20);
+    expect(content.items.length).toBeGreaterThanOrEqual(100);
+  });
+
+  it('every item is obtainable and every recipe input can be obtained', () => {
+    const have = obtainable();
+    const orphans = content.items.filter((i) => !have.has(i.id)).map((i) => i.id);
+    expect(orphans).toEqual([]);
+    for (const r of content.recipes)
+      for (const input of r.inputs)
+        expect(have.has(input.item), `${r.id} ← ${input.item}`).toBe(true);
+  });
+
+  it('every icon reference is in the shipped icon set', () => {
+    const refs = [
+      ...content.skills,
+      ...content.items,
+      ...content.rocks,
+      ...content.trees,
+      ...content.zones,
+      ...content.monsters,
+    ].map((x) => x.icon);
+    for (const ref of refs) expect(() => icons.get(ref), ref).not.toThrow();
+  });
+
+  it('every skill has something to do and every level requirement is reachable', () => {
+    expect(content.rocks.length).toBeGreaterThan(0);
+    expect(content.trees.length).toBeGreaterThan(0);
+    expect(content.recipesFor('smithing').length).toBeGreaterThan(0);
+    for (const z of content.zones) expect(content.monstersIn(z.id).length, z.id).toBeGreaterThan(0);
+    const max = DEFAULT_XP_CURVE.maxLevel;
+    for (const x of [...content.rocks, ...content.trees, ...content.recipes, ...content.zones])
+      expect(x.level, x.id).toBeLessThanOrEqual(max);
+    // Each skill's first node/recipe is available at level 1, so a new save can start anywhere.
+    expect(Math.min(...content.rocks.map((r) => r.level))).toBe(1);
+    expect(Math.min(...content.trees.map((t) => t.level))).toBe(1);
+    expect(Math.min(...content.recipesFor('smithing').map((r) => r.level))).toBe(1);
+  });
+
+  it('nodes get harder as they go: levels, xp and time all rise with the list order', () => {
+    for (const list of [content.rocks, content.trees]) {
+      for (let i = 1; i < list.length; i++) {
+        const a = list[i - 1]!;
+        const b = list[i]!;
+        expect(b.level, b.id).toBeGreaterThan(a.level);
+        expect(b.xp, b.id).toBeGreaterThan(a.xp);
+        expect(b.durationTicks, b.id).toBeGreaterThanOrEqual(a.durationTicks);
+      }
+    }
+  });
+
+  it('a recipe never destroys value, and tier recipes unlock at or after their bar', () => {
+    const value = (id: string) => content.item(id).value;
+    for (const r of content.recipes) {
+      const inValue = r.inputs.reduce((s, i) => s + value(i.item) * i.qty, 0);
+      const outValue = r.outputs.reduce((s, o) => s + value(o.item) * o.qty, 0);
+      expect(outValue, r.id).toBeGreaterThanOrEqual(inValue);
+      for (const i of r.inputs) {
+        const producer = content.recipes.find((p) => p.outputs.some((o) => o.item === i.item));
+        if (producer)
+          expect(r.level, `${r.id} needs ${producer.id}`).toBeGreaterThanOrEqual(producer.level);
+      }
+    }
+  });
+
+  it('equipment has a slot and stats; tools cut time; consumables heal; nothing else has stats', () => {
+    for (const item of content.items) {
+      const wearable = item.class === 'weapon' || item.class === 'armour' || item.class === 'tool';
+      expect(item.slot !== null, item.id).toBe(wearable);
+      if (item.class === 'tool') expect(item.stats.gather, item.id).toBeGreaterThan(0);
+      if (item.class === 'consumable') expect(item.stats.heal, item.id).toBeGreaterThan(0);
+      if (wearable) expect(Object.keys(item.stats).length, item.id).toBeGreaterThan(0);
+      if (!wearable && item.class !== 'consumable') expect(item.stats, item.id).toEqual({});
+      if (item.procedural !== null) expect(item.material, item.id).not.toBeNull();
+    }
+  });
+
+  it('monsters belong to their zone level band and get harder up the hill', () => {
+    const zones = content.zones;
+    for (const m of content.monsters) {
+      const zi = zones.findIndex((z) => z.id === m.zone);
+      const zone = zones[zi]!;
+      const next = zones[zi + 1];
+      expect(m.level, m.id).toBeGreaterThanOrEqual(zone.level);
+      if (next) expect(m.level, m.id).toBeLessThan(next.level);
+      expect(m.drops.length + m.always.length, `${m.id} drops nothing`).toBeGreaterThan(0);
+      const [min, max] = m.coins;
+      expect(max).toBeGreaterThanOrEqual(min);
+    }
+    const byLevel = [...content.monsters].sort((a, b) => a.level - b.level);
+    for (let i = 1; i < byLevel.length; i++) {
+      expect(byLevel[i]!.hp, byLevel[i]!.id).toBeGreaterThanOrEqual(byLevel[i - 1]!.hp * 0.75);
+    }
+  });
+
+  it('names are Title Case and unique; every description is one dry line', () => {
+    const named = [
+      ...content.items,
+      ...content.rocks,
+      ...content.trees,
+      ...content.recipes,
+      ...content.zones,
+      ...content.monsters,
+    ];
+    const minor = new Set(['of', 'the', 'and']);
+    for (const x of named) {
+      const words = x.name.split(' ');
+      for (const [i, w] of words.entries()) {
+        if (i > 0 && minor.has(w)) continue;
+        expect(w, `${x.id}: "${x.name}"`).toMatch(/^[A-Z]/);
+      }
+    }
+    const names = content.items.map((i) => i.name);
+    expect(new Set(names).size).toBe(names.length);
+    for (const x of [...content.items, ...content.zones, ...content.monsters]) {
+      expect(x.description.length, x.id).toBeGreaterThan(0);
+      expect(x.description.length, x.id).toBeLessThanOrEqual(140);
+      expect(x.description, x.id).toMatch(/[.!?]$/);
+      expect(x.description, x.id).not.toMatch(/\n/);
+    }
+  });
+
+  it('the four rarities are all used, and the legendary tier is scarce', () => {
+    const byRarity = new Map<string, number>();
+    for (const i of content.items) byRarity.set(i.rarity, (byRarity.get(i.rarity) ?? 0) + 1);
+    for (const r of content.rarities) expect(byRarity.get(r.id) ?? 0, r.id).toBeGreaterThan(0);
+    expect(byRarity.get('legendary')).toBeLessThanOrEqual(5);
+  });
+});

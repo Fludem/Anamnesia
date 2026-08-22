@@ -6,7 +6,12 @@ Icons in this game come from [game-icons.net](https://game-icons.net), vendored 
 https://github.com/game-icons/icons.git at commit `82d948812bfe3f269ef8f731dcdb07b08160edc4`.
 They are licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) unless marked CC0.
 
-- Icons made by Delapouite. Available on https://game-icons.net ([http://delapouite.com](http://delapouite.com)) — 4 icons
-- Icons made by Faithtoken. Available on https://game-icons.net ([http://fungustoken.deviantart.com](http://fungustoken.deviantart.com)) — 1 icon
-- Icons made by Lorc. Available on https://game-icons.net ([http://lorcblog.blogspot.com](http://lorcblog.blogspot.com)) — 7 icons
-- Icons made by Sbed. Available on https://game-icons.net ([http://opengameart.org/content/95-game-icons](http://opengameart.org/content/95-game-icons)) — 1 icon
+- Icons made by Carl Olsen. Available on https://game-icons.net ([https://twitter.com/unstoppableCarl](https://twitter.com/unstoppableCarl)) — 1 icon
+- Icons made by Caro Asercion. Available on https://game-icons.net — 3 icons
+- Icons made by Cathelineau. Available on https://game-icons.net — 1 icon
+- Icons made by Delapouite. Available on https://game-icons.net ([http://delapouite.com](http://delapouite.com)) — 20 icons
+- Icons made by Faithtoken. Available on https://game-icons.net ([http://fungustoken.deviantart.com](http://fungustoken.deviantart.com)) — 2 icons
+- Icons made by Lorc. Available on https://game-icons.net ([http://lorcblog.blogspot.com](http://lorcblog.blogspot.com)) — 50 icons
+- Icons made by Sbed. Available on https://game-icons.net ([http://opengameart.org/content/95-game-icons](http://opengameart.org/content/95-game-icons)) — 2 icons
+- Icons made by Skoll. Available on https://game-icons.net — 4 icons
+- Icons made by Willdabeast. Available on https://game-icons.net ([http://wjbstories.blogspot.com](http://wjbstories.blogspot.com)) — 1 icon

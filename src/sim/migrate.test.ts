@@ -35,17 +35,21 @@ describe('migrateSave', () => {
         applied.push(1);
         return r;
       },
+      2: (r) => {
+        applied.push(2);
+        return r;
+      },
     };
     const v0 = { ...fresh(), version: 0, writerId: undefined };
     const out = migrateSave(v0, migrations, CURRENT_SAVE_VERSION);
-    expect(applied).toEqual([0, 1]);
+    expect(applied).toEqual([0, 1, 2]);
     expect(out.version).toBe(CURRENT_SAVE_VERSION);
     expect(out.writerId).toBe('migrated-from-v0');
   });
 
-  it('migrates a real v1 (placeholder sim) record to v2, keeping tick, rng and the envelope', () => {
+  it('migrates a real v1 (placeholder sim) record forward, keeping tick, rng and the envelope', () => {
     const out = migrateSave(JSON.parse(JSON.stringify(V1_RECORD)));
-    expect(out.version).toBe(2);
+    expect(out.version).toBe(CURRENT_SAVE_VERSION);
     expect(out.saveCounter).toBe(17);
     expect(out.writerId).toBe('old-tab');
     expect(out.wallMs).toBe(V1_RECORD.wallMs);
@@ -60,6 +64,21 @@ describe('migrateSave', () => {
       action: { current: null, queue: [] },
     });
     expect('placeholder' in out.sim).toBe(false);
+  });
+
+  it('migrates a v2 record to v3 by adding the tool slots and keeping equipped items', () => {
+    const v2 = JSON.parse(JSON.stringify(fresh())) as Record<string, unknown>;
+    const sim = v2['sim'] as Record<string, unknown>;
+    const equipment = Object.fromEntries(
+      Object.entries(sim['equipment'] as Record<string, null>).filter(
+        ([slot]) => slot !== 'pickaxe' && slot !== 'axe',
+      ),
+    );
+    v2['version'] = 2;
+    sim['equipment'] = { ...equipment, weapon: 'copper-sword' };
+    const out = migrateSave(v2);
+    expect(out.version).toBe(3);
+    expect(out.sim.equipment).toEqual({ ...emptyEquipment(), weapon: 'copper-sword' });
   });
 
   it('refuses a future version rather than guessing', () => {

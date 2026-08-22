@@ -1,12 +1,77 @@
 {
-  "$comment": "Named drop tables, referenced from rocks etc. as { \"$ref\": \"<name>\" }. Weights are relative; nothingWeight adds an empty outcome.",
+  "$comment": "Named drop tables, referenced as { \"$ref\": \"<name>\" }. Weights are relative; nothingWeight adds an empty outcome.",
   "gems": {
     "nothingWeight": 248,
     "entries": [
-      { "item": "uncut-sapphire", "weight": 4 },
-      { "item": "uncut-emerald", "weight": 2 },
-      { "item": "uncut-ruby", "weight": 1 },
-      { "item": "uncut-diamond", "weight": 0.5 }
+      {
+        "item": "rough-gem",
+        "weight": 1.5
+      },
+      {
+        "item": "emerald",
+        "weight": 0.3
+      },
+      {
+        "item": "amethyst",
+        "weight": 0.15
+      },
+      {
+        "item": "aether-shard",
+        "weight": 0.05
+      }
+    ]
+  },
+  "nest-drop": {
+    "nothingWeight": 99,
+    "entries": [
+      {
+        "item": "birds-nest",
+        "weight": 1
+      }
+    ]
+  },
+  "elder-leaf": {
+    "nothingWeight": 79,
+    "entries": [
+      {
+        "item": "aether-leaf",
+        "weight": 1
+      }
+    ]
+  },
+  "nest": {
+    "entries": [
+      {
+        "item": "acorn",
+        "weight": 40,
+        "quantity": [1, 3]
+      },
+      {
+        "item": "pine-seed",
+        "weight": 30,
+        "quantity": [1, 2]
+      },
+      {
+        "item": "willow-seed",
+        "weight": 20
+      },
+      {
+        "item": "maple-seed",
+        "weight": 10
+      }
+    ]
+  },
+  "shade-coins": {
+    "nothingWeight": 6,
+    "entries": [
+      {
+        "item": "obol",
+        "weight": 2
+      },
+      {
+        "item": "rune-stone",
+        "weight": 0.5
+      }
     ]
   }
 }
