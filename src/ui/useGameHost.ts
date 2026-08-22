@@ -16,7 +16,7 @@ const BOOTING: HostSnapshot = {
   saveCounter: 0,
   lastSavedAtMs: null,
   catchUp: null,
-  cappedNotice: null,
+  offline: null,
   takeoverPending: false,
   warning: null,
   commandError: null,

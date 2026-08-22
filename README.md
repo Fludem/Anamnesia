@@ -25,6 +25,14 @@ rarities. Mining, woodcutting and smithing are playable end to end; tools equip 
 slots and shorten actions; containers open. A content audit test checks that everything is
 obtainable, the economy never destroys value, and names and descriptions keep the house style.
 
+Phase 4 is in: the UI, built from the Claude Design screens. Sidebar (or top bar + bottom tabs
+under 700px), a skill screen per gathering skill with the active action, its progress bar, xp
+pops, the node list and the drop feed; smithing on the same skeleton; the bank with filters,
+search, selection, sell, open, equip and purchasable slots; first-run naming; the level-up
+moment, the rare-drop toast, the offline recap (honest about the cap) and the calm full-page
+states for other-tab / catching-up / stale / save-error. Save v4 adds coins, bank slots, an
+event log and action counters to carry it. Combat is still data only.
+
 ## Layout
 
 | Path            | Layer                                                                                                                              |
@@ -32,7 +40,7 @@ obtainable, the economy never destroys value, and names and descriptions keep th
 | `src/sim/`      | Pure simulation: save schema, migrations, PRNG, actions, skills. No DOM.                                                           |
 | `src/content/`  | Game content as JSON (skills, materials, rarities, items, rocks, trees, recipes, zones, monsters, drop tables), validated at load. |
 | `src/runtime/`  | Browser orchestration: save store, leader election, channel, GameHost.                                                             |
-| `src/ui/`       | React shell (thin).                                                                                                                |
+| `src/ui/`       | React: `Shell`, `screens/`, `overlays/`, `derive.ts` (pure view helpers), `app.css` (the design's classes over the tokens).        |
 | `src/icons/`    | Icon registry, SVG renderer + cache, badge glyphs, procedural sword geometry.                                                      |
 | `src/ui/theme/` | Design tokens (CSS custom properties + TS object) and fonts.                                                                       |
 | `src/ui/items/` | Maps content onto renderer specs; `<ItemTile>` / `<BareIcon>`.                                                                     |

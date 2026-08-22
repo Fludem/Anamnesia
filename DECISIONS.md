@@ -354,3 +354,87 @@ has none — replace them when it does.
 Three new commands so the content is reachable without Phase 4: equip swaps the worn item back
 to the bank, unequip returns it, open rolls a container. Followers send them over the channel
 like any other command.
+
+## Phase 4 — UI
+
+### The screens are the design's, built from its own classes
+
+`src/ui/app.css` is Screens A (skill training), C (bank) and D (onboarding) rewritten as classes
+over the tokens in `src/ui/theme/tokens.css`; no inline colour anywhere. Woodcutting is Screen A
+with its Screen B data; smithing is Screen A with recipes where the veins were (category tabs,
+inputs in the sub line, shortfalls in gold) — the design did not draw a crafting screen and this
+keeps its skeleton rather than inventing a new one. Below 700px the sidebar becomes the design's
+top bar + bottom tab bar. Components are React with CSS classes, not the contact sheet's inline
+style objects, so the state rules (`.row.locked`, `.cell.selected`, `.juicy .bar-fill`) read in
+one place.
+
+### Screen D's login is not built; its onboarding is
+
+The synced Screen D has email/password login and registration. The game is single-player and
+local (the brief: "single-player for now") and has no backend, so there is nothing to log in to.
+Building a fake login would be dishonest chrome. The "Name your hero" step _is_ built: it shows
+on first run (a save still named `Nameless`), writes the name with the new `player:rename`
+command, and the same calm card carries every full-page state — running in another tab,
+catching up, stale, save error. When accounts arrive the login step slots in front of it.
+
+### The sim gained what the screens needed, nothing more
+
+Screen C sells items and buys bank slots; Screen A shows a drop feed, level-ups and an offline
+recap. None of that existed in the state. Added in save v4 (migration 3→4 fills defaults):
+
+- `coins` and the `sell` command (listed value × qty). Currency lives beside the bank, never in
+  a slot.
+- `bankSlotsBought` and `bank:buy-slot`: capacity is 30 + bought, priced on the design's curve
+  (500 gp × 1.18ⁿ, rounded to 10). The numbers are Screen C's props; they are tuning, not law.
+- `log`: a 40-entry ring buffer of events (`gain`, `level`, `opened`, `stopped`), tick-stamped,
+  written by the handlers. The feed, the xp pops, the rare-drop toast, the level-up card and the
+  "nest opened" modal all read it. It is in the save so followers show the same feed and so
+  nothing in the UI has to diff snapshots.
+- `stats.actions[skill]`: lifetime cycle counts, for "412 actions" and the recap.
+
+### Bank full stops the action before the drop, never after
+
+Melvor discards a drop that does not fit. Here `canStart` refuses a cycle when the bank is full
+and _any_ possible drop of that node (or output of that recipe, or entry of that container) has
+no stack to join; the action stops with a logged reason ("bank is full (no slot for Rough
+Gem)") and the UI shows it in the idle card. Conservative — a vein whose gem you have never found
+stops you at 30/30 even though the gem probably will not roll — but nothing is ever rolled and
+thrown away, and the rule is one function (`roomFor`). A cycle that rolls two new items into a
+bank with one free slot overfills by one; the next cycle then stops. Accepted.
+
+### Offline recap is a diff, thresholded at five minutes
+
+The host keeps the sim as it was before any advance of ≥ 3,000 ticks and exposes it as
+`offline.before`; the UI diffs it against the current sim (`recap()` in `derive.ts`) for xp,
+levels, actions and bank gains. Shorter absences get no modal — a reload after a coffee is not
+"welcome back". The capped case reads "Offline progress is capped at 12h 00m. The other 1h 00m
+did not count." Replaces the Phase 0.5 `cappedNotice`.
+
+### Moments are derived from tick age, not timers
+
+The level-up card shows while the newest `level` event is younger than 40 ticks; the rare toast
+while an epic-or-better drop is younger than 26; pops while a gain is younger than 11. The
+renderer never starts a timer for them and a follower sees the same moment at the same tick.
+The cost is that a moment's visible length is game time, which in a throttled tab can pass in
+one jump — acceptable for decoration.
+
+### Followers get a calm page, not a mirror
+
+Phase 0.5 rendered the game read-only in follower tabs with a banner. The design brief asked for
+"a clear, calm screen explaining that, with a button to take over", so that is what follower
+tabs show, with a one-line live status (skill, level, tick) so it is visibly alive. The runtime
+still forwards commands from followers; the UI just does not offer any.
+
+### Preferences are not save state
+
+Which screen is open and the "feel" (deadpan / quiet / juicy, from the design's prop) live in
+`localStorage`, per browser, validated on read and defaulted on failure. They never enter the
+save: two devices may prefer different feels for the same hero.
+
+### Fixed along the way
+
+- `formatDuration` kept for elapsed time; action lengths now use `formatSeconds` ("2.2s").
+- `window.confirm` is not used anywhere (it would block the tab under automation); destructive
+  dev buttons confirm in place.
+- The Phase 1 panels, banners and debug panel are gone; the debug buttons live under Settings →
+  Dev in dev builds only.

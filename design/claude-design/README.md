@@ -8,6 +8,8 @@ run standalone — read them for tokens, layout and behaviour.
 - `screen-a-skill-training.html` — mining: active action, XP bar, veins list, drop feed, level-up, offline recap
 - `screen-b-woodcutting.notes.md` — same layout as A for a second skill; only the data deltas are recorded
 - `screen-c-bank.html` — bank grid with rarity cells, filters, search, sell, openable containers
+- `screen-d-login-onboarding.notes.md` — login / register / name-your-hero card; only the
+  onboarding card is built (no accounts yet)
 - `badges/*.svg` — corner-badge glyphs drawn in the design project (not from game-icons)
 
 The extracted tokens live in `src/ui/theme/` and the material / rarity palettes in

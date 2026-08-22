@@ -1,5 +1,5 @@
 {
-  "$comment": "Icon ids shipped in the production bundle in addition to any `\"icon\": \"…\"` referenced from src/content/**/*.json. Ids are author/slug from src/assets/icon-index.json.",
+  "$comment": "Icon ids shipped in the production bundle in addition to any `\"icon\": \"\u2026\"` referenced from src/content/**/*.json. Ids are author/slug from src/assets/icon-index.json.",
   "icons": [
     "lorc/broadsword",
     "lorc/mining",
@@ -10,6 +10,14 @@
     "delapouite/chest-armor",
     "delapouite/gold-stack",
     "lorc/wolf-head",
-    "sbed/shield"
+    "sbed/shield",
+    "delapouite/chest",
+    "delapouite/coins",
+    "lorc/cog",
+    "lorc/padlock",
+    "lorc/rune-stone",
+    "lorc/campfire",
+    "lorc/wood-axe",
+    "lorc/pine-tree"
   ]
 }
