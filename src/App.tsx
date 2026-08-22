@@ -18,6 +18,7 @@ import { JuiceSchema, usePref, ViewSchema, type View } from './ui/prefs.ts';
 import { BankScreen } from './ui/screens/BankScreen.tsx';
 import { CombatScreen } from './ui/screens/CombatScreen.tsx';
 import { CraftScreen } from './ui/screens/CraftScreen.tsx';
+import { EquipmentScreen } from './ui/screens/EquipmentScreen.tsx';
 import { CRAFT_SKILLS, GATHER_SKILLS } from './ui/screens/defs.ts';
 import { FirstSteps } from './ui/screens/FirstSteps.tsx';
 import { GatherScreen } from './ui/screens/GatherScreen.tsx';
@@ -69,6 +70,8 @@ export function App() {
   const screen =
     view.kind === 'bank' ? (
       <BankScreen sim={sim} dispatch={dispatch} juice={juice} />
+    ) : view.kind === 'equipment' ? (
+      <EquipmentScreen sim={sim} dispatch={dispatch} juice={juice} />
     ) : gather ? (
       <GatherScreen key={gather.skill} sim={sim} dispatch={dispatch} juice={juice} def={gather} />
     ) : craft ? (

@@ -1,4 +1,5 @@
 import { content, simContext } from '../content/index.ts';
+import { maxHitpoints } from '../sim/combat.ts';
 import { formatInt } from './format.ts';
 
 const NODE_VERB: Record<string, string> = {
@@ -19,6 +20,7 @@ export function unlockText(skill: string, level: number): string {
   if (recipe) return `${RECIPE_VERB[skill] ?? 'New recipe'}: ${recipe.name}`;
   const zone = skill === 'combat' ? content.zones.find((z) => z.level === level) : undefined;
   if (zone) return `New ground: ${zone.name}`;
+  if (skill === 'hitpoints') return `${String(maxHitpoints(level))} hitpoints now`;
   if (level >= simContext.xp.maxLevel) return 'The top. There is no further.';
   return `Next: Lv ${String(level + 1)} · ${formatInt(simContext.xp.xpForLevel(level + 1))} xp`;
 }

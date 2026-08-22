@@ -56,7 +56,8 @@ export function FirstSteps({
   }
 
   const [done, of] = step.progress(sim);
-  const here = view.kind === 'bank' ? step.where === 'bank' : step.where === view.id;
+  const here =
+    view.kind === 'skill' ? step.where === view.id : view.kind === 'bank' && step.where === 'bank';
   const target: View = step.where === 'bank' ? { kind: 'bank' } : { kind: 'skill', id: step.where };
   const whereName = step.where === 'bank' ? 'Bank' : content.skill(step.where).name;
   const icon = step.where === 'bank' ? BANK_ICON : content.skill(step.where).icon;

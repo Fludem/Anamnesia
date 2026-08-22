@@ -2,16 +2,22 @@
 import { content, simContext } from '../../content/index.ts';
 import type { OfflineRecap as RecapInfo } from '../../runtime/game-host.ts';
 import type { SimState } from '../../sim/save.ts';
+import { eventsOfType } from '../../sim/events.ts';
+import { totalKills } from '../derive-combat.ts';
 import { recap } from '../derive.ts';
 import { formatDuration, formatInt } from '../format.ts';
-import { ItemIconTile, Label, RarityTag, SkillIcon } from '../parts.tsx';
+import { ItemIconTile, Label, RarityTag, SkillIcon, UiIcon } from '../parts.tsx';
 import type { Juice } from '../theme/theme.ts';
 import { Modal } from './Modal.tsx';
 
 const VERB: Record<string, string> = {
   mining: 'mined',
   woodcutting: 'cut',
+  fishing: 'fished',
+  firemaking: 'burned',
+  cooking: 'cooked',
   smithing: 'smithed',
+  combat: 'fought',
 };
 
 export function OfflineRecap({
@@ -26,6 +32,12 @@ export function OfflineRecap({
   onCollect: () => void;
 }) {
   const r = recap(info.before, sim, simContext);
+  const kills = totalKills(sim) - totalKills(info.before);
+  const deaths = sim.stats.deaths - info.before.stats.deaths;
+  // The log is short; the items it still remembers are named, the rest is counted.
+  const taken = eventsOfType(sim, 'died')
+    .filter((d) => d.tick > info.before.tick && d.lost !== null)
+    .map((d) => content.item(d.lost!).name);
   const top = r.skills[0];
   const verb = top ? (VERB[top.skill] ?? 'trained') : null;
   const capped = info.skippedTicks > 0;
@@ -43,7 +55,12 @@ export function OfflineRecap({
           <div style={{ minWidth: 0, flex: 1 }}>
             <div className="big">+{formatInt(s.xp)} xp</div>
             <div className="sub">
-              {content.skill(s.skill).name} · {formatInt(s.actions)} actions
+              {content.skill(s.skill).name} ·{' '}
+              {s.skill === 'combat'
+                ? `${formatInt(kills)} kills`
+                : s.skill === 'hitpoints'
+                  ? 'from fighting'
+                  : `${formatInt(s.actions)} actions`}
             </div>
           </div>
           {s.to > s.from && (
@@ -72,6 +89,15 @@ export function OfflineRecap({
             })}
           </div>
         </>
+      )}
+      {deaths > 0 && (
+        <div className="died" style={{ marginTop: 14 }}>
+          <UiIcon id="lorc/skull-crossed-bones" size={14} />
+          <span>
+            {deaths === 1 ? 'you died once' : `you died ${String(deaths)} times`}
+            {taken.length > 0 ? ` · the hill took ${taken.join(', ')}` : ''}
+          </span>
+        </div>
       )}
       {capped && (
         <div className="recap-note">

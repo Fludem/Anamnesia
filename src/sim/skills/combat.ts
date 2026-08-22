@@ -109,6 +109,7 @@ function die(state: SimState, m: MonsterDef, ctx: SimContext): SimState {
       equipment,
       action: { current: null, queue: [] },
       combat: { ...state.combat, hp: maxHp, fight: null },
+      stats: { ...state.stats, deaths: state.stats.deaths + 1 },
     },
     { type: 'died', tick: state.tick, monster: m.id, lost },
   );

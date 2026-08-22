@@ -57,6 +57,7 @@ describe('first steps', () => {
       stats: {
         actions: {},
         kills: {},
+        deaths: 0,
         sold: 3,
         items: {
           'copper-ore': 10,

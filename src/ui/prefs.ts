@@ -9,6 +9,7 @@ import { z } from 'zod';
 export const ViewSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('skill'), id: z.string().min(1) }),
   z.object({ kind: z.literal('bank') }),
+  z.object({ kind: z.literal('equipment') }),
 ]);
 export type View = z.infer<typeof ViewSchema>;
 

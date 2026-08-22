@@ -53,6 +53,8 @@ export const color = {
 
   gold: '#d2a04c',
   goldHi: '#f5d98a',
+  /** Damage, death, the stop hover — Screen E's red. */
+  hurt: '#c96a5a',
 
   overlay: 'rgba(10,11,13,.7)',
   overlaySoft: 'rgba(10,11,13,.62)',
@@ -62,6 +64,7 @@ export const color = {
 export const rgb = {
   accent: '86,195,154',
   gold: '210,160,76',
+  hurt: '201,106,90',
   rare: '143,208,230',
   epic: '143,99,232',
   epicText: '201,164,255',

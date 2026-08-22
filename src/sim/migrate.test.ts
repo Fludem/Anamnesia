@@ -77,7 +77,7 @@ describe('migrateSave', () => {
       coins: 0,
       action: { current: null, queue: [] },
       log: [],
-      stats: { actions: {}, items: {}, sold: 0, kills: {} },
+      stats: { actions: {}, items: {}, sold: 0, kills: {}, deaths: 0 },
       tutorial: { done: [], dismissed: false },
       combat: { hp: 10, food: null, eatAt: 0.25, fight: null },
     });
@@ -113,7 +113,7 @@ describe('migrateSave', () => {
     expect(out.sim.coins).toBe(0);
     expect(out.sim.bankSlotsBought).toBe(0);
     expect(out.sim.log).toEqual([]);
-    expect(out.sim.stats).toEqual({ actions: {}, items: {}, sold: 0, kills: {} });
+    expect(out.sim.stats).toEqual({ actions: {}, items: {}, sold: 0, kills: {}, deaths: 0 });
     expect(out.sim.bank).toEqual([{ item: 'copper-ore', qty: 3 }]);
   });
 
@@ -135,7 +135,13 @@ describe('migrateSave', () => {
     expect(out.version).toBe(CURRENT_SAVE_VERSION);
     expect(out.sim.player).toEqual({ name: 'Elpis', god: null });
     expect(out.sim.equipment).toEqual({ ...emptyEquipment(), pickaxe: 'copper-pick' });
-    expect(out.sim.stats).toEqual({ actions: { mining: 12 }, items: {}, sold: 0, kills: {} });
+    expect(out.sim.stats).toEqual({
+      actions: { mining: 12 },
+      items: {},
+      sold: 0,
+      kills: {},
+      deaths: 0,
+    });
     expect(out.sim.tutorial).toEqual({ done: [], dismissed: false });
     // A v4 stop has no skill, so it is dropped; everything else in the log is kept.
     expect(out.sim.log).toEqual([{ type: 'level', tick: 4, skill: 'mining', from: 1, to: 2 }]);
@@ -154,6 +160,7 @@ describe('migrateSave', () => {
       items: { 'copper-ore': 3 },
       sold: 1,
       kills: {},
+      deaths: 0,
     });
     expect(out.sim.combat).toEqual({ hp: 10, food: null, eatAt: 0.25, fight: null });
   });

@@ -90,7 +90,7 @@ export const MIGRATIONS: MigrationTable = {
       ...raw,
       sim: {
         ...sim,
-        stats: { kills: {}, ...stats },
+        stats: { kills: {}, deaths: 0, ...stats },
         combat: { hp: STARTING_HP, food: null, eatAt: DEFAULT_EAT_AT, fight: null },
       },
     };

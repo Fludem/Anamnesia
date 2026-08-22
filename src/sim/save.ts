@@ -90,6 +90,8 @@ export const SimStateSchema = z.object({
     sold: z.number().int().min(0),
     /** Kills per monster id. */
     kills: z.record(IdSchema, z.number().int().min(0)),
+    /** Times the hero has fallen. */
+    deaths: z.number().int().min(0).default(0),
   }),
   combat: CombatStateSchema,
   /** First-steps progress: step ids completed in order, and whether the card was put away. */
@@ -136,7 +138,7 @@ export function createSimState(seed: number): SimState {
     coins: 0,
     action: { current: null, queue: [] },
     log: [],
-    stats: { actions: {}, items: {}, sold: 0, kills: {} },
+    stats: { actions: {}, items: {}, sold: 0, kills: {}, deaths: 0 },
     tutorial: { done: [], dismissed: false },
     combat: { hp: STARTING_HP, food: null, eatAt: DEFAULT_EAT_AT, fight: null },
   };

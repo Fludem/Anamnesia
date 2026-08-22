@@ -1810,3 +1810,584 @@
     animation-duration: 2s;
   }
 }
+
+/* ---- Screen E: combat ------------------------------------------------------------------- */
+
+.fight-idle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 26px 0;
+}
+.fight-idle .hint {
+  font: 400 var(--fs-body) var(--font-mono);
+  color: var(--fg-3);
+}
+.fight-idle .tile-box {
+  border-style: dashed;
+}
+.fight-sides {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.fight-side {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.fight-side .who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.fight-side .who .avatar {
+  width: 38px;
+  height: 38px;
+  font-size: 15px;
+}
+.fight-side .name {
+  font: 600 var(--fs-name) var(--font-sans);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fight-side .sub,
+.fight-side .stats {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+  margin-top: 1px;
+}
+.fight-side .stats {
+  color: var(--fg-2);
+}
+.hp-wrap {
+  position: relative;
+}
+.hp-bar {
+  height: 16px;
+  background: var(--bg-track);
+  border: 1px solid var(--border-track);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  position: relative;
+}
+.hp-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, var(--accent-hi), var(--accent) 55%, var(--accent-lo));
+  transition: width 0.2s;
+}
+.hp-fill.them {
+  background: var(--hurt);
+}
+.hp-text {
+  position: absolute;
+  right: 6px;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  font: 500 var(--fs-hint) var(--font-mono);
+  color: var(--fg-2);
+}
+.splat {
+  position: absolute;
+  bottom: 12px;
+  background: var(--hurt);
+  color: var(--bg);
+  font: 600 var(--fs-meta) var(--font-mono);
+  border-radius: var(--radius-sm);
+  padding: 1px 5px;
+  animation: floatUp 1s ease-out forwards;
+  pointer-events: none;
+  z-index: 5;
+}
+.splat.miss {
+  background: var(--border);
+  color: var(--fg-3);
+}
+.splat.heal {
+  background: rgba(var(--accent-rgb), 0.9);
+}
+.deadpan .splat {
+  animation: none;
+  opacity: 0;
+}
+.swing-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.swing-bar {
+  flex: 1;
+  height: 5px;
+  background: var(--bg-track);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  position: relative;
+}
+.swing-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--gold);
+}
+.swing-row .label {
+  font: 400 var(--fs-label) var(--font-mono);
+  color: var(--fg-3);
+  letter-spacing: 0;
+}
+.fight-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-row);
+  font: 400 var(--fs-meta) var(--font-mono);
+  color: var(--fg-2);
+}
+.btn.stop:hover {
+  border-color: var(--hurt);
+  color: var(--hurt);
+}
+.died {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 9px 12px;
+  background: rgba(var(--hurt-rgb), 0.07);
+  border: 1px solid rgba(var(--hurt-rgb), 0.45);
+  border-radius: var(--radius-md);
+  font: 500 var(--fs-meta) var(--font-mono);
+  color: var(--hurt);
+}
+.died .icon {
+  color: var(--hurt);
+}
+.died .btn.sm {
+  margin-left: auto;
+}
+
+.food-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  position: relative;
+  padding: 12px 16px;
+}
+.food-pick {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-cell);
+  padding: 3px 8px 3px 3px;
+  margin: -3px 0 -3px -3px;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.food-pick:hover {
+  border-color: var(--border-strong);
+  background: var(--bg-chrome);
+}
+.food-pick .name {
+  font: 500 var(--fs-body) var(--font-sans);
+  color: var(--fg);
+}
+.food-pick .name.none {
+  color: var(--gold);
+}
+.food-pick .sub {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+  margin-top: 1px;
+}
+.food-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 12px;
+  width: 250px;
+  background: var(--bg-menu);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-cell);
+  padding: 4px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+  z-index: 40;
+}
+.food-menu .label {
+  display: block;
+  padding: 6px 10px 4px;
+}
+.food-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: 0;
+  padding: 6px 10px;
+  border-radius: var(--radius-chip);
+  text-align: left;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.food-opt:hover {
+  background: var(--bg-menu-hover);
+}
+.food-opt .name {
+  font: 500 var(--fs-body) var(--font-sans);
+  color: var(--fg);
+}
+.food-opt .sub {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+  margin-top: 1px;
+}
+.food-opt .tag-active {
+  margin-left: auto;
+}
+.food-menu .empty {
+  padding: 8px 10px 10px;
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+}
+.eat-at {
+  border: 0;
+  padding: 0;
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.eat-at b {
+  font-weight: 500;
+  color: var(--fg-2);
+}
+.eat-at:hover b {
+  color: var(--accent);
+}
+
+.zone-row.active {
+  background: rgba(var(--accent-rgb), 0.05);
+}
+.zone-row .caret {
+  margin-left: 2px;
+}
+.mon-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 16px 7px 40px;
+  border: 0;
+  border-radius: 0;
+  border-top: 1px solid var(--bg-hover);
+  text-align: left;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.mon-row:hover {
+  background: var(--bg-hover);
+}
+.mon-row:focus:not(:focus-visible),
+.zone-row:focus:not(:focus-visible),
+.worn-cell:focus:not(:focus-visible),
+.belt-row:focus:not(:focus-visible) {
+  outline: none;
+}
+.mon-row.picked {
+  background: var(--bg-hover);
+}
+.mon-row.fighting {
+  background: rgba(var(--accent-rgb), 0.04);
+}
+.mon-row .name {
+  font: 500 var(--fs-body) var(--font-sans);
+  color: var(--fg-soft);
+}
+.mon-row.fighting .name {
+  color: var(--fg);
+}
+.mon-row .sub {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+}
+.mon-row .tag-active {
+  padding: 2px 6px;
+}
+.btn.fight {
+  font: 600 var(--fs-label) var(--font-mono);
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 3px 9px;
+  letter-spacing: var(--tracking-chip);
+}
+.btn.fight:hover {
+  background: var(--accent-hi);
+  border-color: var(--accent-hi);
+}
+
+.kill-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px;
+  border-top: 1px solid var(--border-row);
+  transition: background 0.9s linear;
+}
+.kill-row .body {
+  min-width: 0;
+  flex: 1;
+}
+.kill-row .head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.kill-row .name {
+  font: 400 var(--fs-body) var(--font-sans);
+  color: var(--fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kill-row .xp {
+  font: 500 var(--fs-hint) var(--font-mono);
+  color: var(--accent);
+  flex: none;
+}
+.kill-row .items {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+  margin-top: 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kill-row .age {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+  width: 26px;
+  text-align: right;
+  flex: none;
+}
+
+/* ---- Screen E: equipment ----------------------------------------------------------------- */
+
+.equip-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: flex-start;
+  margin-top: 16px;
+}
+.equip-columns > .card {
+  flex: 1 1 300px;
+  min-width: 260px;
+}
+.worn-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(72px, 86px));
+  grid-template-areas:
+    '. head .'
+    'cape body amulet'
+    'weapon legs shield'
+    'hands feet ring'
+    '. ammo .';
+  gap: 10px;
+  justify-content: center;
+  margin-top: 14px;
+}
+.worn-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--bg-inset);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-panel);
+  padding: 4px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.worn-cell.has {
+  border-style: solid;
+  border-color: var(--border-strong);
+}
+.worn-cell:hover,
+.worn-cell.on {
+  border-color: var(--accent);
+}
+.worn-cell .label {
+  font: 400 var(--fs-label) var(--font-mono);
+  color: var(--fg-disabled);
+  letter-spacing: 0.08em;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  white-space: nowrap;
+}
+.worn-cell.has .label {
+  font-weight: 500;
+  color: var(--fg-2);
+}
+.worn-cell .icon.empty {
+  color: var(--fg-disabled);
+}
+.totals {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.totals > div {
+  text-align: center;
+}
+.totals .n {
+  font: 600 var(--fs-title) var(--font-mono);
+  color: var(--fg);
+}
+.totals .n.accent {
+  color: var(--accent);
+}
+.totals .k {
+  font: 400 var(--fs-label) var(--font-mono);
+  color: var(--fg-3);
+  letter-spacing: 0.18em;
+  margin-top: 2px;
+}
+.belt-sub {
+  font: 400 var(--fs-label) var(--font-mono);
+  color: var(--fg-disabled);
+  margin-left: 8px;
+  letter-spacing: 0;
+}
+.belt {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+.belt-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-cell);
+  padding: 8px 10px;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.belt-row:hover,
+.belt-row.on {
+  border-color: var(--accent);
+}
+.belt-row .name {
+  font: 600 var(--fs-body) var(--font-sans);
+  color: var(--fg);
+}
+.belt-row .name.none {
+  font-weight: 400;
+  color: var(--fg-3);
+}
+.belt-row .sub {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+  margin-top: 2px;
+}
+.belt-row .tier {
+  margin-left: auto;
+  font: 500 var(--fs-label) var(--font-mono);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 2px 7px;
+  letter-spacing: var(--tracking-tag);
+  text-transform: uppercase;
+  color: var(--fg-2);
+}
+.sel-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+}
+.sel-head .name {
+  font: 600 var(--fs-title) var(--font-sans);
+}
+.sel-head .sub {
+  font: 400 var(--fs-meta) var(--font-mono);
+  color: var(--fg-2);
+  margin-top: 3px;
+}
+.sel-flavour {
+  font: 400 var(--fs-meta) var(--font-mono);
+  color: var(--fg-3);
+  line-height: 1.55;
+  font-style: italic;
+  margin-top: 14px;
+}
+.btn.unequip:hover {
+  border-color: var(--hurt);
+  color: var(--hurt);
+}
+.empty-note {
+  margin-top: 14px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 9px;
+  text-align: center;
+  font: 400 var(--fs-meta) var(--font-mono);
+  color: var(--fg-disabled);
+}
+.equip-list {
+  margin-top: 14px;
+}
+.equip-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 0;
+  border: 0;
+  border-radius: 0;
+  border-top: 1px solid var(--border-row);
+  text-align: left;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.equip-opt .name {
+  font: 500 var(--fs-body) var(--font-sans);
+  color: var(--fg);
+  flex: 1;
+  min-width: 0;
+}
+.equip-opt .sub {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+}
+
+@media (max-width: 700px) {
+  .fight-sides {
+    grid-template-columns: 1fr;
+  }
+}

@@ -34,6 +34,10 @@
   --gold-hi: #f5d98a;
   --gold-rgb: 210, 160, 76;
 
+  /* damage, death, the stop hover (Screen E) */
+  --hurt: #c96a5a;
+  --hurt-rgb: 201, 106, 90;
+
   --rare: #8fd0e6;
   --rare-border: #4d8ba3;
   --rare-rgb: 143, 208, 230;

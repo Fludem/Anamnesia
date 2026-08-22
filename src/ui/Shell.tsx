@@ -12,6 +12,10 @@ import type { View } from './prefs.ts';
 
 export const BANK_ICON = 'delapouite/chest';
 export const COIN_ICON = 'delapouite/coins';
+export const EQUIPMENT_ICON = 'delapouite/chest-armor';
+
+/** Skills with a screen of their own; hitpoints is read on the combat screen. */
+const LISTED = content.skills.filter((s) => s.listed);
 
 /** Bottom-tab captions: the design writes "Mine / Wood / Fish / Fire / Smith / Fight / Bank". */
 const TAB_LABEL: Record<string, string> = {
@@ -59,7 +63,7 @@ export function Shell({ sim, view, onView, onSettings, children }: ShellProps) {
             <span className="unit">gp</span>
           </div>
           <Label className="side-label">Skills</Label>
-          {content.skills.map((skill) => (
+          {LISTED.map((skill) => (
             <button
               key={skill.id}
               className={isSkill(skill.id) ? 'nav-row active' : 'nav-row'}
@@ -79,6 +83,13 @@ export function Shell({ sim, view, onView, onSettings, children }: ShellProps) {
             <span className="grow">Bank</span>
             <span className="lvl">{sim.bank.length}</span>
           </button>
+          <button
+            className={view.kind === 'equipment' ? 'nav-row active' : 'nav-row'}
+            onClick={() => onView({ kind: 'equipment' })}
+          >
+            <UiIcon id={EQUIPMENT_ICON} size={17} />
+            <span className="grow">Equipment</span>
+          </button>
           <div className="spacer" />
           <AvatarMenu name={sim.player.name} onSettings={onSettings} />
         </aside>
@@ -87,7 +98,7 @@ export function Shell({ sim, view, onView, onSettings, children }: ShellProps) {
       </div>
 
       <nav className="tabbar">
-        {content.skills.map((skill) => (
+        {LISTED.map((skill) => (
           <button
             key={skill.id}
             className={isSkill(skill.id) ? 'tab active' : 'tab'}
@@ -103,6 +114,13 @@ export function Shell({ sim, view, onView, onSettings, children }: ShellProps) {
         >
           <UiIcon id={BANK_ICON} size={20} />
           Bank
+        </button>
+        <button
+          className={view.kind === 'equipment' ? 'tab active' : 'tab'}
+          onClick={() => onView({ kind: 'equipment' })}
+        >
+          <UiIcon id={EQUIPMENT_ICON} size={20} />
+          Gear
         </button>
         <button className="tab" onClick={onSettings}>
           <UiIcon id="lorc/cog" size={20} />

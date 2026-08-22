@@ -121,6 +121,7 @@ describe('a fight', () => {
       expect(died.lost).toBe(gone[0] === 'head' ? 'helm' : 'cuirass');
       taken.add(died.lost);
       expect(s.combat.hp).toBe(heroStats(s, ctx).maxHp);
+      expect(s.stats.deaths).toBe(1);
       expect(s.combat.fight).toBeNull();
       expect(s.action).toEqual({ current: null, queue: [] });
       // The world goes on afterwards.
