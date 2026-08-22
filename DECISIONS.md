@@ -531,3 +531,90 @@ honest about what the sim can know, and the skip is one click.
   category tab leaked from cooking into smithing, emptying the list.
 - UI-only icons (hourglass, footprint) must be in `content/icon-manifest.json`; a test now
   scans `src/ui` for icon ids and fails if one is not shipped.
+
+## Phase 6 — combat: Screen E, the fight loop, the price of dying
+
+Two new design screens arrived: Screen E — Combat and Screen E — Equipment. The instruction
+with them: ignore the design's "wake at the campfire" button; dying costs one equipped item,
+chosen at random from what is worn on the body (head, torso…), never from the toolbelt.
+
+### A swing is a cycle; the monster has its own clock
+
+Combat is a request on the existing action primitive: `durationTicks` is the hero's swing
+(30 ticks, plus the weapon's `speed` — a spear is +6, slower and heavier), `successChance` is
+the hit chance, `resolve` rolls the damage and, when the monster falls, the kill. The monster
+could not be squeezed into that shape — it swings on its own speed — so the primitive grew
+one optional hook, `tick`, called every tick before the cycle advances. Combat is the only
+handler that uses it; the monster swings there, the hero eats there, and the hero dies there
+(the hook may clear `action.current`, and `tickAction` respects that). The fight itself
+(`combat.fight`: monster, its hp, its swing timer, the last eight numbers that popped) lives in
+the save, so a follower tab and a reload see the same fight.
+
+### One combat skill, plus hitpoints
+
+No attack/strength/defence split: there is one `combat` level, and `hitpoints`, an unlisted
+skill (no screen, no nav row; an `HP` chip on the combat screen) that combat feeds at a third
+of its xp. Max hitpoints = hitpoints level + 9, so a new hero has 10. The hero's numbers are
+`level + 4 + gear`: attack against the monster's defence gives the hit chance
+`(a + 2) / (a + d + 4)` (never certain, never hopeless); strength gives the max hit
+`1 + floor(str / 2)`; a hit is uniform in 1..max. Small integers, all rolled on the save's rng.
+
+### Xp is paid per point of damage
+
+A kill pays exactly the monster's `xp`, but it is paid as the hits land, in proportion to
+damage — so stopping mid-fight loses nothing and a swing that overkills pays only for what was
+left. The reason is not fairness, it is the degenerate strategy: with xp-on-kill the first
+tuning pass made a one-swing goat the best xp in the game until level 69. With damage-share xp
+plus a level weight baked into the content (`scripts/tune-combat.ts`: `xp = hp × (1 +
+level/15)`, then scaled to the target), the best monster at every level is the hardest one in
+the newest open zone, and the progression test pins that shape ("never more than one zone
+behind"). The Stone is not the best xp even at 90 — its defence makes the Minotaur better per
+hour; the Stone is for its drops.
+
+### The 36-hour model grew a combat climb
+
+`combatClimb` assumes a gear ladder (copper 1, iron 10, basalt 25, silver 45, gold 60, aether
+75 — the full set: sword, shield, helm, cuirass, greaves, boots), a hitpoints level derived
+from the xp share, and an exact expected-swings-to-kill (a small dynamic programme, so overkill
+counts). It reports, per level, the best monster, seconds per kill, damage taken per hour and
+the monster's max hit against the hero's hitpoints. The test keeps combat in the 27–45 h band
+(36.0 h now; milestones 50 at 1.1 h, 70 at 3.9 h, 90 at 16.9 h), every kill between 3 and 90
+seconds, and no chosen monster able to take half the hero's hitpoints in one hit — so an eat
+threshold of 50% holds as long as the bank has food. Food is the tradeoff: at the top the hero
+loses about 2,000 hitpoints an hour, which is ninety pale fish or a hundred and fifty pike.
+Fishing and cooking feed combat the way mining feeds smithing.
+
+### Food is a bank item, eaten from the bank
+
+No inventory: the hero names one bank item as food (anything with `heal`), and auto-eat takes
+one from the bank when hitpoints fall below the threshold (default 25%, the design's number;
+the screen cycles 25 / 50 / 75). The check runs before the monster's swing, so a threshold
+above the monster's max hit is safe, and the food's count on the screen is the bank's count.
+Out of combat, one hitpoint returns every ten ticks; in a fight only food helps.
+
+### Death takes one worn item, not a trip to the campfire
+
+When hitpoints reach 0: one body slot that holds something is picked uniformly at random and
+its item is destroyed (a `died` event names it); the fight, the action and the queue end;
+hitpoints refill. Tools are never taken — the design's toolbelt says "always with you" and the
+instruction said so. With nothing worn, nothing is lost, and the banner says so. There is no
+respawn timer and no wake-up button: the item is the whole price. The hero keeps what they
+were wearing otherwise, so a death in iron costs one iron piece, not the set. The offline
+recap counts deaths (`stats.deaths`, since the short log forgets) and names what it still
+remembers being taken.
+
+### The equipment screen equips too
+
+The design's equipment screen only unequips ("equip from the bank" was the bank's job). An
+empty slot that shows "nothing equipped here" with the matching items a click away in another
+screen felt like a dead end, so the selected card lists what the bank holds for that slot with
+an Equip button. The bank keeps its Equip as well.
+
+### Fixed along the way
+
+- `--hurt` (#c96a5a) joins the tokens: Screen E uses it for damage, the death banner and the
+  STOP hover. It is the design's, not a new hue.
+- Spears had `speed: -1`, which under the new meaning (ticks added to the swing) would have
+  made them faster as well as heavier. They are +6 now.
+- Save v6: combat state and kill/death counters, with a 5→6 migration that starts every hero
+  at full hitpoints with no food chosen.

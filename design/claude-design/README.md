@@ -10,6 +10,8 @@ run standalone — read them for tokens, layout and behaviour.
 - `screen-c-bank.html` — bank grid with rarity cells, filters, search, sell, openable containers
 - `screen-d-login-onboarding.notes.md` — login / register / name-your-hero card; only the
   onboarding card is built (no accounts yet)
+- `screen-e-combat.notes.md` — combat (fight card, food, zones, kill log) and equipment
+  (worn grid, toolbelt, selected item); deltas from the build recorded
 - `badges/*.svg` — corner-badge glyphs drawn in the design project (not from game-icons)
 
 The extracted tokens live in `src/ui/theme/` and the material / rarity palettes in

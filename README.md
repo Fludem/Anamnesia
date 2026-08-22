@@ -40,7 +40,15 @@ method in every gathering skill that out-earns its tier and banks nothing worth 
 first steps checked by the sim with small rewards, and a progression model (`src/sim/progression.ts`)
 pinned by a test so every skill takes 27–45 hours of its own idle time to 99 and the mean sits
 near 36. Save v5 adds the sworn god, lifetime counters, first-steps progress and the rod slot.
-Combat is still data only.
+
+Phase 6 is in: combat, from the design's Screen E. A fight is an action whose cycle is the
+hero's swing, with the monster on its own clock; one combat skill plus an unlisted hitpoints
+skill; xp paid per point of damage; food chosen from the bank and eaten automatically below a
+threshold; death destroys one random worn body item (never a tool) and nothing else. The
+combat screen (fight card, food row, zones and monsters, kill log) and an equipment screen
+(worn grid, toolbelt, selected item, equip from the bank). The progression model gained a
+combat climb in ladder gear, and `scripts/tune-combat.ts` retunes monster hp/xp against it.
+Save v6 adds the combat state and kill/death counters.
 
 ## Layout
 
@@ -54,7 +62,7 @@ Combat is still data only.
 | `src/ui/theme/` | Design tokens (CSS custom properties + TS object) and fonts.                                                                                                                             |
 | `src/ui/items/` | Maps content onto renderer specs; `<ItemTile>` / `<BareIcon>`.                                                                                                                           |
 | `design/`       | Claude Design reference screens the tokens were extracted from.                                                                                                                          |
-| `scripts/`      | Icon vendoring / indexing pipeline.                                                                                                                                                      |
+| `scripts/`      | Icon vendoring / indexing pipeline; `tune-combat.ts` retunes monsters against the progression model.                                                                                     |
 
 ## Commands
 
