@@ -3,6 +3,7 @@ import { ActionQueueSchema } from './actions.ts';
 import { IdSchema } from './content/schema.ts';
 import { ContainerSchema } from './items.ts';
 import { seedRng } from './rng.ts';
+import { EQUIPMENT_SLOTS, EquipmentSlotSchema } from './slots.ts';
 
 export const CURRENT_SAVE_VERSION = 2;
 
@@ -10,21 +11,7 @@ const Uint32 = z.number().int().min(0).max(0xffffffff);
 
 export const RngStateSchema = z.tuple([Uint32, Uint32, Uint32, Uint32]).readonly();
 
-export const EQUIPMENT_SLOTS = [
-  'weapon',
-  'shield',
-  'head',
-  'body',
-  'legs',
-  'hands',
-  'feet',
-  'cape',
-  'amulet',
-  'ring',
-  'ammo',
-] as const;
-export const EquipmentSlotSchema = z.enum(EQUIPMENT_SLOTS);
-export type EquipmentSlot = z.infer<typeof EquipmentSlotSchema>;
+export { EQUIPMENT_SLOTS, EquipmentSlotSchema, type EquipmentSlot } from './slots.ts';
 
 /** Every slot is present (null when empty) so the shape never varies by save. */
 export const EquipmentSchema = z.record(EquipmentSlotSchema, IdSchema.nullable());

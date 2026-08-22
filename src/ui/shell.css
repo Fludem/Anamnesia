@@ -130,8 +130,9 @@
 }
 
 .role.leader {
-  background: var(--accent);
-  color: var(--accent-fg);
+  background: rgba(var(--accent-rgb), 0.12);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
+  color: var(--accent);
 }
 
 /* ---- phase 1 game panels ---------------------------------------------------------------- */
@@ -197,25 +198,36 @@
 }
 
 .bank {
-  flex-direction: row;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 8px;
 }
 
 .bank li {
+  position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--bg);
+  gap: 4px;
+}
+
+.bank li .tile {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 1;
+}
+
+.bank li .tile svg {
+  width: 100%;
+  height: 100%;
 }
 
 .bank .qty {
-  color: var(--accent);
+  font-size: var(--fs-hint);
+  color: var(--fg-2);
 }
 
 .command-error {
-  color: #e08a8a;
+  color: var(--gold);
   margin: 8px 0 0;
 }

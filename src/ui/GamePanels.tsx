@@ -1,11 +1,18 @@
 import { content, simContext } from '../content/index.ts';
-import { Icon } from '../icons/Icon.tsx';
 import { icons } from '../icons/registry.ts';
 import { canStartAction } from '../sim/actions.ts';
 import type { Command } from '../sim/commands.ts';
 import { skillLevel, skillXp } from '../sim/progress.ts';
 import type { SimState } from '../sim/save.ts';
 import { formatDuration, formatInt } from './format.ts';
+import { BareIcon, ItemTile } from './items/ItemTile.tsx';
+import { itemTileSpec, rockIconSpec, tileSpec } from './items/spec.ts';
+import { color } from './theme/theme.ts';
+
+function skillIcon(iconId: string) {
+  const e = icons.get(iconId);
+  return { layers: [{ id: e.id, d: e.d, fill: { kind: 'flat' as const, color: color.accent } }] };
+}
 
 interface PanelProps {
   sim: SimState;
@@ -31,7 +38,7 @@ export function SkillsPanel({ sim }: { sim: SimState }) {
           const frac = next === null ? 1 : (xp - floor) / (next - floor);
           return (
             <li key={skill.id}>
-              <Icon icon={icons.get(skill.icon)} size={22} />
+              <BareIcon spec={skillIcon(skill.icon)} size={20} />
               <div className="grow">
                 <div className="row">
                   <span className="name">{skill.name}</span>
@@ -77,7 +84,9 @@ export function MiningPanel({ sim, dispatch }: PanelProps) {
           );
           return (
             <li key={rock.id} className={active ? 'active' : undefined}>
-              <Icon icon={icons.get(rock.icon)} size={28} />
+              <ItemTile
+                spec={tileSpec(content, rockIconSpec(content, rock, !check.ok), 'common', [])}
+              />
               <div className="grow">
                 <div className="row">
                   <span className="name">{rock.name}</span>
@@ -124,8 +133,11 @@ export function BankPanel({ sim }: { sim: SimState }) {
             const item = content.item(stack.item);
             return (
               <li key={stack.item} title={`${item.name} · worth ${formatInt(item.value)} each`}>
-                <Icon icon={icons.get(item.icon)} size={26} />
-                <span className="name">{item.name}</span>
+                <ItemTile
+                  spec={itemTileSpec(content, item, { size: 'bank' })}
+                  rarity={item.rarity}
+                  title={item.name}
+                />
                 <span className="qty mono">{formatInt(stack.qty)}</span>
               </li>
             );

@@ -1,0 +1,1392 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <meta charset="utf-8" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap"
+          rel="stylesheet"
+        />
+        <style>
+          html,
+          body {
+            margin: 0;
+            height: 100%;
+            background: #141518;
+          }
+          * {
+            box-sizing: border-box;
+          }
+          a {
+            color: #56c39a;
+            text-decoration: none;
+          }
+          a:hover {
+            color: #74dcb4;
+          }
+          @keyframes floatUp {
+            0% {
+              opacity: 0;
+              transform: translateY(8px);
+            }
+            18% {
+              opacity: 1;
+            }
+            100% {
+              opacity: 0;
+              transform: translateY(-30px);
+            }
+          }
+          @keyframes levelPop {
+            0% {
+              opacity: 0;
+              transform: scale(0.82);
+            }
+            45% {
+              opacity: 1;
+              transform: scale(1.05);
+            }
+            62% {
+              transform: scale(0.99);
+            }
+            75% {
+              transform: scale(1);
+            }
+            88% {
+              opacity: 1;
+            }
+            100% {
+              opacity: 0;
+              transform: scale(1.01);
+            }
+          }
+          @keyframes ringExpand {
+            0% {
+              opacity: 0.8;
+              transform: scale(0.4);
+            }
+            100% {
+              opacity: 0;
+              transform: scale(1.9);
+            }
+          }
+          @keyframes raySpin {
+            0% {
+              transform: rotate(0deg);
+            }
+            100% {
+              transform: rotate(28deg);
+            }
+          }
+          ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+          }
+          ::-webkit-scrollbar-thumb {
+            background: #2c2f35;
+            border-radius: 5px;
+            border: 2px solid #141518;
+          }
+          ::-webkit-scrollbar-track {
+            background: transparent;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          height: 100vh;
+          background: #141518;
+          color: #e8e6df;
+          font-family: 'IBM Plex Sans', sans-serif;
+          overflow: hidden;
+        "
+      >
+        <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              padding: 10px 14px;
+              background: #17181b;
+              border-bottom: 1px solid #24272c;
+            "
+          >
+            <div
+              style="
+                font:
+                  600 12px 'IBM Plex Sans',
+                  sans-serif;
+                letter-spacing: 0.16em;
+              "
+            >
+              ANAMNESIA
+            </div>
+            <div
+              style="
+                font:
+                  500 9px 'IBM Plex Mono',
+                  monospace;
+                color: #67655e;
+                letter-spacing: 0.3em;
+              "
+            >
+              IDLE
+            </div>
+            <div style="flex: 1"></div>
+            <div style="display: flex; align-items: center; gap: 6px">
+              <span
+                style="
+                  width: 14px;
+                  height: 14px;
+                  background: #d2a04c;
+                  -webkit-mask: url('./icons/coins.svg') center/contain no-repeat;
+                  mask: url('./icons/coins.svg') center/contain no-repeat;
+                "
+              ></span>
+              <span
+                style="
+                  font:
+                    500 12px 'IBM Plex Mono',
+                    monospace;
+                "
+                >12,304</span
+              >
+            </div>
+          </div>
+        </sc-if>
+        <div style="display: flex; flex: 1; min-height: 0">
+          <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+            <div
+              style="
+                width: 224px;
+                flex: none;
+                background: #17181b;
+                border-right: 1px solid #24272c;
+                display: flex;
+                flex-direction: column;
+                padding: 16px 12px 12px;
+                gap: 2px;
+              "
+            >
+              <div style="padding: 2px 10px 12px">
+                <div
+                  style="
+                    font:
+                      600 14px 'IBM Plex Sans',
+                      sans-serif;
+                    letter-spacing: 0.16em;
+                  "
+                >
+                  ANAMNESIA
+                </div>
+                <div
+                  style="
+                    font:
+                      500 10px 'IBM Plex Mono',
+                      monospace;
+                    color: #67655e;
+                    letter-spacing: 0.34em;
+                    margin-top: 2px;
+                  "
+                >
+                  IDLE
+                </div>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                  background: #101214;
+                  border: 1px solid #24272c;
+                  border-radius: 6px;
+                  padding: 7px 10px;
+                  margin: 0 2px 12px;
+                "
+              >
+                <span
+                  style="
+                    width: 15px;
+                    height: 15px;
+                    flex: none;
+                    background: #d2a04c;
+                    -webkit-mask: url('./icons/coins.svg') center/contain no-repeat;
+                    mask: url('./icons/coins.svg') center/contain no-repeat;
+                  "
+                ></span>
+                <span
+                  style="
+                    font:
+                      500 13px 'IBM Plex Mono',
+                      monospace;
+                  "
+                  >12,304</span
+                >
+                <span
+                  style="
+                    font:
+                      400 10px 'IBM Plex Mono',
+                      monospace;
+                    color: #67655e;
+                    margin-left: auto;
+                  "
+                  >gp</span
+                >
+              </div>
+              <div
+                style="
+                  font:
+                    500 9px 'IBM Plex Mono',
+                    monospace;
+                  color: #67655e;
+                  letter-spacing: 0.22em;
+                  padding: 0 10px 6px;
+                "
+              >
+                SKILLS
+              </div>
+              <sc-for list="{{ navs }}" as="nv" hint-placeholder-count="6">
+                <div style="{{ nv.rowStyle }}" style-hover="background:#1e2125">
+                  <span style="{{ nv.iconStyle }}"></span>
+                  <span style="{{ nv.nameStyle }}">{{ nv.name }}</span>
+                  <span
+                    style="
+                      font:
+                        500 11px 'IBM Plex Mono',
+                        monospace;
+                      color: #67655e;
+                    "
+                    >{{ nv.lvl }}</span
+                  >
+                </div>
+              </sc-for>
+              <div style="height: 1px; background: #24272c; margin: 10px 8px"></div>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                  padding: 8px 10px;
+                  border-radius: 6px;
+                  cursor: pointer;
+                "
+                style-hover="background:#1e2125"
+              >
+                <span
+                  style="
+                    width: 17px;
+                    height: 17px;
+                    flex: none;
+                    background: #8b887f;
+                    -webkit-mask: url('./icons/chest.svg') center/contain no-repeat;
+                    mask: url('./icons/chest.svg') center/contain no-repeat;
+                  "
+                ></span>
+                <span
+                  style="
+                    font:
+                      500 13px 'IBM Plex Sans',
+                      sans-serif;
+                    color: #a09d94;
+                    flex: 1;
+                  "
+                  >Bank</span
+                >
+                <span
+                  style="
+                    font:
+                      500 11px 'IBM Plex Mono',
+                      monospace;
+                    color: #67655e;
+                  "
+                  >184</span
+                >
+              </div>
+              <div style="flex: 1"></div>
+              <div style="position: relative">
+                <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+                  <div
+                    style="
+                      position: absolute;
+                      bottom: calc(100% + 6px);
+                      left: 2px;
+                      right: 2px;
+                      background: #1f2226;
+                      border: 1px solid #2c2f35;
+                      border-radius: 7px;
+                      padding: 4px;
+                      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+                      z-index: 40;
+                    "
+                  >
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 9px;
+                        padding: 8px 10px;
+                        border-radius: 5px;
+                        cursor: pointer;
+                      "
+                      style-hover="background:#26292e"
+                      onClick="{{ closeMenu }}"
+                    >
+                      <span
+                        style="
+                          width: 14px;
+                          height: 14px;
+                          flex: none;
+                          background: #8b887f;
+                          -webkit-mask: url('./icons/cog.svg') center/contain no-repeat;
+                          mask: url('./icons/cog.svg') center/contain no-repeat;
+                        "
+                      ></span>
+                      <span
+                        style="
+                          font:
+                            500 12px 'IBM Plex Sans',
+                            sans-serif;
+                          color: #e8e6df;
+                        "
+                        >Settings</span
+                      >
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 9px;
+                        padding: 8px 10px;
+                        border-radius: 5px;
+                        cursor: pointer;
+                      "
+                      style-hover="background:#26292e"
+                      onClick="{{ closeMenu }}"
+                    >
+                      <span
+                        style="
+                          width: 14px;
+                          height: 14px;
+                          flex: none;
+                          background: #8b887f;
+                          -webkit-mask: url('./icons/padlock.svg') center/contain no-repeat;
+                          mask: url('./icons/padlock.svg') center/contain no-repeat;
+                        "
+                      ></span>
+                      <span
+                        style="
+                          font:
+                            500 12px 'IBM Plex Sans',
+                            sans-serif;
+                          color: #e8e6df;
+                        "
+                        >Log out</span
+                      >
+                    </div>
+                  </div>
+                </sc-if>
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 9px;
+                    padding: 7px 10px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                  "
+                  style-hover="background:#1e2125"
+                  onClick="{{ toggleMenu }}"
+                >
+                  <span
+                    style="
+                      width: 22px;
+                      height: 22px;
+                      flex: none;
+                      border-radius: 50%;
+                      background: #26292e;
+                      border: 1px solid #2c2f35;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font:
+                        600 10px 'IBM Plex Mono',
+                        monospace;
+                      color: #56c39a;
+                    "
+                    >F</span
+                  >
+                  <span
+                    style="
+                      font:
+                        500 12px 'IBM Plex Sans',
+                        sans-serif;
+                      color: #a09d94;
+                      flex: 1;
+                      overflow: hidden;
+                      text-overflow: ellipsis;
+                      white-space: nowrap;
+                    "
+                    >Fludem</span
+                  >
+                  <span style="{{ menuCaretStyle }}">&#9662;</span>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+          <div style="flex: 1; min-width: 0; overflow: auto; padding: 20px 22px 28px">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+              <span
+                style="
+                  width: 20px;
+                  height: 20px;
+                  flex: none;
+                  background: #56c39a;
+                  -webkit-mask: url('./icons/mining.svg') center/contain no-repeat;
+                  mask: url('./icons/mining.svg') center/contain no-repeat;
+                "
+              ></span>
+              <span
+                style="
+                  font:
+                    600 20px 'IBM Plex Sans',
+                    sans-serif;
+                "
+                >Mining</span
+              >
+              <span
+                style="
+                  font:
+                    500 11px 'IBM Plex Mono',
+                    monospace;
+                  color: #a09d94;
+                  background: #1b1d21;
+                  border: 1px solid #24272c;
+                  border-radius: 5px;
+                  padding: 3px 8px;
+                  cursor: pointer;
+                "
+                style-hover="border-color:#56c39a"
+                onClick="{{ demoLevelUp }}"
+                title="click to replay level-up"
+                >{{ levelChip }}</span
+              >
+              <div style="flex: 1"></div>
+              <span
+                style="
+                  font:
+                    500 12px 'IBM Plex Mono',
+                    monospace;
+                  color: #a09d94;
+                "
+                >{{ xpHr }} xp/hr</span
+              >
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-top: 12px">
+              <span
+                style="
+                  font:
+                    500 9px 'IBM Plex Mono',
+                    monospace;
+                  color: #67655e;
+                  letter-spacing: 0.22em;
+                "
+                >XP</span
+              >
+              <div
+                style="
+                  flex: 1;
+                  height: 6px;
+                  background: #0f1113;
+                  border: 1px solid #24272c;
+                  border-radius: 3px;
+                  overflow: hidden;
+                  position: relative;
+                "
+              >
+                <div style="{{ xpFill }}"></div>
+              </div>
+              <span
+                style="
+                  font:
+                    500 12px 'IBM Plex Mono',
+                    monospace;
+                  color: #e8e6df;
+                "
+                >{{ xpText }}</span
+              >
+            </div>
+            <div
+              style="
+                display: flex;
+                flex-wrap: wrap;
+                gap: 14px;
+                align-items: flex-start;
+                margin-top: 18px;
+              "
+            >
+              <div
+                style="
+                  flex: 2 1 340px;
+                  min-width: 0;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 14px;
+                "
+              >
+                <div
+                  style="
+                    background: #1b1d21;
+                    border: 1px solid #24272c;
+                    border-radius: 8px;
+                    padding: 16px;
+                  "
+                >
+                  <div style="display: flex; align-items: center; gap: 14px">
+                    <div
+                      style="
+                        width: 52px;
+                        height: 52px;
+                        flex: none;
+                        background: #101214;
+                        border: 1px solid #2c2f35;
+                        border-radius: 7px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      <span style="{{ activeIcon }}"></span>
+                    </div>
+                    <div style="min-width: 0; flex: 1">
+                      <div
+                        style="
+                          font:
+                            600 15px 'IBM Plex Sans',
+                            sans-serif;
+                        "
+                      >
+                        Basalt Seam
+                      </div>
+                      <div
+                        style="
+                          font:
+                            400 11px 'IBM Plex Mono',
+                            monospace;
+                          color: #a09d94;
+                          margin-top: 3px;
+                        "
+                      >
+                        68 xp &#183; 2.7s &#183; {{ xpHr }} xp/hr
+                      </div>
+                    </div>
+                    <div
+                      style="
+                        padding: 6px 14px;
+                        border: 1px solid #2c2f35;
+                        border-radius: 6px;
+                        color: #a09d94;
+                        font:
+                          500 11px 'IBM Plex Mono',
+                          monospace;
+                        letter-spacing: 0.1em;
+                        cursor: pointer;
+                      "
+                      style-hover="border-color:#56c39a;color:#56c39a"
+                    >
+                      STOP
+                    </div>
+                  </div>
+                  <div style="position: relative; margin-top: 14px">
+                    <div
+                      style="
+                        height: 20px;
+                        background: #0f1113;
+                        border: 1px solid #26292c;
+                        border-radius: 4px;
+                        overflow: hidden;
+                        position: relative;
+                      "
+                    >
+                      <div style="{{ barFill }}"></div>
+                      <span
+                        style="
+                          position: absolute;
+                          right: 8px;
+                          top: 0;
+                          bottom: 0;
+                          display: flex;
+                          align-items: center;
+                          font:
+                            500 11px 'IBM Plex Mono',
+                            monospace;
+                          color: #a09d94;
+                        "
+                        >{{ remainText }}</span
+                      >
+                    </div>
+                    <sc-for list="{{ pops }}" as="p" hint-placeholder-count="0">
+                      <div style="{{ p.style }}">{{ p.text }}</div>
+                    </sc-for>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px; margin-top: 14px">
+                    <span
+                      style="
+                        font:
+                          500 9px 'IBM Plex Mono',
+                          monospace;
+                        color: #67655e;
+                        letter-spacing: 0.22em;
+                      "
+                      >TOOL</span
+                    >
+                    <div
+                      style="
+                        width: 34px;
+                        height: 34px;
+                        flex: none;
+                        background: #101214;
+                        border: 1px solid #2c2f35;
+                        border-radius: 6px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      <span style="{{ toolIcon }}"></span>
+                    </div>
+                    <span
+                      style="
+                        font:
+                          500 12px 'IBM Plex Sans',
+                          sans-serif;
+                      "
+                      >Iron Pickaxe</span
+                    >
+                    <span
+                      style="
+                        font:
+                          500 11px 'IBM Plex Mono',
+                          monospace;
+                        color: #56c39a;
+                      "
+                      >&#8722;10% action time</span
+                    >
+                  </div>
+                </div>
+                <div
+                  style="
+                    background: #1b1d21;
+                    border: 1px solid #24272c;
+                    border-radius: 8px;
+                    padding: 6px 0 2px;
+                  "
+                >
+                  <div style="display: flex; align-items: center; padding: 8px 16px 6px">
+                    <span
+                      style="
+                        font:
+                          500 9px 'IBM Plex Mono',
+                          monospace;
+                        color: #67655e;
+                        letter-spacing: 0.22em;
+                      "
+                      >VEINS</span
+                    >
+                    <span style="flex: 1"></span>
+                    <span
+                      style="
+                        font:
+                          400 10px 'IBM Plex Mono',
+                          monospace;
+                        color: #67655e;
+                      "
+                      >6 known</span
+                    >
+                  </div>
+                  <sc-for list="{{ veins }}" as="v" hint-placeholder-count="6">
+                    <div style="{{ v.rowStyle }}" style-hover="background:#1e2125">
+                      <div style="{{ v.cellStyle }}">
+                        <span style="{{ v.iconStyle }}"></span>
+                      </div>
+                      <div style="min-width: 0; flex: 1">
+                        <div style="{{ v.nameStyle }}">{{ v.name }}</div>
+                        <div
+                          style="
+                            font:
+                              400 10px 'IBM Plex Mono',
+                              monospace;
+                            color: #67655e;
+                            margin-top: 2px;
+                          "
+                        >
+                          {{ v.sub }}
+                        </div>
+                      </div>
+                      <sc-if value="{{ v.active }}" hint-placeholder-val="{{ false }}">
+                        <span
+                          style="
+                            font:
+                              600 9px 'IBM Plex Mono',
+                              monospace;
+                            color: #56c39a;
+                            background: rgba(86, 195, 154, 0.12);
+                            border: 1px solid rgba(86, 195, 154, 0.3);
+                            border-radius: 4px;
+                            padding: 3px 7px;
+                            letter-spacing: 0.14em;
+                          "
+                          >ACTIVE</span
+                        >
+                      </sc-if>
+                      <sc-if value="{{ v.locked }}" hint-placeholder-val="{{ false }}">
+                        <span style="display: flex; align-items: center; gap: 6px">
+                          <span
+                            style="
+                              width: 12px;
+                              height: 12px;
+                              background: #67655e;
+                              -webkit-mask: url('./icons/padlock.svg') center/contain no-repeat;
+                              mask: url('./icons/padlock.svg') center/contain no-repeat;
+                            "
+                          ></span>
+                          <span
+                            style="
+                              font:
+                                500 11px 'IBM Plex Mono',
+                                monospace;
+                              color: #d0cdc4;
+                            "
+                            >Lv {{ v.req }}</span
+                          >
+                        </span>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div
+                style="
+                  flex: 1 1 250px;
+                  min-width: 0;
+                  background: #1b1d21;
+                  border: 1px solid #24272c;
+                  border-radius: 8px;
+                  padding: 6px 0 0;
+                  display: flex;
+                  flex-direction: column;
+                "
+              >
+                <div style="display: flex; align-items: center; padding: 8px 14px 6px">
+                  <span
+                    style="
+                      font:
+                        500 9px 'IBM Plex Mono',
+                        monospace;
+                      color: #67655e;
+                      letter-spacing: 0.22em;
+                    "
+                    >DROPS</span
+                  >
+                  <span style="flex: 1"></span>
+                  <span
+                    style="
+                      font:
+                        400 10px 'IBM Plex Mono',
+                        monospace;
+                      color: #67655e;
+                    "
+                    >{{ actionsText }} actions</span
+                  >
+                </div>
+                <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+                  <div style="{{ toastStyle }}">
+                    <span
+                      style="
+                        width: 16px;
+                        height: 16px;
+                        flex: none;
+                        background: #c9a4ff;
+                        -webkit-mask: url('./icons/crystal-cluster.svg') center/contain no-repeat;
+                        mask: url('./icons/crystal-cluster.svg') center/contain no-repeat;
+                      "
+                    ></span>
+                    <span
+                      style="
+                        font:
+                          600 10px 'IBM Plex Mono',
+                          monospace;
+                        letter-spacing: 0.14em;
+                        color: #c9a4ff;
+                      "
+                      >RARE DROP</span
+                    >
+                    <span
+                      style="
+                        font:
+                          500 12px 'IBM Plex Sans',
+                          sans-serif;
+                        color: #e8e6df;
+                      "
+                      >{{ toastName }}</span
+                    >
+                  </div>
+                </sc-if>
+                <sc-for list="{{ drops }}" as="d" hint-placeholder-count="8">
+                  <div style="{{ d.rowStyle }}">
+                    <div style="{{ d.cellStyle }}">
+                      <span style="{{ d.iconStyle }}"></span>
+                    </div>
+                    <span
+                      style="
+                        font:
+                          400 12px 'IBM Plex Sans',
+                          sans-serif;
+                        color: #e8e6df;
+                        flex: 1;
+                        min-width: 0;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                      "
+                      >{{ d.name }}</span
+                    >
+                    <sc-if value="{{ d.tag }}" hint-placeholder-val="{{ false }}">
+                      <span style="{{ d.tagStyle }}">{{ d.tag }}</span>
+                    </sc-if>
+                    <span
+                      style="
+                        font:
+                          500 11px 'IBM Plex Mono',
+                          monospace;
+                        color: #a09d94;
+                      "
+                      >+1</span
+                    >
+                    <span
+                      style="
+                        font:
+                          400 10px 'IBM Plex Mono',
+                          monospace;
+                        color: #67655e;
+                        width: 26px;
+                        text-align: right;
+                      "
+                      >{{ d.age }}</span
+                    >
+                  </div>
+                </sc-for>
+                <div
+                  style="
+                    border-top: 1px solid #1f2226;
+                    padding: 9px 14px;
+                    font:
+                      400 10px 'IBM Plex Mono',
+                      monospace;
+                    color: #67655e;
+                    margin-top: auto;
+                  "
+                >
+                  {{ actionsText }} actions &#183; {{ raresText }} rares &#183; {{ sessionText }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <sc-if value="{{ recapOpen }}" hint-placeholder-val="{{ false }}">
+          <div
+            style="
+              position: fixed;
+              inset: 0;
+              background: rgba(10, 11, 13, 0.7);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              z-index: 70;
+            "
+          >
+            <div
+              style="
+                width: 360px;
+                max-width: calc(100vw - 32px);
+                background: #1b1d21;
+                border: 1px solid rgba(86, 195, 154, 0.4);
+                border-radius: 10px;
+                padding: 20px;
+                box-shadow:
+                  0 0 40px rgba(86, 195, 154, 0.15),
+                  0 18px 50px rgba(0, 0, 0, 0.6);
+              "
+            >
+              <div
+                style="
+                  font:
+                    600 10px 'IBM Plex Mono',
+                    monospace;
+                  letter-spacing: 0.34em;
+                  color: #56c39a;
+                "
+              >
+                WELCOME BACK
+              </div>
+              <div
+                style="
+                  font:
+                    400 11px 'IBM Plex Mono',
+                    monospace;
+                  color: #a09d94;
+                  margin-top: 6px;
+                "
+              >
+                You were away for {{ awayText }} &#8212; you mined:
+              </div>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  margin-top: 14px;
+                  background: #101214;
+                  border: 1px solid #24272c;
+                  border-radius: 7px;
+                  padding: 12px;
+                "
+              >
+                <span
+                  style="
+                    width: 26px;
+                    height: 26px;
+                    flex: none;
+                    background: linear-gradient(180deg, #74dcb4, #3da581);
+                    -webkit-mask: url('./icons/mining.svg') center/contain no-repeat;
+                    mask: url('./icons/mining.svg') center/contain no-repeat;
+                  "
+                ></span>
+                <div style="min-width: 0; flex: 1">
+                  <div
+                    style="
+                      font:
+                        600 14px 'IBM Plex Sans',
+                        sans-serif;
+                    "
+                  >
+                    +{{ recapXp }} xp
+                  </div>
+                  <div
+                    style="
+                      font:
+                        400 11px 'IBM Plex Mono',
+                        monospace;
+                      color: #a09d94;
+                      margin-top: 2px;
+                    "
+                  >
+                    Mining &#183; {{ recapActions }} actions
+                  </div>
+                </div>
+                <sc-if value="{{ recapLeveled }}" hint-placeholder-val="{{ false }}">
+                  <span
+                    style="
+                      font:
+                        600 11px 'IBM Plex Mono',
+                        monospace;
+                      color: #56c39a;
+                      background: rgba(86, 195, 154, 0.12);
+                      border: 1px solid rgba(86, 195, 154, 0.3);
+                      border-radius: 4px;
+                      padding: 4px 8px;
+                    "
+                    >Lv {{ recapFrom }} &#8594; {{ recapTo }}</span
+                  >
+                </sc-if>
+              </div>
+              <div
+                style="
+                  font:
+                    500 9px 'IBM Plex Mono',
+                    monospace;
+                  color: #67655e;
+                  letter-spacing: 0.22em;
+                  margin-top: 14px;
+                "
+              >
+                GATHERED
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 8px">
+                <sc-for list="{{ recapItems }}" as="r" hint-placeholder-count="3">
+                  <div
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 10px;
+                      background: #101214;
+                      border: 1px solid #24272c;
+                      border-radius: 6px;
+                      padding: 8px 10px;
+                    "
+                  >
+                    <div
+                      style="
+                        width: 30px;
+                        height: 30px;
+                        flex: none;
+                        background: #17181b;
+                        border: 1px solid #2c2f35;
+                        border-radius: 5px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      <span style="{{ r.iconStyle }}"></span>
+                    </div>
+                    <span
+                      style="
+                        font:
+                          400 12px 'IBM Plex Sans',
+                          sans-serif;
+                        flex: 1;
+                        min-width: 0;
+                      "
+                      >{{ r.name }}</span
+                    >
+                    <sc-if value="{{ r.tag }}" hint-placeholder-val="{{ false }}">
+                      <span style="{{ r.tagStyle }}">{{ r.tag }}</span>
+                    </sc-if>
+                    <span
+                      style="
+                        font:
+                          500 12px 'IBM Plex Mono',
+                          monospace;
+                        color: #56c39a;
+                      "
+                      >&#215;{{ r.n }}</span
+                    >
+                  </div>
+                </sc-for>
+              </div>
+              <div
+                style="
+                  text-align: center;
+                  margin-top: 16px;
+                  padding: 10px 0;
+                  border: 1px solid rgba(86, 195, 154, 0.45);
+                  border-radius: 6px;
+                  background: rgba(86, 195, 154, 0.1);
+                  color: #56c39a;
+                  font:
+                    600 11px 'IBM Plex Mono',
+                    monospace;
+                  letter-spacing: 0.14em;
+                  cursor: pointer;
+                "
+                style-hover="background:rgba(86,195,154,.18)"
+                onClick="{{ collectRecap }}"
+              >
+                COLLECT
+              </div>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ levelUp }}" hint-placeholder-val="{{ false }}">
+          <div
+            style="
+              position: fixed;
+              inset: 0;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              pointer-events: none;
+              z-index: 50;
+            "
+          >
+            <div
+              style="
+                position: absolute;
+                width: 340px;
+                height: 340px;
+                border: 2px solid rgba(86, 195, 154, 0.5);
+                border-radius: 50%;
+                animation: ringExpand 0.9s ease-out forwards;
+              "
+            ></div>
+            <div
+              style="
+                position: absolute;
+                width: 340px;
+                height: 340px;
+                border: 1px solid rgba(86, 195, 154, 0.3);
+                border-radius: 50%;
+                animation: ringExpand 1.3s 0.12s ease-out forwards;
+              "
+            ></div>
+            <div
+              style="
+                position: relative;
+                background: #1b1d21;
+                border: 1px solid rgba(86, 195, 154, 0.55);
+                border-radius: 10px;
+                padding: 22px 40px 24px;
+                text-align: center;
+                box-shadow:
+                  0 0 40px rgba(86, 195, 154, 0.35),
+                  0 18px 50px rgba(0, 0, 0, 0.5);
+                animation: levelPop 4s ease-out forwards;
+              "
+            >
+              <div
+                style="
+                  font:
+                    600 10px 'IBM Plex Mono',
+                    monospace;
+                  letter-spacing: 0.34em;
+                  color: #56c39a;
+                "
+              >
+                LEVEL UP
+              </div>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 12px;
+                  margin-top: 10px;
+                "
+              >
+                <span
+                  style="
+                    width: 26px;
+                    height: 26px;
+                    background: linear-gradient(180deg, #74dcb4, #3da581);
+                    -webkit-mask: url('./icons/mining.svg') center/contain no-repeat;
+                    mask: url('./icons/mining.svg') center/contain no-repeat;
+                  "
+                ></span>
+                <span
+                  style="
+                    font:
+                      600 34px 'IBM Plex Sans',
+                      sans-serif;
+                    color: #e8e6df;
+                  "
+                  >Mining {{ levelNum }}</span
+                >
+              </div>
+              <div
+                style="
+                  font:
+                    400 11px 'IBM Plex Mono',
+                    monospace;
+                  color: #67655e;
+                  margin-top: 8px;
+                "
+              >
+                {{ levelUnlock }}
+              </div>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
+          <div
+            style="
+              display: flex;
+              background: #17181b;
+              border-top: 1px solid #24272c;
+              padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+            "
+          >
+            <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="7">
+              <div
+                style="
+                  flex: 1;
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  gap: 3px;
+                  padding: 5px 0;
+                  min-width: 44px;
+                "
+              >
+                <span style="{{ tb.iconStyle }}"></span>
+                <span style="{{ tb.labelStyle }}">{{ tb.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"juice": {"editor": "enum", "options": ["deadpan", "quiet", "juicy"], "default": "juicy", "tsType": "&apos;deadpan&apos; | &apos;quiet&apos; | &apos;juicy&apos;", "section": "Feel"}, "rareRate": {"editor": "range", "default": 5, "min": 0, "max": 20, "step": 0.5, "unit": "%", "tsType": "number", "section": "Feel"}, "offlineHours": {"editor": "range", "default": 12, "min": 0, "max": 24, "step": 0.5, "unit": "h", "tsType": "number", "section": "Offline recap"}, "forceNarrow": {"editor": "boolean", "default": false, "tsType": "boolean", "section": "Preview"}}'
+    >
+      class Component extends DCLogic {
+        state = { prog: 0, narrow: false, level: 42, xpInto: 67980, xpNeed: 68200, drops: [], pops: [], actions: 412, rares: 3, session: 15132, lastLevelUp: 0, recapDismissedFor: -1 };
+        componentDidMount() {
+          this._onR = () => this.setState({ narrow: window.innerWidth < 700 });
+          window.addEventListener('resize', this._onR); this._onR();
+          this._last = performance.now();
+          const loop = (ts) => { this._raf = requestAnimationFrame(loop); this.step(ts); };
+          this._raf = requestAnimationFrame(loop);
+        }
+        componentWillUnmount() { cancelAnimationFrame(this._raf); window.removeEventListener('resize', this._onR); }
+        step(ts) {
+          const dt = Math.min(120, ts - this._last); this._last = ts;
+          const s = { prog: this.state.prog + dt, session: this.state.session + dt / 1000 };
+          if (s.prog >= 2700) { s.prog -= 2700; this.complete(s); }
+          const now = Date.now();
+          const pops = (s.pops || this.state.pops).filter(p => now - p.t < 1100);
+          if (pops.length !== this.state.pops.length || s.pops) s.pops = pops;
+          this.setState(s);
+        }
+        complete(s) {
+          const now = Date.now();
+          s.actions = this.state.actions + 1;
+          s.xpInto = this.state.xpInto + 68; s.level = this.state.level; s.xpNeed = this.state.xpNeed;
+          if (s.xpInto >= s.xpNeed) { s.xpInto -= s.xpNeed; s.level += 1; s.xpNeed = Math.round(s.xpNeed * 1.104); s.lastLevelUp = now; }
+          const rare = this.props.rareRate ?? 5, r = Math.random() * 100;
+          let d = { id: now + Math.random(), t: now, icon: 'minerals', tier: 'basalt', name: 'Basalt Ore', rarity: 'common' };
+          if (r < rare / 4) d = { ...d, icon: 'crystal-cluster', tier: 'aether', name: 'Aether Shard', rarity: 'epic' };
+          else if (r < rare) d = { ...d, icon: 'cut-diamond', tier: 'gem', name: 'Rough Gem', rarity: 'rare' };
+          s.rares = this.state.rares + (d.rarity !== 'common' ? 1 : 0);
+          s.drops = [d, ...this.state.drops].slice(0, 14);
+          const juice = this.props.juice ?? 'juicy';
+          s.pops = juice === 'deadpan' ? [] : [...this.state.pops, { id: now, t: now, text: '+68 xp', x: 14 + Math.random() * 60 }];
+        }
+        renderVals() {
+          const T = {
+            copper: ['#f0a06a', '#bd6f3f', '#6e4023'], iron: ['#cdd1d6', '#8f959d', '#52575e'],
+            basalt: ['#93a0c0', '#596484', '#333a4e'], marble: ['#f8f4ea', '#d8d0bf', '#9c9280'],
+            silver: ['#e9f2fb', '#b2c9e0', '#7089a3'], aether: ['#c9a4ff', '#8f63e8', '#53398f'],
+            gem: ['#d8f6ff', '#8fd0e6', '#4d8ba3']
+          };
+          const mask = (n) => { const u = `url('./icons/${n}.svg') center/contain no-repeat`; return { WebkitMask: u, mask: u }; };
+          const tierIcon = (n, tier, size) => ({ width: size + 'px', height: size + 'px', flex: 'none', display: 'block', background: `linear-gradient(150deg, ${T[tier][0]} 8%, ${T[tier][1]} 50%, ${T[tier][2]} 96%)`, ...mask(n) });
+          const flatIcon = (n, color, size) => ({ width: size + 'px', height: size + 'px', flex: 'none', display: 'block', background: color, ...mask(n) });
+          const fmt = (n) => Math.round(n).toLocaleString('en-US');
+          const juice = this.props.juice ?? 'juicy';
+          const juicy = juice === 'juicy';
+          const narrow = (this.props.forceNarrow ?? false) || this.state.narrow;
+          const now = Date.now();
+
+          const navs = [
+            { name: 'Mining', icon: 'mining', lvl: this.state.level, active: true },
+            { name: 'Woodcutting', icon: 'tree', lvl: 37 }, { name: 'Fishing', icon: 'fishing', lvl: 21 },
+            { name: 'Firemaking', icon: 'campfire', lvl: 18 }, { name: 'Smithing', icon: 'anvil', lvl: 26 },
+            { name: 'Combat', icon: 'swords', lvl: 31 }
+          ].map(n => ({
+            ...n,
+            rowStyle: { display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 10px', borderRadius: '6px', cursor: 'pointer', background: n.active ? 'rgba(86,195,154,.09)' : 'transparent' },
+            iconStyle: flatIcon(n.icon, n.active ? '#56c39a' : '#8b887f', 17),
+            nameStyle: { font: `500 13px 'IBM Plex Sans',sans-serif`, color: n.active ? '#e8e6df' : '#a09d94', flex: 1 }
+          }));
+
+          const veins = [
+            { name: 'Copper Vein', tier: 'copper', icon: 'ore', req: 1, xp: 18, dur: '2.2s' },
+            { name: 'Iron Vein', tier: 'iron', icon: 'ore', req: 10, xp: 34, dur: '2.6s' },
+            { name: 'Basalt Seam', tier: 'basalt', icon: 'minerals', req: 25, xp: 68, dur: '2.7s', active: true },
+            { name: 'Marble Quarry', tier: 'marble', icon: 'stone-block', req: 40, xp: 92, dur: '3.4s' },
+            { name: 'Silver Vein', tier: 'silver', icon: 'ore', req: 55, xp: 120, dur: '3.8s', locked: true },
+            { name: 'Aether Lode', tier: 'aether', icon: 'crystal-cluster', req: 80, xp: 210, dur: '4.6s', locked: true }
+          ].map(v => ({
+            ...v, active: !!v.active, locked: !!v.locked,
+            sub: v.locked ? `requires Lv ${v.req} · ${v.xp} xp · ${v.dur}` : `Lv ${v.req} · ${v.xp} xp · ${v.dur}`,
+            rowStyle: { display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 16px', borderTop: '1px solid #1f2226', cursor: v.locked ? 'default' : 'pointer', background: v.active ? 'rgba(86,195,154,.05)' : 'transparent' },
+            cellStyle: { width: '36px', height: '36px', flex: 'none', background: '#101214', border: '1px solid #2c2f35', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+            iconStyle: v.locked ? flatIcon(v.icon, '#4b4d52', 24) : tierIcon(v.icon, v.tier, 24),
+            nameStyle: { font: `500 13px 'IBM Plex Sans',sans-serif`, color: v.locked ? '#67655e' : '#e8e6df', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }
+          }));
+
+          const drops = this.state.drops.map(d => {
+            const age = now - d.t;
+            const fresh = Math.max(0, 1 - age / 900);
+            const rare = d.rarity === 'rare', epic = d.rarity === 'epic';
+            return {
+              ...d,
+              age: age < 60000 ? Math.floor(age / 1000) + 's' : Math.floor(age / 60000) + 'm',
+              tag: epic ? 'EPIC' : (rare ? 'RARE' : null),
+              tagStyle: { font: `600 8px 'IBM Plex Mono',monospace`, letterSpacing: '.12em', color: epic ? '#c9a4ff' : '#8fd0e6', border: `1px solid ${epic ? 'rgba(201,164,255,.4)' : 'rgba(143,208,230,.35)'}`, borderRadius: '3px', padding: '2px 5px' },
+              rowStyle: { display: 'flex', alignItems: 'center', gap: '10px', padding: '7px 14px', borderTop: '1px solid #1f2226', background: fresh > 0 ? `rgba(86,195,154,${(fresh * 0.07).toFixed(3)})` : 'transparent' },
+              cellStyle: { width: '30px', height: '30px', flex: 'none', background: '#101214', borderRadius: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: epic ? '1px solid #8f63e8' : (rare ? '1px solid #4d8ba3' : '1px solid #2c2f35'), boxShadow: juicy && epic ? '0 0 10px rgba(143,99,232,.45)' : (juicy && rare ? '0 0 8px rgba(143,208,230,.25)' : 'none') },
+              iconStyle: tierIcon(d.icon, d.tier, 20)
+            };
+          });
+
+          const pops = juice === 'deadpan' ? [] : this.state.pops.map(p => ({
+            ...p,
+            style: { position: 'absolute', right: p.x + 'px', bottom: '24px', color: '#74dcb4', font: `600 12px 'IBM Plex Mono',monospace`, animation: 'floatUp 1.1s ease-out forwards', pointerEvents: 'none', textShadow: juicy ? '0 0 8px rgba(86,195,154,.5)' : 'none' }
+          }));
+
+          const UNLOCKS = { 43: 'Gem find chance +0.5%', 44: 'New vein surveyed: Deep Basalt', 45: 'Marble Quarry yield +1' };
+          const levelUp = (now - this.state.lastLevelUp) < 4050 && this.state.lastLevelUp > 0 && juice !== 'deadpan';
+          const t0 = this.state.drops[0];
+          const toastOn = juicy && t0 && t0.rarity === 'epic' && (now - t0.t) < 2600;
+          const pct = Math.min(100, this.state.prog / 2700 * 100);
+          const sess = this.state.session;
+
+          const offH = this.props.offlineHours ?? 12;
+          const recapOpen = offH > 0 && this.state.recapDismissedFor !== offH;
+          const recapActions = Math.floor(offH * 3600000 / 2700);
+          const recapXpN = recapActions * 68;
+          let rl = 42, rInto = 67980, rNeed = 68200, rXp = recapXpN;
+          while (rInto + rXp >= rNeed && rl < 99) { rXp -= (rNeed - rInto); rInto = 0; rl += 1; rNeed = Math.round(rNeed * 1.104); }
+          const rareP = this.props.rareRate ?? 5;
+          const recapEpic = Math.round(recapActions * rareP / 400);
+          const recapRare = Math.max(0, Math.round(recapActions * rareP / 100) - recapEpic);
+          const tagS = (c, b) => ({ font: `600 8px 'IBM Plex Mono',monospace`, letterSpacing: '.12em', color: c, border: `1px solid ${b}`, borderRadius: '3px', padding: '2px 5px' });
+          const recapItems = [
+            { name: 'Basalt Ore', icon: 'minerals', tier: 'basalt', n: recapActions - recapRare - recapEpic },
+            { name: 'Rough Gem', icon: 'cut-diamond', tier: 'gem', n: recapRare, tag: 'RARE', tagStyle: tagS('#8fd0e6', 'rgba(143,208,230,.35)') },
+            { name: 'Aether Shard', icon: 'crystal-cluster', tier: 'aether', n: recapEpic, tag: 'EPIC', tagStyle: tagS('#c9a4ff', 'rgba(201,164,255,.4)') }
+          ].filter(r => r.n > 0).map(r => ({ ...r, n: fmt(r.n), tag: r.tag || null, iconStyle: tierIcon(r.icon, r.tier, 20) }));
+          const awayText = offH >= 1 ? Math.floor(offH) + 'h ' + Math.round(offH % 1 * 60) + 'm' : Math.round(offH * 60) + 'm';
+
+          return {
+            narrow, wide: !narrow, navs, veins, drops, pops,
+            recapOpen, awayText, recapItems,
+            recapXp: fmt(recapXpN), recapActions: fmt(recapActions),
+            recapLeveled: rl > 42, recapFrom: 42, recapTo: rl,
+            collectRecap: () => this.setState({ recapDismissedFor: offH }),
+            levelUp, levelNum: this.state.level,
+            levelChip: 'Lv ' + this.state.level + ' / 99',
+            levelUnlock: UNLOCKS[this.state.level] || 'Next: Lv ' + (this.state.level + 1) + ' · ' + fmt(this.state.xpNeed) + ' xp',
+            demoLevelUp: () => this.setState({ lastLevelUp: Date.now() }),
+            menuOpen: !!this.state.menuOpen,
+            toggleMenu: () => this.setState({ menuOpen: !this.state.menuOpen }),
+            closeMenu: () => this.setState({ menuOpen: false }),
+            menuCaretStyle: { font: `400 9px 'IBM Plex Sans',sans-serif`, color: '#67655e', transform: this.state.menuOpen ? 'rotate(180deg)' : 'none', transition: 'transform .15s' },
+            toast: !!toastOn, toastName: t0 ? t0.name : '',
+            toastStyle: { display: 'flex', alignItems: 'center', gap: '8px', margin: '4px 12px 6px', padding: '8px 10px', background: 'rgba(143,99,232,.08)', border: '1px solid rgba(143,99,232,.45)', borderRadius: '6px', boxShadow: '0 0 16px rgba(143,99,232,.3)', opacity: toastOn ? Math.min(1, (2600 - (now - t0.t)) / 500) : 0 },
+            activeIcon: { width: '34px', height: '34px', flex: 'none', display: 'block', background: 'linear-gradient(150deg, #93a0c0 8%, #596484 50%, #333a4e 96%)', WebkitMask: "url('./icons/minerals.svg') center/contain no-repeat", mask: "url('./icons/minerals.svg') center/contain no-repeat" },
+            toolIcon: tierIcon('mining', 'iron', 22),
+            barFill: { position: 'absolute', left: 0, top: 0, bottom: 0, width: pct + '%', background: 'linear-gradient(180deg,#74dcb4,#56c39a 55%,#3da581)', boxShadow: juicy ? 'inset 0 1px 0 rgba(255,255,255,.25), 0 0 12px rgba(86,195,154,.35)' : 'inset 0 1px 0 rgba(255,255,255,.18)' },
+            xpFill: { position: 'absolute', left: 0, top: 0, bottom: 0, width: (this.state.xpInto / this.state.xpNeed * 100).toFixed(2) + '%', background: levelUp ? '#74dcb4' : '#3da581', boxShadow: levelUp ? '0 0 10px rgba(86,195,154,.6)' : 'none' },
+            remainText: ((2700 - this.state.prog) / 1000).toFixed(1) + 's',
+            xpText: fmt(this.state.xpInto) + ' / ' + fmt(this.state.xpNeed),
+            xpHr: fmt(3600000 / 2700 * 68),
+            actionsText: fmt(this.state.actions), raresText: fmt(this.state.rares),
+            sessionText: Math.floor(sess / 3600) + 'h ' + Math.floor(sess % 3600 / 60) + 'm',
+            tabs: [
+              { label: 'Mine', icon: 'mining', active: true }, { label: 'Wood', icon: 'tree' }, { label: 'Fish', icon: 'fishing' },
+              { label: 'Fire', icon: 'campfire' }, { label: 'Smith', icon: 'anvil' }, { label: 'Fight', icon: 'swords' }, { label: 'Bank', icon: 'chest' }
+            ].map(t => ({
+              ...t,
+              iconStyle: flatIcon(t.icon, t.active ? '#56c39a' : '#8b887f', 20),
+              labelStyle: { font: `500 9px 'IBM Plex Mono',monospace`, color: t.active ? '#56c39a' : '#67655e', letterSpacing: '.06em' }
+            }))
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

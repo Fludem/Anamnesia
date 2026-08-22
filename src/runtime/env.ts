@@ -76,6 +76,13 @@ function browserYield(): Promise<void> {
   });
 }
 
+/** `crypto.randomUUID` is secure-context only; `getRandomValues` works over plain http on a LAN. */
+function randomId(): string {
+  if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
 export function browserEnv(): Env {
   const locks =
     typeof navigator !== 'undefined' && 'locks' in navigator
@@ -125,6 +132,6 @@ export function browserEnv(): Env {
     yieldToEventLoop: browserYield,
     reloadPage: () => location.reload(),
     randomSeed: () => crypto.getRandomValues(new Uint32Array(1))[0] ?? 0,
-    tabId: crypto.randomUUID(),
+    tabId: randomId(),
   };
 }

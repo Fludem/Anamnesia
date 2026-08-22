@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { EquipmentSlotSchema } from '../slots.ts';
+
 /**
  * Content is data, not code. These schemas are the contract every content file is validated
  * against at load. Adding an item, rock or skill never touches engine code.
@@ -19,10 +21,72 @@ export const SkillDefSchema = z.object({
 });
 export type SkillDef = z.infer<typeof SkillDefSchema>;
 
+/** Lowercase 6-digit hex. Palettes are data so a new tier is a content change, not a code change. */
+export const HexColorSchema = z.string().regex(/^#[0-9a-f]{6}$/, 'colours are lowercase #rrggbb');
+
+/** The three stops every material renders with (design: 150° gradient, highlight 8% → primary 50% → shadow 96%). */
+export const PaletteSchema = z.object({
+  highlight: HexColorSchema,
+  primary: HexColorSchema,
+  shadow: HexColorSchema,
+});
+export type Palette = z.infer<typeof PaletteSchema>;
+
+/** A material tier: the colour an item or node is rendered in. Names are placeholders until Phase 3. */
+export const MaterialDefSchema = z.object({
+  id: IdSchema,
+  name: z.string().min(1),
+  palette: PaletteSchema,
+});
+export type MaterialDef = z.infer<typeof MaterialDefSchema>;
+
+/**
+ * A rarity tier. `rank` orders tiers (0 = baseline); `tag` is the one-letter mark the bank cell
+ * shows so rarity never relies on colour alone. Treatment colours live in the UI theme, keyed by id.
+ */
+export const RarityDefSchema = z.object({
+  id: IdSchema,
+  name: z.string().min(1),
+  rank: z.number().int().min(0),
+  tag: z.string().min(1).max(2).nullable().default(null),
+});
+export type RarityDef = z.infer<typeof RarityDefSchema>;
+export const COMMON_RARITY: RarityDef = { id: 'common', name: 'Common', rank: 0, tag: null };
+
+export const ItemClassSchema = z.enum([
+  'resource',
+  'gem',
+  'weapon',
+  'armour',
+  'tool',
+  'consumable',
+  'container',
+  'misc',
+]);
+export type ItemClass = z.infer<typeof ItemClassSchema>;
+
+export const StatKeySchema = z.enum(['attack', 'strength', 'defence', 'speed', 'gather']);
+export type StatKey = z.infer<typeof StatKeySchema>;
+export const ItemStatsSchema = z.partialRecord(StatKeySchema, z.number());
+export type ItemStats = z.infer<typeof ItemStatsSchema>;
+
+/** Corner marks layered over an item's icon. Each maps to a badge glyph in the renderer. */
+export const BadgeKindSchema = z.enum(['enchanted', 'upgraded', 'burning', 'locked', 'cursed']);
+export type BadgeKind = z.infer<typeof BadgeKindSchema>;
+
 export const ItemDefSchema = z.object({
   id: IdSchema,
   name: z.string().min(1),
+  /** Base icon geometry; the renderer recolours it by material and layers rarity + badges on top. */
   icon: IconRefSchema,
+  class: ItemClassSchema.default('resource'),
+  /** Material tier id, or null to render in the neutral icon colour. */
+  material: IdSchema.nullable().default(null),
+  rarity: IdSchema.default(COMMON_RARITY.id),
+  /** Equipment slot for wearables; null for everything else. */
+  slot: EquipmentSlotSchema.nullable().default(null),
+  stats: ItemStatsSchema.default({}),
+  badges: z.array(BadgeKindSchema).default([]),
   /** Base sell value in coins. */
   value: z.number().int().min(0),
   tags: z.array(z.string()).default([]),
@@ -73,6 +137,8 @@ export const RockDefSchema = z.object({
   id: IdSchema,
   name: z.string().min(1),
   icon: IconRefSchema,
+  /** Material tier the node's icon is rendered in; null for the neutral icon colour. */
+  material: IdSchema.nullable().default(null),
   /** Mining level required to start. */
   level: z.number().int().min(1),
   /** Ticks per cycle (100 ms each). */
@@ -93,12 +159,34 @@ function stripDollarKeys(v: unknown): unknown {
   return Object.fromEntries(Object.entries(v).filter(([k]) => !k.startsWith('$')));
 }
 
+/** Array files may carry `{ "$comment": … }` entries (objects whose keys all start with `$`). */
+function stripCommentEntries(v: unknown): unknown {
+  if (!Array.isArray(v)) return v;
+  return v.filter(
+    (e: unknown) =>
+      !(
+        typeof e === 'object' &&
+        e !== null &&
+        !Array.isArray(e) &&
+        Object.keys(e).length > 0 &&
+        Object.keys(e).every((k) => k.startsWith('$'))
+      ),
+  );
+}
+
+/** `z.array(schema)` that ignores comment entries. */
+const contentList = <T extends z.ZodType>(schema: T) =>
+  z.preprocess(stripCommentEntries, z.array(schema));
+
 /** The raw shape of a whole content pack before cross-reference checks. */
 export const ContentPackSchema = z.object({
-  skills: z.array(SkillDefSchema),
-  items: z.array(ItemDefSchema),
+  skills: contentList(SkillDefSchema),
+  materials: contentList(MaterialDefSchema).default([]),
+  /** Defaults to just `common` so a pack without rarities still validates. */
+  rarities: contentList(RarityDefSchema).default([COMMON_RARITY]),
+  items: contentList(ItemDefSchema),
   /** Named drop tables shared between nodes. Keys starting with `$` are ignored (comments). */
   tables: z.preprocess(stripDollarKeys, z.record(z.string(), DropTableSchema)).default({}),
-  rocks: z.array(RockDefSchema),
+  rocks: contentList(RockDefSchema),
 });
 export type ContentPack = z.infer<typeof ContentPackSchema>;

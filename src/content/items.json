@@ -3,6 +3,8 @@
     "id": "copper-ore",
     "name": "Copper ore",
     "icon": "faithtoken/ore",
+    "class": "resource",
+    "material": "copper",
     "value": 4,
     "tags": ["ore", "mining"]
   },
@@ -10,6 +12,8 @@
     "id": "tin-ore",
     "name": "Tin ore",
     "icon": "faithtoken/ore",
+    "class": "resource",
+    "material": null,
     "value": 4,
     "tags": ["ore", "mining"]
   },
@@ -17,6 +21,8 @@
     "id": "iron-ore",
     "name": "Iron ore",
     "icon": "faithtoken/ore",
+    "class": "resource",
+    "material": "iron",
     "value": 17,
     "tags": ["ore", "mining"]
   },
@@ -24,6 +30,8 @@
     "id": "coal",
     "name": "Coal",
     "icon": "delapouite/coal-pile",
+    "class": "resource",
+    "material": "basalt",
     "value": 45,
     "tags": ["ore", "mining", "fuel"]
   },
@@ -31,6 +39,8 @@
     "id": "silver-ore",
     "name": "Silver ore",
     "icon": "faithtoken/ore",
+    "class": "resource",
+    "material": "silver",
     "value": 75,
     "tags": ["ore", "mining"]
   },
@@ -38,6 +48,8 @@
     "id": "gold-ore",
     "name": "Gold ore",
     "icon": "faithtoken/ore",
+    "class": "resource",
+    "material": "gold",
     "value": 150,
     "tags": ["ore", "mining"]
   },
@@ -45,6 +57,9 @@
     "id": "uncut-sapphire",
     "name": "Uncut sapphire",
     "icon": "lorc/crystal-growth",
+    "class": "gem",
+    "material": "gem",
+    "rarity": "rare",
     "value": 25,
     "tags": ["gem", "uncut"]
   },
@@ -52,6 +67,9 @@
     "id": "uncut-emerald",
     "name": "Uncut emerald",
     "icon": "lorc/crystal-growth",
+    "class": "gem",
+    "material": "willow",
+    "rarity": "rare",
     "value": 50,
     "tags": ["gem", "uncut"]
   },
@@ -59,6 +77,9 @@
     "id": "uncut-ruby",
     "name": "Uncut ruby",
     "icon": "lorc/crystal-growth",
+    "class": "gem",
+    "material": "copper",
+    "rarity": "rare",
     "value": 100,
     "tags": ["gem", "uncut"]
   },
@@ -66,6 +87,9 @@
     "id": "uncut-diamond",
     "name": "Uncut diamond",
     "icon": "lorc/crystal-growth",
+    "class": "gem",
+    "material": "marble",
+    "rarity": "epic",
     "value": 200,
     "tags": ["gem", "uncut"]
   }

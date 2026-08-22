@@ -1,0 +1,8 @@
+[
+  {
+    "$comment": "rank orders tiers; tag is the letter a bank cell shows. Treatment colours are in src/ui/theme/theme.ts keyed by id."
+  },
+  { "id": "common", "name": "Common", "rank": 0, "tag": null },
+  { "id": "rare", "name": "Rare", "rank": 1, "tag": "R" },
+  { "id": "epic", "name": "Epic", "rank": 2, "tag": "E" }
+]

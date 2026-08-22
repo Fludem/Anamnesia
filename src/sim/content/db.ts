@@ -3,12 +3,16 @@ import {
   type DropTable,
   type DropTableOrRef,
   type ItemDef,
+  type MaterialDef,
+  type RarityDef,
   type RockDef,
   type SkillDef,
 } from './schema.ts';
 
 interface ResolvedPack {
   skills: readonly SkillDef[];
+  materials: readonly MaterialDef[];
+  rarities: readonly RarityDef[];
   items: readonly ItemDef[];
   rocks: readonly RockDef[];
 }
@@ -23,17 +27,26 @@ export class ContentError extends Error {
 /** Validated, cross-checked, indexed content. Read-only; the sim is handed one of these. */
 export class ContentDb {
   readonly skills: readonly SkillDef[];
+  readonly materials: readonly MaterialDef[];
+  /** Sorted by rank ascending. */
+  readonly rarities: readonly RarityDef[];
   readonly items: readonly ItemDef[];
   readonly rocks: readonly RockDef[];
   private readonly skillById: ReadonlyMap<string, SkillDef>;
+  private readonly materialById: ReadonlyMap<string, MaterialDef>;
+  private readonly rarityById: ReadonlyMap<string, RarityDef>;
   private readonly itemById: ReadonlyMap<string, ItemDef>;
   private readonly rockById: ReadonlyMap<string, RockDef>;
 
   private constructor(pack: ResolvedPack) {
     this.skills = pack.skills;
+    this.materials = pack.materials;
+    this.rarities = [...pack.rarities].sort((a, b) => a.rank - b.rank);
     this.items = pack.items;
     this.rocks = pack.rocks;
     this.skillById = new Map(pack.skills.map((s) => [s.id, s]));
+    this.materialById = new Map(pack.materials.map((m) => [m.id, m]));
+    this.rarityById = new Map(pack.rarities.map((r) => [r.id, r]));
     this.itemById = new Map(pack.items.map((i) => [i.id, i]));
     this.rockById = new Map(pack.rocks.map((r) => [r.id, r]));
   }
@@ -67,9 +80,37 @@ export class ContentDb {
       pack.skills.map((s) => s.id),
     );
     dupes(
+      'material',
+      pack.materials.map((m) => m.id),
+    );
+    dupes(
+      'rarity',
+      pack.rarities.map((r) => r.id),
+    );
+    dupes(
       'item',
       pack.items.map((i) => i.id),
     );
+
+    const materialIds = new Set(pack.materials.map((m) => m.id));
+    const rarityIds = new Set(pack.rarities.map((r) => r.id));
+    for (const item of pack.items) {
+      if (item.material !== null && !materialIds.has(item.material))
+        problems.push(`item "${item.id}": unknown material "${item.material}"`);
+      if (!rarityIds.has(item.rarity))
+        problems.push(`item "${item.id}": unknown rarity "${item.rarity}"`);
+      if (
+        item.slot !== null &&
+        item.class !== 'weapon' &&
+        item.class !== 'armour' &&
+        item.class !== 'tool'
+      )
+        problems.push(`item "${item.id}": class "${item.class}" cannot have an equipment slot`);
+    }
+    for (const rock of pack.rocks) {
+      if (rock.material !== null && !materialIds.has(rock.material))
+        problems.push(`rock "${rock.id}": unknown material "${rock.material}"`);
+    }
     dupes(
       'rock',
       pack.rocks.map((r) => r.id),
@@ -97,11 +138,23 @@ export class ContentDb {
       }),
     }));
     if (problems.length) throw new ContentError(problems);
-    return new ContentDb({ skills: pack.skills, items: pack.items, rocks });
+    return new ContentDb({
+      skills: pack.skills,
+      materials: pack.materials,
+      rarities: pack.rarities,
+      items: pack.items,
+      rocks,
+    });
   }
 
   skill(id: string): SkillDef {
     return lookup(this.skillById, 'skill', id);
+  }
+  material(id: string): MaterialDef {
+    return lookup(this.materialById, 'material', id);
+  }
+  rarity(id: string): RarityDef {
+    return lookup(this.rarityById, 'rarity', id);
   }
   item(id: string): ItemDef {
     return lookup(this.itemById, 'item', id);

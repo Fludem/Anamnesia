@@ -218,3 +218,71 @@ it. Verified in Chrome against the save left from the Phase 0.5 session (1.32 M 
 432,000 ticks of the real sim run in well under a second, so there is nothing to speed up yet.
 `advance.test.ts` proves batch-size independence (1 / 7 / 2,000 ticks per batch) against a
 state that is actively mining a flaky rock, which is the exact shape a future fast path must pass.
+
+## Phase 2 — item and icon system
+
+### The design library is the source of every colour
+
+The Claude Design screens (synced verbatim into `design/claude-design/`) define the palette;
+nothing in Phase 2 invents a hue. Chrome tokens live in `src/ui/theme/` (CSS custom properties
+and a TypeScript object, as the design brief asked). The thirteen material palettes are
+**content** (`src/content/materials.json`) because an item's colour is data; rarity _definitions_
+(id, rank, tag letter) are content too, while rarity _treatments_ (border, glow, text colour)
+are theme, because the same colours chrome the toasts and modals. A test keeps `tokens.css` and
+`theme.ts` in step and rejects pure black/white.
+
+### Icon recipe: the design's CSS gradient, reproduced in SVG
+
+The screens colour an icon with `mask` + `linear-gradient(150deg, highlight 8%, primary 50%,
+shadow 96%)`. The renderer emits inline `<svg>` instead (the brief's choice — it composes layers,
+survives copy/paste, and needs no mask-image support) with a `userSpaceOnUse` gradient over the
+512 icon box at the same angle and stops, so a tile here is pixel-equivalent to the design.
+Gradient ids are content-hashed from the three colours, so repeated ids across inline SVGs always
+refer to identical definitions.
+
+### Rarity never relies on colour alone
+
+Three tiers ship (common / rare / epic — the design has no fourth; adding one is a content row
+plus a theme entry). Rare and epic get a border, a glow (CSS box-shadow, only in the "juicy"
+feel), a corner tag letter, and — on procedural swords — a gem in the guard. The glow stays in
+CSS rather than an SVG filter so a 200-cell bank grid stays cheap.
+
+### Badges are the design's own glyphs
+
+`design/claude-design/badges/*.svg` were drawn in the design project (not game-icons), so they
+ship without attribution as 256-space paths in `src/icons/badges.ts`. Badge kinds (enchanted,
+upgraded, burning, locked, cursed) map to a glyph and a theme colour in `src/ui/items/badges.ts`.
+The brief's "set membership" and "poison" kinds have no glyph yet — flagged, not invented.
+
+### Swords are composed from parts, and the parts _are_ the stats
+
+`rollSword(seed, { materialRank, rarityRank })` draws blade / guard / grip / pommel from a
+seeded sfc32 stream (draw order pinned by test), sets a gem above common, and computes stats
+from the same part table, scaled by material rank. Geometry for each part is authored in the
+512 space with the blade up and rotated 45° at render. 5 × 4 × 3 × 2 × 2 = 360 silhouettes per
+material × rarity. Grips use the `oak` palette; gems use `gem` (rare) or `aether` (epic), the
+design's own pairing.
+
+### Render cache is keyed on inputs, not path data
+
+`specKey()` replaces every path with its layer id (icon id or `sword:blade:leaf`) and stringifies
+the rest; the bounded `RenderCache` memoises markup by that key. The contact sheet shows hit
+counts.
+
+### Fonts are self-hosted
+
+The screens load IBM Plex from Google Fonts. The game imports `@fontsource/ibm-plex-{sans,mono}`
+instead: no third-party request from a tab that sits open for hours, and no flash of fallback
+on a flaky connection.
+
+### Content material mapping is provisional
+
+Existing items got the nearest design palette (copper → copper, coal → basalt, uncut emerald →
+willow as the design did, diamond → marble + epic…); tin has no design palette and renders
+neutral. The weapon tier ladder on the contact sheet (copper → iron → basalt → silver → gold →
+aether) is the design's mining ladder reused. All of it is Phase 3's to rename and rebalance.
+
+### Fixed along the way
+
+`crypto.randomUUID` is secure-context only, so the app threw before guard-only mode could engage
+on a plain-http LAN address. `browserEnv` now falls back to `getRandomValues`.

@@ -1,0 +1,70 @@
+[
+  {
+    "$comment": "Palettes are the Claude Design tier colours (design/claude-design). highlight/primary/shadow render as a 150° gradient. Names are placeholders until Phase 3."
+  },
+  {
+    "id": "copper",
+    "name": "Copper",
+    "palette": { "highlight": "#f0a06a", "primary": "#bd6f3f", "shadow": "#6e4023" }
+  },
+  {
+    "id": "iron",
+    "name": "Iron",
+    "palette": { "highlight": "#cdd1d6", "primary": "#8f959d", "shadow": "#52575e" }
+  },
+  {
+    "id": "basalt",
+    "name": "Basalt",
+    "palette": { "highlight": "#93a0c0", "primary": "#596484", "shadow": "#333a4e" }
+  },
+  {
+    "id": "marble",
+    "name": "Marble",
+    "palette": { "highlight": "#f8f4ea", "primary": "#d8d0bf", "shadow": "#9c9280" }
+  },
+  {
+    "id": "silver",
+    "name": "Silver",
+    "palette": { "highlight": "#e9f2fb", "primary": "#b2c9e0", "shadow": "#7089a3" }
+  },
+  {
+    "id": "gold",
+    "name": "Gold",
+    "palette": { "highlight": "#f5d98a", "primary": "#d2a04c", "shadow": "#8a6524" }
+  },
+  {
+    "id": "aether",
+    "name": "Aether",
+    "palette": { "highlight": "#c9a4ff", "primary": "#8f63e8", "shadow": "#53398f" }
+  },
+  {
+    "id": "gem",
+    "name": "Gem",
+    "palette": { "highlight": "#d8f6ff", "primary": "#8fd0e6", "shadow": "#4d8ba3" }
+  },
+  {
+    "id": "pine",
+    "name": "Pine",
+    "palette": { "highlight": "#8fd0a0", "primary": "#4f9a68", "shadow": "#2b5a3c" }
+  },
+  {
+    "id": "oak",
+    "name": "Oak",
+    "palette": { "highlight": "#d8b184", "primary": "#a37a4a", "shadow": "#5e4426" }
+  },
+  {
+    "id": "birch",
+    "name": "Birch",
+    "palette": { "highlight": "#f3ede0", "primary": "#cbc2ab", "shadow": "#8f8770" }
+  },
+  {
+    "id": "willow",
+    "name": "Willow",
+    "palette": { "highlight": "#a8e0c2", "primary": "#5fae85", "shadow": "#33664c" }
+  },
+  {
+    "id": "blight",
+    "name": "Blight",
+    "palette": { "highlight": "#b0a4c4", "primary": "#6f6488", "shadow": "#3d3650" }
+  }
+]

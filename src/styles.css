@@ -1,15 +1,11 @@
+@import './ui/theme/tokens.css';
+
+/* Phase 1 panel aliases — the old names the shell still uses, mapped onto the design tokens. */
 :root {
-  color-scheme: dark;
-  --bg: #111418;
-  --bg-raised: #1a1f26;
-  --bg-hover: #232a33;
-  --border: #2b333d;
-  --fg: #e6e9ee;
-  --fg-muted: #8b95a3;
-  --accent: #e0b05a;
-  --accent-fg: #1a1407;
-  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-  --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --bg-raised: var(--bg-panel);
+  --fg-muted: var(--fg-2);
+  --mono: var(--font-mono);
+  --sans: var(--font-sans);
 }
 
 * {
@@ -22,12 +18,30 @@ body {
   background: var(--bg);
   color: var(--fg);
   font-family: var(--sans);
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 5px;
+  border: 2px solid var(--bg);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 a {
   color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--accent-hi);
 }
 
 code {
@@ -44,33 +58,65 @@ select {
 
 input,
 select {
-  background: var(--bg-raised);
+  background: var(--bg-inset);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius-chip);
   padding: 6px 10px;
+  font-family: var(--mono);
+  font-size: var(--fs-meta);
+  outline: none;
 }
 
 input:focus,
 select:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
+  border-color: var(--accent);
 }
 
 button {
-  background: var(--bg-raised);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 6px 14px;
+  color: var(--fg-2);
+  font-family: var(--mono);
+  font-size: var(--fs-meta);
+  font-weight: 500;
+  letter-spacing: var(--tracking-button);
+  text-transform: uppercase;
   cursor: pointer;
+  transition:
+    border-color var(--dur-fast),
+    color var(--dur-fast),
+    background var(--dur-fast);
 }
 
-button:hover {
-  background: var(--bg-hover);
+button:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+button:disabled {
+  color: var(--fg-disabled);
+  cursor: default;
 }
 
 button.primary {
-  background: var(--accent);
-  color: var(--accent-fg);
-  border-color: transparent;
+  background: rgba(var(--accent-rgb), 0.1);
+  border-color: rgba(var(--accent-rgb), 0.45);
+  color: var(--accent);
   font-weight: 600;
+}
+
+button.primary:hover:not(:disabled) {
+  background: rgba(var(--accent-rgb), 0.18);
+}
+
+/* Uppercase mono section label ("VEINS", "DROPS"). */
+.label {
+  font-family: var(--mono);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  color: var(--fg-3);
+  text-transform: uppercase;
 }

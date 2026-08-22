@@ -1,0 +1,1279 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <meta charset="utf-8" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap"
+          rel="stylesheet"
+        />
+        <style>
+          html,
+          body {
+            margin: 0;
+            height: 100%;
+            background: #141518;
+          }
+          * {
+            box-sizing: border-box;
+          }
+          a {
+            color: #56c39a;
+            text-decoration: none;
+          }
+          a:hover {
+            color: #74dcb4;
+          }
+          @keyframes floatUp {
+            0% {
+              opacity: 0;
+              transform: translateY(8px);
+            }
+            18% {
+              opacity: 1;
+            }
+            100% {
+              opacity: 0;
+              transform: translateY(-30px);
+            }
+          }
+          ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+          }
+          ::-webkit-scrollbar-thumb {
+            background: #2c2f35;
+            border-radius: 5px;
+            border: 2px solid #141518;
+          }
+          ::-webkit-scrollbar-track {
+            background: transparent;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          height: 100vh;
+          background: #141518;
+          color: #e8e6df;
+          font-family: 'IBM Plex Sans', sans-serif;
+          overflow: hidden;
+        "
+      >
+        <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              padding: 10px 14px;
+              background: #17181b;
+              border-bottom: 1px solid #24272c;
+            "
+          >
+            <div
+              style="
+                font:
+                  600 12px 'IBM Plex Sans',
+                  sans-serif;
+                letter-spacing: 0.16em;
+              "
+            >
+              ANAMNESIA
+            </div>
+            <div
+              style="
+                font:
+                  500 9px 'IBM Plex Mono',
+                  monospace;
+                color: #67655e;
+                letter-spacing: 0.3em;
+              "
+            >
+              IDLE
+            </div>
+            <div style="flex: 1"></div>
+            <div style="display: flex; align-items: center; gap: 6px">
+              <span
+                style="
+                  width: 14px;
+                  height: 14px;
+                  background: #d2a04c;
+                  -webkit-mask: url('./icons/coins.svg') center/contain no-repeat;
+                  mask: url('./icons/coins.svg') center/contain no-repeat;
+                "
+              ></span>
+              <span
+                style="
+                  font:
+                    500 12px 'IBM Plex Mono',
+                    monospace;
+                "
+                >{{ gpText }}</span
+              >
+            </div>
+          </div>
+        </sc-if>
+        <div style="display: flex; flex: 1; min-height: 0">
+          <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+            <div
+              style="
+                width: 224px;
+                flex: none;
+                background: #17181b;
+                border-right: 1px solid #24272c;
+                display: flex;
+                flex-direction: column;
+                padding: 16px 12px 12px;
+                gap: 2px;
+              "
+            >
+              <div style="padding: 2px 10px 12px">
+                <div
+                  style="
+                    font:
+                      600 14px 'IBM Plex Sans',
+                      sans-serif;
+                    letter-spacing: 0.16em;
+                  "
+                >
+                  ANAMNESIA
+                </div>
+                <div
+                  style="
+                    font:
+                      500 10px 'IBM Plex Mono',
+                      monospace;
+                    color: #67655e;
+                    letter-spacing: 0.34em;
+                    margin-top: 2px;
+                  "
+                >
+                  IDLE
+                </div>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                  background: #101214;
+                  border: 1px solid #24272c;
+                  border-radius: 6px;
+                  padding: 7px 10px;
+                  margin: 0 2px 12px;
+                "
+              >
+                <span
+                  style="
+                    width: 15px;
+                    height: 15px;
+                    flex: none;
+                    background: #d2a04c;
+                    -webkit-mask: url('./icons/coins.svg') center/contain no-repeat;
+                    mask: url('./icons/coins.svg') center/contain no-repeat;
+                  "
+                ></span>
+                <span
+                  style="
+                    font:
+                      500 13px 'IBM Plex Mono',
+                      monospace;
+                  "
+                  >{{ gpText }}</span
+                >
+                <span
+                  style="
+                    font:
+                      400 10px 'IBM Plex Mono',
+                      monospace;
+                    color: #67655e;
+                    margin-left: auto;
+                  "
+                  >gp</span
+                >
+              </div>
+              <div
+                style="
+                  font:
+                    500 9px 'IBM Plex Mono',
+                    monospace;
+                  color: #67655e;
+                  letter-spacing: 0.22em;
+                  padding: 0 10px 6px;
+                "
+              >
+                SKILLS
+              </div>
+              <sc-for list="{{ navs }}" as="nv" hint-placeholder-count="6">
+                <div
+                  style="{{ nv.rowStyle }}"
+                  style-hover="background:#1e2125"
+                  onClick="{{ nv.go }}"
+                >
+                  <span style="{{ nv.iconStyle }}"></span>
+                  <span style="{{ nv.nameStyle }}">{{ nv.name }}</span>
+                  <span
+                    style="
+                      font:
+                        500 11px 'IBM Plex Mono',
+                        monospace;
+                      color: #67655e;
+                    "
+                    >{{ nv.lvl }}</span
+                  >
+                </div>
+              </sc-for>
+              <div style="height: 1px; background: #24272c; margin: 10px 8px"></div>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                  padding: 8px 10px;
+                  border-radius: 6px;
+                  cursor: pointer;
+                  background: rgba(86, 195, 154, 0.09);
+                "
+              >
+                <span
+                  style="
+                    width: 17px;
+                    height: 17px;
+                    flex: none;
+                    background: #56c39a;
+                    -webkit-mask: url('./icons/chest.svg') center/contain no-repeat;
+                    mask: url('./icons/chest.svg') center/contain no-repeat;
+                  "
+                ></span>
+                <span
+                  style="
+                    font:
+                      500 13px 'IBM Plex Sans',
+                      sans-serif;
+                    color: #e8e6df;
+                    flex: 1;
+                  "
+                  >Bank</span
+                >
+                <span
+                  style="
+                    font:
+                      500 11px 'IBM Plex Mono',
+                      monospace;
+                    color: #67655e;
+                  "
+                  >{{ slotsUsed }}</span
+                >
+              </div>
+              <div style="flex: 1"></div>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 9px;
+                  padding: 7px 10px;
+                  border-radius: 6px;
+                  cursor: pointer;
+                "
+                style-hover="background:#1e2125"
+              >
+                <span
+                  style="
+                    width: 22px;
+                    height: 22px;
+                    flex: none;
+                    border-radius: 50%;
+                    background: #26292e;
+                    border: 1px solid #2c2f35;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font:
+                      600 10px 'IBM Plex Mono',
+                      monospace;
+                    color: #56c39a;
+                  "
+                  >F</span
+                >
+                <span
+                  style="
+                    font:
+                      500 12px 'IBM Plex Sans',
+                      sans-serif;
+                    color: #a09d94;
+                    flex: 1;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                  "
+                  >Fludem</span
+                >
+                <span
+                  style="
+                    font:
+                      400 9px 'IBM Plex Sans',
+                      sans-serif;
+                    color: #67655e;
+                  "
+                  >&#9662;</span
+                >
+              </div>
+            </div>
+          </sc-if>
+          <div style="flex: 1; min-width: 0; overflow: auto; padding: 20px 22px 28px">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+              <span
+                style="
+                  width: 20px;
+                  height: 20px;
+                  flex: none;
+                  background: #56c39a;
+                  -webkit-mask: url('./icons/chest.svg') center/contain no-repeat;
+                  mask: url('./icons/chest.svg') center/contain no-repeat;
+                "
+              ></span>
+              <span
+                style="
+                  font:
+                    600 20px 'IBM Plex Sans',
+                    sans-serif;
+                "
+                >Bank</span
+              >
+              <span
+                style="
+                  font:
+                    500 11px 'IBM Plex Mono',
+                    monospace;
+                  color: #a09d94;
+                  background: #1b1d21;
+                  border: 1px solid #24272c;
+                  border-radius: 5px;
+                  padding: 3px 8px;
+                "
+                >{{ slotsChip }}</span
+              >
+              <div style="flex: 1"></div>
+              <span
+                style="
+                  font:
+                    500 12px 'IBM Plex Mono',
+                    monospace;
+                  color: #a09d94;
+                "
+                >worth {{ worthText }} gp</span
+              >
+            </div>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-top: 14px;
+                flex-wrap: wrap;
+              "
+            >
+              <sc-for list="{{ filters }}" as="f" hint-placeholder-count="5">
+                <span style="{{ f.style }}" style-hover="border-color:#56c39a" onClick="{{ f.go }}"
+                  >{{ f.label }}</span
+                >
+              </sc-for>
+              <div style="flex: 1"></div>
+              <input
+                value="{{ searchQ }}"
+                onChange="{{ onSearch }}"
+                placeholder="search items&#8230;"
+                style="
+                  width: 180px;
+                  background: #101214;
+                  border: 1px solid #24272c;
+                  border-radius: 5px;
+                  padding: 6px 10px;
+                  color: #e8e6df;
+                  font:
+                    400 11px 'IBM Plex Mono',
+                    monospace;
+                  outline: none;
+                "
+                style-focus="border-color:#56c39a"
+              />
+            </div>
+            <div
+              style="
+                display: flex;
+                flex-wrap: wrap;
+                gap: 14px;
+                align-items: flex-start;
+                margin-top: 14px;
+              "
+            >
+              <div
+                style="
+                  flex: 2 1 340px;
+                  min-width: 0;
+                  background: #1b1d21;
+                  border: 1px solid #24272c;
+                  border-radius: 8px;
+                  padding: 14px;
+                "
+              >
+                <div
+                  style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+                    gap: 8px;
+                  "
+                >
+                  <sc-for list="{{ items }}" as="it" hint-placeholder-count="16">
+                    <div
+                      style="{{ it.cellStyle }}"
+                      style-hover="border-color:#56c39a"
+                      onClick="{{ it.pick }}"
+                    >
+                      <span style="{{ it.iconStyle }}"></span>
+                      <span style="{{ it.qtyStyle }}">{{ it.qtyText }}</span>
+                      <sc-if value="{{ it.tag }}" hint-placeholder-val="{{ false }}">
+                        <span style="{{ it.tagStyle }}">{{ it.tag }}</span>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                  <sc-for list="{{ emptySlots }}" as="e" hint-placeholder-count="4">
+                    <div
+                      style="aspect-ratio: 1; border: 1px dashed #24272c; border-radius: 7px"
+                    ></div>
+                  </sc-for>
+                  <div
+                    style="{{ buyCellStyle }}"
+                    style-hover="border-color:#56c39a"
+                    onClick="{{ buySlot }}"
+                    title="buy 1 extra bank slot"
+                  >
+                    <span style="{{ buyPlusStyle }}">+</span>
+                    <span style="{{ buyCostStyle }}">{{ buyCostText }}</span>
+                  </div>
+                </div>
+              </div>
+              <div
+                style="
+                  flex: 1 1 250px;
+                  min-width: 0;
+                  background: #1b1d21;
+                  border: 1px solid #24272c;
+                  border-radius: 8px;
+                  padding: 16px;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 14px;
+                  position: relative;
+                "
+              >
+                <div
+                  style="
+                    font:
+                      500 9px 'IBM Plex Mono',
+                      monospace;
+                    color: #67655e;
+                    letter-spacing: 0.22em;
+                  "
+                >
+                  SELECTED
+                </div>
+                <div style="display: flex; align-items: center; gap: 14px">
+                  <div
+                    style="
+                      width: 52px;
+                      height: 52px;
+                      flex: none;
+                      background: #101214;
+                      border: 1px solid #2c2f35;
+                      border-radius: 7px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                    "
+                  >
+                    <span style="{{ selIcon }}"></span>
+                  </div>
+                  <div style="min-width: 0; flex: 1">
+                    <div
+                      style="
+                        font:
+                          600 15px 'IBM Plex Sans',
+                          sans-serif;
+                      "
+                    >
+                      {{ selName }}
+                    </div>
+                    <div
+                      style="
+                        font:
+                          400 11px 'IBM Plex Mono',
+                          monospace;
+                        color: #a09d94;
+                        margin-top: 3px;
+                      "
+                    >
+                      {{ selSub }}
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    flex-direction: column;
+                    gap: 7px;
+                    background: #101214;
+                    border: 1px solid #24272c;
+                    border-radius: 6px;
+                    padding: 10px 12px;
+                  "
+                >
+                  <div style="display: flex; align-items: center">
+                    <span
+                      style="
+                        font:
+                          400 11px 'IBM Plex Mono',
+                          monospace;
+                        color: #67655e;
+                      "
+                      >quantity</span
+                    >
+                    <span style="flex: 1"></span>
+                    <span
+                      style="
+                        font:
+                          500 12px 'IBM Plex Mono',
+                          monospace;
+                      "
+                      >{{ selQty }}</span
+                    >
+                  </div>
+                  <div style="display: flex; align-items: center">
+                    <span
+                      style="
+                        font:
+                          400 11px 'IBM Plex Mono',
+                          monospace;
+                        color: #67655e;
+                      "
+                      >unit value</span
+                    >
+                    <span style="flex: 1"></span>
+                    <span
+                      style="
+                        font:
+                          500 12px 'IBM Plex Mono',
+                          monospace;
+                      "
+                      >{{ selUnit }} gp</span
+                    >
+                  </div>
+                  <div style="display: flex; align-items: center">
+                    <span
+                      style="
+                        font:
+                          400 11px 'IBM Plex Mono',
+                          monospace;
+                        color: #67655e;
+                      "
+                      >stack value</span
+                    >
+                    <span style="flex: 1"></span>
+                    <span
+                      style="
+                        font:
+                          500 12px 'IBM Plex Mono',
+                          monospace;
+                        color: #d2a04c;
+                      "
+                      >{{ selTotal }} gp</span
+                    >
+                  </div>
+                </div>
+                <sc-if value="{{ selOpenable }}" hint-placeholder-val="{{ false }}">
+                  <div style="display: flex; gap: 8px">
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        padding: 9px 0;
+                        border: 1px solid rgba(86, 195, 154, 0.45);
+                        border-radius: 6px;
+                        background: rgba(86, 195, 154, 0.1);
+                        color: #56c39a;
+                        font:
+                          600 11px 'IBM Plex Mono',
+                          monospace;
+                        letter-spacing: 0.1em;
+                        cursor: pointer;
+                      "
+                      style-hover="background:rgba(86,195,154,.18)"
+                      onClick="{{ useSel }}"
+                      >OPEN 1</span
+                    >
+                    <sc-if value="{{ selOpenableMany }}" hint-placeholder-val="{{ false }}">
+                      <span
+                        style="
+                          flex: 1;
+                          text-align: center;
+                          padding: 9px 0;
+                          border: 1px solid rgba(86, 195, 154, 0.45);
+                          border-radius: 6px;
+                          background: rgba(86, 195, 154, 0.1);
+                          color: #56c39a;
+                          font:
+                            600 11px 'IBM Plex Mono',
+                            monospace;
+                          letter-spacing: 0.1em;
+                          cursor: pointer;
+                        "
+                        style-hover="background:rgba(86,195,154,.18)"
+                        onClick="{{ useSelAll }}"
+                        >OPEN ALL</span
+                      >
+                    </sc-if>
+                  </div>
+                </sc-if>
+                <div style="display: flex; gap: 8px">
+                  <span
+                    style="
+                      flex: 1;
+                      text-align: center;
+                      padding: 8px 0;
+                      border: 1px solid #2c2f35;
+                      border-radius: 6px;
+                      color: #a09d94;
+                      font:
+                        500 11px 'IBM Plex Mono',
+                        monospace;
+                      letter-spacing: 0.1em;
+                      cursor: pointer;
+                    "
+                    style-hover="border-color:#56c39a;color:#56c39a"
+                    onClick="{{ sell1 }}"
+                    >SELL 1</span
+                  >
+                  <span
+                    style="
+                      flex: 1;
+                      text-align: center;
+                      padding: 8px 0;
+                      border: 1px solid #2c2f35;
+                      border-radius: 6px;
+                      color: #a09d94;
+                      font:
+                        500 11px 'IBM Plex Mono',
+                        monospace;
+                      letter-spacing: 0.1em;
+                      cursor: pointer;
+                    "
+                    style-hover="border-color:#d2a04c;color:#d2a04c"
+                    onClick="{{ openSellX }}"
+                    >SELL X&#8230;</span
+                  >
+                </div>
+                <sc-for list="{{ pops }}" as="p" hint-placeholder-count="0">
+                  <div style="{{ p.style }}">{{ p.text }}</div>
+                </sc-for>
+                <div
+                  style="
+                    border-top: 1px solid #1f2226;
+                    padding-top: 10px;
+                    font:
+                      400 10px 'IBM Plex Mono',
+                      monospace;
+                    color: #67655e;
+                  "
+                >
+                  sold this session &#183; {{ soldText }} gp
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <sc-if value="{{ lootOpen }}" hint-placeholder-val="{{ false }}">
+          <div
+            style="
+              position: fixed;
+              inset: 0;
+              background: rgba(10, 11, 13, 0.62);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              z-index: 60;
+            "
+            onClick="{{ closeLoot }}"
+          >
+            <div
+              style="
+                width: 320px;
+                background: #1b1d21;
+                border: 1px solid rgba(143, 208, 230, 0.4);
+                border-radius: 10px;
+                padding: 18px;
+                box-shadow:
+                  0 0 30px rgba(143, 208, 230, 0.12),
+                  0 18px 50px rgba(0, 0, 0, 0.55);
+              "
+              onClick="{{ stopClick }}"
+            >
+              <div
+                style="
+                  font:
+                    500 9px 'IBM Plex Mono',
+                    monospace;
+                  color: #8fd0e6;
+                  letter-spacing: 0.22em;
+                "
+              >
+                NEST OPENED
+              </div>
+              <sc-for list="{{ lootRows }}" as="l" hint-placeholder-count="1">
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    margin-top: 14px;
+                    background: #101214;
+                    border: 1px solid #2c2f35;
+                    border-radius: 7px;
+                    padding: 10px 12px;
+                  "
+                >
+                  <div
+                    style="
+                      width: 40px;
+                      height: 40px;
+                      flex: none;
+                      background: #17181b;
+                      border: 1px solid #2c2f35;
+                      border-radius: 6px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                    "
+                  >
+                    <span style="{{ l.iconStyle }}"></span>
+                  </div>
+                  <div style="min-width: 0; flex: 1">
+                    <div
+                      style="
+                        font:
+                          600 14px 'IBM Plex Sans',
+                          sans-serif;
+                      "
+                    >
+                      {{ l.name }}
+                    </div>
+                    <div
+                      style="
+                        font:
+                          400 11px 'IBM Plex Mono',
+                          monospace;
+                        color: #a09d94;
+                        margin-top: 2px;
+                      "
+                    >
+                      {{ lootCountText }}
+                    </div>
+                  </div>
+                  <span
+                    style="
+                      font:
+                        600 14px 'IBM Plex Mono',
+                        monospace;
+                      color: #56c39a;
+                    "
+                    >&#215;{{ l.n }}</span
+                  >
+                </div>
+              </sc-for>
+              <div style="display: flex; gap: 8px; margin-top: 16px">
+                <span
+                  style="
+                    flex: 1;
+                    text-align: center;
+                    padding: 9px 0;
+                    border: 1px solid #2c2f35;
+                    border-radius: 6px;
+                    color: #a09d94;
+                    font:
+                      500 11px 'IBM Plex Mono',
+                      monospace;
+                    letter-spacing: 0.1em;
+                    cursor: pointer;
+                  "
+                  style-hover="border-color:#67655e;color:#e8e6df"
+                  onClick="{{ closeLoot }}"
+                  >CLOSE</span
+                >
+                <sc-if value="{{ canOpenAgain }}" hint-placeholder-val="{{ false }}">
+                  <span
+                    style="
+                      flex: 1.4;
+                      text-align: center;
+                      padding: 9px 0;
+                      border: 1px solid rgba(86, 195, 154, 0.45);
+                      border-radius: 6px;
+                      background: rgba(86, 195, 154, 0.1);
+                      color: #56c39a;
+                      font:
+                        600 11px 'IBM Plex Mono',
+                        monospace;
+                      letter-spacing: 0.1em;
+                      cursor: pointer;
+                    "
+                    style-hover="background:rgba(86,195,154,.18)"
+                    onClick="{{ openAgain }}"
+                    >OPEN ANOTHER ({{ nestsLeft }})</span
+                  >
+                </sc-if>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ sellXOpen }}" hint-placeholder-val="{{ false }}">
+          <div
+            style="
+              position: fixed;
+              inset: 0;
+              background: rgba(10, 11, 13, 0.62);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              z-index: 60;
+            "
+            onClick="{{ closeSellX }}"
+          >
+            <div
+              style="
+                width: 320px;
+                background: #1b1d21;
+                border: 1px solid #2c2f35;
+                border-radius: 10px;
+                padding: 18px;
+                box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+              "
+              onClick="{{ stopClick }}"
+            >
+              <div
+                style="
+                  font:
+                    500 9px 'IBM Plex Mono',
+                    monospace;
+                  color: #67655e;
+                  letter-spacing: 0.22em;
+                "
+              >
+                SELL AMOUNT
+              </div>
+              <div style="display: flex; align-items: center; gap: 12px; margin-top: 12px">
+                <div
+                  style="
+                    width: 40px;
+                    height: 40px;
+                    flex: none;
+                    background: #101214;
+                    border: 1px solid #2c2f35;
+                    border-radius: 6px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                  "
+                >
+                  <span style="{{ sellXIcon }}"></span>
+                </div>
+                <div style="min-width: 0; flex: 1">
+                  <div
+                    style="
+                      font:
+                        600 14px 'IBM Plex Sans',
+                        sans-serif;
+                    "
+                  >
+                    {{ selName }}
+                  </div>
+                  <div
+                    style="
+                      font:
+                        400 11px 'IBM Plex Mono',
+                        monospace;
+                      color: #a09d94;
+                      margin-top: 2px;
+                    "
+                  >
+                    {{ selQty }} in bank &#183; {{ selUnit }} gp each
+                  </div>
+                </div>
+              </div>
+              <input
+                value="{{ sellXVal }}"
+                onChange="{{ onXChange }}"
+                inputmode="numeric"
+                style="
+                  width: 100%;
+                  margin-top: 14px;
+                  background: #101214;
+                  border: 1px solid #2c2f35;
+                  border-radius: 6px;
+                  padding: 9px 12px;
+                  color: #e8e6df;
+                  font:
+                    500 14px 'IBM Plex Mono',
+                    monospace;
+                  outline: none;
+                "
+                style-focus="border-color:#56c39a"
+              />
+              <div style="display: flex; gap: 6px; margin-top: 8px">
+                <sc-for list="{{ xChips }}" as="c" hint-placeholder-count="4">
+                  <span
+                    style="
+                      flex: 1;
+                      text-align: center;
+                      padding: 5px 0;
+                      border: 1px solid #24272c;
+                      border-radius: 5px;
+                      color: #67655e;
+                      font:
+                        500 10px 'IBM Plex Mono',
+                        monospace;
+                      cursor: pointer;
+                    "
+                    style-hover="border-color:#56c39a;color:#56c39a"
+                    onClick="{{ c.go }}"
+                    >{{ c.label }}</span
+                  >
+                </sc-for>
+              </div>
+              <div
+                style="
+                  font:
+                    400 11px 'IBM Plex Mono',
+                    monospace;
+                  color: #d2a04c;
+                  margin-top: 12px;
+                  text-align: right;
+                "
+              >
+                {{ sellXTotal }}
+              </div>
+              <div style="display: flex; gap: 8px; margin-top: 12px">
+                <span
+                  style="
+                    flex: 1;
+                    text-align: center;
+                    padding: 9px 0;
+                    border: 1px solid #2c2f35;
+                    border-radius: 6px;
+                    color: #a09d94;
+                    font:
+                      500 11px 'IBM Plex Mono',
+                      monospace;
+                    letter-spacing: 0.1em;
+                    cursor: pointer;
+                  "
+                  style-hover="border-color:#67655e;color:#e8e6df"
+                  onClick="{{ closeSellX }}"
+                  >CANCEL</span
+                >
+                <span
+                  style="
+                    flex: 1;
+                    text-align: center;
+                    padding: 9px 0;
+                    border: 1px solid rgba(86, 195, 154, 0.45);
+                    border-radius: 6px;
+                    background: rgba(86, 195, 154, 0.1);
+                    color: #56c39a;
+                    font:
+                      600 11px 'IBM Plex Mono',
+                      monospace;
+                    letter-spacing: 0.1em;
+                    cursor: pointer;
+                  "
+                  style-hover="background:rgba(86,195,154,.18)"
+                  onClick="{{ confirmSellX }}"
+                  >SELL</span
+                >
+              </div>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
+          <div
+            style="
+              display: flex;
+              background: #17181b;
+              border-top: 1px solid #24272c;
+              padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+            "
+          >
+            <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="7">
+              <div
+                style="
+                  flex: 1;
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  gap: 3px;
+                  padding: 5px 0;
+                  min-width: 44px;
+                "
+                onClick="{{ tb.go }}"
+              >
+                <span style="{{ tb.iconStyle }}"></span>
+                <span style="{{ tb.labelStyle }}">{{ tb.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"juice": {"editor": "enum", "options": ["deadpan", "quiet", "juicy"], "default": "juicy", "tsType": "&apos;deadpan&apos; | &apos;quiet&apos; | &apos;juicy&apos;", "section": "Feel"}, "forceNarrow": {"editor": "boolean", "default": false, "tsType": "boolean", "section": "Preview"}, "slotCostBase": {"editor": "int", "default": 500, "min": 50, "max": 5000, "unit": "gp", "tsType": "number", "section": "Economy"}, "slotCostGrowth": {"editor": "range", "default": 1.18, "min": 1, "max": 1.5, "step": 0.01, "tsType": "number", "section": "Economy"}}'
+    >
+      class Component extends DCLogic {
+        state = {
+          narrow: false, gp: 12304, sold: 0, filter: 'All', sel: 'basalt-ore', pops: [], searchQ: '', sellXOpen: false, sellXVal: '10', boughtSlots: 0,
+          qty: {
+            'copper-ore': 1240, 'iron-ore': 862, 'basalt-ore': 431, 'marble-block': 96, 'silver-ore': 12,
+            'pine-logs': 980, 'oak-logs': 604, 'willow-logs': 288,
+            'rough-gem': 41, 'emerald': 8, 'amethyst': 5, 'aether-shard': 3, 'aether-leaf': 2,
+            'birds-nest': 14, 'gold-bar': 22, 'rune-stone': 6, 'acorn': 57,
+            'pine-seed': 0, 'willow-seed': 0, 'maple-seed': 0
+          },
+          lootOpen: false, loot: []
+        };
+        static NEST_LOOT = [
+          { id: 'acorn', w: 40, min: 1, max: 3 },
+          { id: 'pine-seed', w: 30, min: 1, max: 2 },
+          { id: 'willow-seed', w: 20, min: 1, max: 1 },
+          { id: 'maple-seed', w: 10, min: 1, max: 1 }
+        ];
+        static ITEMS = [
+          { id: 'copper-ore', name: 'Copper Ore', cat: 'Ores', icon: 'ore', tier: 'copper', unit: 4 },
+          { id: 'iron-ore', name: 'Iron Ore', cat: 'Ores', icon: 'ore', tier: 'iron', unit: 11 },
+          { id: 'basalt-ore', name: 'Basalt Ore', cat: 'Ores', icon: 'minerals', tier: 'basalt', unit: 26 },
+          { id: 'marble-block', name: 'Marble Block', cat: 'Ores', icon: 'stone-block', tier: 'marble', unit: 58 },
+          { id: 'silver-ore', name: 'Silver Ore', cat: 'Ores', icon: 'ore', tier: 'silver', unit: 120 },
+          { id: 'pine-logs', name: 'Pine Logs', cat: 'Logs', icon: 'log', tier: 'pine', unit: 3 },
+          { id: 'oak-logs', name: 'Oak Logs', cat: 'Logs', icon: 'log', tier: 'oak', unit: 9 },
+          { id: 'willow-logs', name: 'Willow Logs', cat: 'Logs', icon: 'log', tier: 'willow', unit: 19 },
+          { id: 'rough-gem', name: 'Rough Gem', cat: 'Gems', icon: 'cut-diamond', tier: 'gem', unit: 210, rarity: 'rare' },
+          { id: 'emerald', name: 'Emerald', cat: 'Gems', icon: 'emerald', tier: 'willow', unit: 640, rarity: 'rare' },
+          { id: 'amethyst', name: 'Amethyst', cat: 'Gems', icon: 'amethyst', tier: 'aether', unit: 820, rarity: 'rare' },
+          { id: 'aether-shard', name: 'Aether Shard', cat: 'Gems', icon: 'crystal-cluster', tier: 'aether', unit: 2400, rarity: 'epic' },
+          { id: 'aether-leaf', name: 'Aether Leaf', cat: 'Gems', icon: 'curled-leaf', tier: 'aether', unit: 1900, rarity: 'epic' },
+          { id: 'birds-nest', name: "Bird's Nest", cat: 'Misc', icon: 'nest-eggs', tier: 'gem', unit: 85, rarity: 'rare', openable: true },
+          { id: 'gold-bar', name: 'Gold Bar', cat: 'Misc', icon: 'gold-bar', tier: 'gold', unit: 340 },
+          { id: 'rune-stone', name: 'Rune Stone', cat: 'Misc', icon: 'rune-stone', tier: 'aether', unit: 505, rarity: 'rare' },
+          { id: 'acorn', name: 'Acorn', cat: 'Seeds', icon: 'acorn', tier: 'oak', unit: 2 },
+          { id: 'pine-seed', name: 'Pine Seed', cat: 'Seeds', icon: 'plant-seed', tier: 'pine', unit: 8 },
+          { id: 'willow-seed', name: 'Willow Seed', cat: 'Seeds', icon: 'sprout', tier: 'willow', unit: 65 },
+          { id: 'maple-seed', name: 'Maple Seed', cat: 'Seeds', icon: 'maple-leaf', tier: 'copper', unit: 140, rarity: 'rare' }
+        ];
+        openNest(count = 1) {
+          const have = this.state.qty['birds-nest'] || 0;
+          if (have <= 0) return;
+          const opens = count === 'all' ? have : Math.min(count, have);
+          const table = Component.NEST_LOOT, total = table.reduce((a, l) => a + l.w, 0);
+          const agg = {};
+          for (let k = 0; k < opens; k++) {
+            let r = Math.random() * total, roll = table[0];
+            for (const l of table) { r -= l.w; if (r <= 0) { roll = l; break; } }
+            agg[roll.id] = (agg[roll.id] || 0) + roll.min + Math.floor(Math.random() * (roll.max - roll.min + 1));
+          }
+          const qty = { ...this.state.qty, 'birds-nest': have - opens };
+          for (const [id, n] of Object.entries(agg)) qty[id] = (qty[id] || 0) + n;
+          this.setState({
+            qty, lootOpen: true, lootCount: opens,
+            loot: Object.entries(agg).map(([id, n]) => ({ id, n })).sort((a, b) => b.n - a.n)
+          });
+        }
+        componentDidMount() {
+          this._onR = () => this.setState({ narrow: window.innerWidth < 700 });
+          window.addEventListener('resize', this._onR); this._onR();
+          this._tick = setInterval(() => {
+            const now = Date.now();
+            if (this.state.pops.some(p => now - p.t >= 1100)) this.setState({ pops: this.state.pops.filter(p => now - p.t < 1100) });
+          }, 250);
+        }
+        componentWillUnmount() { clearInterval(this._tick); window.removeEventListener('resize', this._onR); }
+        sell(n) {
+          const it = Component.ITEMS.find(i => i.id === this.state.sel);
+          if (!it) return;
+          const have = this.state.qty[it.id] || 0;
+          const count = n === 'all' ? have : Math.min(n, have);
+          if (count <= 0) return;
+          const gain = count * it.unit;
+          const now = Date.now();
+          const juice = this.props.juice ?? 'juicy';
+          this.setState({
+            qty: { ...this.state.qty, [it.id]: have - count },
+            gp: this.state.gp + gain, sold: this.state.sold + gain,
+            pops: juice === 'deadpan' ? [] : [...this.state.pops, { id: now + Math.random(), t: now, text: '+' + gain.toLocaleString('en-US') + ' gp', x: 20 + Math.random() * 50 }]
+          });
+        }
+        renderVals() {
+          const T = {
+            copper: ['#f0a06a', '#bd6f3f', '#6e4023'], iron: ['#cdd1d6', '#8f959d', '#52575e'],
+            basalt: ['#93a0c0', '#596484', '#333a4e'], marble: ['#f8f4ea', '#d8d0bf', '#9c9280'],
+            silver: ['#e9f2fb', '#b2c9e0', '#7089a3'], aether: ['#c9a4ff', '#8f63e8', '#53398f'],
+            gem: ['#d8f6ff', '#8fd0e6', '#4d8ba3'], gold: ['#f5d98a', '#d2a04c', '#8a6524'],
+            pine: ['#8fd0a0', '#4f9a68', '#2b5a3c'], oak: ['#d8b184', '#a37a4a', '#5e4426'],
+            willow: ['#a8e0c2', '#5fae85', '#33664c']
+          };
+          const mask = (n) => { const u = `url('./icons/${n}.svg') center/contain no-repeat`; return { WebkitMask: u, mask: u }; };
+          const tierIcon = (n, tier, size) => ({ width: size + 'px', height: size + 'px', flex: 'none', display: 'block', background: `linear-gradient(150deg, ${T[tier][0]} 8%, ${T[tier][1]} 50%, ${T[tier][2]} 96%)`, ...mask(n) });
+          const flatIcon = (n, color, size) => ({ width: size + 'px', height: size + 'px', flex: 'none', display: 'block', background: color, ...mask(n) });
+          const fmt = (n) => Math.round(n).toLocaleString('en-US');
+          const short = (n) => n >= 10000 ? Math.floor(n / 1000) + 'k' : fmt(n);
+          const juicy = (this.props.juice ?? 'juicy') === 'juicy';
+          const narrow = (this.props.forceNarrow ?? false) || this.state.narrow;
+          const nav = (href) => href ? () => { window.location.href = href; } : undefined;
+
+          const navs = [
+            { name: 'Mining', icon: 'mining', lvl: 42, href: './Screen A - Skill Training.dc.html' },
+            { name: 'Woodcutting', icon: 'tree', lvl: 37, href: './Screen B - Woodcutting.dc.html' },
+            { name: 'Fishing', icon: 'fishing', lvl: 21 },
+            { name: 'Firemaking', icon: 'campfire', lvl: 18 }, { name: 'Smithing', icon: 'anvil', lvl: 26 },
+            { name: 'Combat', icon: 'swords', lvl: 31 }
+          ].map(n => ({
+            ...n, go: nav(n.href),
+            rowStyle: { display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 10px', borderRadius: '6px', cursor: 'pointer', background: 'transparent' },
+            iconStyle: flatIcon(n.icon, '#8b887f', 17),
+            nameStyle: { font: `500 13px 'IBM Plex Sans',sans-serif`, color: '#a09d94', flex: 1 }
+          }));
+
+          const cats = ['All', 'Ores', 'Logs', 'Gems', 'Seeds', 'Misc'];
+          const filters = cats.map(c => ({
+            label: c.toUpperCase(), go: () => this.setState({ filter: c }),
+            style: {
+              font: `500 10px 'IBM Plex Mono',monospace`, letterSpacing: '.14em', padding: '5px 12px', borderRadius: '5px', cursor: 'pointer',
+              color: c === this.state.filter ? '#56c39a' : '#67655e',
+              background: c === this.state.filter ? 'rgba(86,195,154,.1)' : '#1b1d21',
+              border: c === this.state.filter ? '1px solid rgba(86,195,154,.35)' : '1px solid #24272c'
+            }
+          }));
+
+          const q = this.state.searchQ.trim().toLowerCase();
+          const visible = Component.ITEMS.filter(i => (this.state.qty[i.id] || 0) > 0 && (this.state.filter === 'All' || i.cat === this.state.filter) && (!q || i.name.toLowerCase().includes(q)));
+          const items = visible.map(i => {
+            const selected = i.id === this.state.sel;
+            const epic = i.rarity === 'epic', rare = i.rarity === 'rare';
+            return {
+              ...i, pick: () => this.setState({ sel: i.id }),
+              qtyText: short(this.state.qty[i.id] || 0),
+              tag: epic ? 'E' : (rare ? 'R' : null),
+              tagStyle: { position: 'absolute', top: '4px', right: '5px', font: `600 8px 'IBM Plex Mono',monospace`, color: epic ? '#c9a4ff' : '#8fd0e6' },
+              cellStyle: {
+                position: 'relative', aspectRatio: '1', background: '#101214', borderRadius: '7px', cursor: 'pointer',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px',
+                border: selected ? '1px solid #56c39a' : (epic ? '1px solid #53398f' : '1px solid #2c2f35'),
+                boxShadow: selected ? '0 0 10px rgba(86,195,154,.25)' : (juicy && epic ? '0 0 10px rgba(143,99,232,.3)' : 'none')
+              },
+              iconStyle: tierIcon(i.icon, i.tier, 26),
+              qtyStyle: { font: `500 10px 'IBM Plex Mono',monospace`, color: selected ? '#e8e6df' : '#a09d94' }
+            };
+          });
+
+          const sel = Component.ITEMS.find(i => i.id === this.state.sel) || Component.ITEMS[0];
+          const selQty = this.state.qty[sel.id] || 0;
+          const worth = Component.ITEMS.reduce((a, i) => a + (this.state.qty[i.id] || 0) * i.unit, 0);
+          const used = Component.ITEMS.filter(i => (this.state.qty[i.id] || 0) > 0).length;
+
+          const pops = this.state.pops.map(p => ({
+            ...p,
+            style: { position: 'absolute', right: p.x + 'px', bottom: '52px', color: '#f5d98a', font: `600 12px 'IBM Plex Mono',monospace`, animation: 'floatUp 1.1s ease-out forwards', pointerEvents: 'none', textShadow: juicy ? '0 0 8px rgba(210,160,76,.5)' : 'none', zIndex: 10 }
+          }));
+
+          const slotsMax = 30 + this.state.boughtSlots;
+          const growth = this.props.slotCostGrowth ?? 1.18;
+          const base = this.props.slotCostBase ?? 500;
+          const slotCost = Math.round(base * Math.pow(growth, this.state.boughtSlots) / 10) * 10;
+          const canAfford = this.state.gp >= slotCost;
+          const buySlot = () => {
+            if (!canAfford) return;
+            const now = Date.now();
+            this.setState({
+              gp: this.state.gp - slotCost, boughtSlots: this.state.boughtSlots + 1,
+              pops: (this.props.juice ?? 'juicy') === 'deadpan' ? [] : [...this.state.pops, { id: now, t: now, text: '−' + fmt(slotCost) + ' gp', x: 20 + Math.random() * 50 }]
+            });
+          };
+
+          return {
+            narrow, wide: !narrow, navs, filters, items, pops,
+            emptySlots: Array.from({ length: Math.max(0, slotsMax - used) }, (_, i) => i),
+            buySlot,
+            buyCellStyle: { aspectRatio: '1', border: canAfford ? '1px dashed #3d5c4e' : '1px dashed #24272c', borderRadius: '7px', cursor: canAfford ? 'pointer' : 'default', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '3px' },
+            buyPlusStyle: { font: `400 20px 'IBM Plex Sans',sans-serif`, color: canAfford ? '#56c39a' : '#3a3c41', lineHeight: '1' },
+            buyCostStyle: { font: `500 9px 'IBM Plex Mono',monospace`, color: canAfford ? '#a09d94' : '#4b4d52' },
+            buyCostText: fmt(slotCost) + ' gp',
+            gpText: fmt(this.state.gp),
+            slotsUsed: used,
+            slotsChip: used + ' / ' + slotsMax + ' slots',
+            worthText: fmt(worth),
+            selIcon: tierIcon(sel.icon, sel.tier, 34),
+            selName: sel.name,
+            selSub: sel.cat.toLowerCase() + (sel.rarity ? ' · ' + sel.rarity : ' · common'),
+            selQty: fmt(selQty), selUnit: fmt(sel.unit), selTotal: fmt(selQty * sel.unit),
+            sell1: () => this.sell(1),
+            searchQ: this.state.searchQ,
+            onSearch: (e) => this.setState({ searchQ: e.target.value }),
+            selOpenable: !!sel.openable && selQty > 0,
+            selOpenableMany: !!sel.openable && selQty > 1,
+            useSel: () => this.openNest(1),
+            useSelAll: () => this.openNest('all'),
+            lootCountText: (this.state.lootCount || 1) > 1 ? 'from ' + this.state.lootCount + ' nests' : 'added to bank',
+            lootOpen: !!this.state.lootOpen,
+            lootRows: this.state.loot.map(l => {
+              const li = Component.ITEMS.find(i => i.id === l.id);
+              return { ...l, name: li.name, iconStyle: tierIcon(li.icon, li.tier, 26) };
+            }),
+            closeLoot: () => this.setState({ lootOpen: false }),
+            openAgain: () => this.openNest(),
+            nestsLeft: this.state.qty['birds-nest'] || 0,
+            canOpenAgain: (this.state.qty['birds-nest'] || 0) > 0,
+            sellXOpen: !!this.state.sellXOpen,
+            sellXVal: this.state.sellXVal,
+            sellXIcon: tierIcon(sel.icon, sel.tier, 24),
+            openSellX: () => this.setState({ sellXOpen: true, sellXVal: String(Math.min(10, selQty) || 1) }),
+            closeSellX: () => this.setState({ sellXOpen: false }),
+            stopClick: (e) => e.stopPropagation(),
+            onXChange: (e) => this.setState({ sellXVal: e.target.value.replace(/[^0-9]/g, '') }),
+            xChips: [10, 100, 1000, 'ALL'].map(v => ({
+              label: String(v), go: () => this.setState({ sellXVal: String(v === 'ALL' ? selQty : Math.min(v, selQty)) })
+            })),
+            sellXTotal: (() => { const n = Math.min(parseInt(this.state.sellXVal, 10) || 0, selQty); return n > 0 ? '= ' + fmt(n * sel.unit) + ' gp' : '—'; })(),
+            confirmSellX: () => { const n = Math.min(parseInt(this.state.sellXVal, 10) || 0, selQty); if (n > 0) this.sell(n); this.setState({ sellXOpen: false }); },
+            soldText: fmt(this.state.sold),
+            tabs: [
+              { label: 'Mine', icon: 'mining', href: './Screen A - Skill Training.dc.html' },
+              { label: 'Wood', icon: 'tree', href: './Screen B - Woodcutting.dc.html' },
+              { label: 'Fish', icon: 'fishing' }, { label: 'Fire', icon: 'campfire' }, { label: 'Smith', icon: 'anvil' },
+              { label: 'Fight', icon: 'swords' }, { label: 'Bank', icon: 'chest', active: true }
+            ].map(t => ({
+              ...t, go: nav(t.href),
+              iconStyle: flatIcon(t.icon, t.active ? '#56c39a' : '#8b887f', 20),
+              labelStyle: { font: `500 9px 'IBM Plex Mono',monospace`, color: t.active ? '#56c39a' : '#67655e', letterSpacing: '.06em' }
+            }))
+          };
+        }
+      }
+    </script>
+  </body>
+</html>
