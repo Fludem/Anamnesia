@@ -26,6 +26,17 @@ describe('gathering handler', () => {
     expect(skillXp(s, 'mining')).toBe(0);
   });
 
+  it('foraging is gathering by hand: sprigs land in the bank and no tool shortens it', () => {
+    const req = { kind: 'foraging', patch: 'sure-patch', count: null } as const;
+    expect(canStartAction(createSimState(1), req, ctx)).toEqual({ ok: true });
+    const s = run(beginAction(createSimState(1), req, ctx), 8);
+    expect(countItem(s.bank, 'sprig')).toBe(2);
+    expect(skillXp(s, 'foraging')).toBe(12);
+    const tooled = equip(createSimState(1), 'pickaxe', 'pick');
+    expect(beginAction(tooled, req, ctx).action.current?.durationTicks).toBe(4);
+    expect(toolAdjustedTicks(tooled, null, 4, ctx)).toBe(4);
+  });
+
   it('an unknown tree and a gated rock are refused with a reason', () => {
     const unknown = canStartAction(
       createSimState(1),

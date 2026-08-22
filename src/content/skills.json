@@ -1,6 +1,6 @@
 [
   {
-    "$comment": "Display order: the design's navigation (Mine / Wood / Fish / Fire / Smith / Fight / Bank) with Cooking after Firemaking. Combat ships no loop yet."
+    "$comment": "Display order: the design's navigation (Mine / Wood / Fish / Fire / Smith / Fight / Bank) with Foraging after Fishing and Cooking after Firemaking. Hitpoints is read on the combat screen."
   },
   {
     "id": "mining",
@@ -16,6 +16,11 @@
     "id": "fishing",
     "name": "Fishing",
     "icon": "delapouite/fishing"
+  },
+  {
+    "id": "foraging",
+    "name": "Foraging",
+    "icon": "delapouite/herbs-bundle"
   },
   {
     "id": "firemaking",

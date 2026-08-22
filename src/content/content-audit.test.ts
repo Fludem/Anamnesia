@@ -10,11 +10,12 @@ import { DEFAULT_XP_CURVE } from '../sim/xp.ts';
 import { content } from './index.ts';
 
 const tableItems = (t: DropTable) => t.entries.map((e) => e.item);
+const GATHERING = ['mining', 'woodcutting', 'fishing', 'foraging'];
 
 /** Every item id something in the game hands out. */
 function obtainable(): Set<string> {
   const out = new Set<string>();
-  for (const node of [...content.rocks, ...content.trees, ...content.waters])
+  for (const node of [...content.rocks, ...content.trees, ...content.waters, ...content.patches])
     for (const t of node.drops) tableItems(t).forEach((i) => out.add(i));
   for (const g of content.gods)
     for (const e of g.perks.extraDrops) tableItems(e.table).forEach((i) => out.add(i));
@@ -30,11 +31,12 @@ function obtainable(): Set<string> {
 }
 
 describe('shipped content', () => {
-  it('ships the roster Phase 3 set out, plus Phase 5’s three skills and four gods', () => {
+  it('ships the roster Phase 3 set out, plus Phase 5’s three skills, four gods and Phase 7’s foraging', () => {
     expect(content.skills.map((s) => s.id)).toEqual([
       'mining',
       'woodcutting',
       'fishing',
+      'foraging',
       'firemaking',
       'cooking',
       'smithing',
@@ -45,7 +47,10 @@ describe('shipped content', () => {
     expect(content.rocks.length).toBe(11);
     expect(content.trees.length).toBe(10);
     expect(content.waters.length).toBe(11);
+    expect(content.patches.length).toBe(11);
     expect(content.gods.map((g) => g.name)).toEqual(['Tharok', 'Vessith', 'Maren', 'Ashkar']);
+    // Every god has a combat boon to burn favour on.
+    for (const g of content.gods) expect(g.perks.combat, g.id).not.toBeNull();
     expect(content.zones.length).toBe(5);
     expect(content.monsters.length).toBeGreaterThanOrEqual(20);
     expect(content.items.length).toBeGreaterThanOrEqual(100);
@@ -67,6 +72,7 @@ describe('shipped content', () => {
       ...content.rocks,
       ...content.trees,
       ...content.waters,
+      ...content.patches,
       ...content.zones,
       ...content.monsters,
       ...content.gods,
@@ -75,8 +81,7 @@ describe('shipped content', () => {
   });
 
   it('every skill has something to do and every level requirement is reachable', () => {
-    for (const skill of ['mining', 'woodcutting', 'fishing'])
-      expect(content.nodesFor(skill).length, skill).toBeGreaterThan(0);
+    for (const skill of GATHERING) expect(content.nodesFor(skill).length, skill).toBeGreaterThan(0);
     for (const skill of ['smithing', 'firemaking', 'cooking'])
       expect(content.recipesFor(skill).length, skill).toBeGreaterThan(0);
     for (const z of content.zones) expect(content.monstersIn(z.id).length, z.id).toBeGreaterThan(0);
@@ -85,6 +90,7 @@ describe('shipped content', () => {
       ...content.rocks,
       ...content.trees,
       ...content.waters,
+      ...content.patches,
       ...content.recipes,
       ...content.zones,
     ])
@@ -92,14 +98,14 @@ describe('shipped content', () => {
     for (const r of content.recipes)
       for (const q of r.requires) expect(q.level, r.id).toBeLessThanOrEqual(max);
     // Each skill's first node/recipe is available at level 1, so a new save can start anywhere.
-    for (const skill of ['mining', 'woodcutting', 'fishing'])
+    for (const skill of GATHERING)
       expect(Math.min(...content.nodesFor(skill).map((n) => n.level)), skill).toBe(1);
     for (const skill of ['smithing', 'firemaking', 'cooking'])
       expect(Math.min(...content.recipesFor(skill).map((r) => r.level)), skill).toBe(1);
   });
 
   it('nodes get harder as they go: levels rise with the list; xp and time rise along each path', () => {
-    for (const skill of ['mining', 'woodcutting', 'fishing']) {
+    for (const skill of GATHERING) {
       const list = content.nodesFor(skill);
       for (let i = 1; i < list.length; i++)
         expect(list[i]!.level, list[i]!.id).toBeGreaterThan(list[i - 1]!.level);
@@ -116,7 +122,7 @@ describe('shipped content', () => {
   });
 
   it('quick nodes out-earn the tier they sit in and bank nothing worth keeping', () => {
-    for (const skill of ['mining', 'woodcutting', 'fishing']) {
+    for (const skill of GATHERING) {
       const list = content.nodesFor(skill);
       for (const q of list.filter((n) => n.quick)) {
         const tier = [...list].reverse().find((n) => !n.quick && n.level <= q.level)!;
@@ -147,12 +153,16 @@ describe('shipped content', () => {
     }
   });
 
-  it('equipment has a slot and stats; tools cut time; consumables heal; nothing else has stats', () => {
+  it('equipment has a slot and stats; tools cut time; consumables heal or buy favour; nothing else has stats', () => {
     for (const item of content.items) {
       const wearable = item.class === 'weapon' || item.class === 'armour' || item.class === 'tool';
       expect(item.slot !== null, item.id).toBe(wearable);
       if (item.class === 'tool') expect(item.stats.gather, item.id).toBeGreaterThan(0);
-      if (item.class === 'consumable') expect(item.stats.heal, item.id).toBeGreaterThan(0);
+      if (item.class === 'consumable') {
+        const heal = item.stats.heal ?? 0;
+        const favour = item.stats.favour ?? 0;
+        expect(heal > 0 !== favour > 0, `${item.id} heals or is offered, not both`).toBe(true);
+      }
       if (wearable) expect(Object.keys(item.stats).length, item.id).toBeGreaterThan(0);
       if (!wearable && item.class !== 'consumable') expect(item.stats, item.id).toEqual({});
       if (item.procedural !== null) expect(item.material, item.id).not.toBeNull();

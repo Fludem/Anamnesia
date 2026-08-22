@@ -1,0 +1,294 @@
+[
+  {
+    "$comment": "Foraging nodes, lowest first, no tool, tuned for ~36h to 99 on the standard patches. What they drop is burnt for the sworn god's favour; the quick patches give xp and offerings barely worth the match."
+  },
+  {
+    "id": "wild-thyme",
+    "name": "Wild Thyme",
+    "description": "Grows in the cracks. Smells better than anything else on the hill.",
+    "icon": "delapouite/grass",
+    "material": "pine",
+    "level": 1,
+    "durationTicks": 24,
+    "xp": 21,
+    "success": {
+      "base": 0.85,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "thyme-sprig",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "$ref": "forage-finds"
+      }
+    ]
+  },
+  {
+    "id": "laurel-thicket",
+    "name": "Laurel Thicket",
+    "description": "Crowns came from here once. Now it is leaves.",
+    "icon": "delapouite/vines",
+    "material": "willow",
+    "level": 10,
+    "durationTicks": 28,
+    "xp": 48,
+    "success": {
+      "base": 0.7,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "laurel-leaf",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "$ref": "forage-finds"
+      }
+    ]
+  },
+  {
+    "id": "clover-bank",
+    "name": "Clover Bank",
+    "description": "Plenty of it. None of it has four leaves. You checked.",
+    "icon": "lorc/clover",
+    "material": "willow",
+    "level": 15,
+    "durationTicks": 16,
+    "xp": 30,
+    "success": {
+      "base": 0.9,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "clover",
+            "weight": 1
+          }
+        ]
+      }
+    ],
+    "quick": true
+  },
+  {
+    "id": "bee-hollow",
+    "name": "Bee Hollow",
+    "description": "The bees object. The bees are outvoted.",
+    "icon": "delapouite/tree-beehive",
+    "material": "gold",
+    "level": 22,
+    "durationTicks": 30,
+    "xp": 85,
+    "success": {
+      "base": 0.6,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "beeswax",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "$ref": "forage-finds"
+      }
+    ]
+  },
+  {
+    "id": "resin-stand",
+    "name": "Resin Stand",
+    "description": "Old pines, weeping. Collect what they weep.",
+    "icon": "lorc/pine-tree",
+    "material": "copper",
+    "level": 35,
+    "durationTicks": 32,
+    "xp": 145,
+    "success": {
+      "base": 0.55,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "pine-resin",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "$ref": "forage-finds"
+      }
+    ]
+  },
+  {
+    "id": "poppy-field",
+    "name": "Poppy Field",
+    "description": "Red, brief, and not as restful as advertised.",
+    "icon": "lorc/flowers",
+    "material": "copper",
+    "level": 45,
+    "durationTicks": 20,
+    "xp": 85,
+    "success": {
+      "base": 0.85,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "poppy-head",
+            "weight": 1
+          }
+        ]
+      }
+    ],
+    "quick": true
+  },
+  {
+    "id": "myrrh-scrub",
+    "name": "Myrrh Scrub",
+    "description": "Thorns, and behind the thorns, the good stuff.",
+    "icon": "lorc/thorny-vine",
+    "material": "copper",
+    "level": 50,
+    "durationTicks": 36,
+    "xp": 285,
+    "success": {
+      "base": 0.5,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "myrrh-tear",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "$ref": "forage-finds"
+      }
+    ]
+  },
+  {
+    "id": "asphodel-meadow",
+    "name": "Asphodel Meadow",
+    "description": "Where the dead are said to walk. They leave the flowers alone.",
+    "icon": "lorc/field",
+    "material": "marble",
+    "level": 65,
+    "durationTicks": 40,
+    "xp": 510,
+    "success": {
+      "base": 0.45,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "asphodel",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "$ref": "forage-finds"
+      }
+    ]
+  },
+  {
+    "id": "nettle-run",
+    "name": "Nettle Run",
+    "description": "Quick to gather, if you do not mind. You will mind.",
+    "icon": "delapouite/high-grass",
+    "material": "pine",
+    "level": 70,
+    "durationTicks": 24,
+    "xp": 235,
+    "success": {
+      "base": 0.8,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "nettles",
+            "weight": 1
+          }
+        ]
+      }
+    ],
+    "quick": true
+  },
+  {
+    "id": "frankincense-terrace",
+    "name": "Frankincense Terrace",
+    "description": "Somebody planted these on purpose, a long time ago. The hill kept them.",
+    "icon": "delapouite/fruit-tree",
+    "material": "gold",
+    "level": 80,
+    "durationTicks": 46,
+    "xp": 1180,
+    "success": {
+      "base": 0.35,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "frankincense",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "$ref": "forage-finds"
+      }
+    ]
+  },
+  {
+    "id": "gorse-slope",
+    "name": "Gorse Slope",
+    "description": "Yellow all year. Prickly all year. Consistent.",
+    "icon": "lorc/pollen-dust",
+    "material": "gold",
+    "level": 90,
+    "durationTicks": 28,
+    "xp": 560,
+    "success": {
+      "base": 0.75,
+      "perLevel": 0.01
+    },
+    "drops": [
+      {
+        "entries": [
+          {
+            "item": "gorse",
+            "weight": 1
+          }
+        ]
+      }
+    ],
+    "quick": true
+  }
+]

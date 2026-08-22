@@ -14,14 +14,15 @@ import type { ToolSlot } from '../slots.ts';
 /**
  * The gathering primitive: pick a node, wait out its duration (shortened by the equipped
  * tool), roll success, then roll every drop table into the bank and award XP. Mining,
- * woodcutting and fishing are this with different content; a fourth gathering skill is one
- * more call. The sworn god may add a table, double the haul, or pay more xp (perks.ts).
+ * woodcutting and fishing are this with different content; foraging is the same call with no
+ * tool. The sworn god may add a table, double the haul, or pay more xp (perks.ts).
  */
 export interface GatheringSkill<K extends ActionKind> {
   skill: string;
   /** Human label for the "requires level" message. */
   skillName: string;
-  toolSlot: ToolSlot;
+  /** The slot whose tool shortens the action, or null for a skill done by hand. */
+  toolSlot: ToolSlot | null;
   nodeKind: string;
   nodeId(req: RequestOf<K>): string;
   hasNode(ctx: SimContext, id: string): boolean;
@@ -29,7 +30,13 @@ export interface GatheringSkill<K extends ActionKind> {
 }
 
 /** Action time after the tool's `gather` cut: `base × (1 − gather/100)`, never below one tick. */
-export function toolAdjustedTicks(state: SimState, slot: ToolSlot, base: number, ctx: SimContext) {
+export function toolAdjustedTicks(
+  state: SimState,
+  slot: ToolSlot | null,
+  base: number,
+  ctx: SimContext,
+) {
+  if (slot === null) return base;
   const equipped = state.equipment[slot];
   if (equipped === null || !ctx.content.hasItem(equipped)) return base;
   const gather = ctx.content.item(equipped).stats.gather ?? 0;

@@ -56,6 +56,13 @@ export const SimEventSchema = z.discriminatedUnion('type', [
     monster: IdSchema,
     lost: IdSchema.nullable(),
   }),
+  /** An offering burnt for the sworn god: the item and the favour it bought. */
+  z.object({
+    type: z.literal('offered'),
+    tick: z.number().int().min(0),
+    item: IdSchema,
+    favour: z.number().int().min(0),
+  }),
   /** A first-steps step was completed and its reward paid. */
   z.object({
     type: z.literal('tutorial'),

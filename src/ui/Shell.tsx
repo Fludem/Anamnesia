@@ -22,6 +22,7 @@ const TAB_LABEL: Record<string, string> = {
   mining: 'Mine',
   woodcutting: 'Wood',
   fishing: 'Fish',
+  foraging: 'Forage',
   firemaking: 'Fire',
   cooking: 'Cook',
   smithing: 'Smith',

@@ -9,7 +9,8 @@ import type { Juice } from '../theme/theme.ts';
 
 export interface GatherSkillDef {
   skill: string;
-  toolSlot: ToolSlot;
+  /** The tool that shortens the action, or null for a skill done by hand. */
+  toolSlot: ToolSlot | null;
   /** "VEINS" / "TREES" — the list's heading. */
   noun: string;
   /** Level-up copy: "New vein surveyed: …". */
@@ -42,6 +43,14 @@ export const GATHER_SKILLS: Readonly<Record<string, GatherSkillDef>> = {
     unlockVerb: 'New water found',
     nodes: content.waters,
     request: (water) => ({ kind: 'fishing', water, count: null }),
+  },
+  foraging: {
+    skill: 'foraging',
+    toolSlot: null,
+    noun: 'Patches',
+    unlockVerb: 'New patch found',
+    nodes: content.patches,
+    request: (patch) => ({ kind: 'foraging', patch, count: null }),
   },
 };
 

@@ -11,6 +11,7 @@ import gods from './gods.json';
 import items from './items.json';
 import materials from './materials.json';
 import monsters from './monsters.json';
+import patches from './patches.json';
 import rarities from './rarities.json';
 import recipes from './recipes.json';
 import rocks from './rocks.json';
@@ -28,6 +29,7 @@ export const content: ContentDb = ContentDb.fromPack({
   rocks,
   trees,
   waters,
+  patches,
   recipes,
   zones,
   monsters,

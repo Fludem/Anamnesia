@@ -6,14 +6,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { content, simContext } from '../../content/index.ts';
 import { heroStats } from '../../sim/combat.ts';
-import type { MonsterDef } from '../../sim/content/schema.ts';
+import type { CombatBoon, MonsterDef } from '../../sim/content/schema.ts';
 import type { SimState, Splat } from '../../sim/save.ts';
 import {
+  boonText,
+  favourView,
   fightView,
   foodOptions,
   foodView,
   killLog,
   lastDeath,
+  offeringOptions,
+  recentOffering,
   recentRareKill,
   totalKills,
   zoneRows,
@@ -33,6 +37,8 @@ import type { ScreenProps } from './defs.ts';
 const EAT_AT_STEPS = [0.25, 0.5, 0.75];
 const RARE_TOAST_TICKS = 26;
 const DEATH_ICON = 'lorc/skull-crossed-bones';
+const FAVOUR_ICON = 'lorc/incense';
+const OFFER_FLASH_TICKS = 20;
 
 export function CombatScreen({ sim, dispatch, juice }: ScreenProps) {
   const skill = content.skill('combat');
@@ -62,6 +68,7 @@ export function CombatScreen({ sim, dispatch, juice }: ScreenProps) {
             onStop={() => dispatch({ type: 'action:stop' })}
           />
           <FoodRow sim={sim} dispatch={dispatch} maxHp={hero.maxHp} />
+          <FavourRow sim={sim} dispatch={dispatch} juice={juice} />
           <Zones sim={sim} dispatch={dispatch} />
         </div>
         <KillLog sim={sim} juice={juice} />
@@ -123,7 +130,7 @@ function FightCard({
   return (
     <div className="card">
       <div className="fight-sides">
-        <Side view={fight.you} you juice={juice} />
+        <Side view={fight.you} you juice={juice} boon={heroStats(sim, simContext).boon} />
         <Side view={fight.them} monster={fight.monster} juice={juice} />
       </div>
       <div className="fight-foot">
@@ -145,11 +152,14 @@ function Side({
   you,
   monster,
   juice,
+  boon,
 }: {
   view: SideView;
   you?: boolean;
   monster?: MonsterDef;
   juice: Juice;
+  /** The hero's boon in effect, shown beside the name. */
+  boon?: CombatBoon | null;
 }) {
   const frac = view.maxHp > 0 ? view.hp / view.maxHp : 0;
   return (
@@ -163,7 +173,14 @@ function Side({
           </TileBox>
         )}
         <div style={{ minWidth: 0 }}>
-          <div className="name">{view.name}</div>
+          <div className="name">
+            {view.name}
+            {you && boon && (
+              <span className="boon-tag" title={boonText(boon)}>
+                {boon.name}
+              </span>
+            )}
+          </div>
           <div className="sub">{view.sub}</div>
         </div>
       </div>
@@ -308,6 +325,121 @@ function FoodRow({
         onClick={() => dispatch({ type: 'combat:eat' })}
       >
         Eat
+      </button>
+    </div>
+  );
+}
+
+/**
+ * The god's row, the food row's twin: which offering burns when favour runs out, whether the
+ * boon is lit, and how long the favour lasts. Hidden for a hero with no god (onboarding sees
+ * to that) or a god with nothing to give in a fight.
+ */
+function FavourRow({
+  sim,
+  dispatch,
+  juice,
+}: {
+  sim: SimState;
+  dispatch: ScreenProps['dispatch'];
+  juice: Juice;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [open]);
+  const fv = favourView(sim, simContext);
+  if (fv.god === null || fv.boon === null) return null;
+  const options = offeringOptions(sim, content);
+  const none = fv.offering === null || fv.have === 0;
+  const flash = juice !== 'deadpan' && recentOffering(sim, OFFER_FLASH_TICKS) !== null;
+  const cls = `card food-row favour-row${fv.lit ? ' lit' : ''}${flash ? ' flash' : ''}`;
+  return (
+    <div className={cls} ref={ref}>
+      <Label>Favour</Label>
+      <button className="food-pick" onClick={() => setOpen((o) => !o)} title="change offering">
+        <TileBox size="md" dim={none}>
+          {fv.offering ? (
+            <BareIcon spec={itemIconSpec(content, fv.offering)} size={20} />
+          ) : (
+            <UiIcon id={FAVOUR_ICON} size={18} />
+          )}
+        </TileBox>
+        <div style={{ minWidth: 0 }}>
+          <div className={none ? 'name none' : 'name'}>
+            {fv.offering === null
+              ? 'No offering'
+              : fv.have === 0
+                ? `No ${fv.offering.name} left`
+                : fv.offering.name}
+          </div>
+          <div className="sub">
+            {none
+              ? 'nothing to burn · the boon sleeps when favour runs out'
+              : `×${formatInt(fv.have)} · ${String(fv.each)} favour each`}
+          </div>
+        </div>
+        <span className={open ? 'caret open' : 'caret'}>▾</span>
+      </button>
+      {open && (
+        <div className="food-menu">
+          <Label>From bank</Label>
+          {options.length === 0 && (
+            <div className="empty">Nothing in the bank burns for favour. Forage something.</div>
+          )}
+          {options.map((o) => {
+            const picked = o.item.id === sim.combat.offering;
+            return (
+              <button
+                key={o.item.id}
+                className="food-opt"
+                onClick={() => {
+                  dispatch({ type: 'combat:offering', item: o.item.id });
+                  setOpen(false);
+                }}
+              >
+                <TileBox size="sm">
+                  <BareIcon spec={itemIconSpec(content, o.item)} size={17} />
+                </TileBox>
+                <div style={{ minWidth: 0 }}>
+                  <div className="name">{o.item.name}</div>
+                  <div className="sub">
+                    ×{formatInt(o.have)} in bank · {String(o.each)} favour
+                  </div>
+                </div>
+                {picked && <span className="tag-active">Chosen</span>}
+              </button>
+            );
+          })}
+        </div>
+      )}
+      <span className="spacer" />
+      <div className="boon-state" title={fv.boon.line}>
+        <div className="boon-name">
+          <UiIcon id={fv.god.icon} size={12} />
+          {fv.boon.name}
+          <span className={fv.lit ? 'boon-on' : 'boon-off'}>{fv.lit ? 'lit' : 'out'}</span>
+        </div>
+        <div className="sub">
+          {boonText(fv.boon)}
+          {fv.lit
+            ? ` · ${formatInt(fv.favour)} favour · ${formatDuration(fv.seconds * 1000)} of fighting`
+            : ' · no favour · burns one a second in a fight'}
+        </div>
+      </div>
+      <button
+        className="btn sm"
+        style={{ padding: '6px 12px' }}
+        disabled={none}
+        onClick={() => dispatch({ type: 'combat:offer' })}
+      >
+        Offer
       </button>
     </div>
   );

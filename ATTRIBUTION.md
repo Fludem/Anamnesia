@@ -10,9 +10,10 @@ They are licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/
 - Icons made by Caro Asercion. Available on https://game-icons.net — 3 icons
 - Icons made by Cathelineau. Available on https://game-icons.net — 2 icons
 - Icons made by DarkZaitzev. Available on https://game-icons.net ([http://darkzaitzev.deviantart.com](http://darkzaitzev.deviantart.com)) — 2 icons
-- Icons made by Delapouite. Available on https://game-icons.net ([http://delapouite.com](http://delapouite.com)) — 41 icons
+- Icons made by Delapouite. Available on https://game-icons.net ([http://delapouite.com](http://delapouite.com)) — 49 icons
 - Icons made by Faithtoken. Available on https://game-icons.net ([http://fungustoken.deviantart.com](http://fungustoken.deviantart.com)) — 2 icons
-- Icons made by Lorc. Available on https://game-icons.net ([http://lorcblog.blogspot.com](http://lorcblog.blogspot.com)) — 65 icons
+- Icons made by Lorc. Available on https://game-icons.net ([http://lorcblog.blogspot.com](http://lorcblog.blogspot.com)) — 77 icons
+- Icons made by Quoting. Available on https://game-icons.net — 1 icon
 - Icons made by Sbed. Available on https://game-icons.net ([http://opengameart.org/content/95-game-icons](http://opengameart.org/content/95-game-icons)) — 2 icons
 - Icons made by Skoll. Available on https://game-icons.net — 5 icons
 - Icons made by Willdabeast. Available on https://game-icons.net ([http://wjbstories.blogspot.com](http://wjbstories.blogspot.com)) — 1 icon

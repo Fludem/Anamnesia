@@ -14,6 +14,7 @@ export const FIXTURE_PACK = {
     { id: 'woodcutting', name: 'Woodcutting', icon: 'lorc/pine-tree' },
     { id: 'smithing', name: 'Smithing', icon: 'lorc/anvil' },
     { id: 'fishing', name: 'Fishing', icon: 'delapouite/fishing' },
+    { id: 'foraging', name: 'Foraging', icon: 'delapouite/herbs-bundle' },
     { id: 'firemaking', name: 'Firemaking', icon: 'lorc/campfire' },
     { id: 'cooking', name: 'Cooking', icon: 'delapouite/cooking-pot' },
     { id: 'combat', name: 'Combat', icon: 'lorc/crossed-swords' },
@@ -106,6 +107,27 @@ export const FIXTURE_PACK = {
     },
     { id: 'bone', name: 'Bone', icon: 'lorc/rock', value: 1 },
     { id: 'hide', name: 'Hide', icon: 'lorc/rock', value: 4 },
+    /** An offering worth 5 favour (five seconds of fighting). */
+    {
+      id: 'sprig',
+      name: 'Sprig',
+      icon: 'lorc/three-leaves',
+      class: 'consumable',
+      stats: { favour: 5 },
+      value: 1,
+    },
+  ],
+  patches: [
+    {
+      id: 'sure-patch',
+      name: 'Sure patch',
+      icon: 'delapouite/grass',
+      level: 1,
+      durationTicks: 4,
+      xp: 6,
+      success: { base: 1 },
+      drops: [{ entries: [{ item: 'sprig', weight: 1 }] }],
+    },
   ],
   waters: [
     {
@@ -161,32 +183,42 @@ export const FIXTURE_PACK = {
     },
   ],
   gods: [
-    /** Half again on mining xp. */
+    /** Half again on mining xp; in a fight, half again on defence. */
     {
       id: 'stone-god',
       name: 'Stone god',
       title: 'of the test',
       icon: 'lorc/rune-stone',
       boon: '+50% Mining xp',
-      perks: { xp: { mining: 0.5 } },
+      perks: {
+        xp: { mining: 0.5 },
+        combat: { kind: 'defence', fraction: 0.5, name: 'Stone skin', line: 'Harder.' },
+      },
     },
-    /** Every catch lands twice, for determinism. */
+    /** Every catch lands twice, for determinism; in a fight, attack doubled. */
     {
       id: 'sea-god',
       name: 'Sea god',
       title: 'of the test',
       icon: 'delapouite/fishing',
       boon: '+10% Fishing xp · always double catch',
-      perks: { xp: { fishing: 0.1 }, doubleYield: [{ skill: 'fishing', chance: 1 }] },
+      perks: {
+        xp: { fishing: 0.1 },
+        doubleYield: [{ skill: 'fishing', chance: 1 }],
+        combat: { kind: 'attack', fraction: 1, name: 'Still hand', line: 'Lands.' },
+      },
     },
-    /** A seed with every log. */
+    /** A seed with every log; in a fight, a hitpoint back every 4 ticks. */
     {
       id: 'green-god',
       name: 'Green god',
       title: 'of the test',
       icon: 'lorc/sprout',
       boon: 'seeds',
-      perks: { extraDrops: [{ skill: 'woodcutting', table: { $ref: 'seed' } }] },
+      perks: {
+        extraDrops: [{ skill: 'woodcutting', table: { $ref: 'seed' } }],
+        combat: { kind: 'regen', everyTicks: 4, name: 'Green return', line: 'Grows back.' },
+      },
     },
   ],
   trees: [

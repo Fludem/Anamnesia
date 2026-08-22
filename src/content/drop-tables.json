@@ -104,5 +104,18 @@
         "weight": 1
       }
     ]
+  },
+  "forage-finds": {
+    "nothingWeight": 124,
+    "entries": [
+      {
+        "item": "bronze-sickle",
+        "weight": 0.8
+      },
+      {
+        "item": "clay-votive",
+        "weight": 0.2
+      }
+    ]
   }
 }

@@ -47,8 +47,8 @@ describe('first steps', () => {
 
   it('the rewards add up to the first bank slot, and the whole walk ends', () => {
     const total = TUTORIAL_STEPS.reduce((n, s) => n + s.reward, 0);
-    // 550: the first slot costs 500 and the hill refunds nothing, so a little is left over.
-    expect(total).toBe(550);
+    // 750: the first slot costs 500 and the hill refunds nothing, so some is left over.
+    expect(total).toBe(750);
     const s0 = createSimState(1);
     const everything: SimState = {
       ...s0,
@@ -56,8 +56,9 @@ describe('first steps', () => {
       bankSlotsBought: 1,
       stats: {
         actions: {},
-        kills: {},
+        kills: { 'hill-goat': 3 },
         deaths: 0,
+        offered: 1,
         sold: 3,
         items: {
           'copper-ore': 10,
@@ -67,13 +68,14 @@ describe('first steps', () => {
           ash: 5,
           'raw-minnow': 5,
           minnow: 3,
+          'thyme-sprig': 5,
         },
       },
     };
     const s = run(everything, TUTORIAL_STEPS.length + 2);
     expect(tutorialFinished(s)).toBe(true);
     expect(s.tutorial.done).toEqual(TUTORIAL_STEPS.map((t) => t.id));
-    expect(s.coins).toBe(550);
+    expect(s.coins).toBe(750);
     expect(eventsOfType(s, 'tutorial')).toHaveLength(TUTORIAL_STEPS.length);
   });
 

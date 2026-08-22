@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { combatClimb, hoursToCap } from '../sim/progression.ts';
+import { combatClimb, hoursToCap, regenPerHour } from '../sim/progression.ts';
 import { content, simContext } from './index.ts';
 
 /**
@@ -39,7 +39,7 @@ describe('progression: hours to 99', () => {
     }
   });
 
-  it.each(['mining', 'woodcutting', 'fishing'])(
+  it.each(['mining', 'woodcutting', 'fishing', 'foraging'])(
     '%s: quick methods cut the climb by 5–20%, and each beats its tier on xp/hr',
     (skill) => {
       const standard = hoursToCap(skill, simContext).hours;
@@ -86,6 +86,48 @@ describe('progression: combat', () => {
     for (const step of climb.steps) {
       expect(step.killSeconds).toBeGreaterThan(3);
       expect(step.killSeconds).toBeLessThan(90);
+    }
+  });
+
+  /**
+   * The gods' boons, measured with favour never running out: an xp boon takes 5–20% off the
+   * climb, a food boon takes 20–45% off what is eaten, and none does both in full. Numbers
+   * in scripts/tune-boons.ts.
+   */
+  it('every boon is worth about the same: hours off the climb, or food off the bill', () => {
+    const food = (c: typeof climb) => {
+      let hp = 0;
+      for (const s of c.steps) {
+        const need = simContext.xp.xpForLevel(s.level + 1) - simContext.xp.xpForLevel(s.level);
+        hp += s.damagePerHour * (need / s.rate);
+      }
+      return hp;
+    };
+    const bare = food(climb);
+    for (const g of content.gods) {
+      const boon = g.perks.combat!;
+      const with_ = combatClimb(simContext, { boon });
+      const hours = (with_.hours - climb.hours) / climb.hours;
+      const eaten = (food(with_) - bare) / bare;
+      if (boon.kind === 'attack' || boon.kind === 'strength') {
+        expect(hours, g.id).toBeLessThan(-0.05);
+        expect(hours, g.id).toBeGreaterThan(-0.2);
+      } else {
+        expect(hours, g.id).toBe(0);
+        expect(eaten, g.id).toBeLessThan(-0.2);
+        expect(eaten, g.id).toBeGreaterThan(-0.45);
+      }
+      if (boon.kind === 'regen') expect(regenPerHour(boon)).toBeGreaterThan(0);
+    }
+  });
+
+  it('an hour of foraging at any standard patch buys two to three hours of favour', () => {
+    for (const p of content.patches.filter((p) => !p.quick)) {
+      const item = content.item(p.drops[0]!.entries[0]!.item);
+      const favour =
+        ((36_000 / p.durationTicks) * p.success.base * (item.stats.favour ?? 0)) / 3600;
+      expect(favour, p.id).toBeGreaterThan(2);
+      expect(favour, p.id).toBeLessThan(3);
     }
   });
 });

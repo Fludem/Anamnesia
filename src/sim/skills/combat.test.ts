@@ -254,3 +254,101 @@ describe('commands', () => {
     expect(mining.ok && mining.state.combat.fight).toBeNull();
   });
 });
+
+describe('favour and the boon', () => {
+  const sworn = (
+    seed: number,
+    god: string,
+    monster = 'goat',
+    combat: Partial<SimState['combat']> = {},
+    bank: SimState['bank'] = [],
+  ): SimState => {
+    const base = fightingState(seed, monster);
+    return {
+      ...base,
+      bank,
+      player: { ...base.player, god },
+      combat: { ...base.combat, ...combat },
+    };
+  };
+
+  it('favour burns one a second in a fight, and not at all outside one', () => {
+    const s0 = sworn(1, 'stone-god', 'goat', { favour: 3 });
+    expect(run(s0, 9).combat.favour).toBe(3);
+    expect(run(s0, 10).combat.favour).toBe(2);
+    expect(run(s0, 30).combat.favour).toBe(0);
+    expect(run(s0, 100).combat.favour).toBe(0);
+    const idle = createSimState(1);
+    expect(run({ ...idle, combat: { ...idle.combat, favour: 3 } }, 100).combat.favour).toBe(3);
+  });
+
+  it('when favour runs out an offering is burnt from the bank, so the boon never lapses', () => {
+    const s0 = sworn(2, 'stone-god', 'goat', { favour: 1, offering: 'sprig' }, [
+      { item: 'sprig', qty: 2 },
+    ]);
+    const s10 = run(s0, 10);
+    expect(s10.combat.favour).toBe(5);
+    expect(countItem(s10.bank, 'sprig')).toBe(1);
+    expect(s10.stats.offered).toBe(1);
+    expect(eventsOfType(s10, 'offered')).toEqual([
+      { type: 'offered', tick: 10, item: 'sprig', favour: 5 },
+    ]);
+    // Five seconds later the second one burns; five more and there is nothing left to burn.
+    expect(run(s0, 60).combat.favour).toBe(5);
+    expect(countItem(run(s0, 60).bank, 'sprig')).toBe(0);
+    expect(run(s0, 100).combat.favour).toBe(1);
+    expect(run(s0, 110).combat.favour).toBe(0);
+    expect(run(s0, 110).stats.offered).toBe(2);
+  });
+
+  it('the boon holds while favour lasts: half again on defence, or double attack', () => {
+    const base = createSimState(1);
+    const stone = { ...base, player: { ...base.player, god: 'stone-god' } };
+    expect(heroStats(stone, ctx).defence).toBe(5);
+    expect(heroStats(stone, ctx).boon).toBeNull();
+    const lit = { ...stone, combat: { ...stone.combat, favour: 1 } };
+    expect(heroStats(lit, ctx).defence).toBe(8);
+    expect(heroStats(lit, ctx).attack).toBe(5);
+    expect(heroStats(lit, ctx).boon?.name).toBe('Stone skin');
+    const sea = { ...lit, player: { ...lit.player, god: 'sea-god' } };
+    expect(heroStats(sea, ctx).attack).toBe(10);
+    expect(heroStats(sea, ctx).defence).toBe(5);
+  });
+
+  it('the regen boon gives a hitpoint back on its own clock, while favour lasts', () => {
+    // The brute takes one every second tick; green return gives one back every fourth.
+    const s0 = sworn(1, 'green-god', 'brute', { favour: 2 });
+    expect(run(s0, 12).combat.hp).toBe(7);
+    expect(run(fightingState(1, 'brute'), 12).combat.hp).toBe(4);
+    // Favour is gone at tick 20; from there the brute has it all its own way.
+    expect(run(s0, 22).combat.hp).toBe(3);
+  });
+
+  it('choosing an offering wants a consumable with favour; burning one now pays at once', () => {
+    const base = createSimState(1);
+    const s0: SimState = {
+      ...base,
+      player: { ...base.player, god: 'stone-god' },
+      bank: [{ item: 'sprig', qty: 1 }],
+    };
+    const bad = applyCommand(s0, { type: 'combat:offering', item: 'cooked-fish' }, ctx);
+    expect(bad).toMatchObject({ ok: false, reason: 'Cooked fish is no offering' });
+    expect(applyCommand(s0, { type: 'combat:offer' }, ctx)).toMatchObject({
+      ok: false,
+      reason: 'no offering chosen',
+    });
+    const chosen = applyCommand(s0, { type: 'combat:offering', item: 'sprig' }, ctx);
+    expect(chosen.ok && chosen.state.combat.offering).toBe('sprig');
+    const burnt = applyCommand(chosen.state, { type: 'combat:offer' }, ctx);
+    expect(burnt.ok).toBe(true);
+    expect(burnt.state.combat.favour).toBe(5);
+    expect(countItem(burnt.state.bank, 'sprig')).toBe(0);
+    expect(burnt.state.stats.offered).toBe(1);
+    expect(applyCommand(burnt.state, { type: 'combat:offer' }, ctx)).toMatchObject({
+      ok: false,
+      reason: 'no Sprig left in the bank',
+    });
+    const cleared = applyCommand(burnt.state, { type: 'combat:offering', item: null }, ctx);
+    expect(cleared.ok && cleared.state.combat.offering).toBeNull();
+  });
+});

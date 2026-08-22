@@ -95,6 +95,18 @@ export const MIGRATIONS: MigrationTable = {
       },
     };
   },
+  /** v6 → v7 (Phase 7): no offering chosen, no favour, nothing ever burnt. */
+  6: (raw) => {
+    const sim = asObject(raw['sim']);
+    return {
+      ...raw,
+      sim: {
+        ...sim,
+        stats: { offered: 0, ...asObject(sim['stats']) },
+        combat: { offering: null, favour: 0, ...asObject(sim['combat']) },
+      },
+    };
+  },
 };
 
 function asObject(v: unknown): Record<string, unknown> {

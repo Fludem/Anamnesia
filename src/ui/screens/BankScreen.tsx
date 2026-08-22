@@ -29,7 +29,12 @@ const SPECIFIC: Filter[] = [
   { id: 'bars', label: 'Bars', match: (i) => i.tags.includes('bar') },
   { id: 'gear', label: 'Gear', match: (i) => GEAR.has(i.class) },
   { id: 'gems', label: 'Gems', match: (i) => i.class === 'gem' },
-  { id: 'food', label: 'Food', match: (i) => i.tags.includes('fish') || i.class === 'consumable' },
+  {
+    id: 'food',
+    label: 'Food',
+    match: (i) => i.tags.includes('fish') || (i.stats.heal ?? 0) > 0,
+  },
+  { id: 'offerings', label: 'Offerings', match: (i) => (i.stats.favour ?? 0) > 0 },
 ];
 const FILTERS: Filter[] = [
   { id: 'all', label: 'All', match: () => true },
@@ -44,6 +49,7 @@ const STAT_LABEL: Record<StatKey, string> = {
   speed: 'speed',
   gather: 'action time',
   heal: 'heals',
+  favour: 'favour',
 };
 
 export function BankScreen({ sim, dispatch, juice }: ScreenProps) {

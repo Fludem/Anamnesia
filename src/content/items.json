@@ -1886,5 +1886,184 @@
     },
     "value": 18281,
     "tags": ["tool", "rod"]
+  },
+  {
+    "$comment": "Offerings (Phase 7): foraged, then burnt for the sworn god's favour. `favour` is what one buys; a fight burns one favour a second."
+  },
+  {
+    "id": "thyme-sprig",
+    "name": "Thyme Sprig",
+    "description": "Burns quick and sweet. The gods have simple tastes, early on.",
+    "icon": "lorc/three-leaves",
+    "class": "consumable",
+    "material": "pine",
+    "rarity": "common",
+    "stats": {
+      "favour": 6
+    },
+    "value": 2,
+    "tags": ["offering", "foraging"]
+  },
+  {
+    "id": "laurel-leaf",
+    "name": "Laurel Leaf",
+    "description": "Victory, pressed flat. Burns like any other leaf.",
+    "icon": "delapouite/solid-leaf",
+    "class": "consumable",
+    "material": "willow",
+    "rarity": "common",
+    "stats": {
+      "favour": 10
+    },
+    "value": 5,
+    "tags": ["offering", "foraging"]
+  },
+  {
+    "id": "clover",
+    "name": "Clover",
+    "description": "Three leaves. A fourth would have been a different item.",
+    "icon": "lorc/clover",
+    "class": "consumable",
+    "material": "willow",
+    "rarity": "common",
+    "stats": {
+      "favour": 1
+    },
+    "value": 1,
+    "tags": ["offering", "foraging"]
+  },
+  {
+    "id": "beeswax",
+    "name": "Beeswax",
+    "description": "The bees had a use for it. So does your god.",
+    "icon": "lorc/candle-flame",
+    "class": "consumable",
+    "material": "gold",
+    "rarity": "common",
+    "stats": {
+      "favour": 12
+    },
+    "value": 9,
+    "tags": ["offering", "foraging"]
+  },
+  {
+    "id": "pine-resin",
+    "name": "Pine Resin",
+    "description": "The tree's own offering. You are only carrying it.",
+    "icon": "lorc/dripping-honey",
+    "class": "consumable",
+    "material": "copper",
+    "rarity": "common",
+    "stats": {
+      "favour": 15
+    },
+    "value": 14,
+    "tags": ["offering", "foraging"]
+  },
+  {
+    "id": "poppy-head",
+    "name": "Poppy Head",
+    "description": "Rattles. Burns with a sigh.",
+    "icon": "quoting/poppy",
+    "class": "consumable",
+    "material": "copper",
+    "rarity": "common",
+    "stats": {
+      "favour": 2
+    },
+    "value": 3,
+    "tags": ["offering", "foraging"]
+  },
+  {
+    "id": "myrrh-tear",
+    "name": "Myrrh Tear",
+    "description": "Bitter smoke. The gods seem to prefer it that way.",
+    "icon": "lorc/drop",
+    "class": "consumable",
+    "material": "copper",
+    "rarity": "common",
+    "stats": {
+      "favour": 18
+    },
+    "value": 22,
+    "tags": ["offering", "foraging"]
+  },
+  {
+    "id": "asphodel",
+    "name": "Asphodel",
+    "description": "The flower of the next hill over. It burns pale.",
+    "icon": "lorc/lotus-flower",
+    "class": "consumable",
+    "material": "marble",
+    "rarity": "common",
+    "stats": {
+      "favour": 22
+    },
+    "value": 34,
+    "tags": ["offering", "foraging"]
+  },
+  {
+    "id": "nettles",
+    "name": "Nettles",
+    "description": "Burn before they burn you. They still count.",
+    "icon": "delapouite/high-grass",
+    "class": "consumable",
+    "material": "pine",
+    "rarity": "common",
+    "stats": {
+      "favour": 3
+    },
+    "value": 5,
+    "tags": ["offering", "foraging"]
+  },
+  {
+    "id": "frankincense",
+    "name": "Frankincense",
+    "description": "The hill's last luxury. The smoke goes straight up.",
+    "icon": "lorc/incense",
+    "class": "consumable",
+    "material": "gold",
+    "rarity": "common",
+    "stats": {
+      "favour": 35
+    },
+    "value": 55,
+    "tags": ["offering", "foraging"]
+  },
+  {
+    "id": "gorse",
+    "name": "Gorse",
+    "description": "Smells of coconut, which nobody here has had. Burns loud.",
+    "icon": "lorc/flower-twirl",
+    "class": "consumable",
+    "material": "gold",
+    "rarity": "common",
+    "stats": {
+      "favour": 4
+    },
+    "value": 6,
+    "tags": ["offering", "foraging"]
+  },
+  {
+    "id": "bronze-sickle",
+    "name": "Bronze Sickle",
+    "description": "Left in the grass by someone who finished.",
+    "icon": "delapouite/sickle",
+    "class": "misc",
+    "material": "copper",
+    "rarity": "rare",
+    "value": 150,
+    "tags": ["foraging", "find"]
+  },
+  {
+    "id": "clay-votive",
+    "name": "Clay Votive",
+    "description": "Someone left it for a god. The god left it for you.",
+    "icon": "lorc/prayer",
+    "class": "misc",
+    "material": "marble",
+    "rarity": "epic",
+    "value": 500,
+    "tags": ["foraging", "find"]
   }
 ]

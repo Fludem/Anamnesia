@@ -14,6 +14,7 @@ const VERB: Record<string, string> = {
   mining: 'mined',
   woodcutting: 'cut',
   fishing: 'fished',
+  foraging: 'foraged',
   firemaking: 'burned',
   cooking: 'cooked',
   smithing: 'smithed',
@@ -34,6 +35,7 @@ export function OfflineRecap({
   const r = recap(info.before, sim, simContext);
   const kills = totalKills(sim) - totalKills(info.before);
   const deaths = sim.stats.deaths - info.before.stats.deaths;
+  const offered = sim.stats.offered - info.before.stats.offered;
   // The log is short; the items it still remembers are named, the rest is counted.
   const taken = eventsOfType(sim, 'died')
     .filter((d) => d.tick > info.before.tick && d.lost !== null)
@@ -89,6 +91,14 @@ export function OfflineRecap({
             })}
           </div>
         </>
+      )}
+      {offered > 0 && (
+        <div className="recap-note favour">
+          <UiIcon id="lorc/incense" size={13} />
+          {offered === 1 ? 'one offering burnt' : `${formatInt(offered)} offerings burnt`} · the
+          boon held
+          {sim.combat.favour === 0 ? ' until they ran out' : ''}
+        </div>
       )}
       {deaths > 0 && (
         <div className="died" style={{ marginTop: 14 }}>

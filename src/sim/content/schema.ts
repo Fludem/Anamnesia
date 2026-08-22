@@ -72,10 +72,19 @@ export type ItemClass = z.infer<typeof ItemClassSchema>;
 
 /**
  * `gather` is a tool's percentage cut to its skill's action time (10 = −10%). `heal` is the
- * hitpoints a consumable restores. `attack`, `strength` and `defence` add to the hero's
- * level-derived numbers; `speed` is ticks added to the base swing (a spear is slower).
+ * hitpoints a consumable restores; `favour` is what an offering buys from the sworn god when
+ * burnt. `attack`, `strength` and `defence` add to the hero's level-derived numbers; `speed`
+ * is ticks added to the base swing (a spear is slower).
  */
-export const StatKeySchema = z.enum(['attack', 'strength', 'defence', 'speed', 'gather', 'heal']);
+export const StatKeySchema = z.enum([
+  'attack',
+  'strength',
+  'defence',
+  'speed',
+  'gather',
+  'heal',
+  'favour',
+]);
 export type StatKey = z.infer<typeof StatKeySchema>;
 export const ItemStatsSchema = z.partialRecord(StatKeySchema, z.number());
 export type ItemStats = z.infer<typeof ItemStatsSchema>;
@@ -207,6 +216,8 @@ export const TreeDefSchema = GatherNodeDefSchema;
 export type TreeDef = GatherNodeDef;
 export const WaterDefSchema = GatherNodeDefSchema;
 export type WaterDef = GatherNodeDef;
+export const PatchDefSchema = GatherNodeDefSchema;
+export type PatchDef = GatherNodeDef;
 
 /** A level in another skill a recipe asks for — cooking wants a hot enough fire, say. */
 export const SkillRequirementSchema = z.object({
@@ -282,15 +293,38 @@ export type MonsterSource = z.infer<typeof MonsterDefSchema>;
 export type MonsterDef = Omit<MonsterSource, 'drops'> & { drops: readonly DropTable[] };
 
 /**
+ * A god's combat boon: what favour buys while it burns in a fight. `attack`, `strength` and
+ * `defence` scale the hero's number by `1 + fraction`; `regen` gives one hitpoint back every
+ * `everyTicks` ticks of fighting. `name` is the boon's title ("Stone Skin"); `line` is one dry
+ * line for the cards.
+ */
+export const CombatBoonSchema = z.discriminatedUnion('kind', [
+  z.object({
+    kind: z.enum(['attack', 'strength', 'defence']),
+    fraction: z.number().positive(),
+    name: z.string().min(1),
+    line: z.string().min(1),
+  }),
+  z.object({
+    kind: z.literal('regen'),
+    everyTicks: z.number().int().min(1),
+    name: z.string().min(1),
+    line: z.string().min(1),
+  }),
+]);
+export type CombatBoon = z.infer<typeof CombatBoonSchema>;
+
+/**
  * What swearing to a god does. Every perk is data keyed by skill so a new god is a content
  * entry: `xp` is a fractional bonus to xp gained in that skill (0.1 = +10%), `extraDrops`
  * rolls one more table on every successful cycle of that skill, `doubleYield` is the chance a
- * successful cycle of that skill lands twice.
+ * successful cycle of that skill lands twice, `combat` is the boon favour buys in a fight.
  */
 export const GodPerksSchema = z.object({
   xp: z.record(IdSchema, z.number().min(0)).default({}),
   extraDrops: z.array(z.object({ skill: IdSchema, table: DropTableOrRefSchema })).default([]),
   doubleYield: z.array(z.object({ skill: IdSchema, chance: z.number().min(0).max(1) })).default([]),
+  combat: CombatBoonSchema.nullable().default(null),
 });
 export type GodPerksSource = z.infer<typeof GodPerksSchema>;
 export type GodPerks = Omit<GodPerksSource, 'extraDrops'> & {
@@ -308,7 +342,7 @@ export const GodDefSchema = z.object({
   description: z.string().default(''),
   /** The boon as one line: "+10% Mining & Smithing xp". */
   boon: z.string().min(1),
-  perks: GodPerksSchema.default({ xp: {}, extraDrops: [], doubleYield: [] }),
+  perks: GodPerksSchema.default({ xp: {}, extraDrops: [], doubleYield: [], combat: null }),
 });
 export type GodSource = z.infer<typeof GodDefSchema>;
 export type GodDef = Omit<GodSource, 'perks'> & { perks: GodPerks };
@@ -349,6 +383,8 @@ export const ContentPackSchema = z.object({
   rocks: contentList(RockDefSchema),
   trees: contentList(TreeDefSchema).default([]),
   waters: contentList(WaterDefSchema).default([]),
+  /** Foraging's nodes: where offerings grow. */
+  patches: contentList(PatchDefSchema).default([]),
   recipes: contentList(RecipeDefSchema).default([]),
   gods: contentList(GodDefSchema).default([]),
   zones: contentList(ZoneDefSchema).default([]),

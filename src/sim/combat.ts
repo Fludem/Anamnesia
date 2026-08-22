@@ -1,5 +1,6 @@
-import type { ItemDef, MonsterDef } from './content/schema.ts';
+import type { CombatBoon, ItemDef, MonsterDef } from './content/schema.ts';
 import type { SimContext } from './context.ts';
+import { godOf } from './perks.ts';
 import { skillLevel } from './progress.ts';
 import type { SimState } from './save.ts';
 import { EQUIPMENT_SLOTS, isToolSlot, type EquipmentSlot } from './slots.ts';
@@ -26,6 +27,8 @@ export const REGEN_EVERY_TICKS = 10;
 export const HITPOINTS_XP_SHARE = 1 / 3;
 /** How many numbers a fight keeps for the bars to pop. */
 export const SPLAT_CAP = 8;
+/** In a fight, one favour burns every this many ticks (one a second). */
+export const FAVOUR_EVERY_TICKS = 10;
 
 /** Worn slots that are not tools: what the hill may take on death. */
 export const BODY_SLOTS: readonly EquipmentSlot[] = EQUIPMENT_SLOTS.filter((s) => !isToolSlot(s));
@@ -38,6 +41,8 @@ export interface HeroStats {
   maxHp: number;
   /** The gear's share alone, for the equipment screen's totals. */
   gear: { attack: number; strength: number; defence: number; speed: number };
+  /** The god's boon folded into the numbers above, or null when favour is spent. */
+  boon: CombatBoon | null;
 }
 
 export type GearStats = HeroStats['gear'];
@@ -54,16 +59,41 @@ export function gearStats(items: readonly ItemDef[]): GearStats {
   return gear;
 }
 
-/** The hero's numbers from a combat level, a hitpoints level and the gear's sums. */
-export function heroStatsFrom(level: number, hitpointsLevel: number, gear: GearStats): HeroStats {
+/** A stat with the boon's share on top, rounded so the state never sees a float. */
+function boosted(stat: 'attack' | 'strength' | 'defence', base: number, boon: CombatBoon | null) {
+  if (boon === null || boon.kind !== stat) return base;
+  return Math.round(base * (1 + boon.fraction));
+}
+
+/**
+ * The hero's numbers from a combat level, a hitpoints level, the gear's sums and, while
+ * favour burns, the god's boon.
+ */
+export function heroStatsFrom(
+  level: number,
+  hitpointsLevel: number,
+  gear: GearStats,
+  boon: CombatBoon | null = null,
+): HeroStats {
   return {
-    attack: level + STAT_BASE + gear.attack,
-    strength: level + STAT_BASE + gear.strength,
-    defence: level + STAT_BASE + gear.defence,
+    attack: boosted('attack', level + STAT_BASE + gear.attack, boon),
+    strength: boosted('strength', level + STAT_BASE + gear.strength, boon),
+    defence: boosted('defence', level + STAT_BASE + gear.defence, boon),
     swingTicks: Math.max(MIN_SWING_TICKS, BASE_SWING_TICKS + gear.speed),
     maxHp: maxHitpoints(hitpointsLevel),
     gear,
+    boon,
   };
+}
+
+/** The sworn god's combat boon, whether or not there is favour to run it on. */
+export function godBoon(state: SimState, ctx: SimContext): CombatBoon | null {
+  return godOf(state, ctx)?.perks.combat ?? null;
+}
+
+/** The boon in effect: the god's, while there is favour to burn. */
+export function activeBoon(state: SimState, ctx: SimContext): CombatBoon | null {
+  return state.combat.favour > 0 ? godBoon(state, ctx) : null;
 }
 
 /** The hero's numbers from the save: combat level, hitpoints level, everything in a body slot. */
@@ -77,6 +107,7 @@ export function heroStats(state: SimState, ctx: SimContext): HeroStats {
     skillLevel(state, COMBAT_SKILL, ctx),
     skillLevel(state, HITPOINTS_SKILL, ctx),
     gearStats(worn),
+    activeBoon(state, ctx),
   );
 }
 

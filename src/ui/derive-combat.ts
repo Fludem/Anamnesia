@@ -5,6 +5,7 @@
 import { actionHandler } from '../sim/actions.ts';
 import {
   BODY_SLOTS,
+  FAVOUR_EVERY_TICKS,
   expectedKillTicks,
   heroStats,
   hitChance,
@@ -13,11 +14,11 @@ import {
 } from '../sim/combat.ts';
 import { TICK_MS } from '../sim/constants.ts';
 import type { ContentDb } from '../sim/content/db.ts';
-import type { ItemDef, MonsterDef, ZoneDef } from '../sim/content/schema.ts';
+import type { CombatBoon, GodDef, ItemDef, MonsterDef, ZoneDef } from '../sim/content/schema.ts';
 import type { SimContext } from '../sim/context.ts';
 import { eventsOfType, type SimEventOf } from '../sim/events.ts';
 import { countItem } from '../sim/items.ts';
-import { xpAwarded } from '../sim/perks.ts';
+import { godOf, xpAwarded } from '../sim/perks.ts';
 import { skillLevel } from '../sim/progress.ts';
 import type { SimState, Splat } from '../sim/save.ts';
 import type { EquipmentSlot } from '../sim/slots.ts';
@@ -120,6 +121,66 @@ export function foodOptions(sim: SimState, content: ContentDb): FoodView[] {
       return { item, have: s.qty, heal: item.stats.heal ?? 0 };
     })
     .sort((a, b) => b.heal - a.heal);
+}
+
+// ---- favour -------------------------------------------------------------------------------
+
+export interface FavourView {
+  god: GodDef | null;
+  boon: CombatBoon | null;
+  favour: number;
+  /** Whether the boon is in effect (there is favour to burn). */
+  lit: boolean;
+  /** How long the favour lasts in a fight, in seconds. */
+  seconds: number;
+  offering: ItemDef | null;
+  /** How many of the offering the bank holds. */
+  have: number;
+  /** Favour one offering buys. */
+  each: number;
+}
+
+export function favourView(sim: SimState, ctx: SimContext): FavourView {
+  const god = godOf(sim, ctx);
+  const id = sim.combat.offering;
+  const offering = id !== null && ctx.content.hasItem(id) ? ctx.content.item(id) : null;
+  return {
+    god,
+    boon: god?.perks.combat ?? null,
+    favour: sim.combat.favour,
+    lit: sim.combat.favour > 0,
+    seconds: (sim.combat.favour * FAVOUR_EVERY_TICKS * TICK_MS) / 1000,
+    offering,
+    have: offering === null ? 0 : countItem(sim.bank, offering.id),
+    each: offering?.stats.favour ?? 0,
+  };
+}
+
+/** Everything in the bank that can be burnt for favour, best first. */
+export function offeringOptions(
+  sim: SimState,
+  content: ContentDb,
+): { item: ItemDef; have: number; each: number }[] {
+  return sim.bank
+    .filter((s) => content.hasItem(s.item) && (content.item(s.item).stats.favour ?? 0) > 0)
+    .map((s) => {
+      const item = content.item(s.item);
+      return { item, have: s.qty, each: item.stats.favour ?? 0 };
+    })
+    .sort((a, b) => b.each - a.each);
+}
+
+/** The boon as a number: "+50% defence", "1 hp every 6 s". */
+export function boonText(boon: CombatBoon): string {
+  if (boon.kind === 'regen') return `1 hp every ${String((boon.everyTicks * TICK_MS) / 1000)} s`;
+  return `+${String(Math.round(boon.fraction * 100))}% ${boon.kind}`;
+}
+
+/** The most recent offering burnt within `withinTicks`, for the row to flash. */
+export function recentOffering(sim: SimState, withinTicks: number): SimEventOf<'offered'> | null {
+  const all = eventsOfType(sim, 'offered');
+  const last = all[all.length - 1];
+  return last !== undefined && sim.tick - last.tick < withinTicks ? last : null;
 }
 
 // ---- zones --------------------------------------------------------------------------------

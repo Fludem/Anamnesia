@@ -7,6 +7,7 @@ import type { SimState } from './save.ts';
 import { combatHandler } from './skills/combat.ts';
 import { craftingHandler } from './skills/crafting.ts';
 import { fishingHandler } from './skills/fishing.ts';
+import { foragingHandler } from './skills/foraging.ts';
 import { miningHandler } from './skills/mining.ts';
 import { woodcuttingHandler } from './skills/woodcutting.ts';
 
@@ -22,6 +23,7 @@ export const ActionRequestSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('mining'), rock: IdSchema, count: Count }),
   z.object({ kind: z.literal('woodcutting'), tree: IdSchema, count: Count }),
   z.object({ kind: z.literal('fishing'), water: IdSchema, count: Count }),
+  z.object({ kind: z.literal('foraging'), patch: IdSchema, count: Count }),
   z.object({ kind: z.literal('crafting'), recipe: IdSchema, count: Count }),
   /** Fight `monster` until stopped; a cycle is one swing, so `count` is swings. */
   z.object({ kind: z.literal('combat'), monster: IdSchema, count: Count }),
@@ -67,6 +69,7 @@ const HANDLERS: { [K in ActionKind]: ActionHandler<K> } = {
   mining: miningHandler,
   woodcutting: woodcuttingHandler,
   fishing: fishingHandler,
+  foraging: foragingHandler,
   crafting: craftingHandler,
   combat: combatHandler,
 };
@@ -156,6 +159,8 @@ export function skillOfRequest(req: ActionRequest, ctx: SimContext): string {
       return 'woodcutting';
     case 'fishing':
       return 'fishing';
+    case 'foraging':
+      return 'foraging';
     case 'crafting':
       return ctx.content.recipe(req.recipe).skill;
     case 'combat':

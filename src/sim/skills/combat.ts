@@ -3,9 +3,11 @@ import { roomFor } from '../bank.ts';
 import {
   BODY_SLOTS,
   COMBAT_SKILL,
+  FAVOUR_EVERY_TICKS,
   HITPOINTS_SKILL,
   HITPOINTS_XP_SHARE,
   SPLAT_CAP,
+  activeBoon,
   heroStats,
   hitChance,
   maxHit,
@@ -27,6 +29,10 @@ import type { Fight, SimState, Splat } from '../save.ts';
  * monster swings on its own clock inside the per-tick hook, which is also where the hero
  * eats and, at 0 hp, dies. Death ends the action and costs one worn body item, chosen at
  * random; tools are never taken. Hitpoints refill on death — the item is the price.
+ *
+ * The sworn god watches the fight too: favour burns one a second while it runs, the god's
+ * boon holds while there is any, and when it runs out one of the chosen offering is burnt
+ * from the bank to buy more — the same shape as food.
  */
 
 function monsterOf(ctx: SimContext, id: string): MonsterDef {
@@ -83,6 +89,49 @@ export function eat(state: SimState, ctx: SimContext): SimState | null {
 /** How many of the chosen food the bank holds. */
 export function foodLeft(state: SimState): number {
   return state.combat.food === null ? 0 : countItem(state.bank, state.combat.food);
+}
+
+/** Burn one of the chosen offering from the bank for its favour, if there is one. */
+export function offer(state: SimState, ctx: SimContext): SimState | null {
+  const offering = state.combat.offering;
+  if (offering === null || !ctx.content.hasItem(offering)) return null;
+  const favour = ctx.content.item(offering).stats.favour ?? 0;
+  if (favour <= 0) return null;
+  const bank = removeItem(state.bank, offering, 1);
+  if (bank === null) return null;
+  return pushEvent(
+    {
+      ...state,
+      bank,
+      combat: { ...state.combat, favour: state.combat.favour + favour },
+      stats: { ...state.stats, offered: state.stats.offered + 1 },
+    },
+    { type: 'offered', tick: state.tick, item: offering, favour },
+  );
+}
+
+/** How many of the chosen offering the bank holds. */
+export function offeringsLeft(state: SimState): number {
+  return state.combat.offering === null ? 0 : countItem(state.bank, state.combat.offering);
+}
+
+/**
+ * A second of fighting: one favour burns, and when none is left an offering is burnt for
+ * more, so the boon never lapses while the bank has offerings. With the regen boon, a
+ * hitpoint comes back on its own clock.
+ */
+function favourTick(state: SimState, ctx: SimContext): SimState {
+  let s = state;
+  if (s.tick % FAVOUR_EVERY_TICKS === 0) {
+    if (s.combat.favour > 0) s = { ...s, combat: { ...s.combat, favour: s.combat.favour - 1 } };
+    if (s.combat.favour === 0) s = offer(s, ctx) ?? s;
+  }
+  const boon = activeBoon(s, ctx);
+  if (boon !== null && boon.kind === 'regen' && s.tick % boon.everyTicks === 0) {
+    const { maxHp } = heroStats(s, ctx);
+    if (s.combat.hp < maxHp) s = { ...s, combat: { ...s.combat, hp: s.combat.hp + 1 } };
+  }
+  return s;
 }
 
 /**
@@ -214,7 +263,7 @@ export const combatHandler: ActionHandler<'combat'> = {
 
   tick(state, req, ctx) {
     const m = monsterOf(ctx, req.monster);
-    let s = ensureFight(state, m);
+    let s = favourTick(ensureFight(state, m), ctx);
     const fight = s.combat.fight!;
     if (fight.swingIn > 1) {
       return { ...s, combat: { ...s.combat, fight: { ...fight, swingIn: fight.swingIn - 1 } } };

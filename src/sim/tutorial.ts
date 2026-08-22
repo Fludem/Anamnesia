@@ -5,8 +5,8 @@ import type { SimState } from './save.ts';
  * First steps: a short, linear walk through every skill and the bank, checked by the sim
  * once per tick while it is unfinished. Each step reads lifetime counters (never the bank,
  * which can be sold down) so a step, once met, stays met; completing one pays a few coins
- * and logs a `tutorial` event for the card to react to. Rewards add up to a little more than
- * the first bank slot's price, which is the point of them.
+ * and logs a `tutorial` event for the card to react to. Rewards add up to more than the first
+ * bank slot's price, which is the point of them.
  */
 export interface TutorialStep {
   id: string;
@@ -89,6 +89,30 @@ export const TUTORIAL_STEPS: readonly TutorialStep[] = [
     where: 'cooking',
     reward: 50,
     progress: count('minnow', 3),
+  },
+  {
+    id: 'fight-goats',
+    title: 'Kill 3 Hill Goats',
+    hint: 'Combat. Choose the minnows as food first; the goat has not chosen anything.',
+    where: 'combat',
+    reward: 100,
+    progress: (s) => [Math.min(3, s.stats.kills['hill-goat'] ?? 0), 3] as const,
+  },
+  {
+    id: 'forage-thyme',
+    title: 'Gather 5 Thyme Sprigs',
+    hint: 'Foraging, at the Wild Thyme. No tool for this one; the hill provides, grudgingly.',
+    where: 'foraging',
+    reward: 50,
+    progress: count('thyme-sprig', 5),
+  },
+  {
+    id: 'offer-thyme',
+    title: 'Burn an offering',
+    hint: 'Combat → the offering row → Thyme Sprig → Offer. Favour burns while you fight; so does the boon.',
+    where: 'combat',
+    reward: 50,
+    progress: (s) => [Math.min(1, s.stats.offered), 1] as const,
   },
   {
     id: 'sell-something',

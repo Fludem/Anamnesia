@@ -83,7 +83,7 @@ export interface NodeView {
 export function nodeViews(
   sim: SimState,
   nodes: readonly GatherNodeDef[],
-  opts: { skill: string; toolSlot: ToolSlot; request(id: string): ActionRequest },
+  opts: { skill: string; toolSlot: ToolSlot | null; request(id: string): ActionRequest },
   ctx: SimContext,
 ): NodeView[] {
   const level = skillView(sim, opts.skill, ctx).level;
@@ -107,7 +107,7 @@ export function nodeViews(
   });
 }
 
-/** The node (rock / tree / water) a request targets, or null for crafting. */
+/** The node (rock / tree / water / patch) a request targets, or null for crafting. */
 export function requestNode(req: ActionRequest): string | null {
   switch (req.kind) {
     case 'mining':
@@ -116,6 +116,8 @@ export function requestNode(req: ActionRequest): string | null {
       return req.tree;
     case 'fishing':
       return req.water;
+    case 'foraging':
+      return req.patch;
     case 'crafting':
     case 'combat':
       return null;
@@ -205,6 +207,9 @@ export function activeView(sim: SimState, ctx: SimContext): ActiveView | null {
       break;
     case 'fishing':
       ({ name, xp: base } = ctx.content.water(req.water));
+      break;
+    case 'foraging':
+      ({ name, xp: base } = ctx.content.patch(req.patch));
       break;
     case 'crafting':
       ({ name, xp: base } = ctx.content.recipe(req.recipe));

@@ -1,6 +1,6 @@
 [
   {
-    "$comment": "Screen D's four gods, copy verbatim. Perks are data: xp is a fraction per skill, extraDrops rolls one more table per successful cycle of that skill, doubleYield is the chance a cycle lands twice."
+    "$comment": "Screen D's four gods, copy verbatim. Perks are data: xp is a fraction per skill, extraDrops rolls one more table per successful cycle of that skill, doubleYield is the chance a cycle lands twice, combat is the boon favour buys in a fight (Phase 7; numbers checked by scripts/tune-boons.ts)."
   },
   {
     "id": "tharok",
@@ -13,6 +13,12 @@
       "xp": {
         "mining": 0.1,
         "smithing": 0.1
+      },
+      "combat": {
+        "kind": "defence",
+        "fraction": 0.5,
+        "name": "Stone Skin",
+        "line": "Your skin takes the hill's view of things."
       }
     }
   },
@@ -34,7 +40,13 @@
             "$ref": "vessith-seeds"
           }
         }
-      ]
+      ],
+      "combat": {
+        "kind": "regen",
+        "everyTicks": 60,
+        "name": "Green Return",
+        "line": "What is cut grows back. Slowly. You too."
+      }
     }
   },
   {
@@ -53,7 +65,13 @@
           "skill": "fishing",
           "chance": 0.05
         }
-      ]
+      ],
+      "combat": {
+        "kind": "attack",
+        "fraction": 0.6,
+        "name": "Still Hand",
+        "line": "The water does not hurry. Neither does your hand. It lands."
+      }
     }
   },
   {
@@ -67,6 +85,12 @@
       "xp": {
         "firemaking": 0.1,
         "cooking": 0.1
+      },
+      "combat": {
+        "kind": "strength",
+        "fraction": 0.15,
+        "name": "Ember",
+        "line": "What you hit stays hit, and a little singed."
       }
     }
   }

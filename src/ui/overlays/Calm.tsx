@@ -10,6 +10,7 @@ import { PlayerNameSchema } from '../../sim/commands.ts';
 import { skillOfRequest } from '../../sim/actions.ts';
 import { formatInt } from '../format.ts';
 import { Label, UiIcon } from '../parts.tsx';
+import { boonText } from '../derive-combat.ts';
 import { skillView } from '../derive.ts';
 
 export function CalmPage({ children }: { children: ReactNode }) {
@@ -137,6 +138,12 @@ export function Onboarding({
                     </span>
                     <span className="god-sub">{g.description}</span>
                     <span className="god-boon">{g.boon}</span>
+                    {g.perks.combat && (
+                      <span className="god-fight">
+                        in a fight · {g.perks.combat.name} · {boonText(g.perks.combat)} while favour
+                        burns
+                      </span>
+                    )}
                   </span>
                   {picked && <span className="tag-active">SWORN</span>}
                 </button>

@@ -9,7 +9,7 @@ import { addItem, addStacks, countItem, removeItem, type Container } from './ite
 import { heroStats } from './combat.ts';
 import { recordItems } from './perks.ts';
 import type { SimState } from './save.ts';
-import { eat } from './skills/combat.ts';
+import { eat, offer } from './skills/combat.ts';
 import { EquipmentSlotSchema } from './slots.ts';
 
 /** 3–16 visible characters; trimmed by the UI, checked here so a save never holds junk. */
@@ -52,6 +52,10 @@ export const CommandSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('combat:eat-at'), fraction: z.number().min(0).max(1) }),
   /** Eat one of the chosen food now. */
   z.object({ type: z.literal('combat:eat') }),
+  /** Choose the bank item burnt for favour when it runs out in a fight (null: none). */
+  z.object({ type: z.literal('combat:offering'), item: IdSchema.nullable() }),
+  /** Burn one of the chosen offering now. */
+  z.object({ type: z.literal('combat:offer') }),
 ]);
 export type Command = z.infer<typeof CommandSchema>;
 
@@ -225,6 +229,22 @@ export function applyCommand(state: SimState, cmd: Command, ctx: SimContext): Co
         );
       }
       return { ok: true, state: ate };
+    }
+    case 'combat:offering': {
+      if (cmd.item !== null) {
+        if (!ctx.content.hasItem(cmd.item)) return reject(state, `unknown item "${cmd.item}"`);
+        const item = ctx.content.item(cmd.item);
+        if (!((item.stats.favour ?? 0) > 0)) return reject(state, `${item.name} is no offering`);
+      }
+      return { ok: true, state: { ...state, combat: { ...state.combat, offering: cmd.item } } };
+    }
+    case 'combat:offer': {
+      if (state.combat.offering === null) return reject(state, 'no offering chosen');
+      const burnt = offer(state, ctx);
+      if (burnt === null) {
+        return reject(state, `no ${ctx.content.item(state.combat.offering).name} left in the bank`);
+      }
+      return { ok: true, state: burnt };
     }
   }
 }

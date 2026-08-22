@@ -9,11 +9,15 @@ import {
 } from '../sim/testing/fixture.ts';
 import {
   bankItemsFor,
+  boonText,
+  favourView,
   fightView,
   foodOptions,
   foodView,
   killLog,
   lastDeath,
+  offeringOptions,
+  recentOffering,
   totalKills,
   wornBody,
   zoneRows,
@@ -120,5 +124,49 @@ describe('worn', () => {
     expect(worn.some((w) => w.slot === 'pickaxe')).toBe(false);
     expect(bankItemsFor(s, content, 'weapon').map((i) => i.id)).toEqual(['sword', 'spear']);
     expect(bankItemsFor(s, content, 'head')).toEqual([]);
+  });
+});
+
+describe('favourView', () => {
+  it('reads the god, the boon, the favour and the chosen offering; lists what burns, best first', () => {
+    const base = createSimState(1);
+    const unsworn = favourView(base, ctx);
+    expect(unsworn.god).toBeNull();
+    expect(unsworn.boon).toBeNull();
+    const s: SimState = {
+      ...base,
+      player: { ...base.player, god: 'stone-god' },
+      bank: [{ item: 'sprig', qty: 4 }],
+      combat: { ...base.combat, offering: 'sprig', favour: 90 },
+    };
+    const fv = favourView(s, ctx);
+    expect(fv.god?.id).toBe('stone-god');
+    expect(fv.boon?.name).toBe('Stone skin');
+    expect(fv.lit).toBe(true);
+    expect(fv.seconds).toBe(90);
+    expect(fv.offering?.id).toBe('sprig');
+    expect(fv.have).toBe(4);
+    expect(fv.each).toBe(5);
+    expect(offeringOptions(s, content).map((o) => [o.item.id, o.have, o.each])).toEqual([
+      ['sprig', 4, 5],
+    ]);
+    expect(favourView({ ...s, combat: { ...s.combat, favour: 0 } }, ctx).lit).toBe(false);
+  });
+
+  it('spells a boon out, and notices a fresh offering', () => {
+    expect(boonText({ kind: 'defence', fraction: 0.5, name: 'x', line: 'y' })).toBe('+50% defence');
+    expect(boonText({ kind: 'regen', everyTicks: 60, name: 'x', line: 'y' })).toBe(
+      '1 hp every 6 s',
+    );
+    const base = createSimState(1);
+    const s: SimState = {
+      ...base,
+      bank: [{ item: 'sprig', qty: 1 }],
+      combat: { ...base.combat, offering: 'sprig' },
+    };
+    expect(recentOffering(s, 20)).toBeNull();
+    const r = applyCommand(s, { type: 'combat:offer' }, ctx);
+    expect(r.ok && recentOffering(r.state, 20)?.favour).toBe(5);
+    expect(r.ok && recentOffering(run(r.state, 25), 20)).toBeNull();
   });
 });

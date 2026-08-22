@@ -9,6 +9,7 @@ import {
   type ItemSource,
   type MaterialDef,
   type MonsterDef,
+  type PatchDef,
   type RarityDef,
   type RecipeDef,
   type RockDef,
@@ -26,6 +27,7 @@ interface ResolvedPack {
   rocks: readonly RockDef[];
   trees: readonly TreeDef[];
   waters: readonly WaterDef[];
+  patches: readonly PatchDef[];
   recipes: readonly RecipeDef[];
   zones: readonly ZoneDef[];
   monsters: readonly MonsterDef[];
@@ -59,6 +61,7 @@ export class ContentDb {
   readonly rocks: readonly RockDef[];
   readonly trees: readonly TreeDef[];
   readonly waters: readonly WaterDef[];
+  readonly patches: readonly PatchDef[];
   readonly recipes: readonly RecipeDef[];
   /** Sorted by recommended level ascending. */
   readonly zones: readonly ZoneDef[];
@@ -72,6 +75,7 @@ export class ContentDb {
   private readonly rockById: ReadonlyMap<string, RockDef>;
   private readonly treeById: ReadonlyMap<string, TreeDef>;
   private readonly waterById: ReadonlyMap<string, WaterDef>;
+  private readonly patchById: ReadonlyMap<string, PatchDef>;
   private readonly recipeById: ReadonlyMap<string, RecipeDef>;
   private readonly godById: ReadonlyMap<string, GodDef>;
   private readonly zoneById: ReadonlyMap<string, ZoneDef>;
@@ -85,6 +89,7 @@ export class ContentDb {
     this.rocks = pack.rocks;
     this.trees = pack.trees;
     this.waters = pack.waters;
+    this.patches = pack.patches;
     this.recipes = pack.recipes;
     this.zones = [...pack.zones].sort((a, b) => a.level - b.level);
     this.monsters = pack.monsters;
@@ -96,6 +101,7 @@ export class ContentDb {
     this.rockById = new Map(pack.rocks.map((r) => [r.id, r]));
     this.treeById = new Map(pack.trees.map((t) => [t.id, t]));
     this.waterById = new Map(pack.waters.map((w) => [w.id, w]));
+    this.patchById = new Map(pack.patches.map((p) => [p.id, p]));
     this.recipeById = new Map(pack.recipes.map((r) => [r.id, r]));
     this.godById = new Map(pack.gods.map((g) => [g.id, g]));
     this.zoneById = new Map(pack.zones.map((z) => [z.id, z]));
@@ -185,6 +191,10 @@ export class ContentDb {
       pack.waters.map((w) => w.id),
     );
     dupes(
+      'patch',
+      pack.patches.map((p) => p.id),
+    );
+    dupes(
       'god',
       pack.gods.map((g) => g.id),
     );
@@ -227,6 +237,7 @@ export class ContentDb {
     const rocks = pack.rocks.map((r) => node('rock', 'mining', r));
     const trees = pack.trees.map((t) => node('tree', 'woodcutting', t));
     const waters = pack.waters.map((w) => node('water', 'fishing', w));
+    const patches = pack.patches.map((p) => node('patch', 'foraging', p));
 
     for (const recipe of pack.recipes) {
       const owner = `recipe "${recipe.id}"`;
@@ -277,6 +288,7 @@ export class ContentDb {
       rocks,
       trees,
       waters,
+      patches,
       recipes: pack.recipes,
       zones: pack.zones,
       monsters,
@@ -332,6 +344,12 @@ export class ContentDb {
   hasWater(id: string): boolean {
     return this.waterById.has(id);
   }
+  patch(id: string): PatchDef {
+    return lookup(this.patchById, 'patch', id);
+  }
+  hasPatch(id: string): boolean {
+    return this.patchById.has(id);
+  }
   hasGod(id: string): boolean {
     return this.godById.has(id);
   }
@@ -347,6 +365,8 @@ export class ContentDb {
         return this.trees;
       case 'fishing':
         return this.waters;
+      case 'foraging':
+        return this.patches;
       default:
         return [];
     }

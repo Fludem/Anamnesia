@@ -6,7 +6,7 @@ import { ContainerSchema } from './items.ts';
 import { seedRng } from './rng.ts';
 import { EQUIPMENT_SLOTS, EquipmentSlotSchema } from './slots.ts';
 
-export const CURRENT_SAVE_VERSION = 6;
+export const CURRENT_SAVE_VERSION = 7;
 
 const Uint32 = z.number().int().min(0).max(0xffffffff);
 
@@ -48,6 +48,10 @@ export const CombatStateSchema = z.object({
   food: IdSchema.nullable(),
   /** Eat when hp falls below this fraction of the maximum. */
   eatAt: z.number().min(0).max(1),
+  /** The bank item burnt for favour when it runs out in a fight, or null. */
+  offering: IdSchema.nullable(),
+  /** The sworn god's favour: burns one a second while fighting; the boon holds while it lasts. */
+  favour: z.number().int().min(0),
   fight: FightSchema.nullable(),
 });
 export type CombatState = z.infer<typeof CombatStateSchema>;
@@ -92,6 +96,8 @@ export const SimStateSchema = z.object({
     kills: z.record(IdSchema, z.number().int().min(0)),
     /** Times the hero has fallen. */
     deaths: z.number().int().min(0).default(0),
+    /** Offerings ever burnt. */
+    offered: z.number().int().min(0).default(0),
   }),
   combat: CombatStateSchema,
   /** First-steps progress: step ids completed in order, and whether the card was put away. */
@@ -138,9 +144,16 @@ export function createSimState(seed: number): SimState {
     coins: 0,
     action: { current: null, queue: [] },
     log: [],
-    stats: { actions: {}, items: {}, sold: 0, kills: {}, deaths: 0 },
+    stats: { actions: {}, items: {}, sold: 0, kills: {}, deaths: 0, offered: 0 },
     tutorial: { done: [], dismissed: false },
-    combat: { hp: STARTING_HP, food: null, eatAt: DEFAULT_EAT_AT, fight: null },
+    combat: {
+      hp: STARTING_HP,
+      food: null,
+      eatAt: DEFAULT_EAT_AT,
+      offering: null,
+      favour: 0,
+      fight: null,
+    },
   };
 }
 

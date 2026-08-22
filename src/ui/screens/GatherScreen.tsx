@@ -23,8 +23,8 @@ export function GatherScreen({ sim, dispatch, juice, def }: ScreenProps & { def:
     simContext,
   );
   const activeNode = mine ? (nodes.find((v) => v.active)?.node ?? null) : null;
-  const toolId = sim.equipment[def.toolSlot];
-  const cut = toolCutPercent(sim, def.toolSlot, content);
+  const toolId = def.toolSlot === null ? null : sim.equipment[def.toolSlot];
+  const cut = def.toolSlot === null ? 0 : toolCutPercent(sim, def.toolSlot, content);
 
   return (
     <>
@@ -59,26 +59,33 @@ export function GatherScreen({ sim, dispatch, juice, def }: ScreenProps & { def:
             idleHint={`Pick a ${def.noun.toLowerCase().replace(/s$/, '')} below to start.`}
             onStop={() => dispatch({ type: 'action:stop' })}
             tool={
-              <div className="tool-row">
-                <Label>Tool</Label>
-                <TileBox size="tool" dim={toolId === null}>
+              def.toolSlot === null ? (
+                <div className="tool-row">
+                  <Label>Tool</Label>
+                  <span className="none">none · this one is done by hand</span>
+                </div>
+              ) : (
+                <div className="tool-row">
+                  <Label>Tool</Label>
+                  <TileBox size="tool" dim={toolId === null}>
+                    {toolId !== null ? (
+                      <BareIcon spec={itemIconSpec(content, content.item(toolId))} size={22} />
+                    ) : (
+                      <UiIcon id={TOOL_ICON[def.toolSlot]} size={20} />
+                    )}
+                  </TileBox>
                   {toolId !== null ? (
-                    <BareIcon spec={itemIconSpec(content, content.item(toolId))} size={22} />
+                    <>
+                      <span className="name">{content.item(toolId).name}</span>
+                      <span className="effect">−{String(cut)}% action time</span>
+                    </>
                   ) : (
-                    <UiIcon id={TOOL_ICON[def.toolSlot]} size={20} />
+                    <span className="none">
+                      none equipped · smith one, then equip it from the bank
+                    </span>
                   )}
-                </TileBox>
-                {toolId !== null ? (
-                  <>
-                    <span className="name">{content.item(toolId).name}</span>
-                    <span className="effect">−{String(cut)}% action time</span>
-                  </>
-                ) : (
-                  <span className="none">
-                    none equipped · smith one, then equip it from the bank
-                  </span>
-                )}
-              </div>
+                </div>
+              )
             }
           />
 

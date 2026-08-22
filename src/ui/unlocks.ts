@@ -6,6 +6,7 @@ const NODE_VERB: Record<string, string> = {
   mining: 'New vein surveyed',
   woodcutting: 'New grove surveyed',
   fishing: 'New water found',
+  foraging: 'New patch found',
 };
 const RECIPE_VERB: Record<string, string> = {
   firemaking: 'New fire',

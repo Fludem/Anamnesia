@@ -8,7 +8,7 @@ import {
   maxHit,
   type HeroStats,
 } from './combat.ts';
-import type { GatherNodeDef, MonsterDef, RecipeDef } from './content/schema.ts';
+import type { CombatBoon, GatherNodeDef, MonsterDef, RecipeDef } from './content/schema.ts';
 import { TICK_MS } from './constants.ts';
 import type { SimContext } from './context.ts';
 import { TOOL_SLOTS, type ToolSlot } from './slots.ts';
@@ -216,15 +216,29 @@ export const GEAR_LADDER: readonly GearStep[] = [
 
 const SET_PIECES = ['sword', 'shield', 'helm', 'cuirass', 'greaves', 'boots'];
 
-/** The hero as the model assumes them at `level`: ladder gear, hitpoints from the xp share. */
-export function modelHero(level: number, ctx: SimContext, ladder = GEAR_LADDER): HeroStats {
+/** What the combat model assumes beyond the level: the gear ladder and a boon always burning. */
+export interface CombatModelOptions {
+  ladder?: readonly GearStep[];
+  boon?: CombatBoon | null;
+}
+
+/**
+ * The hero as the model assumes them at `level`: ladder gear, hitpoints from the xp share,
+ * and the boon if one is given (favour never runs out in the model).
+ */
+export function modelHero(
+  level: number,
+  ctx: SimContext,
+  opts: CombatModelOptions = {},
+): HeroStats {
+  const ladder = opts.ladder ?? GEAR_LADDER;
   let tier = ladder[0]?.tier ?? '';
   for (const step of ladder) if (level >= step.level) tier = step.tier;
   const worn = SET_PIECES.map((p) => `${tier}-${p}`)
     .filter((id) => ctx.content.hasItem(id))
     .map((id) => ctx.content.item(id));
   const hpLevel = ctx.xp.levelForXp(ctx.xp.xpForLevel(level) * HITPOINTS_XP_SHARE);
-  return heroStatsFrom(level, hpLevel, gearStats(worn));
+  return heroStatsFrom(level, hpLevel, gearStats(worn), opts.boon ?? null);
 }
 
 export interface CombatStep {
@@ -234,7 +248,7 @@ export interface CombatStep {
   rate: number;
   /** Expected seconds per kill. */
   killSeconds: number;
-  /** Hitpoints the hero loses per hour, to be eaten back. */
+  /** Hitpoints the hero loses per hour, to be eaten back (net of a regen boon). */
   damagePerHour: number;
   /** The monster's biggest hit against the hero's max hitpoints. */
   maxHitFraction: number;
@@ -249,18 +263,25 @@ export function monstersOpenAt(level: number, ctx: SimContext): MonsterDef[] {
   return ctx.content.monsters.filter((m) => ctx.content.zone(m.zone).level <= level);
 }
 
+/** Hitpoints a regen boon gives back per hour; 0 for any other boon. */
+export function regenPerHour(boon: CombatBoon | null | undefined): number {
+  return boon?.kind === 'regen' ? TICKS_PER_HOUR / boon.everyTicks : 0;
+}
+
 /**
  * Hours to the combat cap fighting the best monster open at every level, in ladder gear. The
  * steps carry what the choice costs: damage per hour (food) and how hard the monster hits.
+ * With a boon, the same climb as the god's favour would make it.
  */
-export function combatClimb(ctx: SimContext, ladder = GEAR_LADDER): CombatClimb {
+export function combatClimb(ctx: SimContext, opts: CombatModelOptions = {}): CombatClimb {
   const max = ctx.xp.maxLevel;
   let hours = 0;
   const milestones: Record<number, number> = {};
   const actions: Record<string, number> = {};
   const steps: CombatStep[] = [];
+  const regen = regenPerHour(opts.boon);
   for (let level = 1; level < max; level++) {
-    const hero = modelHero(level, ctx, ladder);
+    const hero = modelHero(level, ctx, opts);
     const need = ctx.xp.xpForLevel(level + 1) - ctx.xp.xpForLevel(level);
     let best: MonsterDef | null = null;
     let bestRate = 0;
@@ -279,7 +300,7 @@ export function combatClimb(ctx: SimContext, ladder = GEAR_LADDER): CombatClimb 
       monster: best.id,
       rate: bestRate,
       killSeconds: (bestTicks * TICK_MS) / 1000,
-      damagePerHour: expectedDamageTakenPerTick(hero, best) * TICKS_PER_HOUR,
+      damagePerHour: Math.max(0, expectedDamageTakenPerTick(hero, best) * TICKS_PER_HOUR - regen),
       maxHitFraction: maxHit(best.stats.strength) / hero.maxHp,
     });
     if ((MILESTONES as readonly number[]).includes(level + 1)) milestones[level + 1] = hours;
