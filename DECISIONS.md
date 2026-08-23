@@ -1239,3 +1239,16 @@ which is the save's own trust, no more.
   anyone next looks, or when they do.
 - `npm run typecheck` fails on main in `server/chat.ts` (five `as MessageRow` casts under the
   node config) — Phase 13's, not this one's; `npm run build` checks the app config only.
+
+### Along the way: what a node drops
+
+The user asked to hover a vein or a fishing spot and see what it drops and at what odds,
+capes included. Each gathering row now shows a tip while the pointer rests on it (or the row
+has focus): the node's own tables with the chance the sim rolls with (`weight` over the
+table's total plus its nothing weight, across its rolls — "always", a percentage, or "1 in N"),
+the sworn god's extra table for that skill, the skill's finds (the cape at 1 in 2,000, rolled
+twice with A Second Look, and the tip says so) and whether the haul can land twice. Names
+take the item's rarity colour; odds under 1% go gold. `src/ui/derive-drops.ts` is pure and
+tested against the fixture content; locked rows show it too, so a vein's worth can be read
+before it opens. Touch has no hover — on a phone the tip shows while a row has focus, which
+is the tap that starts it.
