@@ -1,11 +1,15 @@
 # Anamnesia Idle
 
+**Play it at [game.onyxleeds.co.uk](https://game.onyxleeds.co.uk/).** A name and a password
+make an account; the save lives on the hill.
+
 A browser idle RPG (Melvor-shaped) with a generated item and icon pipeline. See `BRIEF.md` for
 the project brief and `DECISIONS.md` for the why behind non-obvious choices.
 
 Phase 0.5 is in: exactly one tab runs the simulation (Web Locks leader election), followers mirror
 it over a BroadcastChannel, every save is guarded by a compare-and-swap on `saveCounter` in
-IndexedDB, and offline progress is derived from timestamps, capped at 12 h, and idempotent.
+IndexedDB, and offline progress is derived from timestamps, capped (4 h bare; the trader's lamps
+and the hall's watchtower lengthen the night), and idempotent.
 
 Phase 1 is in: a real save shape (player, skills, inventory, equipment, bank, action queue), a
 swappable XP curve, content as validated JSON, a single action primitive (duration in ticks,
@@ -91,8 +95,14 @@ rooms through three tiers — the Hearth, Storehouse, Larder, Strongroom, Watcht
 each a few per cent for everyone in it (`src/content/halls.json`). The hall lives in the
 register (`server/hall.ts`); the sim only carries what the register last said and a cart of
 gifts, which ride inside the save and are answered with the write (`src/sim/hall.ts`).
-`hoursToMake` in `progression.ts` prices a room in hours of one name's work;
+`hoursToMake` in `progression.ts` prices a room in hours of one name's work — gathered, made,
+or taken from a monster — and every tier reaches across the skills: a first tier is an evening
+of one name's work, a second a couple of days, a third a week or more, which a hall shares.
 `scripts/tune-hall.ts` prints it. Save v10 adds the hall.
+
+The hill is live at [game.onyxleeds.co.uk](https://game.onyxleeds.co.uk/): one Ubuntu box
+running `dist-server/main.js` under systemd behind Caddy, the name proxied through Cloudflare,
+the register backed up daily (`deploy/`). `scripts/deploy.sh` builds and ships it.
 
 ## Layout
 
@@ -108,6 +118,7 @@ gifts, which ride inside the save and are answered with the write (`src/sim/hall
 | `src/ui/theme/` | Design tokens (CSS custom properties + TS object) and fonts.                                                                                                                                                                                                                                       |
 | `src/ui/items/` | Maps content onto renderer specs; `<ItemTile>` / `<BareIcon>`.                                                                                                                                                                                                                                     |
 | `design/`       | Claude Design reference screens the tokens were extracted from.                                                                                                                                                                                                                                    |
+| `deploy/`       | The box: `setup.sh` (node, Caddy, the anamnesia user, the service, the daily backup), the systemd units, the Caddyfile. `scripts/deploy.sh` runs it and ships builds.                                                                                                                              |
 | `scripts/`      | Icon vendoring / indexing pipeline; `tune-combat.ts` retunes monsters against the progression model; `tune-boons.ts` compares the gods' boons; `tune-gear.ts` prices javelins; `tune-trader.ts` prices the trader's wares against income; `tune-hall.ts` prices the hall's rooms in hours of work. |
 
 ## Commands
@@ -118,6 +129,7 @@ gifts, which ride inside the save and are answered with the write (`src/sim/hall
 | `npm run build`                         | Typecheck + production build of the game (`dist/`) and the server (`dist-server/main.js`).                                                                     |
 | `npm start`                             | Serve `dist/` and the API from one port. `PORT` (8787), `ANAMNESIA_DB` (`data/anamnesia.sqlite`), `ANAMNESIA_STATIC` (`dist`). Needs Node 24+.                 |
 | `npx tsx scripts/reset-password.ts`     | Change a name's password from the command line; there is no email, so this is the only way back.                                                               |
+| `scripts/deploy.sh [setup]`             | Build and ship to the box named in `deploy.local` (git-ignored: `DEPLOY_HOST`, `PLAY_HOSTNAME`); `setup` prepares a fresh box first.                           |
 | `npm test`                              | Vitest, single run.                                                                                                                                            |
 | `npm run typecheck` / `lint` / `format` | The usual.                                                                                                                                                     |
 | `npm run icons:vendor -- --refresh`     | Re-fetch `vendor/game-icons` (checked in) at the commit pinned in `scripts/game-icons.lock.json`.                                                              |

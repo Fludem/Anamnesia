@@ -152,8 +152,8 @@ describe('GameHost — single tab', () => {
     expect(host.getSnapshot().sim?.tick).toBe(30);
   });
 
-  it('applies offline progress once, with progress events, capped at 12h and reported', async () => {
-    const world = new FakeWorld(T0 + 13 * HOUR);
+  it('applies offline progress once, with progress events, capped at the night and reported', async () => {
+    const world = new FakeWorld(T0 + 5 * HOUR);
     seeded(world);
     const a = world.tab('A');
     const host = boot(a);
@@ -168,11 +168,11 @@ describe('GameHost — single tab', () => {
     const snap = host.getSnapshot();
     expect(snap.role).toBe('leader');
     expect(snap.sim?.tick).toBe(OFFLINE_CAP_TICKS);
-    expect(snap.wallMs).toBe(T0 + 13 * HOUR);
+    expect(snap.wallMs).toBe(T0 + 5 * HOUR);
     expect(snap.offline).toMatchObject({
       skippedTicks: 36_000,
-      awayMs: 13 * HOUR,
-      capMs: 12 * HOUR,
+      awayMs: 5 * HOUR,
+      capMs: 4 * HOUR,
     });
     expect(snap.offline?.before.tick).toBe(0);
     expect(snap.catchUp).toBeNull();
@@ -181,7 +181,7 @@ describe('GameHost — single tab', () => {
 
     const stored = world.store.peek('main');
     expect(stored?.sim.tick).toBe(OFFLINE_CAP_TICKS);
-    expect(stored?.wallMs).toBe(T0 + 13 * HOUR);
+    expect(stored?.wallMs).toBe(T0 + 5 * HOUR);
     expect(stored?.writerId).toBe('A');
     // claim + catch-up, nothing else.
     expect(world.store.log.filter((l) => l.op === 'write')).toHaveLength(2);

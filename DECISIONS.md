@@ -1053,7 +1053,8 @@ model: `hoursToMake(item, qty, level)` in `progression.ts` prices an item in hou
 name's gathering (or smithing, inputs included), and the content test pins each tier — I in
 0.5–3 h at level 20, II in 2–8 h at 55, III in 5–20 h at 80, of one name's work, which a hall
 of three shares. `scripts/tune-hall.ts` prints the breakdown. Coins come in from tier II: a
-second coin sink, but never the only thing a tier wants.
+second coin sink, but never the only thing a tier wants. (Retuned much heavier, and across
+every skill, when the hill went live — see "Going live" below.)
 
 ### The door
 
@@ -1077,6 +1078,62 @@ is the fix for all of it at once.
   the give modal is the bank's sell-amount modal with a what-to-give row on top.
 - The list of halls is a card on the no-hall screen, not a board: the boards rank names.
 - Tuning numbers are the model's, not play's. Tier III of the Hearth is 17 h of one name's
-  elder logs; that is on purpose, it is the flagship room.
+  elder logs; that is on purpose, it is the flagship room. (Since retuned: see "Going live".)
 - The narrow layout was checked for the hall's rows only; the trader's buy cell now wraps at
   700 px, which it did not before. The full narrow pass is still owed.
+
+## Going live — the box, the night, and the price of a room
+
+### One box, one process, Caddy in front, Cloudflare in front of that
+
+`deploy/` is the whole of it: `setup.sh` turns a fresh Ubuntu box into the hill (node 24 from
+NodeSource and Caddy from its own repository, since Ubuntu's are a major version behind each; a
+system user; `/opt/anamnesia` for the build and `/var/lib/anamnesia` for the register; a
+systemd unit with the filesystem read-only but the register's directory; a daily `sqlite3
+.backup` kept a fortnight), and `scripts/deploy.sh` builds and rsyncs `dist/` and
+`dist-server/` and restarts. The server bundle now carries zod inside it (`ssr.noExternal`), so
+a deploy is two directories and a node binary — no `npm install` on the box, nothing to drift.
+`HOST=127.0.0.1` keeps the app off the public interface; Caddy is the only thing on 80 and 443.
+
+The name is proxied through Cloudflare, which decided two things. The origin answers on both 80
+and 443 without redirecting, because Cloudflare's default ("Flexible") speaks plain HTTP to the
+origin and a redirect there loops. And Cloudflare's published ranges are Caddy's
+`trusted_proxies`, so `X-Forwarded-For` reaches the app as the player's address and the
+register's per-address limits (ten new names an hour, forty wrong passwords a quarter hour)
+count players, not the edge — without that every player on the hill would share one bucket.
+The Cloudflare edge answers Let's Encrypt's validator with 403 (its bot protection), so the
+certificate is ACME first with Caddy's own CA as the fallback issuer: the origin has a
+certificate today, good enough for Cloudflare's "Full" mode, and every renewal tries Let's
+Encrypt again. The box's address is kept out of the repository (`deploy.local`, git-ignored):
+an origin address in a public README is an address to go round Cloudflare.
+
+What is not done: a firewall (nothing but sshd, Caddy and the loopback app listen, so there is
+little for one to do, but it is still owed), and Cloudflare's SSL mode is whatever the zone
+defaults to — raising it to "Full" is a dashboard setting and encrypts the edge-to-origin leg.
+
+### The night is four hours bare
+
+Offline progress was capped at 12 h since Phase 0.5 and the lamps took it to 16/20/24 h for
+5,000/25,000/100,000 gp — under an hour of income each, so a lamp was a formality. Now the
+night is 4 h bare and the ladder is 8/16/24 h for 25,000/200,000/1,000,000 gp: the first an
+evening of level-20 income, the last about a day of level-75 income. The night is the thing an
+idle game sells, and it is now the thing the coins are for. The Second Look is 300,000 for the
+same reason. Release from the oath stays at 100,000 doubling, which means the Phase 10 rule
+"dearer than any one-time ware" no longer holds and its test is gone; changing gods is a
+different kind of purchase and it still doubles. The watchtower's +2/4/6 h sit on top of
+whichever lamp is lit, so a full hall sees 30 h.
+
+### A room costs a week, and it costs everyone something
+
+The Phase 12 costs were an hour, an afternoon and a day of one name's work, in three materials
+a tier. The hall is meant to be the long goal, so each tier now asks for five to eight
+different things and the totals are an evening (I, 3–5 h at level 20), a couple of days (II,
+17–26 h at 55) and a week or more (III, 59–91 h at 80) of one name's work, pinned by test at
+2.5–5 / 12–30 / 40–120 h; coins from 150,000 at tier II to 3,000,000 at tier III. Every tier
+draws on at least four skills — wood, ore, bars, raw and cooked fish, offerings, ash from the
+fire, and what the monsters drop: hides and pelts, bone, feathers, silk, venom, bat wings, a
+hound's teeth, the minotaur's horns, rune stones. To price those, `hoursToMake` learned the
+fight: the monster in an open zone that drops the thing fastest, in ladder gear, expected
+units per kill. The audit test now checks the spread (five things, four skills, each tier more
+than twice the units of the last, tier III at least five times tier II's coin) so a future
+retune cannot quietly collapse a room back onto one skill.

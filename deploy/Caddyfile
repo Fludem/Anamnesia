@@ -1,0 +1,23 @@
+# TLS on the hill. The name is proxied through Cloudflare, so the origin answers on both 80 and
+# 443 without redirecting (Cloudflare's "Flexible" mode speaks plain HTTP to the origin; "Full"
+# speaks HTTPS), and Cloudflare's own addresses are trusted for X-Forwarded-For, so the
+# register's per-address limits see the player, not the edge. __CLOUDFLARE__ is filled in by
+# deploy/setup.sh from https://www.cloudflare.com/ips-v4 and ips-v6.
+#
+# The certificate: Let's Encrypt first; when its validator cannot reach the origin through the
+# edge (Cloudflare's bot protection answers it 403), Caddy's own CA signs one instead, which
+# Cloudflare's "Full" mode accepts. Every renewal tries Let's Encrypt again.
+{
+	servers {
+		trusted_proxies static __CLOUDFLARE__
+	}
+}
+
+http://__HOSTNAME__, https://__HOSTNAME__ {
+	tls {
+		issuer acme
+		issuer internal
+	}
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:8787
+}

@@ -3,6 +3,7 @@
  * checks that the content makes a game: everything is obtainable, the economy is not upside
  * down, every skill has something to do, and names and descriptions follow the house style.
  */
+import { OFFLINE_CAP_MS } from '../sim/constants.ts';
 import { describe, expect, it } from 'vitest';
 import { icons } from '../icons/registry.ts';
 import type { DropTable } from '../sim/content/schema.ts';
@@ -287,15 +288,13 @@ describe('shipped content', () => {
       }
       previous = lamp;
     }
-    expect(lamps[0]?.hours).toBeGreaterThan(12);
+    expect(lamps[0]?.hours).toBeGreaterThan(OFFLINE_CAP_MS / 3_600_000);
     expect(lamps.at(-1)?.hours).toBe(24);
     expect(content.wares.filter((w) => w.effect.kind === 'second-look')).toHaveLength(1);
-    // Release: one ware, sold again and again, from 100,000 doubling; dearer than any one-time ware.
+    // Release: one ware, sold again and again, from 100,000 doubling.
     const release = content.wares.filter((w) => w.effect.kind === 'release-oath');
     expect(release).toHaveLength(1);
     expect(release[0]).toMatchObject({ once: false, growth: 2, price: 100_000 });
-    for (const w of content.wares)
-      if (w.once) expect(w.price, w.id).toBeLessThanOrEqual(release[0]!.price);
     // An obol drops somewhere, and nothing else passes for the ferryman's coin.
     const coins = content.items.filter((i) => i.tags.includes('coin'));
     expect(coins.map((i) => i.id)).toEqual(['obol']);
@@ -307,17 +306,42 @@ describe('shipped content', () => {
     const kinds = content.rooms.map((r) => r.tiers[0]!.perk.kind);
     expect(new Set(kinds).size).toBe(6);
     const can = obtainable();
+    // Where a thing comes from, for the spread check: a node's skill, a recipe's, or the fight.
+    const skillsOf = (item: string): Set<string> => {
+      const out = new Set<string>();
+      for (const sk of content.skills)
+        if (
+          content
+            .nodesFor(sk.id)
+            .some((n) => n.drops.some((t) => t.entries.some((e) => e.item === item)))
+        )
+          out.add(sk.id);
+      for (const r of content.recipes) if (r.outputs.some((o) => o.item === item)) out.add(r.skill);
+      if (content.monsters.some((m) => m.drops.some((t) => t.entries.some((e) => e.item === item))))
+        out.add('combat');
+      return out;
+    };
     for (const room of content.rooms) {
       expect(room.tiers, room.id).toHaveLength(3);
       room.tiers.forEach((t, i) => {
-        expect(t.cost.length, `${room.id} ${String(i + 1)}`).toBeGreaterThanOrEqual(2);
+        const where = `${room.id} ${String(i + 1)}`;
+        // Every tier reaches across the hall: at least five things from at least four skills.
+        expect(t.cost.length, where).toBeGreaterThanOrEqual(5);
+        const skills = new Set(t.cost.flatMap((c) => [...skillsOf(c.item)]));
+        expect(skills.size, `${where}: ${[...skills].join(', ')}`).toBeGreaterThanOrEqual(4);
+        expect(new Set(t.cost.map((c) => c.item)).size, where).toBe(t.cost.length);
         for (const c of t.cost) {
           expect(can.has(c.item), `${room.id}: ${c.item}`).toBe(true);
           expect(['kindling', 'obol'], `${room.id}: ${c.item}`).not.toContain(c.item);
         }
         // Coins come in from the second tier: the first is raised with work alone.
-        expect(t.coins > 0, `${room.id} ${String(i + 1)}`).toBe(i > 0);
+        expect(t.coins > 0, where).toBe(i > 0);
       });
+      // Each tier asks for a good deal more than the last, in things and in coin.
+      const units = room.tiers.map((t) => t.cost.reduce((n, c) => n + c.qty, 0));
+      expect(units[1]!, room.id).toBeGreaterThan(units[0]! * 2);
+      expect(units[2]!, room.id).toBeGreaterThan(units[1]! * 2);
+      expect(room.tiers[2]!.coins, room.id).toBeGreaterThanOrEqual(room.tiers[1]!.coins * 5);
     }
   });
 

@@ -1,0 +1,9 @@
+# A copy of the register, once a day, kept a fortnight (see anamnesia-backup.timer).
+[Unit]
+Description=Anamnesia Idle register backup
+
+[Service]
+Type=oneshot
+User=anamnesia
+Group=anamnesia
+ExecStart=/bin/sh -c 'sqlite3 /var/lib/anamnesia/anamnesia.sqlite ".backup /var/lib/anamnesia/backups/anamnesia-$(date +%%F-%%H%%M).sqlite" && find /var/lib/anamnesia/backups -name "anamnesia-*.sqlite" -mtime +14 -delete'

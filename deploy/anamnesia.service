@@ -1,0 +1,29 @@
+# The hill's one process: the API and the built game on 127.0.0.1:8787, behind Caddy.
+# Installed by deploy/setup.sh; updated by scripts/deploy.sh.
+[Unit]
+Description=Anamnesia Idle
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=anamnesia
+Group=anamnesia
+WorkingDirectory=/opt/anamnesia
+Environment=NODE_ENV=production
+Environment=PORT=8787
+Environment=HOST=127.0.0.1
+Environment=ANAMNESIA_DB=/var/lib/anamnesia/anamnesia.sqlite
+Environment=ANAMNESIA_STATIC=/opt/anamnesia/dist
+ExecStart=/usr/bin/node /opt/anamnesia/dist-server/main.js
+Restart=always
+RestartSec=2
+# Nothing but the register is written to.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/anamnesia
+
+[Install]
+WantedBy=multi-user.target

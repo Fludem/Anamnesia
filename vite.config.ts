@@ -6,10 +6,12 @@ import { anamnesiaApi } from './server/vite.ts';
 // The dev pages (dev/icons.html, dev/items.html) are only entries in dev/serve mode.
 // Production builds contain the game entry only, so the full 4k-icon index
 // can never leak into the shipped bundle.
-// The server build (`vite build --ssr server/main.ts`) bundles the API and the sim it shares
-// with the game into one file for node; node's own modules stay external.
+// The server build (`vite build --ssr server/main.ts`) bundles the API, the sim it shares with
+// the game and every dependency (zod) into one file for node; only node's own modules stay
+// external, so a deploy is the built files and a node binary, no `npm install` on the box.
 export default defineConfig(({ command, isSsrBuild }) => ({
   plugins: [react(), anamnesiaApi()],
+  ...(isSsrBuild ? { ssr: { noExternal: true } } : {}),
   build: {
     rollupOptions: isSsrBuild
       ? {}

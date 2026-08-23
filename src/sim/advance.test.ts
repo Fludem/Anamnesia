@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { applyPlan, planAdvance, planTickCount, wallMsAt } from './advance.ts';
-import { OFFLINE_CAP_TICKS, TICK_MS } from './constants.ts';
+import { OFFLINE_CAP_MS, OFFLINE_CAP_TICKS, TICK_MS } from './constants.ts';
 import { createSimState } from './save.ts';
 import { countItem } from './items.ts';
 import { makeStep } from './step.ts';
@@ -56,21 +56,21 @@ describe('planAdvance', () => {
   });
 
   it('is not capped at exactly the cap', () => {
-    const plan = planAdvance({ tick: 0, wallMs: T0, nowMs: T0 + 12 * HOUR });
+    const plan = planAdvance({ tick: 0, wallMs: T0, nowMs: T0 + OFFLINE_CAP_MS });
     expect(planTickCount(plan)).toBe(OFFLINE_CAP_TICKS);
     expect(plan.skippedTicks).toBe(0);
-    expect(plan.newWallMs).toBe(T0 + 12 * HOUR);
+    expect(plan.newWallMs).toBe(T0 + OFFLINE_CAP_MS);
   });
 
   it('caps one tick past the cap and discards the excess', () => {
-    const plan = planAdvance({ tick: 0, wallMs: T0, nowMs: T0 + 12 * HOUR + TICK_MS });
+    const plan = planAdvance({ tick: 0, wallMs: T0, nowMs: T0 + OFFLINE_CAP_MS + TICK_MS });
     expect(planTickCount(plan)).toBe(OFFLINE_CAP_TICKS);
     expect(plan.skippedTicks).toBe(1);
-    expect(plan.newWallMs).toBe(T0 + 12 * HOUR + TICK_MS);
+    expect(plan.newWallMs).toBe(T0 + OFFLINE_CAP_MS + TICK_MS);
   });
 
-  it('reports skipped ticks for a 13h absence', () => {
-    const plan = planAdvance({ tick: 7, wallMs: T0, nowMs: T0 + 13 * HOUR });
+  it('reports skipped ticks for an absence an hour past the cap', () => {
+    const plan = planAdvance({ tick: 7, wallMs: T0, nowMs: T0 + OFFLINE_CAP_MS + HOUR });
     expect(plan.toTick).toBe(7 + OFFLINE_CAP_TICKS);
     expect(plan.skippedTicks).toBe(36_000);
   });

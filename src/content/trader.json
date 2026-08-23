@@ -1,40 +1,51 @@
 [
   {
-    "$comment": "The trader's wares. Coins come in by the sackful and there is little to spend them on; these are the things the hill will take coins for. Prices are tuning, not law: scripts/tune-trader.ts prints each as hours of work. The ferryman is not a ware — he charges at the crossing, twice what the thing is worth, and an obol settles it."
+    "$comment": "The trader's wares. Coins come in by the sackful and there is little to spend them on; these are the things the hill will take coins for. Prices are tuning, not law: scripts/tune-trader.ts prints each as hours of work. The ferryman is not a ware \u2014 he charges at the crossing, twice what the thing is worth, and an obol settles it."
   },
   {
     "id": "lamp",
     "name": "A Lamp",
-    "line": "Twelve hours of night become sixteen. The hill does not notice.",
+    "line": "Four hours of night become eight. The hill does not notice.",
     "icon": "lorc/lantern",
-    "price": 5000,
-    "effect": { "kind": "offline-cap", "hours": 16 }
+    "price": 25000,
+    "effect": {
+      "kind": "offline-cap",
+      "hours": 8
+    }
   },
   {
     "id": "lamp-oil",
     "name": "Oil for the Lamp",
-    "line": "Twenty hours. It smells of fish, because it is.",
+    "line": "Sixteen hours. It smells of fish, because it is.",
     "icon": "delapouite/oil-can",
-    "price": 25000,
+    "price": 200000,
     "requires": "lamp",
-    "effect": { "kind": "offline-cap", "hours": 20 }
+    "effect": {
+      "kind": "offline-cap",
+      "hours": 16
+    }
   },
   {
     "id": "long-wick",
     "name": "A Long Wick",
     "line": "A whole day, lit. Nobody has asked for more.",
     "icon": "lorc/candle-flame",
-    "price": 100000,
+    "price": 1000000,
     "requires": "lamp-oil",
-    "effect": { "kind": "offline-cap", "hours": 24 }
+    "effect": {
+      "kind": "offline-cap",
+      "hours": 24
+    }
   },
   {
     "id": "second-look",
     "name": "A Second Look",
     "line": "You start checking the ground twice. Twice the capes, the same ground.",
     "icon": "lorc/semi-closed-eye",
-    "price": 15000,
-    "effect": { "kind": "second-look" }
+    "price": 300000,
+    "effect": {
+      "kind": "second-look"
+    }
   },
   {
     "id": "release",
@@ -44,6 +55,8 @@
     "price": 100000,
     "growth": 2,
     "once": false,
-    "effect": { "kind": "release-oath" }
+    "effect": {
+      "kind": "release-oath"
+    }
   }
 ]

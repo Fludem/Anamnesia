@@ -80,11 +80,11 @@ describe('runAdvance', () => {
     expect(r.sim).toEqual(applyPlan(createSimState(1), plan, stepTick));
   });
 
-  it('runs the full cap (432,000 ticks) and matches the unbatched result', async () => {
+  it('runs the full cap (144,000 ticks) and matches the unbatched result', async () => {
     const plan = planAdvance({ tick: 0, wallMs: T0, nowMs: T0 + 13 * HOUR });
     const r = await runAdvance(createSimState(7), plan, stepTick, { yieldToEventLoop: yieldNow });
     expect(r.sim.tick).toBe(OFFLINE_CAP_TICKS);
-    expect(r.batches).toBe(216);
+    expect(r.batches).toBe(72);
     expect(r.wallMs).toBe(T0 + 13 * HOUR);
     expect(r.sim).toEqual(applyPlan(createSimState(7), plan, stepTick));
   });

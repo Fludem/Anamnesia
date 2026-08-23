@@ -260,13 +260,28 @@ export const ROOM_TIER_LEVELS: readonly number[] = [20, 55, 80];
 
 /**
  * Hours one name at `level` in every skill takes to come by `qty` of `item`: gathered from the
- * best open standard node that drops it (expected units per cycle counted), or made on the
- * best open recipe that outputs it, its inputs gathered or made the same way. Infinity when
- * there is no way at that level. The hall's rooms are costed against this;
- * `scripts/tune-hall.ts` prints it.
+ * best open standard node that drops it (expected units per cycle counted), taken from the
+ * monster in an open zone that drops it fastest (kills per hour in ladder gear, expected units
+ * per kill), or made on the best open recipe that outputs it, its inputs gathered or made the
+ * same way. Infinity when there is no way at that level. The hall's rooms are costed against
+ * this; `scripts/tune-hall.ts` prints it.
  */
 export function hoursToMake(item: string, qty: number, level: number, ctx: SimContext): number {
   return hoursFor(item, qty, level, ctx, new Set());
+}
+
+/** Expected units of `item` one kill of `m` lands: its tables and what it always carries. */
+function unitsPerKill(m: MonsterDef, item: string): number {
+  let units = 0;
+  for (const t of m.drops) {
+    const total = t.nothingWeight + t.entries.reduce((w, e) => w + e.weight, 0);
+    for (const e of t.entries) {
+      if (e.item !== item || total === 0) continue;
+      units += t.rolls * (e.weight / total) * ((e.quantity[0] + e.quantity[1]) / 2);
+    }
+  }
+  for (const a of m.always) if (a.item === item) units += a.qty;
+  return units;
 }
 
 function hoursFor(
@@ -295,6 +310,14 @@ function hoursFor(
       }
       if (unitsPerCycle > 0) best = Math.min(best, qty / (perHour * unitsPerCycle));
     }
+  }
+  let hero: HeroStats | null = null;
+  for (const m of monstersOpenAt(level, ctx)) {
+    const units = unitsPerKill(m, item);
+    if (units === 0) continue;
+    hero ??= modelHero(level, ctx);
+    const killsPerHour = TICKS_PER_HOUR / expectedKillTicks(hero, m);
+    if (killsPerHour > 0) best = Math.min(best, qty / (killsPerHour * units));
   }
   if (making.has(item)) return best;
   for (const r of ctx.content.recipes) {

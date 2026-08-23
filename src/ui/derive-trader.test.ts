@@ -14,7 +14,7 @@ describe('the trader view', () => {
       ['release', 'for-sale', 1000, false],
     ]);
     expect(rows[1]?.needs?.id).toBe('lamp');
-    expect(rows[0]?.sub).toBe('offline progress counts for 16 h instead of 12');
+    expect(rows[0]?.sub).toBe('offline progress counts for 16 h instead of 4');
     expect(rows[3]?.sub).toBe('sworn to nobody');
     const s: SimState = {
       ...s0,

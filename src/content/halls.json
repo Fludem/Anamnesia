@@ -1,6 +1,6 @@
 [
   {
-    "$comment": "The hall's rooms. A tier's perk is the total at that tier. Costs climb the material ladder: tier I in what a name at level 20 gathers, tier II at 55, tier III at 80; scripts/tune-hall.ts prints each as hours of one name's work."
+    "$comment": "The hall's rooms. A tier's perk is the total at that tier. Costs climb the material ladder and reach across every skill \u2014 wood, ore, bars, fish, food, offerings, ash and what the monsters drop: tier I in what a name at level 20 comes by in an evening, tier II at 55 in a couple of days, tier III at 80 in a week or more of one name's work, which a hall shares; scripts/tune-hall.ts prints each as hours."
   },
   {
     "id": "hearth",
@@ -12,39 +12,60 @@
         "cost": [
           {
             "item": "pine-logs",
-            "qty": 900
+            "qty": 1500
           },
           {
-            "item": "copper-ore",
-            "qty": 360
+            "item": "oak-logs",
+            "qty": 600
           },
           {
-            "item": "thyme-sprig",
-            "qty": 240
+            "item": "ash",
+            "qty": 400
+          },
+          {
+            "item": "copper-bar",
+            "qty": 300
+          },
+          {
+            "item": "goat-hide",
+            "qty": 200
           }
         ],
         "perk": {
           "kind": "xp",
           "skill": null,
           "bonus": 0.01
-        }
+        },
+        "coins": 0
       },
       {
         "cost": [
           {
             "item": "willow-logs",
-            "qty": 2200
+            "qty": 4000
           },
           {
-            "item": "basalt-ore",
-            "qty": 1200
+            "item": "birch-logs",
+            "qty": 3000
           },
           {
-            "item": "iron-bar",
-            "qty": 380
+            "item": "ash",
+            "qty": 2000
+          },
+          {
+            "item": "basalt-core",
+            "qty": 1000
+          },
+          {
+            "item": "wolf-pelt",
+            "qty": 800
+          },
+          {
+            "item": "beeswax",
+            "qty": 600
           }
         ],
-        "coins": 50000,
+        "coins": 200000,
         "perk": {
           "kind": "xp",
           "skill": null,
@@ -55,18 +76,30 @@
         "cost": [
           {
             "item": "elder-logs",
-            "qty": 4500
+            "qty": 15000
           },
           {
-            "item": "gold-ore",
-            "qty": 2400
+            "item": "ash",
+            "qty": 6000
           },
           {
             "item": "gold-bar",
+            "qty": 2000
+          },
+          {
+            "item": "bull-horn",
             "qty": 600
+          },
+          {
+            "item": "frankincense",
+            "qty": 3000
+          },
+          {
+            "item": "silver-bar",
+            "qty": 1000
           }
         ],
-        "coins": 600000,
+        "coins": 2000000,
         "perk": {
           "kind": "xp",
           "skill": null,
@@ -85,39 +118,60 @@
         "cost": [
           {
             "item": "oak-logs",
-            "qty": 750
+            "qty": 1200
+          },
+          {
+            "item": "copper-ore",
+            "qty": 1500
           },
           {
             "item": "iron-ore",
-            "qty": 450
+            "qty": 800
+          },
+          {
+            "item": "spider-silk",
+            "qty": 400
           },
           {
             "item": "raw-perch",
-            "qty": 300
+            "qty": 500
           }
         ],
         "perk": {
           "kind": "double-yield",
           "skill": null,
           "chance": 0.03
-        }
+        },
+        "coins": 0
       },
       {
         "cost": [
           {
             "item": "blightwood-logs",
-            "qty": 1500
+            "qty": 3000
           },
           {
             "item": "marble-block",
-            "qty": 1000
+            "qty": 3000
+          },
+          {
+            "item": "basalt-ore",
+            "qty": 2000
           },
           {
             "item": "raw-pike",
-            "qty": 500
+            "qty": 1000
+          },
+          {
+            "item": "bat-wing",
+            "qty": 300
+          },
+          {
+            "item": "iron-bar",
+            "qty": 600
           }
         ],
-        "coins": 40000,
+        "coins": 150000,
         "perk": {
           "kind": "double-yield",
           "skill": null,
@@ -128,18 +182,30 @@
         "cost": [
           {
             "item": "elder-logs",
-            "qty": 3000
+            "qty": 8000
           },
           {
             "item": "gold-ore",
-            "qty": 1800
+            "qty": 5000
           },
           {
-            "item": "raw-carp",
-            "qty": 1200
+            "item": "marble-block",
+            "qty": 4000
+          },
+          {
+            "item": "raw-pale-fish",
+            "qty": 3000
+          },
+          {
+            "item": "hound-tooth",
+            "qty": 1000
+          },
+          {
+            "item": "aether-shard",
+            "qty": 500
           }
         ],
-        "coins": 500000,
+        "coins": 2500000,
         "perk": {
           "kind": "double-yield",
           "skill": null,
@@ -158,38 +224,67 @@
         "cost": [
           {
             "item": "raw-minnow",
-            "qty": 600
+            "qty": 1500
           },
           {
-            "item": "raw-perch",
-            "qty": 300
+            "item": "perch",
+            "qty": 400
+          },
+          {
+            "item": "goat-meat",
+            "qty": 200
+          },
+          {
+            "item": "thyme-sprig",
+            "qty": 400
+          },
+          {
+            "item": "boar-hide",
+            "qty": 100
           },
           {
             "item": "pine-logs",
-            "qty": 300
+            "qty": 500
           }
         ],
         "perk": {
           "kind": "heal",
           "bonus": 0.1
-        }
+        },
+        "coins": 0
       },
       {
         "cost": [
           {
-            "item": "raw-eel",
-            "qty": 750
+            "item": "eel",
+            "qty": 2000
           },
           {
-            "item": "raw-pike",
-            "qty": 750
+            "item": "raw-trout",
+            "qty": 1500
+          },
+          {
+            "item": "pike",
+            "qty": 1000
+          },
+          {
+            "item": "beeswax",
+            "qty": 600
+          },
+          {
+            "item": "honeycomb",
+            "qty": 400
+          },
+          {
+            "item": "olives",
+            "qty": 300
           },
           {
             "item": "willow-logs",
-            "qty": 500
+            "qty": 1000
           }
         ],
-        "coins": 30000,
+        "coins": 150000,
         "perk": {
           "kind": "heal",
           "bonus": 0.2
@@ -198,19 +293,31 @@
       {
         "cost": [
           {
-            "item": "raw-carp",
-            "qty": 1200
+            "item": "pale-fish",
+            "qty": 3000
           },
           {
-            "item": "raw-pale-fish",
-            "qty": 900
+            "item": "carp",
+            "qty": 3000
+          },
+          {
+            "item": "raw-carp",
+            "qty": 3000
+          },
+          {
+            "item": "asphodel",
+            "qty": 1500
+          },
+          {
+            "item": "bull-horn",
+            "qty": 800
           },
           {
             "item": "elder-logs",
-            "qty": 1200
+            "qty": 4000
           }
         ],
-        "coins": 400000,
+        "coins": 2000000,
         "perk": {
           "kind": "heal",
           "bonus": 0.3
@@ -228,34 +335,67 @@
         "cost": [
           {
             "item": "copper-bar",
-            "qty": 450
+            "qty": 500
+          },
+          {
+            "item": "iron-bar",
+            "qty": 250
           },
           {
             "item": "iron-ore",
-            "qty": 600
+            "qty": 1000
+          },
+          {
+            "item": "bone",
+            "qty": 300
+          },
+          {
+            "item": "rough-gem",
+            "qty": 10
+          },
+          {
+            "item": "oak-logs",
+            "qty": 500
           }
         ],
         "perk": {
           "kind": "bank-slots",
           "slots": 5
-        }
+        },
+        "coins": 0
       },
       {
         "cost": [
           {
             "item": "iron-bar",
-            "qty": 500
-          },
-          {
-            "item": "marble-block",
-            "qty": 1000
+            "qty": 1500
           },
           {
             "item": "silver-bar",
-            "qty": 250
+            "qty": 800
+          },
+          {
+            "item": "marble-block",
+            "qty": 3000
+          },
+          {
+            "item": "marble-whetstone",
+            "qty": 500
+          },
+          {
+            "item": "rough-gem",
+            "qty": 200
+          },
+          {
+            "item": "basalt-ore",
+            "qty": 1500
+          },
+          {
+            "item": "willow-logs",
+            "qty": 1500
           }
         ],
-        "coins": 60000,
+        "coins": 300000,
         "perk": {
           "kind": "bank-slots",
           "slots": 10
@@ -265,18 +405,34 @@
         "cost": [
           {
             "item": "gold-bar",
-            "qty": 600
-          },
-          {
-            "item": "marble-block",
-            "qty": 1800
+            "qty": 2500
           },
           {
             "item": "aether-ingot",
-            "qty": 60
+            "qty": 300
+          },
+          {
+            "item": "marble-block",
+            "qty": 8000
+          },
+          {
+            "item": "rune-stone",
+            "qty": 400
+          },
+          {
+            "item": "emerald",
+            "qty": 50
+          },
+          {
+            "item": "silver-ore",
+            "qty": 5000
+          },
+          {
+            "item": "elder-logs",
+            "qty": 3000
           }
         ],
-        "coins": 600000,
+        "coins": 3000000,
         "perk": {
           "kind": "bank-slots",
           "slots": 15
@@ -294,38 +450,67 @@
         "cost": [
           {
             "item": "pine-logs",
-            "qty": 900
+            "qty": 1500
           },
           {
             "item": "copper-ore",
-            "qty": 450
+            "qty": 1000
           },
           {
-            "item": "thyme-sprig",
+            "item": "feather",
+            "qty": 500
+          },
+          {
+            "item": "ash",
             "qty": 300
+          },
+          {
+            "item": "laurel-leaf",
+            "qty": 400
+          },
+          {
+            "item": "boar-hide",
+            "qty": 150
           }
         ],
         "perk": {
           "kind": "night",
           "hours": 2
-        }
+        },
+        "coins": 0
       },
       {
         "cost": [
           {
             "item": "willow-logs",
-            "qty": 1200
+            "qty": 3000
           },
           {
             "item": "basalt-ore",
-            "qty": 1000
+            "qty": 2500
+          },
+          {
+            "item": "marble-block",
+            "qty": 2000
           },
           {
             "item": "pine-resin",
-            "qty": 380
+            "qty": 800
+          },
+          {
+            "item": "feather",
+            "qty": 1000
+          },
+          {
+            "item": "bat-wing",
+            "qty": 500
+          },
+          {
+            "item": "wolf-pelt",
+            "qty": 800
           }
         ],
-        "coins": 50000,
+        "coins": 200000,
         "perk": {
           "kind": "night",
           "hours": 4
@@ -335,18 +520,34 @@
         "cost": [
           {
             "item": "elder-logs",
-            "qty": 2400
+            "qty": 9000
           },
           {
             "item": "gold-ore",
-            "qty": 1200
+            "qty": 4000
+          },
+          {
+            "item": "marble-block",
+            "qty": 5000
           },
           {
             "item": "asphodel",
-            "qty": 600
+            "qty": 2000
+          },
+          {
+            "item": "hound-tooth",
+            "qty": 500
+          },
+          {
+            "item": "silver-bar",
+            "qty": 1000
+          },
+          {
+            "item": "rune-stone",
+            "qty": 200
           }
         ],
-        "coins": 500000,
+        "coins": 2500000,
         "perk": {
           "kind": "night",
           "hours": 6
@@ -364,38 +565,59 @@
         "cost": [
           {
             "item": "pine-logs",
-            "qty": 900
+            "qty": 1500
           },
           {
             "item": "laurel-leaf",
-            "qty": 300
+            "qty": 600
           },
           {
             "item": "copper-bar",
-            "qty": 180
+            "qty": 400
+          },
+          {
+            "item": "bone",
+            "qty": 500
+          },
+          {
+            "item": "venom",
+            "qty": 120
           }
         ],
         "perk": {
           "kind": "ferryman",
           "discount": 0.1
-        }
+        },
+        "coins": 0
       },
       {
         "cost": [
           {
             "item": "blightwood-logs",
-            "qty": 1000
+            "qty": 3000
           },
           {
             "item": "myrrh-tear",
-            "qty": 500
+            "qty": 1000
           },
           {
             "item": "silver-bar",
-            "qty": 250
+            "qty": 800
+          },
+          {
+            "item": "bone",
+            "qty": 2000
+          },
+          {
+            "item": "ash",
+            "qty": 1500
+          },
+          {
+            "item": "basalt-core",
+            "qty": 500
           }
         ],
-        "coins": 60000,
+        "coins": 250000,
         "perk": {
           "kind": "ferryman",
           "discount": 0.2
@@ -405,22 +627,34 @@
         "cost": [
           {
             "item": "elder-logs",
-            "qty": 1800
+            "qty": 10000
           },
           {
             "item": "frankincense",
-            "qty": 600
+            "qty": 3000
           },
           {
             "item": "gold-bar",
-            "qty": 300
+            "qty": 1500
           },
           {
             "item": "aether-shard",
-            "qty": 90
+            "qty": 300
+          },
+          {
+            "item": "bull-horn",
+            "qty": 400
+          },
+          {
+            "item": "bone",
+            "qty": 3000
+          },
+          {
+            "item": "raw-pale-fish",
+            "qty": 1500
           }
         ],
-        "coins": 600000,
+        "coins": 3000000,
         "perk": {
           "kind": "ferryman",
           "discount": 0.3

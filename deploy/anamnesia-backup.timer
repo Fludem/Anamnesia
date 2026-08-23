@@ -1,0 +1,10 @@
+[Unit]
+Description=Anamnesia Idle register backup, daily
+
+[Timer]
+OnCalendar=*-*-* 04:30:00
+RandomizedDelaySec=10m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

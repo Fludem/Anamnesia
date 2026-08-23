@@ -168,23 +168,29 @@ describe('progression: the trader', () => {
   const best = (level: number) =>
     Math.max(...GATHERING.map((s) => coinsPerHour(s, level, simContext)));
 
-  it('income rises with level, and the first lamp is within reach before level 20', () => {
+  it('income rises with level, and the first lamp is an evening of work at level 20', () => {
     let last = 0;
     for (const level of [1, 10, 20, 30, 45, 60, 75, 90]) {
       const gp = best(level);
       expect(gp, String(level)).toBeGreaterThanOrEqual(last);
       last = gp;
     }
-    expect(content.ware('lamp').price).toBeLessThanOrEqual(best(20));
+    expect(content.ware('lamp').price).toBeLessThanOrEqual(best(20) * 2);
   });
 
-  it('each rung of the lamp ladder costs under an hour of the best income at its level', () => {
+  it('each rung of the lamp ladder costs a real stretch of the best income at its level', () => {
+    // The night is short bare (4 h) and the lamps are what coins are for: each rung costs more
+    // hours than the one before, the last about a day's income at level 75.
     const at: Record<string, number> = { lamp: 20, 'lamp-oil': 45, 'long-wick': 75 };
+    let last = 0;
     for (const [id, level] of Object.entries(at)) {
       const hours = content.ware(id).price / best(level);
-      expect(hours, id).toBeLessThanOrEqual(1);
-      expect(hours, id).toBeGreaterThan(0.15);
+      expect(hours, id).toBeGreaterThan(last);
+      expect(hours, id).toBeLessThanOrEqual(10);
+      last = hours;
     }
+    expect(last).toBeGreaterThanOrEqual(6);
+    expect(content.ware('long-wick').price).toBe(1_000_000);
   });
 });
 
@@ -200,11 +206,11 @@ describe('progression: the hall', () => {
     );
   });
 
-  it('one name raises a tier in about an hour, an afternoon, a day of work — a hall shares that', () => {
+  it('one name raises a tier in an evening, a couple of days, a week or more — a hall shares that', () => {
     const bounds: [number, number][] = [
-      [0.5, 3],
-      [2, 8],
-      [5, 20],
+      [2.5, 5],
+      [12, 30],
+      [40, 120],
     ];
     for (const room of content.rooms) {
       room.tiers.forEach((t, i) => {
