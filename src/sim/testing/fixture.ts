@@ -18,6 +18,7 @@ export const FIXTURE_PACK = {
     { id: 'firemaking', name: 'Firemaking', icon: 'lorc/campfire' },
     { id: 'cooking', name: 'Cooking', icon: 'delapouite/cooking-pot' },
     { id: 'combat', name: 'Combat', icon: 'lorc/crossed-swords' },
+    { id: 'sorcery', name: 'Sorcery', icon: 'lorc/magic-swirl' },
     { id: 'hitpoints', name: 'Hitpoints', icon: 'skoll/hearts', listed: false },
   ],
   items: [
@@ -115,6 +116,27 @@ export const FIXTURE_PACK = {
       stats: { attack: 5, strength: 4 },
       value: 2,
     },
+    /** The other fight: a staff that always lands like the sword, and the mark it burns. */
+    {
+      id: 'staff',
+      name: 'Staff',
+      icon: 'lorc/wizard-staff',
+      class: 'weapon',
+      slot: 'weapon',
+      style: 'sorcery',
+      stats: { attack: 100, strength: 10 },
+      value: 30,
+    },
+    {
+      id: 'mark',
+      name: 'Mark',
+      icon: 'lorc/rune-stone',
+      class: 'weapon',
+      slot: 'ammo',
+      style: 'sorcery',
+      stats: { attack: 5, strength: 4 },
+      value: 1,
+    },
     /** A cape that pays half again in mining; a pendant that pays a quarter more everywhere. */
     {
       id: 'cape',
@@ -188,6 +210,7 @@ export const FIXTURE_PACK = {
       level: 1,
       hp: 6,
       stats: { attack: 0, strength: 1, defence: 0, speed: 5 },
+      weak: 'sorcery',
       xp: 12,
       coins: [1, 1],
       drops: [{ entries: [{ item: 'hide', weight: 1 }] }],
@@ -202,6 +225,7 @@ export const FIXTURE_PACK = {
       level: 5,
       hp: 1000,
       stats: { attack: 100000, strength: 1, defence: 1000, speed: 2 },
+      weak: 'melee',
       xp: 50,
     },
     {
@@ -212,6 +236,7 @@ export const FIXTURE_PACK = {
       level: 20,
       hp: 1,
       stats: { attack: 0, strength: 1, defence: 0, speed: 5 },
+      weak: 'melee',
       xp: 1,
     },
   ],

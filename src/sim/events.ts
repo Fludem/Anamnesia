@@ -33,12 +33,16 @@ export const SimEventSchema = z.discriminatedUnion('type', [
     qty: z.number().int().min(1),
     items: z.array(ItemStackSchema),
   }),
-  /** The action could not continue (inputs ran out, bank full, …). */
+  /**
+   * The action could not continue (inputs ran out, bank full, …). `fight` says whether it was
+   * a fight: sorcery stops at the bench and in the zones, and each screen shows only its own.
+   */
   z.object({
     type: z.literal('stopped'),
     tick: z.number().int().min(0),
     skill: IdSchema,
     reason: z.string().min(1),
+    fight: z.boolean().default(false),
   }),
   /** A monster fell: the xp it paid (combat, before the hitpoints share) and what it dropped. */
   z.object({

@@ -246,6 +246,8 @@ export class ContentDb {
       if (slotProblem !== null) problems.push(`${owner}: ${slotProblem}`);
       if (item.procedural !== null && item.class !== 'weapon')
         problems.push(`${owner}: only weapons are procedural`);
+      if (item.style !== 'melee' && item.slot !== 'weapon' && item.slot !== 'ammo')
+        problems.push(`${owner}: only a weapon or ammo has a style`);
       if (item.opens !== null && item.class !== 'container')
         problems.push(`${owner}: only containers can be opened`);
       if (item.opens === null && item.class === 'container')

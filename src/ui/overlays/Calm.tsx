@@ -180,7 +180,7 @@ export function FollowerPage({
 }) {
   const sim = snapshot.sim;
   const req = sim?.action.current?.request;
-  const skill = req && sim ? skillOfRequest(req, simContext) : null;
+  const skill = req && sim ? skillOfRequest(req, sim, simContext) : null;
   const status = sim
     ? skill
       ? `${content.skill(skill).name} · Lv ${String(skillView(sim, skill, simContext).level)} · ticking`

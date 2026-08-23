@@ -20,6 +20,7 @@ const VERB: Record<string, string> = {
   firemaking: 'burned',
   cooking: 'cooked',
   smithing: 'smithed',
+  sorcery: 'inscribed',
   combat: 'fought',
 };
 
@@ -39,7 +40,9 @@ export function OfflineRecap({
   const deaths = sim.stats.deaths - info.before.stats.deaths;
   const offered = sim.stats.offered - info.before.stats.offered;
   const thrown = sim.stats.thrown - info.before.stats.thrown;
+  const cast = sim.stats.cast - info.before.stats.cast;
   const quiverEmpty = thrown > 0 && sim.equipment.ammo === null;
+  const marksOut = cast > 0 && sim.equipment.ammo === null;
   // What the hill left, as far as the log still remembers (the item list counts the rest).
   const found = eventsOfType(sim, 'found')
     .filter((f) => f.tick > info.before.tick)
@@ -74,7 +77,7 @@ export function OfflineRecap({
             <div className="big">+{formatInt(s.xp)} xp</div>
             <div className="sub">
               {content.skill(s.skill).name} ·{' '}
-              {s.skill === 'combat'
+              {s.skill === 'combat' || (s.skill === 'sorcery' && cast > 0)
                 ? `${formatInt(kills)} kills`
                 : s.skill === 'hitpoints'
                   ? 'from fighting'
@@ -125,6 +128,13 @@ export function OfflineRecap({
           <UiIcon id="lorc/thrown-spear" size={13} />
           {thrown === 1 ? 'one javelin thrown' : `${formatInt(thrown)} javelins thrown`}
           {quiverEmpty ? ' · the last one went with them' : ''}
+        </div>
+      )}
+      {cast > 0 && (
+        <div className="recap-note">
+          <UiIcon id={content.skill('sorcery').icon} size={13} />
+          {cast === 1 ? 'one mark cast' : `${formatInt(cast)} marks cast`}
+          {marksOut ? ' · the last one went with them' : ''}
         </div>
       )}
       {offered > 0 && (

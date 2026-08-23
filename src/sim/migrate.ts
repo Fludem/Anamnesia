@@ -149,6 +149,11 @@ export const MIGRATIONS: MigrationTable = {
       },
     };
   },
+  /** v11 → v12 (Phase 16): nothing ever cast. */
+  11: (raw) => {
+    const sim = asObject(raw['sim']);
+    return { ...raw, sim: { ...sim, stats: { cast: 0, ...asObject(sim['stats']) } } };
+  },
 };
 
 function asObject(v: unknown): Record<string, unknown> {

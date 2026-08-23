@@ -195,7 +195,7 @@ export function activeView(sim: SimState, ctx: SimContext): ActiveView | null {
   const cur = sim.action.current;
   if (cur === null) return null;
   const req = cur.request;
-  const skill = skillOfRequest(req, ctx);
+  const skill = skillOfRequest(req, sim, ctx);
   let name: string;
   let base: number;
   switch (req.kind) {
@@ -302,14 +302,18 @@ export function recentGains(sim: SimState, withinTicks: number, skill?: string) 
   );
 }
 
-/** The last stop reason in `skill`, if that action stopped less than `withinTicks` ago. */
+/**
+ * The last stop reason in `skill`, if that action stopped less than `withinTicks` ago. A skill
+ * screen wants its bench's stops and the combat screen the fights', so `fight` picks which.
+ */
 export function recentStop(
   sim: SimState,
   withinTicks: number,
   skill?: string,
+  fight = false,
 ): SimEventOf<'stopped'> | null {
   const stops = eventsOfType(sim, 'stopped').filter(
-    (e) => skill === undefined || e.skill === skill,
+    (e) => (skill === undefined || e.skill === skill) && e.fight === fight,
   );
   const last = stops[stops.length - 1];
   return last && sim.tick - last.tick < withinTicks ? last : null;

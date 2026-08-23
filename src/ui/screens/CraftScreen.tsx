@@ -19,7 +19,11 @@ export function CraftScreen({ sim, dispatch, juice, def }: ScreenProps & { def: 
   const skill = content.skill(def.skill);
   const sv = skillView(sim, def.skill, simContext);
   const active = activeView(sim, simContext);
-  const mine = active !== null && active.skill === def.skill ? active : null;
+  // A cast trains sorcery too, but it is the combat screen's to show: only a recipe is ours.
+  const mine =
+    active !== null && active.skill === def.skill && active.request.kind === 'crafting'
+      ? active
+      : null;
   const recipes = content.recipesFor(def.skill);
   const categories = [...new Set(recipes.map((r) => r.category))];
   const [picked, setCategory] = useState(categories[0] ?? '');

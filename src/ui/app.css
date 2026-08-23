@@ -2185,6 +2185,32 @@
   color: var(--hurt);
   border-color: rgba(var(--hurt-rgb), 0.4);
 }
+/* Ammo the weapon in hand does not use: a javelin under a staff. */
+.ammo-tag.idle {
+  color: var(--fg-3);
+  border-style: dashed;
+  text-decoration: line-through;
+}
+/* "weak" beside a monster: the skill it is weak to, lit when that is the hero's fight. */
+.weak-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 8px;
+  font: 500 var(--fs-tag) var(--font-mono);
+  color: var(--fg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  padding: 1px 5px;
+  letter-spacing: var(--tracking-tag);
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+.weak-tag.lit {
+  color: var(--accent);
+  border-color: rgba(var(--accent-rgb), 0.3);
+  background: rgba(var(--accent-rgb), 0.08);
+}
 /* A find in the drop feed: left by the hill, not paid by the cycle. */
 .found-tag {
   font: 600 var(--fs-tag) var(--font-mono);

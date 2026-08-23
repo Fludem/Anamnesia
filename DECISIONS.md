@@ -1293,3 +1293,90 @@ highscores, at the wheel — and the same for a guild. The shape of it:
   after a reload; the editor at 390 px in an iframe (it scrolls inside the viewport).
   Running two dev servers on `localhost` at once shares the session cookie between them —
   serve on the LAN address to test beside a peer.
+
+## Phase 16 — sorcery: the other way to fight
+
+The user asked what skill to add next and suggested a magic skill that also works in combat.
+Three things were theirs to decide and were asked: the name (**Sorcery** — faintly Greek,
+goēteia, the wanderer's craft rather than the temple's, so it stays apart from the gods and
+favour), what the marks cost (**ash and the tier's ore**), and what makes a cast different from
+a swing. My draft had a cast ignore half the monster's defence; the user chose instead that
+**every monster is weak to one style** — either kills it, the weak one does bonus damage. That
+is the better idea: it lives in content, it gives both fights work in every zone, and it shows
+on the zone list.
+
+### The weapon decides the fight
+
+Phase 6 rejected an attack/strength/defence split, and this does not reopen it: there is still
+one level per fight, it is just that there are two fights. `ItemDef.style` (`melee` by default;
+only a weapon or its ammo may say otherwise) names which, and the worn weapon's style is the
+hero's — a sword swings on Combat, a staff casts on Sorcery, nothing in hand is melee. In a
+fight the style's skill replaces `combat` everywhere it appeared: the level term in
+`heroStatsFrom`, the zone gate ("The Deep wants Sorcery level 45"), the xp per point of damage
+and the kill event; hitpoints keeps its third. `skillOfRequest` therefore needs the save, so
+`stats.actions`, the `stopped` event and the recap count casts under Sorcery. No toggle, no
+new action kind: a cast is the `combat` request with a staff worn, which is why nothing in the
+fight state changed and why swapping weapons mid-fight simply changes which skill the next hit
+pays.
+
+### Marks are javelins that the staff cannot do without
+
+A mark goes in the ammo slot and one is burnt per landed cast, from the bank first and then the
+hand, exactly the javelin's path (`throwAmmo`, now counting `stats.cast` or `stats.thrown` by
+the style). Two differences. Ammo only counts for the weapon's style — a javelin under a staff
+or a mark under a sword is carried and nothing more, in `gearStats` as in the fight — so the
+equipment totals stay honest and a forgotten javelin is never thrown by a staff. And a staff
+without a mark of its own style cannot start: `canStart` says "the staff wants marks", which is
+also how the fight ends itself when the last one goes, through `tickAction`'s re-check and the
+`stopped` event. The fight card shows that reason now; it showed none before. Since Sorcery
+stops at the bench and in the zones, the `stopped` event gained `fight` (default false for old
+logs) and each screen shows only its own.
+
+### Weakness is a quarter on the max hit, never on the accuracy
+
+`MonsterDefSchema.weak` is required. When it matches the hero's style, `maxHitAgainst` is
+`round(maxHit × 1.25)`; `hitChance` is untouched, so a weakness makes a fight shorter, not
+surer. The draw order is unchanged — a landed swing is still one float then one `nextInt`,
+whatever the bound — so every save replays through the same draws; what changed is the bound
+against melee-weak monsters and, after the retune, every monster's hp and xp. That is the same
+class of change as the Phase 6 and 8 retunes and it is recorded here as such. The split:
+beasts and people are weak to the sword (goat, rat, boar, spider, lizard, the discobolus, bat,
+harpy, hound, cyclops, minotaur); what is stone, shade or dead is weak to the staff (crow,
+adder, wolf, owl, the quarryman's shade, the warden, the unburied, the debtor's shade, the
+sentinel, The Stone). The audit checks every zone has one of each.
+
+### Two climbs, both in the band
+
+Sorcery trains at the bench and in the zones, and both are measured. The bench is the crafting
+model over the `marks` staple: 31.5 h to 99, eating about 5,800 ore (a quarter of what the
+anvil wants) and 11,000 ash (less than a firemaking climb makes) — the feeder stays less than
+the skill, and a test pins both. The zones are `combatClimb` with `style: 'sorcery'`: the
+tier's staff (pine → elder, the rod ladder's woods), the tier's marks always in hand since a
+cast wants one, the same armour. `tune-combat.ts` now sets each monster's hp against the hero
+of the style it is weak to, then lands the melee climb at 36.0 h as before; the sorcery climb
+comes out at 33.4 h with staff stats equal to the sword's — about 7% quicker, for 40–55 ore and
+50–90 ash an hour, which is the quick-method trade in a fight. Both styles pick a monster weak
+to them at nearly every level, so the roster is not one zone each. `tune-sorcery.ts` prints all
+of it; `progression.test.ts` pins the casting climb in 27–45 h, never more than one zone
+behind, max hit under half the hero's hitpoints, 700–1,200 marks an hour. Hall costs price a
+monster's drops by the hero of its own weak style, or the tier bounds would have drifted.
+
+### Content
+
+Six marks (ore + 1–2 ash → 20, at the gear ladder's levels), six staffs (log + bar, whetstone
+from silver; at 1/10/25/55/65/80 because the audit measures a staff's level against its bar's
+smithing level, the rod ladder's rule), the Sorcerer's Cape found while inscribing at the
+usual 1 in 2,000 (a fight never rolls, so never while casting), and `weak` on every monster.
+Sorcery sits between Smithing and Combat in the nav; the bottom tab reads "Cast".
+
+### Flagged
+
+- Weakness makes an existing melee fight against a melee-weak monster hit ~25% harder, and the
+  retune raised every monster's hp and xp to keep 36 h: a save mid-climb finds the hill a little
+  different below its level and the same above.
+- No god for sorcery (as foraging has none), no hall room, no first-steps step. Candidates.
+- Equipping mid-fight was already allowed; a staff→sword swap switches style silently from the
+  next hit, a sword→staff swap without marks ends the fight at the next cycle with its reason.
+- The bottom tab bar is twelve tabs now; the narrow pass is still owed.
+- `tsc -p tsconfig.node.json` fails on `server/chat.ts` (two `as MessageRow` casts) from Phase
+  13, before this phase; not touched here.

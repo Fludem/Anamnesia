@@ -10,14 +10,15 @@
     "material": "oak",
     "zone": "lower-slope",
     "level": 1,
-    "hp": 7,
+    "hp": 8,
     "stats": {
       "attack": 1,
       "strength": 1,
       "defence": 1,
       "speed": 30
     },
-    "xp": 18,
+    "weak": "melee",
+    "xp": 16,
     "coins": [0, 2],
     "drops": [
       {
@@ -53,14 +54,15 @@
     "material": "iron",
     "zone": "lower-slope",
     "level": 2,
-    "hp": 9,
+    "hp": 12,
     "stats": {
       "attack": 1,
       "strength": 1,
       "defence": 0,
       "speed": 25
     },
-    "xp": 25,
+    "weak": "melee",
+    "xp": 26,
     "coins": [0, 1],
     "drops": [
       {
@@ -84,14 +86,15 @@
     "material": "basalt",
     "zone": "lower-slope",
     "level": 3,
-    "hp": 9,
+    "hp": 15,
     "stats": {
       "attack": 1,
       "strength": 2,
       "defence": 1,
       "speed": 28
     },
-    "xp": 26,
+    "weak": "sorcery",
+    "xp": 35,
     "coins": [0, 0],
     "drops": [
       {
@@ -115,14 +118,15 @@
     "material": "pine",
     "zone": "lower-slope",
     "level": 5,
-    "hp": 12,
+    "hp": 18,
     "stats": {
       "attack": 2,
       "strength": 3,
       "defence": 1,
       "speed": 30
     },
-    "xp": 38,
+    "weak": "sorcery",
+    "xp": 46,
     "coins": [0, 0],
     "drops": [
       {
@@ -145,13 +149,14 @@
     "material": "copper",
     "zone": "the-copse",
     "level": 10,
-    "hp": 20,
+    "hp": 25,
     "stats": {
       "attack": 4,
       "strength": 6,
       "defence": 3,
       "speed": 35
     },
+    "weak": "melee",
     "xp": 80,
     "coins": [2, 6],
     "drops": [
@@ -188,14 +193,15 @@
     "material": "blight",
     "zone": "the-copse",
     "level": 14,
-    "hp": 26,
+    "hp": 39,
     "stats": {
       "attack": 6,
       "strength": 6,
       "defence": 4,
       "speed": 26
     },
-    "xp": 121,
+    "weak": "sorcery",
+    "xp": 145,
     "coins": [1, 4],
     "drops": [
       {
@@ -226,14 +232,15 @@
     "material": "birch",
     "zone": "the-copse",
     "level": 17,
-    "hp": 33,
+    "hp": 47,
     "stats": {
       "attack": 7,
       "strength": 5,
       "defence": 5,
       "speed": 30
     },
-    "xp": 169,
+    "weak": "sorcery",
+    "xp": 193,
     "coins": [0, 0],
     "drops": [
       {
@@ -260,14 +267,15 @@
     "material": "marble",
     "zone": "the-copse",
     "level": 20,
-    "hp": 39,
+    "hp": 48,
     "stats": {
       "attack": 8,
       "strength": 7,
       "defence": 5,
       "speed": 24
     },
-    "xp": 219,
+    "weak": "melee",
+    "xp": 215,
     "coins": [0, 3],
     "drops": [
       {
@@ -295,14 +303,15 @@
     "material": "silver",
     "zone": "the-quarry",
     "level": 25,
-    "hp": 53,
+    "hp": 73,
     "stats": {
       "attack": 10,
       "strength": 9,
       "defence": 8,
       "speed": 30
     },
-    "xp": 340,
+    "weak": "sorcery",
+    "xp": 374,
     "coins": [5, 15],
     "drops": [
       {
@@ -338,14 +347,15 @@
     "material": "basalt",
     "zone": "the-quarry",
     "level": 28,
-    "hp": 57,
+    "hp": 71,
     "stats": {
       "attack": 11,
       "strength": 10,
       "defence": 12,
       "speed": 32
     },
-    "xp": 393,
+    "weak": "melee",
+    "xp": 391,
     "coins": [0, 0],
     "drops": [
       {
@@ -373,14 +383,15 @@
     "material": "basalt",
     "zone": "the-quarry",
     "level": 34,
-    "hp": 71,
+    "hp": 102,
     "stats": {
       "attack": 12,
       "strength": 14,
       "defence": 16,
       "speed": 40
     },
-    "xp": 557,
+    "weak": "sorcery",
+    "xp": 641,
     "coins": [0, 0],
     "drops": [
       {
@@ -412,14 +423,15 @@
     "material": "marble",
     "zone": "the-quarry",
     "level": 38,
-    "hp": 86,
+    "hp": 107,
     "stats": {
       "attack": 14,
       "strength": 12,
       "defence": 14,
       "speed": 30
     },
-    "xp": 730,
+    "weak": "melee",
+    "xp": 727,
     "coins": [0, 0],
     "drops": [
       {
@@ -451,14 +463,15 @@
     "material": "blight",
     "zone": "the-deep",
     "level": 45,
-    "hp": 121,
+    "hp": 150,
     "stats": {
       "attack": 16,
       "strength": 12,
       "defence": 10,
       "speed": 20
     },
-    "xp": 1163,
+    "weak": "melee",
+    "xp": 1154,
     "coins": [0, 0],
     "drops": [
       {
@@ -482,14 +495,15 @@
     "material": "marble",
     "zone": "the-deep",
     "level": 50,
-    "hp": 137,
+    "hp": 189,
     "stats": {
       "attack": 18,
       "strength": 16,
       "defence": 15,
       "speed": 30
     },
-    "xp": 1426,
+    "weak": "sorcery",
+    "xp": 1575,
     "coins": [10, 30],
     "drops": [
       {
@@ -529,14 +543,15 @@
     "material": "birch",
     "zone": "the-deep",
     "level": 55,
-    "hp": 163,
+    "hp": 206,
     "stats": {
       "attack": 20,
       "strength": 17,
       "defence": 12,
       "speed": 24
     },
-    "xp": 1828,
+    "weak": "melee",
+    "xp": 1849,
     "coins": [0, 0],
     "drops": [
       {
@@ -577,14 +592,15 @@
     "material": "iron",
     "zone": "the-deep",
     "level": 60,
-    "hp": 186,
+    "hp": 235,
     "stats": {
       "attack": 22,
       "strength": 20,
       "defence": 18,
       "speed": 26
     },
-    "xp": 2234,
+    "weak": "melee",
+    "xp": 2260,
     "coins": [0, 0],
     "drops": [
       {
@@ -619,14 +635,15 @@
     "material": "aether",
     "zone": "the-deep",
     "level": 64,
-    "hp": 204,
+    "hp": 277,
     "stats": {
       "attack": 24,
       "strength": 18,
       "defence": 20,
       "speed": 30
     },
-    "xp": 2581,
+    "weak": "sorcery",
+    "xp": 2806,
     "coins": [20, 60],
     "drops": [
       {
@@ -662,14 +679,15 @@
     "material": "marble",
     "zone": "the-summit",
     "level": 70,
-    "hp": 219,
+    "hp": 299,
     "stats": {
       "attack": 26,
       "strength": 24,
       "defence": 30,
       "speed": 36
     },
-    "xp": 2982,
+    "weak": "sorcery",
+    "xp": 3259,
     "coins": [0, 0],
     "drops": [
       {
@@ -709,14 +727,15 @@
     "material": "basalt",
     "zone": "the-summit",
     "level": 76,
-    "hp": 271,
+    "hp": 343,
     "stats": {
       "attack": 30,
       "strength": 34,
       "defence": 22,
       "speed": 44
     },
-    "xp": 3950,
+    "weak": "melee",
+    "xp": 4002,
     "coins": [30, 90],
     "drops": [
       {
@@ -749,14 +768,15 @@
     "material": "copper",
     "zone": "the-summit",
     "level": 82,
-    "hp": 297,
+    "hp": 371,
     "stats": {
       "attack": 34,
       "strength": 32,
       "defence": 28,
       "speed": 34
     },
-    "xp": 4615,
+    "weak": "melee",
+    "xp": 4614,
     "coins": [40, 120],
     "drops": [
       {
@@ -797,14 +817,15 @@
     "material": "basalt",
     "zone": "the-summit",
     "level": 90,
-    "hp": 317,
+    "hp": 442,
     "stats": {
       "attack": 40,
       "strength": 40,
       "defence": 45,
       "speed": 50
     },
-    "xp": 5331,
+    "weak": "sorcery",
+    "xp": 5951,
     "coins": [0, 0],
     "drops": [
       {

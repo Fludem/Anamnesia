@@ -34,6 +34,7 @@ const TAB_LABEL: Record<string, string> = {
   firemaking: 'Fire',
   cooking: 'Cook',
   smithing: 'Smith',
+  sorcery: 'Cast',
   combat: 'Fight',
 };
 

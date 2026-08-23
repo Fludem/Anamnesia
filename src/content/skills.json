@@ -101,6 +101,20 @@
     }
   },
   {
+    "id": "sorcery",
+    "name": "Sorcery",
+    "icon": "lorc/magic-swirl",
+    "finds": {
+      "nothingWeight": 1999,
+      "entries": [
+        {
+          "item": "sorcerers-cape",
+          "weight": 1
+        }
+      ]
+    }
+  },
+  {
     "id": "combat",
     "name": "Combat",
     "icon": "lorc/crossed-swords"

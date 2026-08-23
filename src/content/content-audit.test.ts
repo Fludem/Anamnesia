@@ -12,6 +12,7 @@ import { content } from './index.ts';
 
 const tableItems = (t: DropTable) => t.entries.map((e) => e.item);
 const GATHERING = ['mining', 'woodcutting', 'fishing', 'foraging'];
+const CRAFTING = ['smithing', 'firemaking', 'cooking', 'sorcery'];
 
 /** Every item id something in the game hands out. */
 function obtainable(): Set<string> {
@@ -33,7 +34,7 @@ function obtainable(): Set<string> {
 }
 
 describe('shipped content', () => {
-  it('ships the roster Phase 3 set out, plus Phase 5’s three skills, four gods and Phase 7’s foraging', () => {
+  it('ships the roster Phase 3 set out, plus Phase 5’s three skills, four gods, Phase 7’s foraging and Phase 16’s sorcery', () => {
     expect(content.skills.map((s) => s.id)).toEqual([
       'mining',
       'woodcutting',
@@ -42,6 +43,7 @@ describe('shipped content', () => {
       'firemaking',
       'cooking',
       'smithing',
+      'sorcery',
       'combat',
       'hitpoints',
     ]);
@@ -86,7 +88,7 @@ describe('shipped content', () => {
 
   it('every skill has something to do and every level requirement is reachable', () => {
     for (const skill of GATHERING) expect(content.nodesFor(skill).length, skill).toBeGreaterThan(0);
-    for (const skill of ['smithing', 'firemaking', 'cooking'])
+    for (const skill of CRAFTING)
       expect(content.recipesFor(skill).length, skill).toBeGreaterThan(0);
     for (const z of content.zones) expect(content.monstersIn(z.id).length, z.id).toBeGreaterThan(0);
     const max = DEFAULT_XP_CURVE.maxLevel;
@@ -104,8 +106,36 @@ describe('shipped content', () => {
     // Each skill's first node/recipe is available at level 1, so a new save can start anywhere.
     for (const skill of GATHERING)
       expect(Math.min(...content.nodesFor(skill).map((n) => n.level)), skill).toBe(1);
-    for (const skill of ['smithing', 'firemaking', 'cooking'])
+    for (const skill of CRAFTING)
       expect(Math.min(...content.recipesFor(skill).map((r) => r.level)), skill).toBe(1);
+  });
+
+  it('every monster is weak to one fight, and every zone has work for both', () => {
+    for (const z of content.zones) {
+      const weak = new Set(content.monstersIn(z.id).map((m) => m.weak));
+      expect(weak.has('melee'), `${z.id} wants a monster weak to melee`).toBe(true);
+      expect(weak.has('sorcery'), `${z.id} wants a monster weak to sorcery`).toBe(true);
+    }
+  });
+
+  it('a style belongs to a weapon or its ammo; a sorcerer has a staff and marks at every tier', () => {
+    for (const item of content.items) {
+      if (item.style !== 'melee') expect(['weapon', 'ammo'], item.id).toContain(item.slot);
+    }
+    const inscribed = new Set(
+      content.recipesFor('sorcery').flatMap((r) => r.outputs.map((o) => o.item)),
+    );
+    const tiers = content.materials.filter((m) => m.tier > 0 || m.id === 'copper');
+    for (const tier of tiers) {
+      const mark = content.items.find(
+        (i) => i.slot === 'ammo' && i.style === 'sorcery' && i.material === tier.id,
+      );
+      expect(mark, `${tier.id} mark`).toBeDefined();
+      expect(inscribed.has(mark!.id), mark!.id).toBe(true);
+    }
+    const staffs = content.items.filter((i) => i.slot === 'weapon' && i.style === 'sorcery');
+    expect(staffs).toHaveLength(tiers.length);
+    for (const staff of staffs) expect(inscribed.has(staff.id), staff.id).toBe(true);
   });
 
   it('nodes get harder as they go: levels rise with the list; xp and time rise along each path', () => {

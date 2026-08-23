@@ -41,7 +41,8 @@ describe('fightView', () => {
     const s = run(fightingState(1, 'goat', { weapon: 'sword' }), 10);
     const v = fightView(s, ctx)!;
     expect(v.monster.id).toBe('goat');
-    expect(v.you).toMatchObject({ sub: 'you · Lv 1', maxHp: 10, swingSeconds: 3 });
+    expect(v.you).toMatchObject({ sub: 'you · Lv 1 · swinging', maxHp: 10, swingSeconds: 3 });
+    expect(v).toMatchObject({ style: 'melee', skill: 'combat', weak: 'sorcery', yourMaxHit: 8 });
     expect(v.you.swingFrac).toBeCloseTo(10 / 30);
     expect(v.you.statsLine).toBe('atk 105 · str 15 · def 5');
     expect(v.them).toMatchObject({
@@ -54,6 +55,19 @@ describe('fightView', () => {
     expect(v.fightSeconds).toBe(0.9); // the fight starts on the first tick after the request
     expect(v.xpPerKill).toBe(12);
     expect(v.xpHr).toBeGreaterThan(0);
+  });
+
+  it('with a staff in hand the fight is sorcery’s, and the goat is weak to it', () => {
+    const s = run(fightingState(1, 'goat', { weapon: 'staff', ammo: 'mark' }), 10);
+    const v = fightView(s, ctx)!;
+    expect(v.you.sub).toBe('you · Lv 1 · casting');
+    // Sword numbers plus the mark (strength 19, max hit 10), and a quarter more for the weakness.
+    expect(v).toMatchObject({
+      style: 'sorcery',
+      skill: 'sorcery',
+      weak: 'sorcery',
+      yourMaxHit: 13,
+    });
   });
 });
 
@@ -82,8 +96,34 @@ describe('zones and the log', () => {
       ['heights', true, false],
     ]);
     const goat = rows[0]!.monsters.find((m) => m.monster.id === 'goat')!;
-    expect(goat).toMatchObject({ fighting: true, maxHit: 1, xp: 12 });
+    expect(goat).toMatchObject({
+      fighting: true,
+      maxHit: 1,
+      xp: 12,
+      weak: 'sorcery',
+      yourMaxHit: 3,
+    });
     expect(goat.killSeconds).toBeGreaterThan(3);
+  });
+
+  it('with a staff the zones lock by sorcery level and the weak monsters take more', () => {
+    const s0 = createSimState(1);
+    const caster: SimState = {
+      ...s0,
+      equipment: { ...s0.equipment, weapon: 'staff', ammo: 'mark' },
+      skills: { sorcery: { xp: ctx.xp.xpForLevel(20) } },
+    };
+    const rows = zoneRows(caster, ctx);
+    expect(rows.map((z) => [z.zone.id, z.locked])).toEqual([
+      ['slope', false],
+      ['heights', false],
+    ]);
+    const goat = rows[0]!.monsters.find((m) => m.monster.id === 'goat')!;
+    const brute = rows[0]!.monsters.find((m) => m.monster.id === 'brute')!;
+    // Level 20 + 4 + staff 10 + mark 4 = 38 strength → max hit 20; the goat takes 25 for its weakness.
+    expect(goat).toMatchObject({ weak: 'sorcery', yourMaxHit: 25 });
+    expect(brute).toMatchObject({ weak: 'melee', yourMaxHit: 20 });
+    expect(zoneRows(s0, ctx)[1]!.locked).toBe(true);
   });
 
   it('turns kills into rows and counts them', () => {
@@ -145,8 +185,11 @@ describe('worn', () => {
       lines: ['+50% mining xp', '+25% xp in every skill'],
     });
     expect(ammoView(s0, content)).toBeNull();
-    expect(ammoView(s, content)).toMatchObject({ inBank: 12 });
+    expect(ammoView(s, content)).toMatchObject({ inBank: 12, live: true });
     expect(ammoView(s, content)?.item.id).toBe('javelin');
+    // A javelin under a staff is carried, not thrown.
+    const staff: SimState = { ...s, equipment: { ...s.equipment, weapon: 'staff' } };
+    expect(ammoView(staff, content)).toMatchObject({ inBank: 12, live: false });
   });
 });
 

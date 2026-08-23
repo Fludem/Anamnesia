@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { combatStyle } from './combat.ts';
 import { IdSchema } from './content/schema.ts';
 import type { SimContext } from './context.ts';
 import { pushEvent } from './events.ts';
@@ -132,7 +133,7 @@ export function tickAction(state: SimState, ctx: SimContext): SimState {
     success = f < chance;
     s = { ...s, rng };
   }
-  const skill = skillOfRequest(cur.request, ctx);
+  const skill = skillOfRequest(cur.request, s, ctx);
   let after = handler.resolve(s, req, success, ctx);
   // A fight's cycle is one swing; the hill leaves nothing for a swing.
   if (success && cur.request.kind !== 'combat') after = rollFinds(after, skill, ctx);
@@ -149,13 +150,19 @@ export function tickAction(state: SimState, ctx: SimContext): SimState {
         action: { ...restart.action, current: { ...restart.action.current!, remaining } },
       };
     }
-    s = pushEvent(s, { type: 'stopped', tick: s.tick, skill, reason: again.reason });
+    s = pushEvent(s, {
+      type: 'stopped',
+      tick: s.tick,
+      skill,
+      reason: again.reason,
+      fight: cur.request.kind === 'combat',
+    });
   }
   return startNextQueued({ ...s, action: { ...s.action, current: null } }, ctx);
 }
 
-/** The skill a request trains. */
-export function skillOfRequest(req: ActionRequest, ctx: SimContext): string {
+/** The skill a request trains. A fight's is the worn weapon's to say, so it needs the save. */
+export function skillOfRequest(req: ActionRequest, state: SimState, ctx: SimContext): string {
   switch (req.kind) {
     case 'mining':
       return 'mining';
@@ -168,7 +175,7 @@ export function skillOfRequest(req: ActionRequest, ctx: SimContext): string {
     case 'crafting':
       return ctx.content.recipe(req.recipe).skill;
     case 'combat':
-      return 'combat';
+      return combatStyle(state, ctx).skill;
   }
 }
 

@@ -10,7 +10,14 @@ import { heroStats } from '../../sim/combat.ts';
 import type { ItemDef } from '../../sim/content/schema.ts';
 import { godOf } from '../../sim/perks.ts';
 import { TOOL_SLOTS, type EquipmentSlot, type ToolSlot } from '../../sim/slots.ts';
-import { ammoView, bankItemsFor, wornBody, wornXpBoost, xpBoostText } from '../derive-combat.ts';
+import {
+  ammoNoun,
+  ammoView,
+  bankItemsFor,
+  wornBody,
+  wornXpBoost,
+  xpBoostText,
+} from '../derive-combat.ts';
 import { toolCutPercent } from '../derive.ts';
 import { formatInt, formatSigned } from '../format.ts';
 import { BareIcon } from '../items/ItemTile.tsx';
@@ -248,10 +255,28 @@ function Selected({
             <span className="v accent">{xpBoostText(item, content)}</span>
           </div>
         )}
+        {item && slot === 'weapon' && (
+          <div className="stat-row">
+            <span className="k">fights</span>
+            <span className="v">
+              {item.style === 'sorcery'
+                ? 'casts on Sorcery · wants marks'
+                : 'swings on Combat · throws javelins'}
+            </span>
+          </div>
+        )}
         {item && slot === 'ammo' && (
           <div className="stat-row">
             <span className="k">in the bank</span>
             <span className="v">{formatInt(ammoView(sim, content)?.inBank ?? 0)} more</span>
+          </div>
+        )}
+        {item && slot === 'ammo' && ammoView(sim, content)?.live === false && (
+          <div className="stat-row">
+            <span className="k">in use</span>
+            <span className="v" style={{ color: 'var(--fg-3)' }}>
+              no · the weapon in hand wants {ammoNoun(heroStats(sim, simContext).style)}
+            </span>
           </div>
         )}
         {item && (

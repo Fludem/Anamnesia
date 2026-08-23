@@ -71,10 +71,14 @@ describe('migrateSave', () => {
         applied.push(10);
         return r;
       },
+      11: (r) => {
+        applied.push(11);
+        return r;
+      },
     };
     const v0 = { ...fresh(), version: 0, writerId: undefined };
     const out = migrateSave(v0, migrations, CURRENT_SAVE_VERSION);
-    expect(applied).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    expect(applied).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
     expect(out.version).toBe(CURRENT_SAVE_VERSION);
     expect(out.writerId).toBe('migrated-from-v0');
   });
@@ -105,6 +109,7 @@ describe('migrateSave', () => {
         deaths: 0,
         offered: 0,
         thrown: 0,
+        cast: 0,
         spent: 0,
         ferried: 0,
         given: 0,
@@ -165,6 +170,7 @@ describe('migrateSave', () => {
       deaths: 0,
       offered: 0,
       thrown: 0,
+      cast: 0,
       spent: 0,
       ferried: 0,
       given: 0,
@@ -200,6 +206,7 @@ describe('migrateSave', () => {
       deaths: 0,
       offered: 0,
       thrown: 0,
+      cast: 0,
       spent: 0,
       ferried: 0,
       given: 0,
@@ -227,6 +234,7 @@ describe('migrateSave', () => {
       deaths: 0,
       offered: 0,
       thrown: 0,
+      cast: 0,
       spent: 0,
       ferried: 0,
       given: 0,
@@ -280,6 +288,7 @@ describe('migrateSave', () => {
       deaths: 1,
       offered: 3,
       thrown: 0,
+      cast: 0,
       spent: 0,
       ferried: 0,
       given: 0,
@@ -347,6 +356,29 @@ describe('migrateSave', () => {
     expect(out.version).toBe(CURRENT_SAVE_VERSION);
     expect(out.sim.wheel).toEqual({ cart: [], bought: 0, paidThrough: 0 });
     expect(out.sim.stats).toMatchObject({ given: 3, boughtIn: 0, cashedOut: 0 });
+  });
+
+  it('migrates a v11 record to v12: nothing cast; what was thrown is kept', () => {
+    const v11 = JSON.parse(JSON.stringify(fresh())) as Record<string, unknown>;
+    const sim = v11['sim'] as Record<string, unknown>;
+    v11['version'] = 11;
+    sim['stats'] = {
+      actions: {},
+      items: {},
+      sold: 0,
+      kills: {},
+      deaths: 0,
+      offered: 0,
+      thrown: 4,
+      spent: 0,
+      ferried: 0,
+      given: 0,
+      boughtIn: 0,
+      cashedOut: 0,
+    };
+    const out = migrateSave(v11);
+    expect(out.version).toBe(CURRENT_SAVE_VERSION);
+    expect(out.sim.stats).toMatchObject({ thrown: 4, cast: 0 });
   });
 
   it('refuses a future version rather than guessing', () => {

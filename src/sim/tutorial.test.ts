@@ -60,6 +60,7 @@ describe('first steps', () => {
         deaths: 0,
         offered: 1,
         thrown: 0,
+        cast: 0,
         spent: 0,
         ferried: 0,
         given: 0,

@@ -1,16 +1,18 @@
 import type { ActionHandler } from '../actions.ts';
 import { roomFor } from '../bank.ts';
 import {
-  COMBAT_SKILL,
   FAVOUR_EVERY_TICKS,
   HITPOINTS_SKILL,
   HITPOINTS_XP_SHARE,
   SPLAT_CAP,
   activeBoon,
+  combatStyle,
   heroStats,
   hitChance,
   maxHit,
+  maxHitAgainst,
   xpForDamage,
+  type HeroStats,
 } from '../combat.ts';
 import type { ItemDef, MonsterDef } from '../content/schema.ts';
 import type { SimContext } from '../context.ts';
@@ -40,6 +42,11 @@ import type { Fight, SimState, Splat } from '../save.ts';
  * Ammo is the same shape again: the javelin in the ammo slot adds to the swing, and every
  * swing that lands throws one, taken from the bank's stock first; the one in the slot is the
  * last, and throwing it empties the slot.
+ *
+ * The weapon says which fight this is. A sword swings on the Combat level and pays Combat; a
+ * staff casts on the Sorcery level and pays Sorcery, and a cast wants a mark in the ammo slot
+ * the way a throw wants a javelin — except that without one the staff is a stick, and the fight
+ * will not start. Ammo of the other style is carried and nothing more.
  */
 
 function monsterOf(ctx: SimContext, id: string): MonsterDef {
@@ -147,12 +154,25 @@ export function ammoLeft(state: SimState): number {
   return state.equipment.ammo === null ? 0 : countItem(state.bank, state.equipment.ammo);
 }
 
-/** A swing landed: one javelin goes, from the bank while it has any, then the one in hand. */
-function throwAmmo(state: SimState): SimState {
+/** Whether the ammo slot holds something for this fight's style. */
+export function ammoMatches(state: SimState, ctx: SimContext, hero: HeroStats): boolean {
   const ammo = state.equipment.ammo;
-  if (ammo === null) return state;
+  return ammo !== null && ctx.content.hasItem(ammo) && ctx.content.item(ammo).style === hero.style;
+}
+
+/**
+ * A swing landed: one javelin (or, casting, one mark) goes, from the bank while it has any, then
+ * the one in hand. Ammo of the other style stays where it is.
+ */
+function throwAmmo(state: SimState, ctx: SimContext, hero: HeroStats): SimState {
+  const ammo = state.equipment.ammo;
+  if (ammo === null || !ammoMatches(state, ctx, hero)) return state;
   const bank = removeItem(state.bank, ammo, 1);
-  const thrown = { ...state, stats: { ...state.stats, thrown: state.stats.thrown + 1 } };
+  const stats =
+    hero.style === 'sorcery'
+      ? { ...state.stats, cast: state.stats.cast + 1 }
+      : { ...state.stats, thrown: state.stats.thrown + 1 };
+  const thrown = { ...state, stats };
   return bank === null
     ? { ...thrown, equipment: { ...thrown.equipment, ammo: null } }
     : { ...thrown, bank };
@@ -253,15 +273,21 @@ function monsterSwing(state: SimState, m: MonsterDef, ctx: SimContext): SimState
   return hp === 0 ? die(s, m, ctx) : s;
 }
 
-/** Xp for damage dealt: combat gets the share, hitpoints a third of it. */
-function payForDamage(state: SimState, m: MonsterDef, dealt: number, ctx: SimContext): SimState {
+/** Xp for damage dealt: the style's skill gets the share, hitpoints a third of it. */
+function payForDamage(
+  state: SimState,
+  m: MonsterDef,
+  dealt: number,
+  skill: string,
+  ctx: SimContext,
+): SimState {
   const base = xpForDamage(m, dealt);
-  const paid = awardXp(state, COMBAT_SKILL, base, ctx);
+  const paid = awardXp(state, skill, base, ctx);
   return awardXp(paid.state, HITPOINTS_SKILL, base * HITPOINTS_XP_SHARE, ctx).state;
 }
 
 /** The kill: drops, coins, the counter and the event; then a fresh monster of the same kind. */
-function kill(state: SimState, m: MonsterDef, ctx: SimContext): SimState {
+function kill(state: SimState, m: MonsterDef, skill: string, ctx: SimContext): SimState {
   let rng = state.rng;
   let landed: ItemStack[] = addStacks([], m.always);
   for (const table of m.drops) {
@@ -284,7 +310,7 @@ function kill(state: SimState, m: MonsterDef, ctx: SimContext): SimState {
     type: 'kill',
     tick: s.tick,
     monster: m.id,
-    xp: xpAwarded(s, COMBAT_SKILL, m.xp, ctx),
+    xp: xpAwarded(s, skill, m.xp, ctx),
     items: landed,
     coins,
   });
@@ -299,12 +325,17 @@ export const combatHandler: ActionHandler<'combat'> = {
     }
     const m = monsterOf(ctx, req.monster);
     const zone = ctx.content.zone(m.zone);
-    const level = skillLevel(state, COMBAT_SKILL, ctx);
+    const { style, skill } = combatStyle(state, ctx);
+    const level = skillLevel(state, skill, ctx);
     if (level < zone.level) {
+      const name = ctx.content.skill(skill).name;
       return {
         ok: false,
-        reason: `${zone.name} wants Combat level ${String(zone.level)} (you are ${String(level)})`,
+        reason: `${zone.name} wants ${name} level ${String(zone.level)} (you are ${String(level)})`,
       };
+    }
+    if (style === 'sorcery' && !ammoMatches(state, ctx, heroStats(state, ctx))) {
+      return { ok: false, reason: 'the staff wants marks' };
     }
     if (state.combat.hp === 0) return { ok: false, reason: 'no hitpoints left' };
     const wants = [
@@ -344,18 +375,19 @@ export const combatHandler: ActionHandler<'combat'> = {
   resolve(state, req, success, ctx) {
     const m = monsterOf(ctx, req.monster);
     let s = ensureFight(state, m);
+    const hero = heroStats(s, ctx);
     let rng = s.rng;
     let amount = 0;
-    if (success) [amount, rng] = nextInt(rng, 1, maxHit(heroStats(s, ctx).strength));
-    if (success) s = throwAmmo(s);
+    if (success) [amount, rng] = nextInt(rng, 1, maxHitAgainst(hero, m));
+    if (success) s = throwAmmo(s, ctx, hero);
     const dealt = Math.min(amount, s.combat.fight!.hp);
     const fight = pushSplat(
       { ...s.combat.fight!, hp: s.combat.fight!.hp - dealt },
       { tick: s.tick, side: 'them', kind: amount > 0 ? 'hit' : 'miss', amount },
     );
     s = { ...s, rng, combat: { ...s.combat, fight } };
-    if (dealt > 0) s = payForDamage(s, m, dealt, ctx);
-    return fight.hp === 0 ? kill(s, m, ctx) : s;
+    if (dealt > 0) s = payForDamage(s, m, dealt, hero.skill, ctx);
+    return fight.hp === 0 ? kill(s, m, hero.skill, ctx) : s;
   },
 };
 

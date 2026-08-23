@@ -29,7 +29,13 @@ describe('event log', () => {
     s = run(s, 3);
     expect(s.log).toEqual([
       { type: 'gain', tick: 3, skill: 'smithing', xp: 7, items: [{ item: 'bar', qty: 1 }] },
-      { type: 'stopped', tick: 3, skill: 'smithing', reason: 'needs 2 × Ore (you have 0)' },
+      {
+        type: 'stopped',
+        tick: 3,
+        skill: 'smithing',
+        reason: 'needs 2 × Ore (you have 0)',
+        fight: false,
+      },
     ]);
     expect(s.action.current).toBeNull();
   });
@@ -68,7 +74,7 @@ describe('event log', () => {
   it('is a ring buffer of LOG_CAP entries', () => {
     let s = createSimState(1);
     for (let i = 0; i < LOG_CAP + 5; i++) {
-      s = pushEvent(s, { type: 'stopped', tick: i, skill: 'mining', reason: 'r' });
+      s = pushEvent(s, { type: 'stopped', tick: i, skill: 'mining', reason: 'r', fight: false });
     }
     expect(s.log.length).toBe(LOG_CAP);
     expect(s.log[0]?.tick).toBe(5);

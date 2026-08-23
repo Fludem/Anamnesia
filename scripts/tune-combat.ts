@@ -11,7 +11,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import { content, simContext } from '../src/content/index.ts';
-import { expectedHit } from '../src/sim/combat.ts';
+import { expectedHeroHit } from '../src/sim/combat.ts';
 import { TICK_MS } from '../src/sim/constants.ts';
 import { ContentDb } from '../src/sim/content/db.ts';
 import type { SimContext } from '../src/sim/context.ts';
@@ -50,11 +50,12 @@ function contextWith(monsters: unknown): SimContext {
   return { ...simContext, content: ContentDb.fromPack(pack) };
 }
 
-// 1. hp from the target kill time with the model's hero at the monster's level.
+// 1. hp from the target kill time with the model's hero at the monster's level — the hero of
+//    the style the monster is weak to, since that is the fight it is for.
 const hp = new Map<string, number>();
 for (const m of content.monsters) {
-  const hero = modelHero(m.level, simContext);
-  const perSwing = expectedHit(hero.attack, hero.strength, m.stats.defence);
+  const hero = modelHero(m.level, simContext, { style: m.weak });
+  const perSwing = expectedHeroHit(hero, m);
   const swings = (killSeconds(m.level) * 1000) / TICK_MS / hero.swingTicks;
   hp.set(m.id, Math.max(1, Math.round(perSwing * swings)));
 }
@@ -95,7 +96,7 @@ console.log(
 );
 for (const m of ctx.content.monsters) {
   console.log(
-    `${m.id.padEnd(18)} L${String(m.level).padStart(2)} hp ${String(m.hp).padStart(4)} xp ${String(m.xp).padStart(5)}`,
+    `${m.id.padEnd(18)} L${String(m.level).padStart(2)} hp ${String(m.hp).padStart(4)} xp ${String(m.xp).padStart(5)}  weak to ${m.weak}`,
   );
 }
 let last = '';
@@ -103,7 +104,7 @@ for (const s of climb.steps) {
   if (s.monster === last) continue;
   last = s.monster;
   console.log(
-    `L${String(s.level).padStart(2)} → ${s.monster.padEnd(18)} ${Math.round(s.rate).toString().padStart(7)} xp/h ` +
+    `L${String(s.level).padStart(2)} → ${s.monster.padEnd(18)}${s.weak ? '*' : ' '}${Math.round(s.rate).toString().padStart(7)} xp/h ` +
       `kill ${s.killSeconds.toFixed(1)}s  dmg/h ${Math.round(s.damagePerHour)}  maxhit ${(s.maxHitFraction * 100).toFixed(0)}%`,
   );
 }

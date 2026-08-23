@@ -8,7 +8,7 @@ import { ContainerSchema } from './items.ts';
 import { seedRng } from './rng.ts';
 import { EQUIPMENT_SLOTS, EquipmentSlotSchema } from './slots.ts';
 
-export const CURRENT_SAVE_VERSION = 11;
+export const CURRENT_SAVE_VERSION = 12;
 
 const Uint32 = z.number().int().min(0).max(0xffffffff);
 
@@ -104,6 +104,8 @@ export const SimStateSchema = z.object({
     offered: z.number().int().min(0).default(0),
     /** Javelins ever thrown. */
     thrown: z.number().int().min(0).default(0),
+    /** Marks ever cast. */
+    cast: z.number().int().min(0).default(0),
     /** Coins ever spent: bank slots, the trader, the ferryman. */
     spent: z.number().int().min(0).default(0),
     /** Deaths the ferryman was paid for, in coin or obol. */
@@ -177,6 +179,7 @@ export function createSimState(seed: number): SimState {
       deaths: 0,
       offered: 0,
       thrown: 0,
+      cast: 0,
       spent: 0,
       ferried: 0,
       given: 0,

@@ -92,6 +92,56 @@ describe('ammo', () => {
   });
 });
 
+describe('marks', () => {
+  it('a javelin under a staff adds nothing and is never thrown; a mark under a sword the same', () => {
+    const staffBare = heroStats(fightingState(7, 'goat', { weapon: 'staff', ammo: 'mark' }), ctx);
+    const staffJav: SimState = {
+      ...fightingState(7, 'goat', { weapon: 'staff', ammo: 'mark' }),
+      equipment: { ...fightingState(7, 'goat').equipment, weapon: 'staff', ammo: 'javelin' },
+      bank: [{ item: 'javelin', qty: 5 }],
+    };
+    expect(heroStats(staffJav, ctx).attack).toBe(staffBare.attack - 5);
+    const swordBare = heroStats(fightingState(7, 'goat', { weapon: 'sword' }), ctx);
+    const s0: SimState = {
+      ...fightingState(7, 'goat', { weapon: 'sword', ammo: 'mark' }),
+      bank: [{ item: 'mark', qty: 5 }],
+    };
+    expect(heroStats(s0, ctx).attack).toBe(swordBare.attack);
+    const s = run(s0, 90);
+    expect(s.stats.thrown).toBe(0);
+    expect(s.stats.cast).toBe(0);
+    expect(countItem(s.bank, 'mark')).toBe(5);
+    expect(s.equipment.ammo).toBe('mark');
+  });
+
+  it('marks go one per landed cast, the bank first, then the hand; death never takes the mark', () => {
+    const s0: SimState = {
+      ...fightingState(7, 'goat', { weapon: 'staff', ammo: 'mark' }),
+      bank: [{ item: 'mark', qty: 2 }],
+    };
+    const s1 = run(s0, 30);
+    expect(countItem(s1.bank, 'mark')).toBe(1);
+    expect(s1.equipment.ammo).toBe('mark');
+    expect(s1.stats.cast).toBe(1);
+    const s3 = run(s1, 60);
+    expect(s3.equipment.ammo).toBeNull();
+    expect(s3.stats.cast).toBe(3);
+    for (let seed = 1; seed <= 4; seed++) {
+      let f: SimState = {
+        ...fightingState(seed, 'brute', { weapon: 'staff', ammo: 'mark', head: 'helm' }),
+        bank: [{ item: 'mark', qty: 500 }],
+      };
+      let died = eventsOfType(f, 'died');
+      for (let i = 0; i < 400 && died.length === 0; i++) {
+        f = stepTick(f, ctx);
+        died = eventsOfType(f, 'died');
+      }
+      expect(['helm', 'staff']).toContain(died[0]?.lost);
+      expect(f.equipment.ammo).toBe('mark');
+    }
+  });
+});
+
 describe('finds', () => {
   /** The fixture with mining finding a cape every cycle, and combat claiming to. */
   const pack = {

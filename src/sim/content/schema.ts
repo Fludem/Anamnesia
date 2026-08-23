@@ -155,6 +155,13 @@ export const XpBoostSchema = z.object({
 });
 export type XpBoost = z.infer<typeof XpBoostSchema>;
 
+/**
+ * The two ways to fight. A weapon names the style it is for (a sword swings, a staff casts) and
+ * so does ammo (a javelin is thrown, a mark is burnt); a monster names the one it is weak to.
+ */
+export const CombatStyleSchema = z.enum(['melee', 'sorcery']);
+export type CombatStyle = z.infer<typeof CombatStyleSchema>;
+
 export const ItemDefSchema = z.object({
   id: IdSchema,
   name: z.string().min(1),
@@ -168,6 +175,8 @@ export const ItemDefSchema = z.object({
   rarity: IdSchema.default(COMMON_RARITY.id),
   /** Equipment slot for wearables; null for everything else. */
   slot: EquipmentSlotSchema.nullable().default(null),
+  /** Which fight a weapon or its ammo belongs to. Melee unless said otherwise; only they may say. */
+  style: CombatStyleSchema.default('melee'),
   stats: ItemStatsSchema.default({}),
   badges: z.array(BadgeKindSchema).default([]),
   /**
@@ -304,6 +313,8 @@ export const MonsterDefSchema = z.object({
   level: z.number().int().min(1),
   hp: z.number().int().min(1),
   stats: CombatStatsSchema,
+  /** The style that hits it harder. Either kills it; this one gets the bonus on the max hit. */
+  weak: CombatStyleSchema,
   xp: z.number().min(0),
   coins: z
     .tuple([z.number().int().min(0), z.number().int().min(0)])

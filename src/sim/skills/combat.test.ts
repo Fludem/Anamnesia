@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { applyCommand } from '../commands.ts';
-import { BODY_SLOTS, heroStats, hitChance, maxHit, expectedSwingsToKill } from '../combat.ts';
+import {
+  BODY_SLOTS,
+  WEAKNESS_BONUS,
+  expectedSwingsToKill,
+  heroStats,
+  hitChance,
+  maxHit,
+  maxHitAgainst,
+} from '../combat.ts';
 import { eventsOfType, type SimEventOf } from '../events.ts';
 import { countItem } from '../items.ts';
 import { createSimState, type SimState } from '../save.ts';
@@ -165,6 +173,100 @@ describe('regeneration', () => {
     const f = fightingState(1, 'goat');
     const s0: SimState = { ...f, combat: { ...f.combat, hp: 5 } };
     expect(run(s0, 10).combat.hp).toBeLessThanOrEqual(5);
+  });
+});
+
+describe('the other fight', () => {
+  it('the style is the staff’s: a cast pays sorcery and a third to hitpoints, nothing to combat', () => {
+    const s0: SimState = {
+      ...fightingState(7, 'goat', { weapon: 'staff', ammo: 'mark' }),
+      bank: [{ item: 'mark', qty: 50 }],
+    };
+    expect(heroStats(s0, ctx)).toMatchObject({ style: 'sorcery', skill: 'sorcery' });
+    const [s, kill] = runUntil(s0, 'kill');
+    expect(kill.xp).toBe(12);
+    expect(s.skills['sorcery']?.xp).toBe(12);
+    expect(s.skills['combat']).toBeUndefined();
+    expect(s.skills['hitpoints']?.xp).toBeCloseTo(4, 0);
+    expect(s.stats.actions['sorcery']).toBeGreaterThan(0);
+    expect(s.stats.actions['combat']).toBeUndefined();
+    expect(s.stats.cast).toBeGreaterThan(0);
+    expect(s.stats.thrown).toBe(0);
+  });
+
+  it('a staff without marks cannot start, and stops itself when the last mark goes', () => {
+    const bare = createSimState(1);
+    const staff: SimState = { ...bare, equipment: { ...bare.equipment, weapon: 'staff' } };
+    expect(
+      combatHandler.canStart(staff, { kind: 'combat', monster: 'goat', count: null }, ctx),
+    ).toEqual({ ok: false, reason: 'the staff wants marks' });
+    const javelins: SimState = { ...staff, equipment: { ...staff.equipment, ammo: 'javelin' } };
+    expect(
+      combatHandler.canStart(javelins, { kind: 'combat', monster: 'goat', count: null }, ctx).ok,
+    ).toBe(false);
+    // One in hand, one in the bank: two casts, then the fight ends with its reason.
+    const s0: SimState = {
+      ...fightingState(7, 'goat', { weapon: 'staff', ammo: 'mark' }),
+      bank: [{ item: 'mark', qty: 1 }],
+    };
+    const s = run(s0, 90);
+    expect(s.stats.cast).toBe(2);
+    expect(s.equipment.ammo).toBeNull();
+    expect(countItem(s.bank, 'mark')).toBe(0);
+    expect(s.action.current).toBeNull();
+    expect(eventsOfType(s, 'stopped').at(-1)).toMatchObject({
+      skill: 'sorcery',
+      reason: 'the staff wants marks',
+    });
+  });
+
+  it('a weakness raises the max hit by a quarter, never the accuracy', () => {
+    const sword = heroStats(fightingState(1, 'goat', { weapon: 'sword' }), ctx);
+    const staff = heroStats(fightingState(1, 'goat', { weapon: 'staff', ammo: 'mark' }), ctx);
+    const goat = ctx.content.monster('goat'); // weak to sorcery
+    const brute = ctx.content.monster('brute'); // weak to melee
+    expect(maxHitAgainst(staff, goat)).toBe(
+      Math.round(maxHit(staff.strength) * (1 + WEAKNESS_BONUS)),
+    );
+    expect(maxHitAgainst(staff, brute)).toBe(maxHit(staff.strength));
+    expect(maxHitAgainst(sword, brute)).toBe(
+      Math.round(maxHit(sword.strength) * (1 + WEAKNESS_BONUS)),
+    );
+    expect(maxHitAgainst(sword, goat)).toBe(maxHit(sword.strength));
+    const req = { kind: 'combat' as const, monster: 'goat', count: null };
+    const swing = combatHandler.successChance(
+      fightingState(1, 'goat', { weapon: 'sword' }),
+      req,
+      ctx,
+    );
+    const cast = combatHandler.successChance(
+      fightingState(1, 'goat', { weapon: 'staff', ammo: 'mark' }),
+      req,
+      ctx,
+    );
+    expect(cast).toBeCloseTo(hitChance(staff.attack, goat.stats.defence));
+    expect(swing).toBeCloseTo(hitChance(sword.attack, goat.stats.defence));
+  });
+
+  it('the zone gate reads the style’s skill by name', () => {
+    const bare = createSimState(1);
+    const caster: SimState = {
+      ...bare,
+      equipment: { ...bare.equipment, weapon: 'staff', ammo: 'mark' },
+      skills: { ...bare.skills, combat: { xp: 0 }, sorcery: { xp: ctx.xp.xpForLevel(20) } },
+    };
+    const req = { kind: 'combat' as const, monster: 'high', count: null };
+    expect(combatHandler.canStart(caster, req, ctx)).toEqual({ ok: true });
+    const sworded: SimState = { ...caster, equipment: { ...caster.equipment, weapon: 'sword' } };
+    expect(combatHandler.canStart(sworded, req, ctx)).toEqual({
+      ok: false,
+      reason: 'The Heights wants Combat level 20 (you are 1)',
+    });
+    const unlevelled: SimState = { ...caster, skills: {} };
+    expect(combatHandler.canStart(unlevelled, req, ctx)).toEqual({
+      ok: false,
+      reason: 'The Heights wants Sorcery level 20 (you are 1)',
+    });
   });
 });
 

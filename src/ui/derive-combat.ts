@@ -10,11 +10,19 @@ import {
   heroStats,
   hitChance,
   maxHit,
+  maxHitAgainst,
   type HeroStats,
 } from '../sim/combat.ts';
 import { TICK_MS } from '../sim/constants.ts';
 import type { ContentDb } from '../sim/content/db.ts';
-import type { CombatBoon, GodDef, ItemDef, MonsterDef, ZoneDef } from '../sim/content/schema.ts';
+import type {
+  CombatBoon,
+  CombatStyle,
+  GodDef,
+  ItemDef,
+  MonsterDef,
+  ZoneDef,
+} from '../sim/content/schema.ts';
 import type { SimContext } from '../sim/context.ts';
 import { eventsOfType, type SimEventOf } from '../sim/events.ts';
 import { countItem } from '../sim/items.ts';
@@ -41,6 +49,13 @@ export interface SideView {
 export interface FightView {
   monster: MonsterDef;
   zone: ZoneDef;
+  /** How the hero fights, and the skill the fight pays. */
+  style: CombatStyle;
+  skill: string;
+  /** The style this monster is weak to; `weak === style` means the hero has the bonus. */
+  weak: CombatStyle;
+  /** The biggest hit the hero can land here, weakness included. */
+  yourMaxHit: number;
   you: SideView;
   them: SideView;
   /** Seconds since this monster stepped up. */
@@ -54,6 +69,9 @@ export interface FightView {
 /** The numbers of a splat worth showing: younger than `withinTicks`. */
 export const SPLAT_TICKS = 12;
 
+/** What the hero is doing, by style. */
+export const STYLE_VERB: Record<CombatStyle, string> = { melee: 'swinging', sorcery: 'casting' };
+
 /** The fight in front of the hero, or null when no combat action runs. */
 export function fightView(sim: SimState, ctx: SimContext): FightView | null {
   const cur = sim.action.current;
@@ -62,17 +80,21 @@ export function fightView(sim: SimState, ctx: SimContext): FightView | null {
   const m = ctx.content.monster(fight.monster);
   const zone = ctx.content.zone(m.zone);
   const hero = heroStats(sim, ctx);
-  const level = skillLevel(sim, 'combat', ctx);
-  const xpPerKill = xpAwarded(sim, 'combat', m.xp, ctx);
+  const level = skillLevel(sim, hero.skill, ctx);
+  const xpPerKill = xpAwarded(sim, hero.skill, m.xp, ctx);
   const killTicks = expectedKillTicks(hero, m);
   const fresh = (side: Splat['side']) =>
     fight.splats.filter((p) => p.side === side && sim.tick - p.tick < SPLAT_TICKS);
   return {
     monster: m,
     zone,
+    style: hero.style,
+    skill: hero.skill,
+    weak: m.weak,
+    yourMaxHit: maxHitAgainst(hero, m),
     you: {
       name: sim.player.name,
-      sub: `you · Lv ${String(level)}`,
+      sub: `you · Lv ${String(level)} · ${STYLE_VERB[hero.style]}`,
       hp: sim.combat.hp,
       maxHp: hero.maxHp,
       swingFrac: cur.elapsedTicks / cur.durationTicks,
@@ -188,6 +210,10 @@ export function recentOffering(sim: SimState, withinTicks: number): SimEventOf<'
 export interface MonsterRow {
   monster: MonsterDef;
   maxHit: number;
+  /** The style it is weak to. */
+  weak: CombatStyle;
+  /** The biggest hit the hero lands on it, in the style they fight in now. */
+  yourMaxHit: number;
   xp: number;
   /** Expected seconds per kill for the hero as they are now. */
   killSeconds: number;
@@ -205,15 +231,17 @@ export interface ZoneRow {
 }
 
 export function zoneRows(sim: SimState, ctx: SimContext): ZoneRow[] {
-  const level = skillLevel(sim, 'combat', ctx);
   const hero = heroStats(sim, ctx);
+  const level = skillLevel(sim, hero.skill, ctx);
   const cur = sim.action.current?.request;
   const fighting = cur?.kind === 'combat' ? cur.monster : null;
   return ctx.content.zones.map((zone) => {
     const monsters = ctx.content.monstersIn(zone.id).map((m) => ({
       monster: m,
       maxHit: maxHit(m.stats.strength),
-      xp: xpAwarded(sim, 'combat', m.xp, ctx),
+      weak: m.weak,
+      yourMaxHit: maxHitAgainst(hero, m),
+      xp: xpAwarded(sim, hero.skill, m.xp, ctx),
       killSeconds: (expectedKillTicks(hero, m) * TICK_MS) / 1000,
       hitChance: hitChance(hero.attack, m.stats.defence),
       fighting: fighting === m.id,
@@ -362,13 +390,23 @@ export interface AmmoView {
   item: ItemDef;
   /** In the bank, beyond the one in the slot. */
   inBank: number;
+  /** Whether the weapon in hand uses it: a javelin under a staff is only carried. */
+  live: boolean;
 }
 
 /** What the ammo slot holds and how many more the bank has; null with the slot empty. */
 export function ammoView(sim: SimState, content: ContentDb): AmmoView | null {
   const id = sim.equipment.ammo;
   if (id === null || !content.hasItem(id)) return null;
-  return { item: content.item(id), inBank: countItem(sim.bank, id) };
+  const item = content.item(id);
+  const weapon = sim.equipment.weapon;
+  const style = weapon !== null && content.hasItem(weapon) ? content.item(weapon).style : 'melee';
+  return { item, inBank: countItem(sim.bank, id), live: item.style === style };
+}
+
+/** "javelins" / "marks": what the ammo slot wants for this weapon. */
+export function ammoNoun(style: CombatStyle): string {
+  return style === 'sorcery' ? 'marks' : 'javelins';
 }
 
 export { heroStats, type HeroStats };

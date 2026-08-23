@@ -82,6 +82,13 @@ export const CRAFT_SKILLS: Readonly<Record<string, CraftSkillDef>> = {
     idleHint: 'Pick a dish below. Some of it will burn; that is also cooking.',
     tabs: false,
   },
+  sorcery: {
+    skill: 'sorcery',
+    noun: 'Inscriptions',
+    idleHint:
+      'Pick a mark below; it runs until the ash runs out. A staff with marks casts on the combat screen.',
+    tabs: true,
+  },
 };
 
 /** Outline shown in an empty tool slot. */

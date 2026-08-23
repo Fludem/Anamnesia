@@ -11,6 +11,7 @@ import {
 } from './combat.ts';
 import type {
   CombatBoon,
+  CombatStyle,
   DropTable,
   GatherNodeDef,
   MonsterDef,
@@ -167,6 +168,7 @@ export const STAPLE_CATEGORY: Readonly<Record<string, string>> = {
   smithing: 'bars',
   firemaking: 'fires',
   cooking: 'fish',
+  sorcery: 'marks',
 };
 
 /** The methods a skill is measured on. `quick` nodes are left out unless asked for. */
@@ -311,11 +313,12 @@ function hoursFor(
       if (unitsPerCycle > 0) best = Math.min(best, qty / (perHour * unitsPerCycle));
     }
   }
-  let hero: HeroStats | null = null;
+  // A monster is priced by the fight it is for: the hero of the style it is weak to.
+  const heroes: Partial<Record<CombatStyle, HeroStats>> = {};
   for (const m of monstersOpenAt(level, ctx)) {
     const units = unitsPerKill(m, item);
     if (units === 0) continue;
-    hero ??= modelHero(level, ctx);
+    const hero = (heroes[m.weak] ??= modelHero(level, ctx, { style: m.weak }));
     const killsPerHour = TICKS_PER_HOUR / expectedKillTicks(hero, m);
     if (killsPerHour > 0) best = Math.min(best, qty / (killsPerHour * units));
   }
@@ -371,14 +374,26 @@ export const GEAR_LADDER: readonly GearStep[] = [
 
 export const SET_PIECES = ['sword', 'shield', 'helm', 'cuirass', 'greaves', 'boots', 'gauntlets'];
 
+/** The staff each tier's caster carries: the wood that arrives with the metal. */
+export const STAFF_BY_TIER: Readonly<Record<string, string>> = {
+  copper: 'pine-staff',
+  iron: 'oak-staff',
+  basalt: 'birch-staff',
+  silver: 'willow-staff',
+  gold: 'blightwood-staff',
+  aether: 'elder-staff',
+};
+
 /**
  * What the combat model assumes beyond the level: the gear ladder, a boon always burning,
- * and whether the tier's javelin is in the ammo slot with the bank never running dry.
+ * whether the tier's javelin is in the ammo slot with the bank never running dry, and the
+ * style — a sorcerer carries the tier's staff and always has marks, since a cast wants one.
  */
 export interface CombatModelOptions {
   ladder?: readonly GearStep[];
   boon?: CombatBoon | null;
   ammo?: boolean;
+  style?: CombatStyle;
 }
 
 /**
@@ -391,20 +406,27 @@ export function modelHero(
   opts: CombatModelOptions = {},
 ): HeroStats {
   const ladder = opts.ladder ?? GEAR_LADDER;
+  const style = opts.style ?? 'melee';
   let tier = ladder[0]?.tier ?? '';
   for (const step of ladder) if (level >= step.level) tier = step.tier;
-  const pieces = opts.ammo ? [...SET_PIECES, 'javelin'] : SET_PIECES;
-  const worn = pieces
-    .map((p) => `${tier}-${p}`)
-    .filter((id) => ctx.content.hasItem(id))
-    .map((id) => ctx.content.item(id));
+  const ids =
+    style === 'sorcery'
+      ? [
+          STAFF_BY_TIER[tier] ?? '',
+          `${tier}-mark`,
+          ...SET_PIECES.filter((p) => p !== 'sword').map((p) => `${tier}-${p}`),
+        ]
+      : (opts.ammo ? [...SET_PIECES, 'javelin'] : SET_PIECES).map((p) => `${tier}-${p}`);
+  const worn = ids.filter((id) => ctx.content.hasItem(id)).map((id) => ctx.content.item(id));
   const hpLevel = ctx.xp.levelForXp(ctx.xp.xpForLevel(level) * HITPOINTS_XP_SHARE);
-  return heroStatsFrom(level, hpLevel, gearStats(worn), opts.boon ?? null);
+  return heroStatsFrom(level, hpLevel, gearStats(worn, style), opts.boon ?? null, style);
 }
 
 export interface CombatStep {
   level: number;
   monster: string;
+  /** Whether the chosen monster is weak to the hero's style. */
+  weak: boolean;
   /** Combat xp per hour on the best monster. */
   rate: number;
   /** Expected seconds per kill. */
@@ -461,6 +483,7 @@ export function combatClimb(ctx: SimContext, opts: CombatModelOptions = {}): Com
     steps.push({
       level,
       monster: best.id,
+      weak: best.weak === hero.style,
       rate: bestRate,
       killSeconds: (bestTicks * TICK_MS) / 1000,
       damagePerHour: Math.max(0, expectedDamageTakenPerTick(hero, best) * TICKS_PER_HOUR - regen),

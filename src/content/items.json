@@ -2567,5 +2567,228 @@
     },
     "value": 4000,
     "tags": ["cape", "drop", "armour"]
+  },
+  {
+    "id": "copper-mark",
+    "name": "Copper Mark",
+    "description": "Ash and copper, pressed with a thumb. It remembers one thing, briefly.",
+    "icon": "lorc/rune-stone",
+    "class": "weapon",
+    "material": "copper",
+    "rarity": "common",
+    "slot": "ammo",
+    "style": "sorcery",
+    "stats": {
+      "attack": 2,
+      "strength": 3
+    },
+    "value": 1,
+    "tags": ["ammo", "sorcery", "copper"]
+  },
+  {
+    "id": "iron-mark",
+    "name": "Iron Mark",
+    "description": "Ash and iron. The mark holds longer than the thumb did.",
+    "icon": "lorc/rune-stone",
+    "class": "weapon",
+    "material": "iron",
+    "rarity": "common",
+    "slot": "ammo",
+    "style": "sorcery",
+    "stats": {
+      "attack": 3,
+      "strength": 4
+    },
+    "value": 1,
+    "tags": ["ammo", "sorcery", "iron"]
+  },
+  {
+    "id": "basalt-mark",
+    "name": "Basalt Mark",
+    "description": "Ash on black stone. The stone was already a kind of remembering.",
+    "icon": "lorc/rune-stone",
+    "class": "weapon",
+    "material": "basalt",
+    "rarity": "common",
+    "slot": "ammo",
+    "style": "sorcery",
+    "stats": {
+      "attack": 3,
+      "strength": 5
+    },
+    "value": 2,
+    "tags": ["ammo", "sorcery", "basalt"]
+  },
+  {
+    "id": "silver-mark",
+    "name": "Silver Mark",
+    "description": "Ash and silver. It catches the light once, on the way out.",
+    "icon": "lorc/rune-stone",
+    "class": "weapon",
+    "material": "silver",
+    "rarity": "common",
+    "slot": "ammo",
+    "style": "sorcery",
+    "stats": {
+      "attack": 4,
+      "strength": 6
+    },
+    "value": 7,
+    "tags": ["ammo", "sorcery", "silver"]
+  },
+  {
+    "id": "gold-mark",
+    "name": "Gold Mark",
+    "description": "Ash and gold, which nobody up here had a use for until now.",
+    "icon": "lorc/rune-stone",
+    "class": "weapon",
+    "material": "gold",
+    "rarity": "common",
+    "slot": "ammo",
+    "style": "sorcery",
+    "stats": {
+      "attack": 4,
+      "strength": 7
+    },
+    "value": 11,
+    "tags": ["ammo", "sorcery", "gold"]
+  },
+  {
+    "id": "aether-mark",
+    "name": "Aether Mark",
+    "description": "Ash and something lighter than ash. Hard to tell which is which.",
+    "icon": "lorc/rune-stone",
+    "class": "weapon",
+    "material": "aether",
+    "rarity": "epic",
+    "slot": "ammo",
+    "style": "sorcery",
+    "stats": {
+      "attack": 5,
+      "strength": 9
+    },
+    "value": 125,
+    "tags": ["ammo", "sorcery", "aether"]
+  },
+  {
+    "id": "pine-staff",
+    "name": "Pine Staff",
+    "description": "A pine pole with a copper ferrule. It points at things, and they are pointed at.",
+    "icon": "lorc/wizard-staff",
+    "class": "weapon",
+    "material": "pine",
+    "rarity": "common",
+    "slot": "weapon",
+    "style": "sorcery",
+    "stats": {
+      "attack": 10,
+      "strength": 4
+    },
+    "value": 20,
+    "tags": ["weapon", "sorcery", "pine"]
+  },
+  {
+    "id": "oak-staff",
+    "name": "Oak Staff",
+    "description": "Oak, shod in iron. Heavier than it needs to be; so is the work.",
+    "icon": "lorc/wizard-staff",
+    "class": "weapon",
+    "material": "oak",
+    "rarity": "common",
+    "slot": "weapon",
+    "style": "sorcery",
+    "stats": {
+      "attack": 14,
+      "strength": 5
+    },
+    "value": 37,
+    "tags": ["weapon", "sorcery", "oak"]
+  },
+  {
+    "id": "birch-staff",
+    "name": "Birch Staff",
+    "description": "Pale wood, a basalt core set in the end. The hill notices it.",
+    "icon": "lorc/wizard-staff",
+    "class": "weapon",
+    "material": "birch",
+    "rarity": "common",
+    "slot": "weapon",
+    "style": "sorcery",
+    "stats": {
+      "attack": 17,
+      "strength": 7
+    },
+    "value": 46,
+    "tags": ["weapon", "sorcery", "birch"]
+  },
+  {
+    "id": "willow-staff",
+    "name": "Willow Staff",
+    "description": "Willow bends. Silver does not. Between them, something gives.",
+    "icon": "lorc/wizard-staff",
+    "class": "weapon",
+    "material": "willow",
+    "rarity": "common",
+    "slot": "weapon",
+    "style": "sorcery",
+    "stats": {
+      "attack": 20,
+      "strength": 8
+    },
+    "value": 313,
+    "tags": ["weapon", "sorcery", "willow"]
+  },
+  {
+    "id": "blightwood-staff",
+    "name": "Blightwood Staff",
+    "description": "Grey wood, gold cap. What killed the tree did not leave; you are carrying it.",
+    "icon": "lorc/wizard-staff",
+    "class": "weapon",
+    "material": "blight",
+    "rarity": "common",
+    "slot": "weapon",
+    "style": "sorcery",
+    "stats": {
+      "attack": 24,
+      "strength": 10
+    },
+    "value": 414,
+    "tags": ["weapon", "sorcery", "blightwood"]
+  },
+  {
+    "id": "elder-staff",
+    "name": "Elder Staff",
+    "description": "The elder gave a branch. Aether holds it. It weighs nothing in the hand that counts.",
+    "icon": "lorc/wizard-staff",
+    "class": "weapon",
+    "material": "aether",
+    "rarity": "epic",
+    "slot": "weapon",
+    "style": "sorcery",
+    "stats": {
+      "attack": 28,
+      "strength": 11
+    },
+    "value": 7754,
+    "tags": ["weapon", "sorcery", "elder"]
+  },
+  {
+    "id": "sorcerers-cape",
+    "name": "Sorcerer's Cape",
+    "description": "Wool, grey with ash that will not wash out. Whoever wore it left without it, which is the usual way.",
+    "icon": "delapouite/cape",
+    "class": "armour",
+    "material": "basalt",
+    "rarity": "rare",
+    "slot": "cape",
+    "stats": {
+      "defence": 1
+    },
+    "xpBoost": {
+      "skill": "sorcery",
+      "fraction": 0.05
+    },
+    "value": 600,
+    "tags": ["cape", "drop", "armour"]
   }
 ]

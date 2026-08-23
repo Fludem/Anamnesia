@@ -5,10 +5,12 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { content, simContext } from '../../content/index.ts';
-import { heroStats } from '../../sim/combat.ts';
-import type { CombatBoon, MonsterDef } from '../../sim/content/schema.ts';
+import { STYLE_SKILL, heroStats } from '../../sim/combat.ts';
+import type { CombatBoon, CombatStyle, MonsterDef } from '../../sim/content/schema.ts';
 import type { SimState, Splat } from '../../sim/save.ts';
 import {
+  STYLE_VERB,
+  ammoNoun,
   ammoView,
   boonText,
   favourView,
@@ -27,7 +29,7 @@ import {
   type SideView,
 } from '../derive-combat.ts';
 import { deathLine, ferrymanView } from '../derive-trader.ts';
-import { activeView, skillView } from '../derive.ts';
+import { activeView, recentStop, skillView } from '../derive.ts';
 import { formatAge, formatDuration, formatInt, formatSeconds, ticksToMs } from '../format.ts';
 import { BareIcon } from '../items/ItemTile.tsx';
 import { itemIconSpec, monsterIconSpec } from '../items/spec.ts';
@@ -46,11 +48,12 @@ const FAVOUR_ICON = 'lorc/incense';
 const OFFER_FLASH_TICKS = 20;
 
 export function CombatScreen({ sim, dispatch, juice }: ScreenProps) {
-  const skill = content.skill('combat');
-  const sv = skillView(sim, 'combat', simContext);
+  // The fight is whichever the worn weapon says: the head and the bar follow the staff or the sword.
+  const hero = heroStats(sim, simContext);
+  const skill = content.skill(hero.skill);
+  const sv = skillView(sim, hero.skill, simContext);
   const hp = skillView(sim, 'hitpoints', simContext);
   const fight = fightView(sim, simContext);
-  const hero = heroStats(sim, simContext);
   return (
     <>
       <ScreenHead
@@ -58,7 +61,7 @@ export function CombatScreen({ sim, dispatch, juice }: ScreenProps) {
         title={skill.name}
         level={sv}
         chip={`HP ${String(hp.level)}`}
-        skill="combat"
+        skill={hero.skill}
         sim={sim}
         rate={fight ? `${formatInt(fight.xpHr)} xp/hr` : null}
       />
@@ -99,17 +102,23 @@ function FightCard({
   const death = lastDeath(sim);
   const [noted, setNoted] = useState<number | null>(null);
   const elsewhere = fight === null ? activeView(sim, simContext) : null;
+  const hero = heroStats(sim, simContext);
+  const stop = fight === null && elsewhere === null ? recentStop(sim, 600, hero.skill, true) : null;
   if (fight === null) {
     return (
       <div className="card">
         <div className="fight-idle">
           <TileBox size="md" dim>
-            <UiIcon id={content.skill('combat').icon} size={20} />
+            <UiIcon id={content.skill(hero.skill).icon} size={20} />
           </TileBox>
           <span className="hint">
-            {elsewhere
-              ? `${content.skill(elsewhere.skill).name} is running (${elsewhere.name}). Fighting replaces it.`
-              : `Not fighting. Pick a monster below. ${String(sim.combat.hp)} / ${String(maxHp)} hp.`}
+            {elsewhere ? (
+              `${content.skill(elsewhere.skill).name} is running (${elsewhere.name}). Fighting replaces it.`
+            ) : stop ? (
+              <span style={{ color: 'var(--gold)' }}>stopped · {stop.reason}</span>
+            ) : (
+              `Not fighting. Pick a monster below. ${String(sim.combat.hp)} / ${String(maxHp)} hp.`
+            )}
           </span>
         </div>
         {death && noted !== death.tick && (
@@ -137,10 +146,17 @@ function FightCard({
           view={fight.you}
           you
           juice={juice}
-          boon={heroStats(sim, simContext).boon}
+          boon={hero.boon}
           ammo={ammoView(sim, content)}
+          style={fight.style}
         />
-        <Side view={fight.them} monster={fight.monster} juice={juice} />
+        <Side
+          view={fight.them}
+          monster={fight.monster}
+          juice={juice}
+          weak={fight.weak}
+          style={fight.style}
+        />
       </div>
       <div className="fight-foot">
         <span>
@@ -163,6 +179,8 @@ function Side({
   juice,
   boon,
   ammo,
+  style,
+  weak,
 }: {
   view: SideView;
   you?: boolean;
@@ -170,8 +188,12 @@ function Side({
   juice: Juice;
   /** The hero's boon in effect, shown beside the name. */
   boon?: CombatBoon | null;
-  /** What the hero throws, and how many are left. */
+  /** What the hero throws or burns, and how many are left. */
   ammo?: AmmoView | null;
+  /** How the hero fights. */
+  style: CombatStyle;
+  /** On the monster's side: the style it is weak to. */
+  weak?: CombatStyle;
 }) {
   const frac = view.maxHp > 0 ? view.hp / view.maxHp : 0;
   return (
@@ -194,12 +216,19 @@ function Side({
             )}
             {you && ammo && (
               <span
-                className={ammo.inBank === 0 ? 'ammo-tag last' : 'ammo-tag'}
-                title={`${ammo.item.name}: one thrown with every swing that lands`}
+                className={
+                  !ammo.live ? 'ammo-tag idle' : ammo.inBank === 0 ? 'ammo-tag last' : 'ammo-tag'
+                }
+                title={
+                  ammo.live
+                    ? `${ammo.item.name}: one ${style === 'sorcery' ? 'burnt with every cast' : 'thrown with every swing'} that lands`
+                    : `${ammo.item.name}: carried, not used — this weapon wants ${ammoNoun(style)}`
+                }
               >
                 {lastWord(ammo.item.name)} ×{formatInt(ammo.inBank + 1)}
               </span>
             )}
+            {!you && weak && <WeakTag weak={weak} style={style} />}
           </div>
           <div className="sub">{view.sub}</div>
         </div>
@@ -221,9 +250,31 @@ function Side({
         <div className="swing-bar">
           <div className="swing-fill" style={{ width: `${(view.swingFrac * 100).toFixed(1)}%` }} />
         </div>
-        <span className="label">swings {formatSeconds(view.swingSeconds * 1000)}</span>
+        <span className="label">
+          {you ? (style === 'sorcery' ? 'casts' : 'swings') : 'swings'}{' '}
+          {formatSeconds(view.swingSeconds * 1000)}
+        </span>
       </div>
     </div>
+  );
+}
+
+/** "weak to sorcery" beside a monster's name: the skill's icon, lit when that is how the hero fights. */
+function WeakTag({ weak, style }: { weak: CombatStyle; style: CombatStyle }) {
+  const sk = content.skill(STYLE_SKILL[weak]);
+  const lit = weak === style;
+  return (
+    <span
+      className={lit ? 'weak-tag lit' : 'weak-tag'}
+      title={
+        lit
+          ? `weak to ${sk.name.toLowerCase()}: your ${STYLE_VERB[style]} hits harder here`
+          : `weak to ${sk.name.toLowerCase()}, not to your ${STYLE_VERB[style]}`
+      }
+    >
+      <UiIcon id={sk.icon} size={11} />
+      weak
+    </span>
   );
 }
 
@@ -502,6 +553,7 @@ function FerrymanRow({ sim, dispatch }: { sim: SimState; dispatch: ScreenProps['
 
 function Zones({ sim, dispatch }: { sim: SimState; dispatch: ScreenProps['dispatch'] }) {
   const rows = zoneRows(sim, simContext);
+  const style = heroStats(sim, simContext).style;
   const [open, setOpen] = useState<string | null>(
     () => rows.find((z) => z.active)?.zone.id ?? rows.find((z) => !z.locked)?.zone.id ?? null,
   );
@@ -555,11 +607,14 @@ function Zones({ sim, dispatch }: { sim: SimState; dispatch: ScreenProps['dispat
                     <TileBox size="sm">
                       <BareIcon spec={monsterIconSpec(content, m.monster)} size={18} />
                     </TileBox>
-                    <span className="name">{m.monster.name}</span>
+                    <span className="name">
+                      {m.monster.name}
+                      <WeakTag weak={m.weak} style={style} />
+                    </span>
                     <span className="sub">
                       Lv {String(m.monster.level)} · hp {String(m.monster.hp)} · max hit{' '}
-                      {String(m.maxHit)} · {formatInt(m.xp)} xp · ~
-                      {formatSeconds(m.killSeconds * 1000)} a kill
+                      {String(m.maxHit)} · you hit up to {String(m.yourMaxHit)} · {formatInt(m.xp)}{' '}
+                      xp · ~{formatSeconds(m.killSeconds * 1000)} a kill
                     </span>
                     <span className="spacer" />
                     {m.fighting && <span className="tag-active">Fighting</span>}

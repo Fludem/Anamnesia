@@ -2683,5 +2683,317 @@
         "qty": 1
       }
     ]
+  },
+  {
+    "id": "copper-marks",
+    "name": "Copper Marks",
+    "skill": "sorcery",
+    "category": "marks",
+    "level": 1,
+    "durationTicks": 72,
+    "xp": 30,
+    "inputs": [
+      {
+        "item": "copper-ore",
+        "qty": 1
+      },
+      {
+        "item": "ash",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "copper-mark",
+        "qty": 20
+      }
+    ]
+  },
+  {
+    "id": "iron-marks",
+    "name": "Iron Marks",
+    "skill": "sorcery",
+    "category": "marks",
+    "level": 10,
+    "durationTicks": 84,
+    "xp": 115,
+    "inputs": [
+      {
+        "item": "iron-ore",
+        "qty": 1
+      },
+      {
+        "item": "ash",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "iron-mark",
+        "qty": 20
+      }
+    ]
+  },
+  {
+    "id": "basalt-marks",
+    "name": "Basalt Marks",
+    "skill": "sorcery",
+    "category": "marks",
+    "level": 25,
+    "durationTicks": 84,
+    "xp": 105,
+    "inputs": [
+      {
+        "item": "basalt-ore",
+        "qty": 1
+      },
+      {
+        "item": "ash",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "basalt-mark",
+        "qty": 20
+      }
+    ]
+  },
+  {
+    "id": "silver-marks",
+    "name": "Silver Marks",
+    "skill": "sorcery",
+    "category": "marks",
+    "level": 45,
+    "durationTicks": 96,
+    "xp": 420,
+    "inputs": [
+      {
+        "item": "silver-ore",
+        "qty": 1
+      },
+      {
+        "item": "ash",
+        "qty": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "silver-mark",
+        "qty": 20
+      }
+    ]
+  },
+  {
+    "id": "gold-marks",
+    "name": "Gold Marks",
+    "skill": "sorcery",
+    "category": "marks",
+    "level": 60,
+    "durationTicks": 108,
+    "xp": 720,
+    "inputs": [
+      {
+        "item": "gold-ore",
+        "qty": 1
+      },
+      {
+        "item": "ash",
+        "qty": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "gold-mark",
+        "qty": 20
+      }
+    ]
+  },
+  {
+    "id": "aether-marks",
+    "name": "Aether Marks",
+    "skill": "sorcery",
+    "category": "marks",
+    "level": 75,
+    "durationTicks": 260,
+    "xp": 3420,
+    "inputs": [
+      {
+        "item": "aether-shard",
+        "qty": 1
+      },
+      {
+        "item": "ash",
+        "qty": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "aether-mark",
+        "qty": 20
+      }
+    ]
+  },
+  {
+    "id": "pine-staff",
+    "name": "Pine Staff",
+    "skill": "sorcery",
+    "category": "staffs",
+    "level": 1,
+    "durationTicks": 36,
+    "xp": 30,
+    "inputs": [
+      {
+        "item": "pine-logs",
+        "qty": 1
+      },
+      {
+        "item": "copper-bar",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "pine-staff",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "oak-staff",
+    "name": "Oak Staff",
+    "skill": "sorcery",
+    "category": "staffs",
+    "level": 10,
+    "durationTicks": 42,
+    "xp": 115,
+    "inputs": [
+      {
+        "item": "oak-logs",
+        "qty": 1
+      },
+      {
+        "item": "iron-bar",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "oak-staff",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "birch-staff",
+    "name": "Birch Staff",
+    "skill": "sorcery",
+    "category": "staffs",
+    "level": 25,
+    "durationTicks": 42,
+    "xp": 105,
+    "inputs": [
+      {
+        "item": "birch-logs",
+        "qty": 1
+      },
+      {
+        "item": "basalt-core",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "birch-staff",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "willow-staff",
+    "name": "Willow Staff",
+    "skill": "sorcery",
+    "category": "staffs",
+    "level": 55,
+    "durationTicks": 48,
+    "xp": 420,
+    "inputs": [
+      {
+        "item": "willow-logs",
+        "qty": 1
+      },
+      {
+        "item": "silver-bar",
+        "qty": 1
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "willow-staff",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "blightwood-staff",
+    "name": "Blightwood Staff",
+    "skill": "sorcery",
+    "category": "staffs",
+    "level": 65,
+    "durationTicks": 54,
+    "xp": 720,
+    "inputs": [
+      {
+        "item": "blightwood-logs",
+        "qty": 1
+      },
+      {
+        "item": "gold-bar",
+        "qty": 1
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "blightwood-staff",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "elder-staff",
+    "name": "Elder Staff",
+    "skill": "sorcery",
+    "category": "staffs",
+    "level": 80,
+    "durationTicks": 130,
+    "xp": 3420,
+    "inputs": [
+      {
+        "item": "elder-logs",
+        "qty": 1
+      },
+      {
+        "item": "aether-ingot",
+        "qty": 1
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "elder-staff",
+        "qty": 1
+      }
+    ]
   }
 ]
