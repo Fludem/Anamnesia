@@ -22,6 +22,7 @@ import type { SaveRecord } from '../src/sim/save.ts';
 import { hashToken } from './auth.ts';
 import { transaction } from './db.ts';
 import type { Halls } from './hall.ts';
+import type { Wheel } from './wheel.ts';
 
 export { nameKey };
 
@@ -50,6 +51,7 @@ export class Register {
     private readonly db: DatabaseSync,
     private readonly ctx: SimContext,
     private readonly halls: Halls,
+    private readonly wheel: Wheel,
   ) {}
 
   // ---- names ------------------------------------------------------------------------------
@@ -121,11 +123,13 @@ export class Register {
   }
 
   /**
-   * The compare-and-swap write; also rescores the name on every board and settles the gifts on
-   * its cart with the hall. The save is stored carrying the account's name, whatever the hero
-   * was called where it came from, and the hall as the register knows it — the gifts stay in
-   * the stored record until the name's own next save, so a reply that never arrives loses
-   * nothing (see sim/hall.ts).
+   * The compare-and-swap write; also rescores the name on every board, settles the gifts on
+   * its cart with the hall and its coins with the wheel. The save is stored carrying the
+   * account's name, whatever the hero was called where it came from, the hall as the register
+   * knows it, and the wheel's payouts already added — coins and `paidThrough` stamped together,
+   * so a tab that reloads onto the stored record is neither owed twice nor short. The gifts and
+   * buy-ins stay in the stored record until the name's own next save, so a reply that never
+   * arrives loses nothing (see sim/hall.ts, sim/wheel.ts).
    */
   writeSave(user: User, put: SavePut, nowMs: number): SavePutResult {
     const userId = user.id;
@@ -148,13 +152,22 @@ export class Register {
       const next = current + 1;
       const sim = put.record.sim;
       const hall = this.halls.applyGifts(userId, sim.hall.gifts, sim.hall.given, nowMs);
+      const wheel = this.wheel.applyCart(userId, sim.wheel.cart, sim.wheel.paidThrough, nowMs);
+      const paid = wheel.paid.reduce((n, p) => n + p.coins, 0);
+      const paidThrough = wheel.paid.reduce((n, p) => Math.max(n, p.seq), sim.wheel.paidThrough);
       const record: SaveRecord = {
         ...put.record,
         saveCounter: next,
         sim: {
           ...sim,
+          coins: sim.coins + paid,
           player: { ...sim.player, name: user.name },
           hall: { ...sim.hall, id: hall.id, rooms: hall.rooms, given: hall.given },
+          wheel: {
+            ...sim.wheel,
+            bought: Math.max(sim.wheel.bought, wheel.bought),
+            paidThrough,
+          },
         },
       };
       this.db
@@ -174,7 +187,7 @@ export class Register {
       for (const s of standingsOf(record.sim, this.ctx)) {
         upsert.run(userId, s.board, s.level, s.score, s.keys[0], s.keys[1]);
       }
-      return { ok: true, saveCounter: next, hall };
+      return { ok: true, saveCounter: next, hall, wheel };
     });
   }
 

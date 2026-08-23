@@ -67,10 +67,14 @@ describe('migrateSave', () => {
         applied.push(9);
         return r;
       },
+      10: (r) => {
+        applied.push(10);
+        return r;
+      },
     };
     const v0 = { ...fresh(), version: 0, writerId: undefined };
     const out = migrateSave(v0, migrations, CURRENT_SAVE_VERSION);
-    expect(applied).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(applied).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     expect(out.version).toBe(CURRENT_SAVE_VERSION);
     expect(out.writerId).toBe('migrated-from-v0');
   });
@@ -104,9 +108,12 @@ describe('migrateSave', () => {
         spent: 0,
         ferried: 0,
         given: 0,
+        boughtIn: 0,
+        cashedOut: 0,
       },
       upgrades: {},
       hall: { id: null, rooms: {}, gifts: [], given: 0 },
+      wheel: { cart: [], bought: 0, paidThrough: 0 },
       tutorial: { done: [], dismissed: false },
       combat: {
         hp: 10,
@@ -161,6 +168,8 @@ describe('migrateSave', () => {
       spent: 0,
       ferried: 0,
       given: 0,
+      boughtIn: 0,
+      cashedOut: 0,
     });
     expect(out.sim.bank).toEqual([{ item: 'copper-ore', qty: 3 }]);
   });
@@ -194,6 +203,8 @@ describe('migrateSave', () => {
       spent: 0,
       ferried: 0,
       given: 0,
+      boughtIn: 0,
+      cashedOut: 0,
     });
     expect(out.sim.tutorial).toEqual({ done: [], dismissed: false });
     // A v4 stop has no skill, so it is dropped; everything else in the log is kept.
@@ -219,6 +230,8 @@ describe('migrateSave', () => {
       spent: 0,
       ferried: 0,
       given: 0,
+      boughtIn: 0,
+      cashedOut: 0,
     });
     expect(out.sim.combat).toEqual({
       hp: 10,
@@ -270,6 +283,8 @@ describe('migrateSave', () => {
       spent: 0,
       ferried: 0,
       given: 0,
+      boughtIn: 0,
+      cashedOut: 0,
     });
   });
 
@@ -317,6 +332,21 @@ describe('migrateSave', () => {
     expect(out.version).toBe(CURRENT_SAVE_VERSION);
     expect(out.sim.hall).toEqual({ id: null, rooms: {}, gifts: [], given: 0 });
     expect(out.sim.stats).toMatchObject({ spent: 9, ferried: 1, given: 0 });
+  });
+
+  it('migrates a v10 record to v11: nothing at the wheel', () => {
+    const v10 = JSON.parse(JSON.stringify(fresh())) as Record<string, unknown>;
+    const sim = v10['sim'] as Record<string, unknown>;
+    v10['version'] = 10;
+    delete sim['wheel'];
+    const stats = sim['stats'] as Record<string, unknown>;
+    delete stats['boughtIn'];
+    delete stats['cashedOut'];
+    stats['given'] = 3;
+    const out = migrateSave(v10);
+    expect(out.version).toBe(CURRENT_SAVE_VERSION);
+    expect(out.sim.wheel).toEqual({ cart: [], bought: 0, paidThrough: 0 });
+    expect(out.sim.stats).toMatchObject({ given: 3, boughtIn: 0, cashedOut: 0 });
   });
 
   it('refuses a future version rather than guessing', () => {

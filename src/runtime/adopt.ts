@@ -6,6 +6,7 @@
  * left alone.
  */
 import { NO_HALL } from '../sim/hall.ts';
+import { NO_WHEEL } from '../sim/wheel.ts';
 import { migrateSave } from '../sim/migrate.ts';
 import type { SimState } from '../sim/save.ts';
 import type { SaveStore } from './store.ts';
@@ -27,8 +28,8 @@ export async function adoptLocalSave(
     return 'unreadable';
   }
   if ((await server.load(slot)) !== null) return 'name-has-save';
-  // A save from before names knows nothing of halls; whatever it says is not this name's.
-  const sim = { ...reconcile(record.sim), hall: NO_HALL };
+  // A save from before names knows nothing of halls or the wheel; whatever it says is not this name's.
+  const sim = { ...reconcile(record.sim), hall: NO_HALL, wheel: NO_WHEEL };
   const result = await server.write(slot, { ...record, sim }, 0);
   if (!result.ok) return 'refused';
   await local.clear(slot);

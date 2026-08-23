@@ -368,6 +368,48 @@ describe('GameHost — single tab', () => {
     expect(host.getSnapshot().sim?.hall.rooms).toEqual({ hearth: 1 });
   });
 
+  it('applies what the register says about the wheel after a write, without saving again', async () => {
+    const world = new FakeWorld(T0);
+    seeded(world, { coins: 1000 });
+    // A register: credits every buy-in on the cart, and has a payout of 70 waiting.
+    const register: SaveStore = {
+      load: (slot) => world.store.load(slot),
+      write: async (slot, record, expected) => {
+        const r = await world.store.write(slot, record, expected);
+        if (!r.ok) return r;
+        const took = record.sim.wheel.cart.map((b) => b.id);
+        const paid = record.sim.wheel.paidThrough < 1 ? [{ seq: 1, coins: 70 }] : [];
+        return { ...r, wheel: { took, paid, purse: 0, bought: record.sim.wheel.bought } };
+      },
+      clear: (slot) => world.store.clear(slot),
+    };
+    const a = world.tab('A', { store: register });
+    const host = boot(a, {
+      ...FIXTURE,
+      reconcile: (sim) => reconcileWithContent(sim, fixtureContext.content).sim,
+      saveIntervalMs: 1_000,
+    });
+    await flushMicrotasks();
+    expect(host.role).toBe('leader');
+    // The claim write already answered with the payout: it landed in memory, once.
+    expect(host.getSnapshot().sim?.coins).toBe(1070);
+    expect(host.getSnapshot().sim?.wheel.paidThrough).toBe(1);
+    const writesBefore = world.store.log.filter((l) => l.op === 'write').length;
+    host.dispatch({ type: 'wheel:buy-in', coins: 300 });
+    await flushMicrotasks();
+    await a.runTimers(0);
+    await flushMicrotasks();
+    const sim = host.getSnapshot().sim!;
+    expect(world.store.log.filter((l) => l.op === 'write')).toHaveLength(writesBefore + 1);
+    expect(sim.coins).toBe(770);
+    expect(sim.wheel).toEqual({ cart: [], bought: 1, paidThrough: 1 });
+    // The stored record keeps the cart until the next save carries it cleared.
+    expect(world.store.peek('main')?.sim.wheel.cart).toHaveLength(1);
+    await elapse(world, [a], 1_100);
+    expect(world.store.peek('main')?.sim.wheel.cart).toEqual([]);
+    expect(host.getSnapshot().sim?.coins).toBe(770);
+  });
+
   it('refuses to start over an unreadable save', async () => {
     const world = new FakeWorld(T0);
     world.store['slots'].set('main', { version: 42 } as unknown as SaveRecord);

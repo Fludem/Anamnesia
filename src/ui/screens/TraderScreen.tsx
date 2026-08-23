@@ -10,7 +10,7 @@ import { FERRYMAN_MULTIPLIER } from '../../sim/skills/combat.ts';
 import { deathLine, ferrymanView, nightHours, wareRows, type WareRow } from '../derive-trader.ts';
 import { lastDeath } from '../derive-combat.ts';
 import { formatInt } from '../format.ts';
-import { Label, Pops, TileBox, UiIcon } from '../parts.tsx';
+import { Label, Pops, StatRow, TileBox, UiIcon } from '../parts.tsx';
 import { TRADER_ICON } from '../Shell.tsx';
 import { popX } from '../util.ts';
 import { ScreenHead } from './common.tsx';
@@ -144,25 +144,6 @@ function WareLine({ row, coins, onBuy }: { row: WareRow; coins: number; onBuy: (
           </button>
         </span>
       )}
-    </div>
-  );
-}
-
-function StatRow({
-  k,
-  v,
-  gold,
-  accent,
-}: {
-  k: string;
-  v: string;
-  gold?: boolean;
-  accent?: boolean;
-}) {
-  return (
-    <div className="stat-row">
-      <span className="k">{k}</span>
-      <span className={`v${gold ? ' gold' : ''}${accent ? ' accent' : ''}`}>{v}</span>
     </div>
   );
 }

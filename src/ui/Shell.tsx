@@ -11,6 +11,7 @@ import { Label, UiIcon } from './parts.tsx';
 import type { View } from './prefs.ts';
 import { TALK_ICON } from './screens/ChatScreen.tsx';
 import { HIGHSCORES_ICON } from './screens/HighscoresScreen.tsx';
+import { WHEEL_ICON } from './screens/WheelScreen.tsx';
 
 export const BANK_ICON = 'delapouite/chest';
 export const COIN_ICON = 'delapouite/coins';
@@ -112,6 +113,13 @@ export function Shell({ sim, view, unread, onView, onSettings, children }: Shell
             <span className="grow">Hall</span>
           </button>
           <button
+            className={view.kind === 'wheel' ? 'nav-row active' : 'nav-row'}
+            onClick={() => onView({ kind: 'wheel' })}
+          >
+            <UiIcon id={WHEEL_ICON} size={17} />
+            <span className="grow">The Wheel</span>
+          </button>
+          <button
             className={view.kind === 'highscores' ? 'nav-row active' : 'nav-row'}
             onClick={() =>
               onView(view.kind === 'highscores' ? view : { kind: 'highscores', board: 'total' })
@@ -175,6 +183,13 @@ export function Shell({ sim, view, unread, onView, onSettings, children }: Shell
         >
           <UiIcon id={HALL_ICON} size={20} />
           Hall
+        </button>
+        <button
+          className={view.kind === 'wheel' ? 'tab active' : 'tab'}
+          onClick={() => onView({ kind: 'wheel' })}
+        >
+          <UiIcon id={WHEEL_ICON} size={20} />
+          Wheel
         </button>
         <button
           className={view.kind === 'highscores' ? 'tab active' : 'tab'}

@@ -11,7 +11,7 @@ import { xpBoostText } from '../derive-combat.ts';
 import { formatInt, formatShort } from '../format.ts';
 import { BareIcon } from '../items/ItemTile.tsx';
 import { itemIconSpec } from '../items/spec.ts';
-import { Badges, ItemGlyph, Label, Pops, TileBox, UiIcon } from '../parts.tsx';
+import { Badges, ItemGlyph, Label, Pops, StatRow, TileBox, UiIcon } from '../parts.tsx';
 import { popX } from '../util.ts';
 import { Modal } from '../overlays/Modal.tsx';
 import { BANK_ICON } from '../Shell.tsx';
@@ -275,25 +275,6 @@ export function BankScreen({ sim, dispatch, juice }: ScreenProps) {
         />
       )}
     </>
-  );
-}
-
-function StatRow({
-  k,
-  v,
-  gold,
-  accent,
-}: {
-  k: string;
-  v: string;
-  gold?: boolean;
-  accent?: boolean;
-}) {
-  return (
-    <div className="stat-row">
-      <span className="k">{k}</span>
-      <span className={`v${gold ? ' gold' : ''}${accent ? ' accent' : ''}`}>{v}</span>
-    </div>
   );
 }
 

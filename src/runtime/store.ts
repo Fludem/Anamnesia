@@ -1,9 +1,10 @@
 import type { HallSync } from '../sim/hall.ts';
+import type { WheelSync } from '../sim/wheel.ts';
 import type { SaveRecord } from '../sim/save.ts';
 
 export type WriteResult =
-  /** `hall` is what the register answered about the hall, when the store is the register. */
-  | { ok: true; saveCounter: number; hall?: HallSync }
+  /** `hall` and `wheel` are what the register answered about each, when the store is the register. */
+  | { ok: true; saveCounter: number; hall?: HallSync; wheel?: WheelSync }
   /** Someone else wrote first; `stored` is what is there now (null if the slot has gone). */
   | { ok: false; reason: 'stale'; stored: SaveRecord | null }
   /** The store could not be reached; nothing is known about the slot. Try again later. */

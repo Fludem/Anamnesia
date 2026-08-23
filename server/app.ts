@@ -18,6 +18,7 @@ import {
   FoundHallSchema,
   InviteSchema,
   MarkReadSchema,
+  PlaceBetSchema,
   MAX_BODY_BYTES,
   RequestJoinSchema,
   SavePutSchema,
@@ -39,6 +40,7 @@ import {
 } from './auth.ts';
 import { Chat, ChatError } from './chat.ts';
 import { HallError, Halls } from './hall.ts';
+import { Wheel, WheelError } from './wheel.ts';
 import { Register } from './register.ts';
 
 export interface AppOptions {
@@ -51,6 +53,8 @@ export interface AppOptions {
   ctx?: SimContext;
   /** How long a chat poll is held open; tests shorten it. */
   pollWaitMs?: number;
+  /** A uniform integer in [0, n) for the wheel's pocket. Injectable for tests. */
+  random?: (n: number) => number;
 }
 
 export type Handler = (req: IncomingMessage, res: ServerResponse) => void;
@@ -86,8 +90,9 @@ const REGISTER_TRIES = { address: 10, windowMs: 3_600_000 };
 export function createApp(options: AppOptions): Handler {
   const now = options.now ?? (() => Date.now());
   const halls = new Halls(options.db, options.ctx ?? simContext);
-  const register = new Register(options.db, options.ctx ?? simContext, halls);
   const chat = new Chat(options.db, options.pollWaitMs);
+  const wheel = new Wheel(options.db, options.random);
+  const register = new Register(options.db, options.ctx ?? simContext, halls, wheel);
   const staticDir = options.staticDir == null ? null : resolve(options.staticDir);
   const loginByName = new RateLimiter(LOGIN_TRIES.name, LOGIN_TRIES.windowMs);
   const loginByAddress = new RateLimiter(LOGIN_TRIES.address, LOGIN_TRIES.windowMs);
@@ -352,6 +357,36 @@ export function createApp(options: AppOptions): Handler {
       return;
     }
 
+    // ---- the wheel --------------------------------------------------------------------
+
+    if (route === 'GET /api/wheel') {
+      const user = requireUser(req);
+      json(res, 200, wheel.view(user.id, now()));
+      return;
+    }
+
+    if (route === 'POST /api/wheel/bet') {
+      const user = requireUser(req);
+      const { round, spot, stake } = await readJson(req, PlaceBetSchema);
+      // The clock is read after the body: a bet at the last moment is judged when it arrives.
+      const at = now();
+      wheel.bet(user, round, spot, stake, at);
+      json(res, 200, wheel.view(user.id, at));
+      return;
+    }
+
+    if (route === 'POST /api/wheel/cash-out') {
+      const user = requireUser(req);
+      if (
+        (req.headers['content-type'] ?? '').toLowerCase().startsWith('application/json') === false
+      )
+        throw new HttpError(415, 'Send JSON.');
+      const at = now();
+      wheel.cashOut(user, register.loadSave(user.id)?.sim.wheel.paidThrough ?? 0, at);
+      json(res, 200, wheel.view(user.id, at));
+      return;
+    }
+
     throw new HttpError(404, 'Nothing here.');
   }
 
@@ -405,7 +440,12 @@ export function createApp(options: AppOptions): Handler {
       if (path === '/api' || path.startsWith('/api/')) await api(req, res, path, url.searchParams);
       else files(req, res, path);
     } catch (e) {
-      if (e instanceof HttpError || e instanceof HallError || e instanceof ChatError) {
+      if (
+        e instanceof HttpError ||
+        e instanceof HallError ||
+        e instanceof ChatError ||
+        e instanceof WheelError
+      ) {
         json(res, e.status, { error: e.message });
         return;
       }

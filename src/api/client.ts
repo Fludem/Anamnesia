@@ -14,6 +14,7 @@ import {
   HallsSchema,
   SaidSchema,
   SessionSchema,
+  WheelGetSchema,
   type Board,
   type ChatMessage,
   type ChatOverview,
@@ -24,7 +25,9 @@ import {
   type HallSummary,
   type Session,
   type Talk,
+  type WheelGet,
 } from './protocol.ts';
+import type { Spot } from '../sim/wheel.ts';
 
 export class ApiError extends Error {
   override readonly name = 'ApiError';
@@ -112,4 +115,8 @@ export const api = {
     call('POST', '/api/chat/read', EmptySchema, { talk, id }),
   chatBlock: (name: string, blocked: boolean): Promise<unknown> =>
     call('POST', '/api/chat/block', EmptySchema, { name, blocked }),
+  wheel: (): Promise<WheelGet> => call('GET', '/api/wheel', WheelGetSchema),
+  bet: (round: number, spot: Spot, stake: number): Promise<WheelGet> =>
+    call('POST', '/api/wheel/bet', WheelGetSchema, { round, spot, stake }),
+  cashOut: (): Promise<WheelGet> => call('POST', '/api/wheel/cash-out', WheelGetSchema, {}),
 };

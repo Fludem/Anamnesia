@@ -1,6 +1,7 @@
 import { planAdvance, planTickCount } from '../sim/advance.ts';
 import { OFFLINE_CAP_TICKS, TICK_MS } from '../sim/constants.ts';
 import { applyHallSync, type HallSync } from '../sim/hall.ts';
+import { applyWheelSync, type WheelSync } from '../sim/wheel.ts';
 import { offlineCapTicks } from '../sim/trader.ts';
 import { migrateSave, SaveLoadError } from '../sim/migrate.ts';
 import { reconcileWithContent } from '../sim/reconcile.ts';
@@ -102,6 +103,8 @@ export interface GameHostOptions {
    * must return the very same state when nothing changed. Defaults to the shipped content.
    */
   applySync?: (sim: SimState, hall: HallSync) => SimState;
+  /** Likewise for what it answered about the wheel (src/sim/wheel.ts). */
+  applyWheelSync?: (sim: SimState, wheel: WheelSync) => SimState;
   /**
    * The name the save must carry, when an account owns it: written over the save's own on
    * load. Null keeps whatever the save says (the hero names themself on first run).
@@ -184,6 +187,7 @@ export class GameHost {
       onAction: options.onAction,
       capTicksFor: options.capTicksFor ?? ((sim) => offlineCapTicks(sim, simContext)),
       applySync: options.applySync ?? ((sim, hall) => applyHallSync(sim, hall, simContext)),
+      applyWheelSync: options.applyWheelSync ?? applyWheelSync,
       playerName: options.playerName ?? null,
       onStale: options.onStale ?? 'reload',
     };
@@ -541,7 +545,8 @@ export class GameHost {
         return;
       }
       this.saveCounter = result.saveCounter;
-      if (result.hall) this.applySync(result.hall);
+      if (result.hall) this.applyAnswer((sim) => this.opts.applySync(sim, result.hall!));
+      if (result.wheel) this.applyAnswer((sim) => this.opts.applyWheelSync(sim, result.wheel!));
       this.patch({
         saveCounter: this.saveCounter,
         lastSavedAtMs: this.env.clock.now(),
@@ -554,16 +559,17 @@ export class GameHost {
   }
 
   /**
-   * What the register said about the hall, applied in memory and never saved on its own: the
-   * next save carries it, and a save→answer→save loop would otherwise never end. Dropped when
-   * this tab stopped leading while the write was in flight, or is mid-advance — nothing is
-   * lost either way, since a gift stays on the cart until this tab's own next save and the
-   * register answers it again.
+   * What the register said about the hall or the wheel, applied in memory and never saved on
+   * its own: the next save carries it, and a save→answer→save loop would otherwise never end.
+   * Dropped when this tab stopped leading while the write was in flight, or is mid-advance —
+   * nothing is lost either way, since a gift or a buy-in stays on the cart until this tab's
+   * own next save and the register answers it again, and a payout is repeated until a save
+   * says it was taken.
    */
-  private applySync(hall: HallSync): void {
+  private applyAnswer(apply: (sim: SimState) => SimState): void {
     if (this.sim === null || this.advancing) return;
     if (this.role !== 'leader' && this.role !== 'handing-over') return;
-    const next = this.opts.applySync(this.sim, hall);
+    const next = apply(this.sim);
     if (next === this.sim) return;
     this.sim = next;
     this.patch({ sim: this.sim });

@@ -23,6 +23,9 @@
  *   POST /api/chat                Say → Said       (201; 404 no such name, 403 they turned away, 429 enough)
  *   POST /api/chat/read           MarkRead → {}    (how far the caller has read in a talk)
  *   POST /api/chat/block          Block → {}       (turn away from a name, or back)
+ *   GET  /api/wheel               → WheelGet       (the table: this round, who is at it, the last spins)
+ *   POST /api/wheel/bet           { round, spot, stake } → WheelGet   (409 closed, or not enough chips)
+ *   POST /api/wheel/cash-out      → WheelGet       (chips become a payout the next save takes)
  *
  * Every error is `{ error: string }` in the hill's register. State-changing requests must be
  * JSON (`Content-Type: application/json`), which with a SameSite=Lax cookie is the CSRF guard.
@@ -30,6 +33,7 @@
 import { z } from 'zod';
 import { PlayerNameSchema } from '../sim/commands.ts';
 import { HallSyncSchema } from '../sim/hall.ts';
+import { SpotSchema, WheelSyncSchema } from '../sim/wheel.ts';
 import { SaveRecordSchema } from '../sim/save.ts';
 
 export const SESSION_COOKIE = 'anamnesia_session';
@@ -70,6 +74,8 @@ export const SavePutResultSchema = z.discriminatedUnion('ok', [
     saveCounter: z.number().int().min(1),
     /** Where this name stands with the hall and what it took of the gifts on the cart. */
     hall: HallSyncSchema,
+    /** What the table took of the cart, and what it paid out since the save last looked. */
+    wheel: WheelSyncSchema,
   }),
   /** `stored` is what is there instead; null only if the save has gone entirely. */
   z.object({
@@ -315,3 +321,61 @@ export const SaidSchema = z.object({ message: ChatMessageSchema });
 export const MarkReadSchema = z.object({ talk: TalkSchema, id: z.number().int().min(0) });
 export const BlockSchema = z.object({ name: PlayerNameSchema, blocked: z.boolean() });
 export const EmptySchema = z.object({});
+// ---- the wheel --------------------------------------------------------------------------
+
+export const WheelRoundSchema = z.object({
+  id: z.number().int().min(0),
+  opensAt: z.number().int().min(0),
+  /** Bets are taken until this moment of the register's clock. */
+  closesAt: z.number().int().min(0),
+  endsAt: z.number().int().min(0),
+  /** Drawn the moment the bets close; null while they are open. */
+  pocket: z.number().int().min(0).max(37).nullable(),
+});
+
+export const WheelBetSchema = z.object({ spot: SpotSchema, stake: z.number().int().min(1) });
+export type WheelBet = z.infer<typeof WheelBetSchema>;
+
+/** A name at the table this round and what it has down. */
+export const WheelPlayerSchema = z.object({ name: z.string(), bets: z.array(WheelBetSchema) });
+
+/** A finished round: the pocket, and what each name staked and took back. */
+export const WheelSpinSchema = z.object({
+  id: z.number().int().min(0),
+  /** 0–36, or 37 for the double zero. */
+  pocket: z.number().int().min(0).max(37),
+  players: z.array(
+    z.object({
+      name: z.string(),
+      staked: z.number().int().min(0),
+      returned: z.number().int().min(0),
+    }),
+  ),
+});
+export type WheelSpin = z.infer<typeof WheelSpinSchema>;
+
+export const WheelGetSchema = z.object({
+  /** The register's clock, so the screen counts down on it and not its own. */
+  now: z.number().int().min(0),
+  round: WheelRoundSchema,
+  /** The caller's chips and lifetime figures; null before they ever bought in. */
+  purse: z
+    .object({
+      coins: z.number().int().min(0),
+      staked: z.number().int().min(0),
+      returned: z.number().int().min(0),
+    })
+    .nullable(),
+  /** Everyone with a bet down this round, the caller included. */
+  table: z.array(WheelPlayerSchema),
+  /** The last spins, newest first. */
+  last: z.array(WheelSpinSchema),
+});
+export type WheelGet = z.infer<typeof WheelGetSchema>;
+
+export const PlaceBetSchema = z.object({
+  round: z.number().int().min(0),
+  spot: SpotSchema,
+  stake: z.number().int().min(1),
+});
+export type PlaceBet = z.infer<typeof PlaceBetSchema>;

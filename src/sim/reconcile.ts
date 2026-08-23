@@ -79,6 +79,8 @@ function eventKnown(e: SimEvent, content: ContentDb): boolean {
     case 'raised':
       return content.hasRoom(e.room);
     case 'tutorial':
+    case 'bought-in':
+    case 'cashed-out':
       return true;
   }
 }

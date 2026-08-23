@@ -3201,3 +3201,218 @@ button.chat-name:hover {
     display: inline-block;
   }
 }
+
+/* ---- the wheel (Phase 14) — one table for the hill, Screen A's card with a grid inside ---- */
+.wheel-card {
+  position: relative;
+}
+.wheel-table {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  grid-template-rows: auto auto;
+  gap: 4px;
+  margin-top: 4px;
+  user-select: none;
+}
+.wheel-table .house {
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.wheel-table .house .spot {
+  flex: 1;
+}
+.wheel-table .numbers {
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.wheel-table .num-row,
+.wheel-table .out-row {
+  display: grid;
+  gap: 4px;
+}
+.wheel-table .num-row {
+  grid-template-columns: repeat(12, minmax(0, 1fr)) 36px;
+}
+.wheel-table .outside-rows {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.wheel-table .out-row {
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  margin-right: 40px;
+}
+.spot {
+  position: relative;
+  min-height: 34px;
+  padding: 4px 2px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-inset);
+  color: var(--fg-2);
+  font: 500 var(--fs-hint) var(--font-mono);
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast),
+    background var(--dur-fast);
+}
+.spot .lbl {
+  display: block;
+  line-height: 1;
+}
+.spot.num {
+  color: var(--fg);
+}
+.spot.num.red {
+  background: rgba(var(--hurt-rgb), 0.22);
+  border-color: rgba(var(--hurt-rgb), 0.45);
+}
+.spot.num.black {
+  background: var(--bg-track);
+}
+.spot.num.house,
+.spot.outside.red,
+.spot.outside.black {
+  color: var(--fg);
+}
+.spot.num.house {
+  background: rgba(var(--accent-rgb), 0.14);
+  border-color: rgba(var(--accent-rgb), 0.35);
+}
+.spot.outside.red {
+  border-color: rgba(var(--hurt-rgb), 0.45);
+}
+.spot.outside {
+  min-height: 30px;
+  color: var(--fg-3);
+}
+.spot.col {
+  color: var(--fg-3);
+}
+.spot:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--fg);
+}
+.spot:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+.spot.hit,
+.spot.hit:disabled {
+  opacity: 1;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold) inset;
+  color: var(--gold-hi);
+}
+.spot .stack {
+  display: block;
+  margin-top: 3px;
+  font: 500 var(--fs-tag) var(--font-mono);
+  line-height: 1;
+  color: var(--fg-2);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: 2px 4px;
+}
+.spot .stack.mine {
+  color: var(--gold);
+  border-color: rgba(var(--gold-rgb), 0.5);
+}
+.wheel-card.closed .wheel-table {
+  filter: saturate(0.8);
+}
+.chip-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+}
+.chip-row .hint {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+  margin-right: 4px;
+}
+.chip-row .btn {
+  min-width: 46px;
+  padding: 5px 8px;
+}
+.chip-row .btn.active,
+.chip-row .btn.active:hover:not(:disabled) {
+  color: var(--gold);
+  background: rgba(var(--gold-rgb), 0.1);
+  border-color: rgba(var(--gold-rgb), 0.45);
+}
+.wheel-strip {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-row);
+}
+.wheel-strip .hint {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+  margin-right: 4px;
+}
+.wheel-strip .pocket {
+  min-width: 24px;
+  padding: 3px 5px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  font: 500 var(--fs-hint) var(--font-mono);
+  text-align: center;
+  color: var(--fg-2);
+  background: var(--bg-track);
+}
+.wheel-strip .pocket:first-of-type {
+  color: var(--fg);
+  border-color: var(--fg-3);
+}
+.wheel-strip .pocket.red {
+  background: rgba(var(--hurt-rgb), 0.22);
+  border-color: rgba(var(--hurt-rgb), 0.45);
+}
+.wheel-strip .pocket.house {
+  background: rgba(var(--accent-rgb), 0.14);
+  border-color: rgba(var(--accent-rgb), 0.35);
+}
+.wheel-talk {
+  display: flex;
+  height: 380px;
+}
+.wheel-talk .chat-panel {
+  margin: 0;
+}
+@media (max-width: 700px) {
+  .wheel-table {
+    grid-template-columns: 28px 1fr;
+  }
+  .wheel-table .num-row {
+    grid-template-columns: repeat(12, minmax(0, 1fr)) 28px;
+  }
+  .wheel-table .out-row {
+    margin-right: 32px;
+  }
+  .spot {
+    min-height: 30px;
+    padding: 3px 0;
+    font-size: var(--fs-tag);
+  }
+  .spot .stack {
+    padding: 1px 2px;
+  }
+  .chip-row {
+    flex-wrap: wrap;
+  }
+}

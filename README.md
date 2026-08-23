@@ -108,6 +108,17 @@ word or after 25 s — which is plain HTTP through Caddy and Cloudflare. `useCha
 one poll for the tab; `ChatPanel` is one talk on its own, so another screen can seat a room
 (the wheel's table talk is already a room id). Rooms keep a month; 20 words a minute a name.
 
+Phase 14 is the wheel: one roulette table for the whole hill, turned by the register's clock.
+A round is thirty seconds — bets for twenty-four, then the pocket, drawn on the server the
+moment the bets close, never by the sim's dice — and every name at the table sees the same
+spin, the same chips, the same strip of last pockets. Coins reach the table the way gifts
+reach the hall: _buy in_ takes them from the purse onto a cart the save carries, the register
+credits chips and answers the save; bets (`/api/wheel/bet`) debit the chips and are final;
+_cash out_ becomes a payout the next save takes home, stamped into the stored record so no
+reload can take it twice or lose it. An American wheel, 0 and 00 — every bet carries the same
+edge, two pockets in thirty-eight. The table has a room of its own in the talk.
+`scripts/tune-wheel.ts` prints the edge and what a chip costs in hours. Save v11 adds the cart.
+
 The hill is live at [game.onyxleeds.co.uk](https://game.onyxleeds.co.uk/): one Ubuntu box
 running `dist-server/main.js` under systemd behind Caddy, the name proxied through Cloudflare,
 the register backed up daily (`deploy/`). `scripts/deploy.sh` builds and ships it.
@@ -127,7 +138,7 @@ the register backed up daily (`deploy/`). `scripts/deploy.sh` builds and ships i
 | `src/ui/items/` | Maps content onto renderer specs; `<ItemTile>` / `<BareIcon>`.                                                                                                                                                                                                                                     |
 | `design/`       | Claude Design reference screens the tokens were extracted from.                                                                                                                                                                                                                                    |
 | `deploy/`       | The box: `setup.sh` (node, Caddy, the anamnesia user, the service, the daily backup), the systemd units, the Caddyfile. `scripts/deploy.sh` runs it and ships builds.                                                                                                                              |
-| `scripts/`      | Icon vendoring / indexing pipeline; `tune-combat.ts` retunes monsters against the progression model; `tune-boons.ts` compares the gods' boons; `tune-gear.ts` prices javelins; `tune-trader.ts` prices the trader's wares against income; `tune-hall.ts` prices the hall's rooms in hours of work. |
+| `scripts/`      | Icon vendoring / indexing pipeline; `tune-combat.ts` retunes monsters against the progression model; `tune-boons.ts` compares the gods' boons; `tune-gear.ts` prices javelins; `tune-trader.ts` prices the wares by income; `tune-hall.ts`/`tune-wheel.ts` price rooms and chips in hours of work. |
 
 ## Commands
 

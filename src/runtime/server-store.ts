@@ -5,6 +5,7 @@
  * tries again on its next save. Only the register refusing the save outright is fatal.
  */
 import { HallSyncSchema } from '../sim/hall.ts';
+import { WheelSyncSchema } from '../sim/wheel.ts';
 import type { SaveRecord } from '../sim/save.ts';
 import type { SaveStore, WriteResult } from './store.ts';
 
@@ -61,11 +62,15 @@ export class ServerSaveStore implements SaveStore {
       };
     }
     if (res.status === 200) {
-      const body = (await res.json()) as { saveCounter: number; hall?: unknown };
+      const body = (await res.json()) as { saveCounter: number; hall?: unknown; wheel?: unknown };
       const hall = HallSyncSchema.safeParse(body.hall);
-      return hall.success
-        ? { ok: true, saveCounter: body.saveCounter, hall: hall.data }
-        : { ok: true, saveCounter: body.saveCounter };
+      const wheel = WheelSyncSchema.safeParse(body.wheel);
+      return {
+        ok: true,
+        saveCounter: body.saveCounter,
+        ...(hall.success ? { hall: hall.data } : {}),
+        ...(wheel.success ? { wheel: wheel.data } : {}),
+      };
     }
     if (res.status === 409) {
       const body = (await res.json()) as { stored: SaveRecord | null };

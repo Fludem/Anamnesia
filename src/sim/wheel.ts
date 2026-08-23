@@ -1,0 +1,207 @@
+import { z } from 'zod';
+import { pushEvent } from './events.ts';
+import type { SimState } from './save.ts';
+
+/**
+ * The wheel: one table on the hill, turned by the register, that every name bets on at once.
+ * A round is thirty seconds of the register's clock — bets for the first twenty-four, the
+ * pocket for the last six — and the pocket is drawn there, not here, so the sim's own dice
+ * never touch it. Coins reach the table the way gifts reach the hall: `buyIn` takes them out
+ * of the purse and onto a cart (`state.wheel.cart`); the save carries the cart to the register,
+ * which credits this name's chips and answers with a `WheelSync`; `applyWheelSync` clears the
+ * cart and adds whatever was cashed out since the last answer. Bets themselves are the
+ * register's business (`/api/wheel`); the sim only ever knows what went in and what came back.
+ *
+ * The sync is droppable, like the hall's: a buy-in stays on the cart until this name's own save
+ * has been answered, and a payout is repeated until the save says it has been seen
+ * (`paidThrough`). The register stamps both into the stored record, so a tab that reloads onto
+ * it is never owed twice and never short.
+ */
+
+export const MAX_PENDING_BUY_INS = 20;
+export const MAX_BUY_IN = 1_000_000_000;
+
+/** Coins on their way to the table: taken from the purse, not yet credited by the register. */
+export const BuyInSchema = z.object({
+  id: z.number().int().min(1),
+  coins: z.number().int().min(1).max(MAX_BUY_IN),
+});
+export type BuyIn = z.infer<typeof BuyInSchema>;
+
+export const WheelStateSchema = z.object({
+  cart: z.array(BuyInSchema).max(MAX_PENDING_BUY_INS),
+  /** The highest buy-in number ever put on the cart; the register knows it too. */
+  bought: z.number().int().min(0),
+  /** The last payout this save has taken; the register repeats anything newer. */
+  paidThrough: z.number().int().min(0),
+});
+export type WheelState = z.infer<typeof WheelStateSchema>;
+
+/** What the register answers a save with about the table. */
+export const WheelSyncSchema = z.object({
+  /** Buy-ins credited (or already known): they leave the cart. */
+  took: z.array(z.number().int().min(1)),
+  /** Cash-outs this save has not taken yet, oldest first. */
+  paid: z.array(z.object({ seq: z.number().int().min(1), coins: z.number().int().min(0) })),
+  /** Chips at the table after all of the above. */
+  purse: z.number().int().min(0),
+  /** The buy-in count the register knows; a save cannot fall behind it. */
+  bought: z.number().int().min(0),
+});
+export type WheelSync = z.infer<typeof WheelSyncSchema>;
+
+export const NO_WHEEL: WheelState = { cart: [], bought: 0, paidThrough: 0 };
+
+export type BuyInResult = { ok: true; state: SimState } | { ok: false; reason: string };
+
+/**
+ * Put coins on the cart for the table. Rejected, with the state untouched, when it is less
+ * than one, more than the purse holds, or the cart is full.
+ */
+export function buyIn(state: SimState, coins: number): BuyInResult {
+  if (!Number.isInteger(coins) || coins < 1)
+    return { ok: false, reason: 'buy in with at least 1 gp' };
+  if (coins > MAX_BUY_IN) return { ok: false, reason: 'the table will not take that much at once' };
+  if (state.coins < coins)
+    return { ok: false, reason: `that is ${String(coins)} gp (you have ${String(state.coins)})` };
+  if (state.wheel.cart.length >= MAX_PENDING_BUY_INS)
+    return { ok: false, reason: 'the table has not counted your last coins yet' };
+  const id = state.wheel.bought + 1;
+  const s: SimState = {
+    ...state,
+    coins: state.coins - coins,
+    wheel: { ...state.wheel, cart: [...state.wheel.cart, { id, coins }], bought: id },
+    stats: { ...state.stats, boughtIn: state.stats.boughtIn + coins },
+  };
+  return { ok: true, state: pushEvent(s, { type: 'bought-in', tick: s.tick, coins }) };
+}
+
+/**
+ * Apply what the register answered. Credited buy-ins leave the cart; payouts newer than
+ * `paidThrough` come into the purse and are logged; the counters can only go up. Returns the
+ * very same state when nothing changes, so the host can tell.
+ */
+export function applyWheelSync(state: SimState, sync: WheelSync): SimState {
+  const took = new Set(sync.took);
+  const cart = state.wheel.cart.some((b) => took.has(b.id))
+    ? state.wheel.cart.filter((b) => !took.has(b.id))
+    : state.wheel.cart;
+  let coins = state.coins;
+  let paidThrough = state.wheel.paidThrough;
+  const landed: number[] = [];
+  for (const p of [...sync.paid].sort((a, b) => a.seq - b.seq)) {
+    if (p.seq <= paidThrough) continue;
+    paidThrough = p.seq;
+    coins += p.coins;
+    landed.push(p.coins);
+  }
+  const bought = Math.max(state.wheel.bought, sync.bought);
+  if (
+    cart === state.wheel.cart &&
+    coins === state.coins &&
+    paidThrough === state.wheel.paidThrough &&
+    bought === state.wheel.bought
+  )
+    return state;
+  let s: SimState = {
+    ...state,
+    coins,
+    wheel: { cart, bought, paidThrough },
+    stats: { ...state.stats, cashedOut: state.stats.cashedOut + landed.reduce((a, b) => a + b, 0) },
+  };
+  for (const c of landed) s = pushEvent(s, { type: 'cashed-out', tick: s.tick, coins: c });
+  return s;
+}
+
+// ---- the table's arithmetic, shared with the register and the screen ------------------------
+
+/** Pockets on the wheel: 0, 1–36, and 37 for the double zero. */
+export const POCKETS = 38;
+export const DOUBLE_ZERO = 37;
+
+export const RED: ReadonlySet<number> = new Set([
+  1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36,
+]);
+
+/** Thirty seconds a round; bets for the first twenty-four. */
+export const ROUND_MS = 30_000;
+export const BETS_MS = 24_000;
+
+/**
+ * A spot on the table. Written as one short string so it keys a bet in the register and on the
+ * wire: `straight:17`, `red`, `dozen:2`, `column:3`.
+ */
+export const SpotSchema = z
+  .string()
+  .regex(/^(straight:(\d|[12]\d|3[0-7])|red|black|odd|even|low|high|dozen:[123]|column:[123])$/);
+export type Spot = z.infer<typeof SpotSchema>;
+
+export function isSpot(s: string): s is Spot {
+  return SpotSchema.safeParse(s).success;
+}
+
+/** What a winning spot pays on top of the stake: 35 to 1 on a number, 2 on a third, even money. */
+export function spotOdds(spot: Spot): number {
+  if (spot.startsWith('straight:')) return 35;
+  if (spot.startsWith('dozen:') || spot.startsWith('column:')) return 2;
+  return 1;
+}
+
+export function pocketColour(pocket: number): 'red' | 'black' | 'house' {
+  if (pocket === 0 || pocket === DOUBLE_ZERO) return 'house';
+  return RED.has(pocket) ? 'red' : 'black';
+}
+
+/** Whether `spot` wins when the ball lands in `pocket`. The house pockets beat every outside bet. */
+export function spotWins(spot: Spot, pocket: number): boolean {
+  if (spot.startsWith('straight:')) return Number(spot.slice(9)) === pocket;
+  if (pocket === 0 || pocket === DOUBLE_ZERO) return false;
+  switch (spot) {
+    case 'red':
+      return RED.has(pocket);
+    case 'black':
+      return !RED.has(pocket);
+    case 'odd':
+      return pocket % 2 === 1;
+    case 'even':
+      return pocket % 2 === 0;
+    case 'low':
+      return pocket <= 18;
+    case 'high':
+      return pocket >= 19;
+  }
+  if (spot.startsWith('dozen:')) return Math.ceil(pocket / 12) === Number(spot.slice(6));
+  if (spot.startsWith('column:')) return ((pocket - 1) % 3) + 1 === Number(spot.slice(7));
+  return false;
+}
+
+/** What comes back for `stake` on `spot`: the stake and its odds on a win, nothing otherwise. */
+export function payout(stake: number, spot: Spot, pocket: number): number {
+  return spotWins(spot, pocket) ? stake * (spotOdds(spot) + 1) : 0;
+}
+
+export function pocketLabel(pocket: number): string {
+  return pocket === DOUBLE_ZERO ? '00' : String(pocket);
+}
+
+export function spotLabel(spot: Spot): string {
+  if (spot.startsWith('straight:')) return pocketLabel(Number(spot.slice(9)));
+  if (spot.startsWith('dozen:')) return ['1st 12', '2nd 12', '3rd 12'][Number(spot.slice(6)) - 1]!;
+  if (spot.startsWith('column:'))
+    return ['1st column', '2nd column', '3rd column'][Number(spot.slice(7)) - 1]!;
+  return { red: 'red', black: 'black', odd: 'odd', even: 'even', low: '1 to 18', high: '19 to 36' }[
+    spot
+  ]!;
+}
+
+/** Which round the register's clock is in, and its edges. */
+export function roundAt(nowMs: number): {
+  id: number;
+  opensAt: number;
+  closesAt: number;
+  endsAt: number;
+} {
+  const id = Math.floor(nowMs / ROUND_MS);
+  const opensAt = id * ROUND_MS;
+  return { id, opensAt, closesAt: opensAt + BETS_MS, endsAt: opensAt + ROUND_MS };
+}

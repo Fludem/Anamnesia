@@ -24,7 +24,7 @@ export const LISTED_ROOMS: readonly Room[] = ['fire'];
 
 export const ROOM_INFO: Record<Room, { name: string; line: string; icon: string }> = {
   fire: { name: 'The Fire', line: 'everyone on the hill', icon: 'lorc/campfire' },
-  wheel: { name: 'The Wheel', line: 'table talk', icon: 'lorc/cartwheel' },
+  wheel: { name: 'The Wheel', line: 'heard by whoever is at the table', icon: 'lorc/cartwheel' },
 };
 
 /** How many words a talk keeps in memory. */

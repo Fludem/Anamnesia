@@ -137,6 +137,18 @@ export const MIGRATIONS: MigrationTable = {
       },
     };
   },
+  /** v10 → v11 (Phase 14): nothing at the wheel. */
+  10: (raw) => {
+    const sim = asObject(raw['sim']);
+    return {
+      ...raw,
+      sim: {
+        ...sim,
+        wheel: { cart: [], bought: 0, paidThrough: 0 },
+        stats: { boughtIn: 0, cashedOut: 0, ...asObject(sim['stats']) },
+      },
+    };
+  },
 };
 
 function asObject(v: unknown): Record<string, unknown> {

@@ -30,6 +30,7 @@ import { GatherScreen } from './ui/screens/GatherScreen.tsx';
 import { HighscoresScreen } from './ui/screens/HighscoresScreen.tsx';
 import { HallScreen } from './ui/screens/HallScreen.tsx';
 import { TraderScreen } from './ui/screens/TraderScreen.tsx';
+import { WheelScreen } from './ui/screens/WheelScreen.tsx';
 import { Shell } from './ui/Shell.tsx';
 import { useChat } from './ui/useChat.ts';
 import { useGameRuntime } from './ui/useGameHost.ts';
@@ -112,6 +113,15 @@ function Game({ user, onSignOut }: { user: User; onSignOut: () => Promise<void> 
       <HallScreen sim={sim} dispatch={dispatch} juice={juice} savedAtMs={snapshot.lastSavedAtMs} />
     ) : view.kind === 'talk' ? (
       <ChatScreen chat={chat} />
+    ) : view.kind === 'wheel' ? (
+      <WheelScreen
+        sim={sim}
+        dispatch={dispatch}
+        juice={juice}
+        savedAtMs={snapshot.lastSavedAtMs}
+        onSaved={() => runtime.host.saveNow()}
+        chat={chat}
+      />
     ) : view.kind === 'highscores' ? (
       <HighscoresScreen
         sim={sim}

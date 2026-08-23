@@ -1,8 +1,8 @@
 /**
  * The hill's register: SQLite through node's own binding, one file, no daemon. Who has a name,
  * who is logged in, each name's last save, what that save scores on every board — and, since
- * Phase 12, the halls; since Phase 13, what was said. The schema is versioned with
- * `user_version`; bumps append to MIGRATIONS.
+ * Phase 12, the halls; since Phase 13, what was said; since Phase 14, the wheel. The schema is
+ * versioned with `user_version`; bumps append to MIGRATIONS.
  */
 import { DatabaseSync } from 'node:sqlite';
 
@@ -125,6 +125,48 @@ const MIGRATIONS: readonly string[] = [
     created_at INTEGER NOT NULL,
     PRIMARY KEY (user_id, blocked_id)
   );
+  `,
+  /**
+   * Phase 14: the wheel. Chips at the table per name (`wheel_purses`), the ledger of buy-ins the
+   * save carried in (`wheel_buyins`, one per cart id) and of cash-outs waiting for a save to take
+   * them (`wheel_payouts`, numbered per name), each round the table has turned (`wheel_rounds`,
+   * pocket null until it has) and every bet on it.
+   */
+  `
+  CREATE TABLE wheel_purses (
+    user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    coins INTEGER NOT NULL,
+    staked INTEGER NOT NULL DEFAULT 0,
+    returned INTEGER NOT NULL DEFAULT 0
+  );
+  CREATE TABLE wheel_buyins (
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    buyin_id INTEGER NOT NULL,
+    coins INTEGER NOT NULL,
+    created_at INTEGER NOT NULL,
+    PRIMARY KEY (user_id, buyin_id)
+  );
+  CREATE TABLE wheel_payouts (
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    seq INTEGER NOT NULL,
+    coins INTEGER NOT NULL,
+    created_at INTEGER NOT NULL,
+    PRIMARY KEY (user_id, seq)
+  );
+  CREATE TABLE wheel_rounds (
+    id INTEGER PRIMARY KEY,
+    pocket INTEGER,
+    settled_at INTEGER
+  );
+  CREATE TABLE wheel_bets (
+    round_id INTEGER NOT NULL REFERENCES wheel_rounds(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    spot TEXT NOT NULL,
+    stake INTEGER NOT NULL,
+    won INTEGER,
+    PRIMARY KEY (round_id, user_id, spot)
+  );
+  CREATE INDEX wheel_bets_user ON wheel_bets(user_id, round_id);
   `,
 ];
 

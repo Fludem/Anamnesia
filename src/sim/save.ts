@@ -3,11 +3,12 @@ import { ActionQueueSchema } from './actions.ts';
 import { IdSchema } from './content/schema.ts';
 import { SimEventSchema } from './events.ts';
 import { HallStateSchema } from './hall.ts';
+import { WheelStateSchema } from './wheel.ts';
 import { ContainerSchema } from './items.ts';
 import { seedRng } from './rng.ts';
 import { EQUIPMENT_SLOTS, EquipmentSlotSchema } from './slots.ts';
 
-export const CURRENT_SAVE_VERSION = 10;
+export const CURRENT_SAVE_VERSION = 11;
 
 const Uint32 = z.number().int().min(0).max(0xffffffff);
 
@@ -109,6 +110,9 @@ export const SimStateSchema = z.object({
     ferried: z.number().int().min(0).default(0),
     /** Gp worth ever given to the hall, at the value when given. */
     given: z.number().int().min(0).default(0),
+    /** Coins ever taken to the wheel, and chips ever brought back from it. */
+    boughtIn: z.number().int().min(0).default(0),
+    cashedOut: z.number().int().min(0).default(0),
   }),
   /** Times each of the trader's wares was bought, keyed by ware id. */
   upgrades: z.record(IdSchema, z.number().int().min(0)).default({}),
@@ -118,6 +122,8 @@ export const SimStateSchema = z.object({
    * by the register. `given` counts gifts ever made; a gift's id is its number. See hall.ts.
    */
   hall: HallStateSchema.default({ id: null, rooms: {}, gifts: [], given: 0 }),
+  /** Coins on their way to the wheel, and how far this save has taken its payouts. See wheel.ts. */
+  wheel: WheelStateSchema.default({ cart: [], bought: 0, paidThrough: 0 }),
   combat: CombatStateSchema,
   /** First-steps progress: step ids completed in order, and whether the card was put away. */
   tutorial: z.object({ done: z.array(z.string().min(1)), dismissed: z.boolean() }),
@@ -174,9 +180,12 @@ export function createSimState(seed: number): SimState {
       spent: 0,
       ferried: 0,
       given: 0,
+      boughtIn: 0,
+      cashedOut: 0,
     },
     upgrades: {},
     hall: { id: null, rooms: {}, gifts: [], given: 0 },
+    wheel: { cart: [], bought: 0, paidThrough: 0 },
     tutorial: { done: [], dismissed: false },
     combat: {
       hp: STARTING_HP,

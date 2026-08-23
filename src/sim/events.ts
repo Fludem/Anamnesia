@@ -99,6 +99,18 @@ export const SimEventSchema = z.discriminatedUnion('type', [
     room: IdSchema,
     tier: z.number().int().min(1),
   }),
+  /** Coins put on the cart for the wheel. */
+  z.object({
+    type: z.literal('bought-in'),
+    tick: z.number().int().min(0),
+    coins: z.number().int().min(1),
+  }),
+  /** Chips the register sent back from the wheel. */
+  z.object({
+    type: z.literal('cashed-out'),
+    tick: z.number().int().min(0),
+    coins: z.number().int().min(0),
+  }),
 ]);
 export type SimEvent = z.infer<typeof SimEventSchema>;
 export type SimEventOf<T extends SimEvent['type']> = Extract<SimEvent, { type: T }>;

@@ -13,6 +13,7 @@ export const ViewSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('trader') }),
   z.object({ kind: z.literal('hall') }),
   z.object({ kind: z.literal('talk') }),
+  z.object({ kind: z.literal('wheel') }),
   /** `board` is a highscores board id: total, wealth or a skill. */
   z.object({ kind: z.literal('highscores'), board: z.string().min(1).default('total') }),
 ]);

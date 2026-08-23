@@ -121,3 +121,23 @@ export function Pops({
     </>
   );
 }
+
+/** A label and a value in a `.stat-block`; gold for coins worth noting, accent for a yes. */
+export function StatRow({
+  k,
+  v,
+  gold,
+  accent,
+}: {
+  k: string;
+  v: string;
+  gold?: boolean;
+  accent?: boolean;
+}) {
+  return (
+    <div className="stat-row">
+      <span className="k">{k}</span>
+      <span className={`v${gold ? ' gold' : ''}${accent ? ' accent' : ''}`}>{v}</span>
+    </div>
+  );
+}

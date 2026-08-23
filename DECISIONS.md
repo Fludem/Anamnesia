@@ -1177,3 +1177,65 @@ is heard by every name; a word to a name is between two; a name may turn away fr
 - No design screen; the talk is Screen A's rows and a card. The narrow layout (list or talk,
   a way back) is CSS only and was not checked in a browser this time — the window here would
   not resize.
+
+## Phase 14 — the wheel: one table, turned by the register
+
+The user asked for a gambling game, chose roulette, and then asked for it to be live — other
+names betting on the same table — and for a chat on it. Coins inflate faster than xp past
+level 80, so a house-edged sink was welcome; the user chose about 5% and no cap on a stake.
+Built alongside Phase 13 in a worktree; the table talk is a room of that phase's chat.
+
+### Why the pocket is the register's and the chips are too
+
+A shared table means one spin for everyone, so the pocket cannot come from the sim's seeded
+dice. The register draws it (`crypto.randomInt`) the moment bets close. But the register
+cannot touch the coins in a browser's sim except by answering a save, and a bet wants to land
+in a click, not a save. So coins become chips: _buy in_ is a sim command that takes coins
+from the purse onto a cart in the save (`sim.wheel.cart`, ids from `sim.wheel.bought`, like
+the hall's gifts); the next save write credits each unseen id once (`wheel_buyins` is the
+ledger, `INSERT OR IGNORE`) and answers with what it took; bets are `POST /api/wheel/bet`
+against the chips, one conditional `UPDATE … WHERE coins >= stake` that either lands or is
+refused, and are final; settlement pays into the same chips. _Cash out_ moves the chips into
+a numbered payout (`wheel_payouts.seq`), and the next save write adds every payout newer
+than the save's `paidThrough` to the **stored** record's coins, stamps `paidThrough` and
+`bought` into it, and echoes the payouts so the host adds them in memory. The invariant:
+stored coins = what the save sent + every payout it had not taken; a tab that reloads onto
+the stored record (stale write, a takeover that lapsed, a lost reply) is neither short nor
+paid twice. A payout's number is floored at the stored save's `paidThrough`, so a ledger
+restored from an older backup cannot hand out a number the save already took.
+
+### The round is the clock
+
+Round `n` is `[30n s, 30n+30 s)` of the register's clock, bets until `30n+24`; nothing runs on
+a timer. Every look, bet and cash-out first settles whatever has closed, so a round a bet was
+placed on is always drawn, however long ago, and a process down for it draws it on waking.
+The strip of last pockets is backfilled lazily — the last twelve closed rounds only — so a
+quiet night is not drawn round by round. The screen counts down on the register's clock
+(`now` in every answer, offset kept by `useWheel`) and stops taking clicks 400 ms early, so
+an honest click is never refused; one that is gets a quiet note. The pocket exists from the
+close, so the last six seconds show it; the reveal is a gold ring, not a spinning wheel.
+
+### Thirty-eight pockets
+
+An American wheel — 0, 00, 1–36 — because the user asked for about 5% and that is what two
+house pockets in thirty-eight are, on every bet alike (`src/sim/wheel.test.ts` pins it: stake
+38 on any spot across every pocket and 36 × 38 comes back). Straight 35 to 1, a third or a
+column 2 to 1, the rest even money; the house pockets beat every outside bet. A stack is a
+chip of 100 to 1M gp per click, any number of clicks, no cap, as chosen.
+
+### What is trusted
+
+Bets, the pocket and the chips are the register's; the sim never learns a bet. Buy-ins are
+trusted like gifts — the register takes the cart's word that the coins came out of a purse —
+which is the save's own trust, no more.
+
+### Flagged
+
+- No design screen; the table is Screen A's card with a grid in it, the red/black are
+  `--hurt` and the track, the house pockets the accent, a hit the gold ring.
+- Every open wheel tab polls `/api/wheel` every 2 s while the screen is up. Fine for this
+  hill; the chat's long poll is the pattern if it ever matters.
+- The wheel turns only while someone is looking; a name that bets and leaves is paid when
+  anyone next looks, or when they do.
+- `npm run typecheck` fails on main in `server/chat.ts` (five `as MessageRow` casts under the
+  node config) — Phase 13's, not this one's; `npm run build` checks the app config only.
