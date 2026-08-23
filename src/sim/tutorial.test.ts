@@ -62,6 +62,7 @@ describe('first steps', () => {
         thrown: 0,
         spent: 0,
         ferried: 0,
+        given: 0,
         sold: 3,
         items: {
           'copper-ore': 10,

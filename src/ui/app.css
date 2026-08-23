@@ -2817,8 +2817,150 @@
   color: var(--gold);
 }
 @media (max-width: 700px) {
+  .ware-row {
+    flex-wrap: wrap;
+  }
   .ware-buy {
     width: 100%;
     justify-content: flex-end;
+  }
+}
+
+/* ---- the hall (Phase 12) — Screen A's rows, Screen E's columns, the trader's buy cell ---- */
+.room-row .body {
+  display: flex;
+  flex-direction: column;
+}
+.room-row .sub + .sub {
+  color: var(--fg-2);
+}
+.room-row.raised .tile-box {
+  border-color: rgba(var(--accent-rgb), 0.4);
+}
+.room-row .name .tag-active {
+  margin-left: 8px;
+}
+.room-row .room-bar {
+  display: block;
+  margin-top: 8px;
+  max-width: 360px;
+}
+.room-row .room-bar .steps-fill {
+  display: block;
+}
+.room-row .needs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 6px;
+}
+.room-row .need {
+  color: var(--gold);
+}
+.room-row .need.met {
+  color: var(--fg-3);
+  text-decoration: line-through;
+}
+.room-give {
+  flex: 0 0 auto;
+}
+.room-give .btn {
+  padding: 6px 14px;
+  border-color: rgba(var(--accent-rgb), 0.45);
+  color: var(--accent);
+}
+.room-give .btn:disabled {
+  border-color: var(--border);
+  color: var(--fg-disabled);
+  cursor: default;
+}
+.hall-row {
+  cursor: default;
+}
+.hall-row .body {
+  display: flex;
+  flex-direction: column;
+}
+.hall-row .name .tag-active {
+  margin-left: 8px;
+}
+.hall-row.you {
+  background: rgba(var(--accent-rgb), 0.05);
+}
+.hall-row .avatar {
+  flex: none;
+}
+.hall-row.ledger .sub b {
+  color: var(--fg-2);
+  font-weight: 500;
+}
+.hall-row .sub .accent {
+  vertical-align: -1px;
+}
+.hall-answer {
+  display: flex;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+.hall-answer .btn {
+  flex: none;
+}
+.hall-form {
+  padding: 16px;
+}
+.hall-form .card-head {
+  padding: 0 0 8px;
+}
+.hall-form .sel-flavour {
+  margin: 0 0 12px;
+}
+.hall-form-row {
+  display: flex;
+  gap: 8px;
+}
+.hall-form-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 12px;
+}
+.hall-form-row .btn {
+  flex: none;
+}
+.note-line.warn {
+  color: var(--gold);
+}
+.hall-cart {
+  padding: 10px 16px 8px;
+}
+.hall-door {
+  padding: 8px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.hall-door .hall-form {
+  padding: 10px 6px 0;
+  background: transparent;
+  border: 0;
+}
+.hall-leave {
+  display: flex;
+  gap: 8px;
+  padding: 0 6px;
+}
+.hall-leave .btn {
+  flex: 1;
+}
+.give-what {
+  margin-top: 12px;
+}
+.give-what .btn.on {
+  border-color: rgba(var(--accent-rgb), 0.45);
+  background: rgba(var(--accent-rgb), 0.1);
+  color: var(--accent);
+}
+@media (max-width: 700px) {
+  .room-row .room-bar {
+    max-width: none;
   }
 }

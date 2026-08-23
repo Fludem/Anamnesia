@@ -173,6 +173,9 @@ export function Settings({
             ? ` · saved ${new Date(snapshot.lastSavedAtMs).toLocaleTimeString()}`
             : ''}
           {sim ? ` · the night lasts ${String(nightHours(sim, simContext))} h` : ''}
+          {sim?.hall.id !== null && sim !== null
+            ? ` · ${String(Object.values(sim.hall.rooms).reduce((a, b) => a + b, 0))} raised in the hall`
+            : ''}
         </div>
         {snapshot.warning && (
           <div className="kv" style={{ color: 'var(--gold)' }}>

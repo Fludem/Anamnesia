@@ -12,6 +12,8 @@ import {
   type PatchDef,
   type RarityDef,
   type RecipeDef,
+  type RoomDef,
+  type RoomPerk,
   type WareDef,
   type RockDef,
   type SkillDef,
@@ -34,6 +36,7 @@ interface ResolvedPack {
   monsters: readonly MonsterDef[];
   gods: readonly GodDef[];
   wares: readonly WareDef[];
+  rooms: readonly RoomDef[];
 }
 
 export class ContentError extends Error {
@@ -72,6 +75,8 @@ export class ContentDb {
   readonly gods: readonly GodDef[];
   /** The trader's wares, in authored order — the order the screen lists them. */
   readonly wares: readonly WareDef[];
+  /** The hall's rooms, in authored order. */
+  readonly rooms: readonly RoomDef[];
   private readonly skillById: ReadonlyMap<string, SkillDef>;
   private readonly materialById: ReadonlyMap<string, MaterialDef>;
   private readonly rarityById: ReadonlyMap<string, RarityDef>;
@@ -85,6 +90,7 @@ export class ContentDb {
   private readonly zoneById: ReadonlyMap<string, ZoneDef>;
   private readonly monsterById: ReadonlyMap<string, MonsterDef>;
   private readonly wareById: ReadonlyMap<string, WareDef>;
+  private readonly roomById: ReadonlyMap<string, RoomDef>;
 
   private constructor(pack: ResolvedPack) {
     this.skills = pack.skills;
@@ -100,6 +106,7 @@ export class ContentDb {
     this.monsters = pack.monsters;
     this.gods = pack.gods;
     this.wares = pack.wares;
+    this.rooms = pack.rooms;
     this.skillById = new Map(pack.skills.map((s) => [s.id, s]));
     this.materialById = new Map(pack.materials.map((m) => [m.id, m]));
     this.rarityById = new Map(pack.rarities.map((r) => [r.id, r]));
@@ -113,6 +120,7 @@ export class ContentDb {
     this.zoneById = new Map(pack.zones.map((z) => [z.id, z]));
     this.monsterById = new Map(pack.monsters.map((m) => [m.id, m]));
     this.wareById = new Map(pack.wares.map((w) => [w.id, w]));
+    this.roomById = new Map(pack.rooms.map((r) => [r.id, r]));
   }
 
   /** Validate shape, then every cross-reference. Throws `ContentError` listing all problems. */
@@ -310,6 +318,26 @@ export class ContentDb {
       if (w.effect.kind !== 'release-oath' && !w.once)
         problems.push(`${owner}: only release from the oath is sold more than once`);
     }
+    dupes(
+      'room',
+      pack.rooms.map((r) => r.id),
+    );
+    for (const r of pack.rooms) {
+      const owner = `room "${r.id}"`;
+      r.tiers.forEach((t, i) => {
+        checkItemQty(`${owner} tier ${String(i + 1)}`, t.cost);
+        if (t.cost.length === 0 && t.coins === 0)
+          problems.push(`${owner} tier ${String(i + 1)}: costs nothing`);
+        if (t.perk.kind !== r.tiers[0]!.perk.kind)
+          problems.push(`${owner}: tiers must share one kind of perk`);
+        if (i > 0 && perkSize(t.perk) < perkSize(r.tiers[i - 1]!.perk))
+          problems.push(`${owner} tier ${String(i + 1)}: a higher tier does less`);
+      });
+      for (const t of r.tiers) {
+        if ('skill' in t.perk && t.perk.skill !== null && !skillIds.has(t.perk.skill))
+          problems.push(`${owner}: perk names unknown skill "${t.perk.skill}"`);
+      }
+    }
     // Duplicate problems from a table checked through several owners are not informative.
     const unique = [...new Set(problems)];
     if (unique.length) throw new ContentError(unique);
@@ -327,6 +355,7 @@ export class ContentDb {
       monsters,
       gods,
       wares: pack.wares,
+      rooms: pack.rooms,
     });
   }
 
@@ -399,6 +428,12 @@ export class ContentDb {
   hasWare(id: string): boolean {
     return this.wareById.has(id);
   }
+  room(id: string): RoomDef {
+    return lookup(this.roomById, 'room', id);
+  }
+  hasRoom(id: string): boolean {
+    return this.roomById.has(id);
+  }
   /** The gathering nodes a skill trains on, or an empty list for crafting skills. */
   nodesFor(skill: string): readonly GatherNodeDef[] {
     switch (skill) {
@@ -421,6 +456,24 @@ export class ContentDb {
   /** Monsters of one zone in authored order. */
   monstersIn(zone: string): MonsterDef[] {
     return this.monsters.filter((m) => m.zone === zone);
+  }
+}
+
+/** The one number a perk carries, for the tier-to-tier check. */
+export function perkSize(p: RoomPerk): number {
+  switch (p.kind) {
+    case 'xp':
+      return p.bonus;
+    case 'double-yield':
+      return p.chance;
+    case 'heal':
+      return p.bonus;
+    case 'bank-slots':
+      return p.slots;
+    case 'night':
+      return p.hours;
+    case 'ferryman':
+      return p.discount;
   }
 }
 

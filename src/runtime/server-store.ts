@@ -4,6 +4,7 @@
  * connection that drops is reported as `unreachable`, not thrown: the host keeps playing and
  * tries again on its next save. Only the register refusing the save outright is fatal.
  */
+import { HallSyncSchema } from '../sim/hall.ts';
 import type { SaveRecord } from '../sim/save.ts';
 import type { SaveStore, WriteResult } from './store.ts';
 
@@ -60,8 +61,11 @@ export class ServerSaveStore implements SaveStore {
       };
     }
     if (res.status === 200) {
-      const body = (await res.json()) as { saveCounter: number };
-      return { ok: true, saveCounter: body.saveCounter };
+      const body = (await res.json()) as { saveCounter: number; hall?: unknown };
+      const hall = HallSyncSchema.safeParse(body.hall);
+      return hall.success
+        ? { ok: true, saveCounter: body.saveCounter, hall: hall.data }
+        : { ok: true, saveCounter: body.saveCounter };
     }
     if (res.status === 409) {
       const body = (await res.json()) as { stored: SaveRecord | null };

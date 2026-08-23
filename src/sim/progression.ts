@@ -15,8 +15,9 @@ import type {
   GatherNodeDef,
   MonsterDef,
   RecipeDef,
+  RoomTier,
 } from './content/schema.ts';
-import { TICK_MS } from './constants.ts';
+import { TICK_MS, TICKS_PER_HOUR } from './constants.ts';
 import type { SimContext } from './context.ts';
 import { TOOL_SLOTS, type ToolSlot } from './slots.ts';
 
@@ -26,8 +27,6 @@ import { TOOL_SLOTS, type ToolSlot } from './slots.ts';
  * idle time to 99") as code, so a content change that drifts from it fails a test instead of
  * being discovered a month later. No god bonus, no failure streaks — expected values only.
  */
-
-const TICKS_PER_HOUR = 3_600_000 / TICK_MS;
 
 /** A tool arriving at a level: "from level 10 the pick cuts 10%". */
 export interface ToolStep {
@@ -252,6 +251,77 @@ export function coinsPerHour(skill: string, level: number, ctx: SimContext): num
     }
   }
   return best;
+}
+
+// ---- the hall -----------------------------------------------------------------------------
+
+/** The level a room's tier is costed at: its materials open by then. */
+export const ROOM_TIER_LEVELS: readonly number[] = [20, 55, 80];
+
+/**
+ * Hours one name at `level` in every skill takes to come by `qty` of `item`: gathered from the
+ * best open standard node that drops it (expected units per cycle counted), or made on the
+ * best open recipe that outputs it, its inputs gathered or made the same way. Infinity when
+ * there is no way at that level. The hall's rooms are costed against this;
+ * `scripts/tune-hall.ts` prints it.
+ */
+export function hoursToMake(item: string, qty: number, level: number, ctx: SimContext): number {
+  return hoursFor(item, qty, level, ctx, new Set());
+}
+
+function hoursFor(
+  item: string,
+  qty: number,
+  level: number,
+  ctx: SimContext,
+  making: Set<string>,
+): number {
+  if (qty <= 0) return 0;
+  let best = Infinity;
+  for (const skill of ctx.content.skills) {
+    const cut = toolCutAt(level, toolLadderFor(skill.id));
+    for (const n of ctx.content.nodesFor(skill.id)) {
+      if (n.quick) continue;
+      const m = methodOfNode(n);
+      const perHour = methodRate(m, level, cut) / m.xp;
+      if (perHour === 0) continue;
+      let unitsPerCycle = 0;
+      for (const t of n.drops) {
+        const total = t.nothingWeight + t.entries.reduce((w, e) => w + e.weight, 0);
+        for (const e of t.entries) {
+          if (e.item !== item || total === 0) continue;
+          unitsPerCycle += t.rolls * (e.weight / total) * ((e.quantity[0] + e.quantity[1]) / 2);
+        }
+      }
+      if (unitsPerCycle > 0) best = Math.min(best, qty / (perHour * unitsPerCycle));
+    }
+  }
+  if (making.has(item)) return best;
+  for (const r of ctx.content.recipes) {
+    const out = r.outputs.find((o) => o.item === item);
+    if (!out || r.xp === 0) continue;
+    const m = methodOfRecipe(r);
+    const perHour = methodRate(m, level, 0) / m.xp;
+    if (perHour === 0) continue;
+    const cycles = qty / out.qty;
+    let hours = cycles / perHour;
+    const deeper = new Set(making).add(item);
+    for (const i of r.inputs) hours += hoursFor(i.item, i.qty * cycles, level, ctx, deeper);
+    best = Math.min(best, hours);
+  }
+  return best;
+}
+
+/** Hours one name at `level` takes to raise one tier of a room alone: every need, plus the coins. */
+export function hoursForTier(tier: RoomTier, level: number, ctx: SimContext): number {
+  let hours = 0;
+  for (const c of tier.cost) hours += hoursToMake(c.item, c.qty, level, ctx);
+  if (tier.coins > 0) {
+    let gp = 0;
+    for (const skill of ctx.content.skills) gp = Math.max(gp, coinsPerHour(skill.id, level, ctx));
+    hours += gp > 0 ? tier.coins / gp : Infinity;
+  }
+  return hours;
 }
 
 // ---- combat -------------------------------------------------------------------------------

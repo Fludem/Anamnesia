@@ -1,5 +1,6 @@
 import { planAdvance, planTickCount } from '../sim/advance.ts';
 import { OFFLINE_CAP_TICKS, TICK_MS } from '../sim/constants.ts';
+import { applyHallSync, type HallSync } from '../sim/hall.ts';
 import { offlineCapTicks } from '../sim/trader.ts';
 import { migrateSave, SaveLoadError } from '../sim/migrate.ts';
 import { reconcileWithContent } from '../sim/reconcile.ts';
@@ -97,6 +98,11 @@ export interface GameHostOptions {
    */
   capTicksFor?: (sim: SimState) => number;
   /**
+   * Applies what the register answered about the hall after a write (src/sim/hall.ts). Pure;
+   * must return the very same state when nothing changed. Defaults to the shipped content.
+   */
+  applySync?: (sim: SimState, hall: HallSync) => SimState;
+  /**
    * The name the save must carry, when an account owns it: written over the save's own on
    * load. Null keeps whatever the save says (the hero names themself on first run).
    */
@@ -177,6 +183,7 @@ export class GameHost {
       reconcile: options.reconcile ?? defaultReconcile,
       onAction: options.onAction,
       capTicksFor: options.capTicksFor ?? ((sim) => offlineCapTicks(sim, simContext)),
+      applySync: options.applySync ?? ((sim, hall) => applyHallSync(sim, hall, simContext)),
       playerName: options.playerName ?? null,
       onStale: options.onStale ?? 'reload',
     };
@@ -534,6 +541,7 @@ export class GameHost {
         return;
       }
       this.saveCounter = result.saveCounter;
+      if (result.hall) this.applySync(result.hall);
       this.patch({
         saveCounter: this.saveCounter,
         lastSavedAtMs: this.env.clock.now(),
@@ -543,6 +551,22 @@ export class GameHost {
     };
     this.saveChain = this.saveChain.then(run, run);
     return this.saveChain;
+  }
+
+  /**
+   * What the register said about the hall, applied in memory and never saved on its own: the
+   * next save carries it, and a save→answer→save loop would otherwise never end. Dropped when
+   * this tab stopped leading while the write was in flight, or is mid-advance — nothing is
+   * lost either way, since a gift stays on the cart until this tab's own next save and the
+   * register answers it again.
+   */
+  private applySync(hall: HallSync): void {
+    if (this.sim === null || this.advancing) return;
+    if (this.role !== 'leader' && this.role !== 'handing-over') return;
+    const next = this.opts.applySync(this.sim, hall);
+    if (next === this.sim) return;
+    this.sim = next;
+    this.patch({ sim: this.sim });
   }
 
   /** Someone else wrote after us: the lock failed or we woke from a frozen state. Never overwrite. */

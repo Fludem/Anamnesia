@@ -10,6 +10,8 @@ import { createApp } from './app.ts';
 import { openDatabase } from './db.ts';
 
 const T0 = 1_700_000_000_000;
+/** What a save is answered with by a name in no hall with nothing on the cart. */
+const NO_HALL_SYNC = { id: null, rooms: {}, took: [], given: 0 };
 
 /** One browser: keeps the session cookie between calls. */
 class Client {
@@ -128,7 +130,7 @@ describe('saves', () => {
 
     const first = await c.put(save('tab-a'), 0);
     expect(first.status).toBe(200);
-    expect(first.body).toEqual({ ok: true, saveCounter: 1 });
+    expect(first.body).toEqual({ ok: true, saveCounter: 1, hall: NO_HALL_SYNC });
     const stored = (await c.call('GET', '/api/save')).body as { record: SaveRecord };
     expect(stored.record.saveCounter).toBe(1);
     expect(stored.record.writerId).toBe('tab-a');
@@ -139,7 +141,11 @@ describe('saves', () => {
     expect(stale.status).toBe(409);
     expect(stale.body).toMatchObject({ ok: false, reason: 'stale', stored: { saveCounter: 1 } });
 
-    expect((await c.put(save('tab-b'), 1)).body).toEqual({ ok: true, saveCounter: 2 });
+    expect((await c.put(save('tab-b'), 1)).body).toEqual({
+      ok: true,
+      saveCounter: 2,
+      hall: NO_HALL_SYNC,
+    });
   });
 
   it('lets the last writer retry a write whose reply was lost', async () => {
@@ -147,7 +153,7 @@ describe('saves', () => {
     await c.register('Flaky');
     await c.put(save('tab-a'), 0); // landed, but imagine the reply never arrived
     const retry = await c.put(save('tab-a', { tick: 5 }), 0);
-    expect(retry.body).toEqual({ ok: true, saveCounter: 2 });
+    expect(retry.body).toEqual({ ok: true, saveCounter: 2, hall: NO_HALL_SYNC });
     // Only the same writer: a different tab against the old counter is still stale.
     expect((await c.put(save('tab-c'), 1)).status).toBe(409);
     // And only one step behind.

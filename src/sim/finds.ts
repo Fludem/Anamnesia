@@ -20,6 +20,7 @@ export function rollFinds(state: SimState, skill: string, ctx: SimContext): SimS
   const room = roomFor(
     state,
     table.entries.map((e) => e.item),
+    ctx,
   );
   if (!room.ok) return state;
   let rng = state.rng;

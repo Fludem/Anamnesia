@@ -4,9 +4,11 @@ import type { OfflineRecap as RecapInfo } from '../../runtime/game-host.ts';
 import type { SimState } from '../../sim/save.ts';
 import { eventsOfType } from '../../sim/events.ts';
 import { totalKills } from '../derive-combat.ts';
+import { numeral } from '../derive-hall.ts';
 import { recap } from '../derive.ts';
 import { formatDuration, formatInt } from '../format.ts';
 import { ItemIconTile, Label, RarityTag, SkillIcon, UiIcon } from '../parts.tsx';
+import { HALL_ICON } from '../Shell.tsx';
 import type { Juice } from '../theme/theme.ts';
 import { Modal } from './Modal.tsx';
 
@@ -50,6 +52,10 @@ export function OfflineRecap({
   const ferried = sim.stats.ferried - info.before.stats.ferried;
   const fee = sim.stats.spent - info.before.stats.spent;
   const obols = since.filter((d) => d.obol).length;
+  // Rooms the hall raised while away, as the register said on the way back in.
+  const raised = eventsOfType(sim, 'raised')
+    .filter((r) => r.tick > info.before.tick && content.hasRoom(r.room))
+    .map((r) => `${content.room(r.room).name} stands at ${numeral(r.tier)}`);
   const top = r.skills[0];
   const verb = top ? (VERB[top.skill] ?? 'trained') : null;
   const capped = info.skippedTicks > 0;
@@ -106,6 +112,12 @@ export function OfflineRecap({
         <div className="recap-note found">
           <UiIcon id="delapouite/cape" size={13} />
           the hill left you {found.join(', ')}
+        </div>
+      )}
+      {raised.length > 0 && (
+        <div className="recap-note">
+          <UiIcon id={HALL_ICON} size={13} />
+          the hall was busy: {raised.join(', ')}
         </div>
       )}
       {thrown > 0 && (

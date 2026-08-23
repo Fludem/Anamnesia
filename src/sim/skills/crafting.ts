@@ -47,6 +47,7 @@ export const craftingHandler: ActionHandler<'crafting'> = {
     const room = roomFor(
       after,
       [...recipe.outputs, ...recipe.failOutputs].map((o) => o.item),
+      ctx,
     );
     if (!room.ok) {
       return {

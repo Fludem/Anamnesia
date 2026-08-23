@@ -1,6 +1,7 @@
 import type { GodDef } from './content/schema.ts';
 import type { SimContext } from './context.ts';
 import { gearXpBoost } from './equipment.ts';
+import { hallDoubleYield, hallXpBonus } from './hall.ts';
 import type { ItemStack } from './items.ts';
 import { addXp } from './progress.ts';
 import type { SimState } from './save.ts';
@@ -16,9 +17,14 @@ export function godOf(state: SimState, ctx: SimContext): GodDef | null {
   return id !== null && ctx.content.hasGod(id) ? ctx.content.god(id) : null;
 }
 
-/** 1 + the god's bonus for `skill` (0 when unsworn) + whatever the worn gear adds. */
+/** 1 + the god's bonus for `skill` (0 when unsworn) + the worn gear's + the hall's hearth. */
 export function xpMultiplier(state: SimState, skill: string, ctx: SimContext): number {
-  return 1 + (godOf(state, ctx)?.perks.xp[skill] ?? 0) + gearXpBoost(state, skill, ctx);
+  return (
+    1 +
+    (godOf(state, ctx)?.perks.xp[skill] ?? 0) +
+    gearXpBoost(state, skill, ctx) +
+    hallXpBonus(state, skill, ctx)
+  );
 }
 
 /** The xp a base amount actually pays in `skill`, to a tenth. */
@@ -37,11 +43,11 @@ export function awardXp(
   return { state: addXp(state, skill, xp), xp };
 }
 
-/** Chance a successful cycle of `skill` lands twice (0 when unsworn or not that god's skill). */
+/** Chance a successful cycle of `skill` lands twice: the god's (for that god's skill) + the hall's. */
 export function doubleYieldChance(state: SimState, skill: string, ctx: SimContext): number {
   const god = godOf(state, ctx);
-  if (god === null) return 0;
-  return god.perks.doubleYield.find((d) => d.skill === skill)?.chance ?? 0;
+  const fromGod = god?.perks.doubleYield.find((d) => d.skill === skill)?.chance ?? 0;
+  return Math.min(1, fromGod + hallDoubleYield(state, skill, ctx));
 }
 
 /** Extra tables the god rolls on every successful cycle of `skill`. */

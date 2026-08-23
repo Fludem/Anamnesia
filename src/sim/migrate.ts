@@ -125,6 +125,18 @@ export const MIGRATIONS: MigrationTable = {
       },
     };
   },
+  /** v9 → v10 (Phase 12): no hall, nothing given. */
+  9: (raw) => {
+    const sim = asObject(raw['sim']);
+    return {
+      ...raw,
+      sim: {
+        ...sim,
+        hall: { id: null, rooms: {}, gifts: [], given: 0 },
+        stats: { given: 0, ...asObject(sim['stats']) },
+      },
+    };
+  },
 };
 
 function asObject(v: unknown): Record<string, unknown> {

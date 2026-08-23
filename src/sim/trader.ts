@@ -1,6 +1,7 @@
-import { OFFLINE_CAP_TICKS, TICK_MS } from './constants.ts';
+import { OFFLINE_CAP_TICKS, TICKS_PER_HOUR } from './constants.ts';
 import type { WareDef } from './content/schema.ts';
 import type { SimContext } from './context.ts';
+import { hallNightTicks } from './hall.ts';
 import type { SimState } from './save.ts';
 
 /**
@@ -9,8 +10,6 @@ import type { SimState } from './save.ts';
  * offline cap, a second look rolls finds twice, release from the oath lets the hero swear
  * again. Prices are `price × growth^bought`, rounded to 10 gp, so a repeatable ware climbs.
  */
-
-const TICKS_PER_HOUR = 3_600_000 / TICK_MS;
 
 export type WareStatus = 'owned' | 'locked' | 'for-sale';
 
@@ -41,13 +40,16 @@ export function ownedWares(state: SimState, ctx: SimContext): WareDef[] {
   return ctx.content.wares.filter((w) => ownsWare(state, w.id));
 }
 
-/** Offline progress counts for this many ticks: the base cap, or the best lamp owned. */
+/**
+ * Offline progress counts for this many ticks: the base cap or the best lamp owned, plus
+ * whatever the hall's watchtower adds.
+ */
 export function offlineCapTicks(state: SimState, ctx: SimContext): number {
   let cap = OFFLINE_CAP_TICKS;
   for (const w of ownedWares(state, ctx)) {
     if (w.effect.kind === 'offline-cap') cap = Math.max(cap, w.effect.hours * TICKS_PER_HOUR);
   }
-  return cap;
+  return cap + hallNightTicks(state, ctx);
 }
 
 /** How many times a skill's `finds` table is rolled per successful cycle. */

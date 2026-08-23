@@ -6,9 +6,13 @@
 import type { ZodType } from 'zod';
 import {
   BoardSchema,
+  HallGetSchema,
+  HallsSchema,
   SessionSchema,
   type Board,
   type Credentials,
+  type HallGet,
+  type HallSummary,
   type Session,
 } from './protocol.ts';
 
@@ -72,4 +76,16 @@ export const api = {
   logout: (): Promise<Session> => call('POST', '/api/logout', SessionSchema, {}),
   board: (id: string): Promise<Board> =>
     call('GET', `/api/highscores/${encodeURIComponent(id)}`, BoardSchema),
+  hall: (): Promise<HallGet> => call('GET', '/api/hall', HallGetSchema),
+  foundHall: (name: string): Promise<HallGet> => call('POST', '/api/hall', HallGetSchema, { name }),
+  invite: (name: string): Promise<HallGet> =>
+    call('POST', '/api/hall/invite', HallGetSchema, { name }),
+  requestJoin: (hall: string): Promise<HallGet> =>
+    call('POST', '/api/hall/request', HallGetSchema, { hall }),
+  answerPetition: (id: number, accept: boolean): Promise<HallGet> =>
+    call('POST', `/api/hall/petitions/${String(id)}`, HallGetSchema, { accept }),
+  leaveHall: (): Promise<HallGet> => call('POST', '/api/hall/leave', HallGetSchema, {}),
+  expel: (name: string): Promise<HallGet> =>
+    call('POST', '/api/hall/expel', HallGetSchema, { name }),
+  halls: (): Promise<HallSummary[]> => call('GET', '/api/halls', HallsSchema),
 };

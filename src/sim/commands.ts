@@ -9,6 +9,7 @@ import { addItem, addStacks, countItem, removeItem, type Container } from './ite
 import { heroStats } from './combat.ts';
 import { recordItems } from './perks.ts';
 import type { SimState } from './save.ts';
+import { give } from './hall.ts';
 import { eat, offer } from './skills/combat.ts';
 import { buyWare } from './trader.ts';
 import { EquipmentSlotSchema } from './slots.ts';
@@ -61,6 +62,13 @@ export const CommandSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('combat:ferryman'), pay: z.boolean() }),
   /** Buy one of the trader's wares at its current price. */
   z.object({ type: z.literal('trader:buy'), ware: IdSchema }),
+  /** Put a gift on the cart for the hall: `qty` of `item`, or coins when `item` is null. */
+  z.object({
+    type: z.literal('hall:give'),
+    room: IdSchema,
+    item: IdSchema.nullable(),
+    qty: z.number().int().min(1),
+  }),
 ]);
 export type Command = z.infer<typeof CommandSchema>;
 
@@ -145,6 +153,7 @@ export function applyCommand(state: SimState, cmd: Command, ctx: SimContext): Co
       const room = roomFor(
         after,
         item.opens.entries.map((e) => e.item),
+        ctx,
       );
       if (!room.ok) {
         return reject(state, `bank is full (no slot for ${ctx.content.item(room.item).name})`);
@@ -261,6 +270,10 @@ export function applyCommand(state: SimState, cmd: Command, ctx: SimContext): Co
     case 'trader:buy': {
       const bought = buyWare(state, cmd.ware, ctx);
       return bought.ok ? bought : reject(state, bought.reason);
+    }
+    case 'hall:give': {
+      const gave = give(state, { room: cmd.room, item: cmd.item, qty: cmd.qty }, ctx);
+      return gave.ok ? gave : reject(state, gave.reason);
     }
   }
 }

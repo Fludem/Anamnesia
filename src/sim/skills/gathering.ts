@@ -61,6 +61,7 @@ export function gatheringHandler<K extends ActionKind>(def: GatheringSkill<K>): 
       const room = roomFor(
         state,
         tables.flatMap((t) => t.entries.map((e) => e.item)),
+        ctx,
       );
       if (!room.ok) {
         return {

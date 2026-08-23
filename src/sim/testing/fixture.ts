@@ -399,6 +399,63 @@ export const FIXTURE_PACK = {
       effect: { kind: 'release-oath' },
     },
   ],
+  /** Six rooms, one per perk, with blunt values and tiny costs so tests pin exact numbers. */
+  rooms: [
+    {
+      id: 'hearth',
+      name: 'Hearth',
+      line: 'Warm.',
+      icon: 'delapouite/fireplace',
+      tiers: [
+        { cost: [{ item: 'log', qty: 10 }], perk: { kind: 'xp', skill: null, bonus: 0.5 } },
+        {
+          cost: [
+            { item: 'log', qty: 20 },
+            { item: 'stone', qty: 5 },
+          ],
+          coins: 100,
+          perk: { kind: 'xp', skill: null, bonus: 1 },
+        },
+      ],
+    },
+    {
+      id: 'store',
+      name: 'Store',
+      line: 'Twice.',
+      icon: 'delapouite/warehouse',
+      tiers: [
+        { cost: [{ item: 'ore', qty: 4 }], perk: { kind: 'double-yield', skill: null, chance: 1 } },
+      ],
+    },
+    {
+      id: 'larder',
+      name: 'Larder',
+      line: 'Salt.',
+      icon: 'delapouite/granary',
+      tiers: [{ cost: [{ item: 'fish', qty: 4 }], perk: { kind: 'heal', bonus: 1 } }],
+    },
+    {
+      id: 'strong',
+      name: 'Strongroom',
+      line: 'Thick.',
+      icon: 'delapouite/strongbox',
+      tiers: [{ cost: [{ item: 'bar', qty: 2 }], perk: { kind: 'bank-slots', slots: 5 } }],
+    },
+    {
+      id: 'tower',
+      name: 'Tower',
+      line: 'Up.',
+      icon: 'delapouite/watchtower',
+      tiers: [{ cost: [], coins: 50, perk: { kind: 'night', hours: 2 } }],
+    },
+    {
+      id: 'pyre',
+      name: 'Pyre',
+      line: 'Less.',
+      icon: 'delapouite/pyre',
+      tiers: [{ cost: [{ item: 'log', qty: 3 }], perk: { kind: 'ferryman', discount: 0.5 } }],
+    },
+  ],
 };
 
 export const fixtureContent: ContentDb = ContentDb.fromPack(FIXTURE_PACK);

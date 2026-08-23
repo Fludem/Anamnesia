@@ -85,21 +85,30 @@ what the hill will take coins for: a lamp ladder that lengthens the offline cap 
 level, each ware as hours of work and the ferryman's fee per tier. Save v9 adds purchases, the
 ferryman setting and spent/ferried counters.
 
+Phase 12 is the hall: clans that raise a place on the hill. A name founds a hall, invites
+names or answers those asking at the door, and the members give items and coins to raise six
+rooms through three tiers — the Hearth, Storehouse, Larder, Strongroom, Watchtower and Pyre,
+each a few per cent for everyone in it (`src/content/halls.json`). The hall lives in the
+register (`server/hall.ts`); the sim only carries what the register last said and a cart of
+gifts, which ride inside the save and are answered with the write (`src/sim/hall.ts`).
+`hoursToMake` in `progression.ts` prices a room in hours of one name's work;
+`scripts/tune-hall.ts` prints it. Save v10 adds the hall.
+
 ## Layout
 
-| Path            | Layer                                                                                                                                                                                                                                     |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/sim/`      | Pure simulation: save schema, migrations, PRNG, actions, skills, `highscores.ts` (what a standing is). No DOM.                                                                                                                            |
-| `src/content/`  | Game content as JSON (skills, gods, materials, rarities, items, rocks, trees, waters, recipes, zones, monsters, drop tables), validated at load; `progression.test.ts` pins hours-to-99.                                                  |
-| `src/runtime/`  | Browser orchestration: save stores (IndexedDB and the server), leader election, channel, GameHost.                                                                                                                                        |
-| `src/api/`      | The wire: `protocol.ts` (zod schemas both ends import) and `client.ts` (the game's calls).                                                                                                                                                |
-| `server/`       | The register: `db.ts` (SQLite schema), `auth.ts` (scrypt, sessions, cookies, rate limits), `register.ts` (SQL), `app.ts` (routes + static files), `main.ts` (production), `vite.ts` (dev).                                                |
-| `src/ui/`       | React: `Shell`, `screens/`, `overlays/`, `derive.ts` (pure view helpers), `app.css` (the design's classes over the tokens).                                                                                                               |
-| `src/icons/`    | Icon registry, SVG renderer + cache, badge glyphs, procedural sword geometry.                                                                                                                                                             |
-| `src/ui/theme/` | Design tokens (CSS custom properties + TS object) and fonts.                                                                                                                                                                              |
-| `src/ui/items/` | Maps content onto renderer specs; `<ItemTile>` / `<BareIcon>`.                                                                                                                                                                            |
-| `design/`       | Claude Design reference screens the tokens were extracted from.                                                                                                                                                                           |
-| `scripts/`      | Icon vendoring / indexing pipeline; `tune-combat.ts` retunes monsters against the progression model; `tune-boons.ts` compares the gods' boons; `tune-gear.ts` prices javelins; `tune-trader.ts` prices the trader's wares against income. |
+| Path            | Layer                                                                                                                                                                                                                                                                                              |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/sim/`      | Pure simulation: save schema, migrations, PRNG, actions, skills, `highscores.ts` (what a standing is), `hall.ts` (gifts and the rooms' perks). No DOM.                                                                                                                                             |
+| `src/content/`  | Game content as JSON (skills, gods, materials, rarities, items, rocks, trees, waters, recipes, zones, monsters, drop tables), validated at load; `progression.test.ts` pins hours-to-99.                                                                                                           |
+| `src/runtime/`  | Browser orchestration: save stores (IndexedDB and the server), leader election, channel, GameHost.                                                                                                                                                                                                 |
+| `src/api/`      | The wire: `protocol.ts` (zod schemas both ends import) and `client.ts` (the game's calls).                                                                                                                                                                                                         |
+| `server/`       | The register: `db.ts` (SQLite schema), `auth.ts` (scrypt, sessions, cookies, rate limits), `register.ts` (SQL), `hall.ts` (the clans), `app.ts` (routes + static files), `main.ts` (production), `vite.ts` (dev).                                                                                  |
+| `src/ui/`       | React: `Shell`, `screens/`, `overlays/`, `derive.ts` (pure view helpers), `app.css` (the design's classes over the tokens).                                                                                                                                                                        |
+| `src/icons/`    | Icon registry, SVG renderer + cache, badge glyphs, procedural sword geometry.                                                                                                                                                                                                                      |
+| `src/ui/theme/` | Design tokens (CSS custom properties + TS object) and fonts.                                                                                                                                                                                                                                       |
+| `src/ui/items/` | Maps content onto renderer specs; `<ItemTile>` / `<BareIcon>`.                                                                                                                                                                                                                                     |
+| `design/`       | Claude Design reference screens the tokens were extracted from.                                                                                                                                                                                                                                    |
+| `scripts/`      | Icon vendoring / indexing pipeline; `tune-combat.ts` retunes monsters against the progression model; `tune-boons.ts` compares the gods' boons; `tune-gear.ts` prices javelins; `tune-trader.ts` prices the trader's wares against income; `tune-hall.ts` prices the hall's rooms in hours of work. |
 
 ## Commands
 

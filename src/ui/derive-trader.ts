@@ -1,6 +1,7 @@
 /**
  * Pure view helpers for the trader and the ferryman. Like derive.ts: sim in, view out, no React.
  */
+import { TICKS_PER_HOUR } from '../sim/constants.ts';
 import type { ContentDb } from '../sim/content/db.ts';
 import type { ItemDef, WareDef } from '../sim/content/schema.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -68,7 +69,7 @@ export function wareRows(sim: SimState, ctx: SimContext): WareRow[] {
 
 /** How long the night is: the offline cap in hours, lamp included. */
 export function nightHours(sim: SimState, ctx: SimContext): number {
-  return offlineCapTicks(sim, ctx) / 36_000;
+  return offlineCapTicks(sim, ctx) / TICKS_PER_HOUR;
 }
 
 export interface FerrymanView {
@@ -92,7 +93,7 @@ export function ferrymanView(sim: SimState, ctx: SimContext): FerrymanView {
   return {
     paying: sim.combat.ferryman,
     obols: ferrymanCoins(sim, ctx).reduce((n, s) => n + s.qty, 0),
-    worstFee: worst === null ? 0 : ferrymanFee(worst),
+    worstFee: worst === null ? 0 : ferrymanFee(worst, sim, ctx),
     worst,
   };
 }

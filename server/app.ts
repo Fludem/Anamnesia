@@ -11,8 +11,13 @@ import type { DatabaseSync } from 'node:sqlite';
 import type { ZodType } from 'zod';
 import { simContext } from '../src/content/index.ts';
 import {
+  AnswerSchema,
   CredentialsSchema,
+  ExpelSchema,
+  FoundHallSchema,
+  InviteSchema,
   MAX_BODY_BYTES,
+  RequestJoinSchema,
   SavePutSchema,
   SESSION_COOKIE,
   SESSION_TTL_MS,
@@ -29,6 +34,7 @@ import {
   sessionCookie,
   verifyPassword,
 } from './auth.ts';
+import { HallError, Halls } from './hall.ts';
 import { Register } from './register.ts';
 
 export interface AppOptions {
@@ -73,7 +79,8 @@ const REGISTER_TRIES = { address: 10, windowMs: 3_600_000 };
 
 export function createApp(options: AppOptions): Handler {
   const now = options.now ?? (() => Date.now());
-  const register = new Register(options.db, options.ctx ?? simContext);
+  const halls = new Halls(options.db, options.ctx ?? simContext);
+  const register = new Register(options.db, options.ctx ?? simContext, halls);
   const staticDir = options.staticDir == null ? null : resolve(options.staticDir);
   const loginByName = new RateLimiter(LOGIN_TRIES.name, LOGIN_TRIES.windowMs);
   const loginByAddress = new RateLimiter(LOGIN_TRIES.address, LOGIN_TRIES.windowMs);
@@ -219,6 +226,71 @@ export function createApp(options: AppOptions): Handler {
       return;
     }
 
+    // ---- the hall ---------------------------------------------------------------------
+
+    if (route === 'GET /api/hall') {
+      const user = requireUser(req);
+      json(res, 200, halls.view(user.id, now()));
+      return;
+    }
+
+    if (route === 'POST /api/hall') {
+      const user = requireUser(req);
+      const { name } = await readJson(req, FoundHallSchema);
+      halls.found(user, name, now());
+      json(res, 201, halls.view(user.id, now()));
+      return;
+    }
+
+    if (route === 'POST /api/hall/invite') {
+      const user = requireUser(req);
+      const { name } = await readJson(req, InviteSchema);
+      halls.invite(user, name, now());
+      json(res, 200, halls.view(user.id, now()));
+      return;
+    }
+
+    if (route === 'POST /api/hall/request') {
+      const user = requireUser(req);
+      const { hall } = await readJson(req, RequestJoinSchema);
+      halls.request(user, hall, now());
+      json(res, 200, halls.view(user.id, now()));
+      return;
+    }
+
+    const petitionMatch = /^POST \/api\/hall\/petitions\/(\d+)$/.exec(route);
+    if (petitionMatch) {
+      const user = requireUser(req);
+      const { accept } = await readJson(req, AnswerSchema);
+      halls.answer(user, Number(petitionMatch[1]), accept, now());
+      json(res, 200, halls.view(user.id, now()));
+      return;
+    }
+
+    if (route === 'POST /api/hall/leave') {
+      const user = requireUser(req);
+      if (
+        (req.headers['content-type'] ?? '').toLowerCase().startsWith('application/json') === false
+      )
+        throw new HttpError(415, 'Send JSON.');
+      halls.leave(user);
+      json(res, 200, halls.view(user.id, now()));
+      return;
+    }
+
+    if (route === 'POST /api/hall/expel') {
+      const user = requireUser(req);
+      const { name } = await readJson(req, ExpelSchema);
+      halls.expel(user, name);
+      json(res, 200, halls.view(user.id, now()));
+      return;
+    }
+
+    if (route === 'GET /api/halls') {
+      json(res, 200, halls.list());
+      return;
+    }
+
     throw new HttpError(404, 'Nothing here.');
   }
 
@@ -272,7 +344,7 @@ export function createApp(options: AppOptions): Handler {
       if (path === '/api' || path.startsWith('/api/')) await api(req, res, path);
       else files(req, res, path);
     } catch (e) {
-      if (e instanceof HttpError) {
+      if (e instanceof HttpError || e instanceof HallError) {
         json(res, e.status, { error: e.message });
         return;
       }

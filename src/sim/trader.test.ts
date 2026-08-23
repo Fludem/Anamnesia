@@ -164,7 +164,7 @@ describe('the ferryman', () => {
     expect(eventsOfType(s, 'died')).toHaveLength(1);
     return s;
   };
-  const fee = ferrymanFee(content.item('helm'));
+  const fee = ferrymanFee(content.item('helm'), createSimState(1), ctx);
 
   it('charges twice what the thing is worth and the hero keeps it', () => {
     expect(fee).toBe(2 * content.item('helm').value);

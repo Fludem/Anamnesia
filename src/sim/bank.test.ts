@@ -31,10 +31,10 @@ function filled(n: number, extra: [string, number][] = []): SimState {
 describe('bank capacity', () => {
   it('starts at the base and grows with bought slots', () => {
     const s = createSimState(1);
-    expect(bankCapacity(s)).toBe(BASE_BANK_SLOTS);
-    expect(bankCapacity({ ...s, bankSlotsBought: 4 })).toBe(BASE_BANK_SLOTS + 4);
-    expect(bankFull(filled(BASE_BANK_SLOTS - 1))).toBe(false);
-    expect(bankFull(filled(BASE_BANK_SLOTS))).toBe(true);
+    expect(bankCapacity(s, ctx)).toBe(BASE_BANK_SLOTS);
+    expect(bankCapacity({ ...s, bankSlotsBought: 4 }, ctx)).toBe(BASE_BANK_SLOTS + 4);
+    expect(bankFull(filled(BASE_BANK_SLOTS - 1), ctx)).toBe(false);
+    expect(bankFull(filled(BASE_BANK_SLOTS), ctx)).toBe(true);
   });
 
   it("prices slots on the design's curve: 500, 590, 700, … rounded to 10 gp", () => {
@@ -43,9 +43,9 @@ describe('bank capacity', () => {
 
   it('a full bank still has room for items it already holds', () => {
     const s = filled(BASE_BANK_SLOTS - 1, [['ore', 5]]);
-    expect(roomFor(s, ['ore'])).toEqual({ ok: true });
-    expect(roomFor(s, ['ore', 'gem'])).toEqual({ ok: false, item: 'gem' });
-    expect(roomFor(filled(3), ['gem'])).toEqual({ ok: true });
+    expect(roomFor(s, ['ore'], ctx)).toEqual({ ok: true });
+    expect(roomFor(s, ['ore', 'gem'], ctx)).toEqual({ ok: false, item: 'gem' });
+    expect(roomFor(filled(3), ['gem'], ctx)).toEqual({ ok: true });
   });
 
   it('worth sums value × qty over the bank', () => {
@@ -129,7 +129,7 @@ describe('sell / buy slot / rename', () => {
     const r = applyCommand(s, { type: 'bank:buy-slot' }, ctx);
     expect(r.ok).toBe(true);
     expect(r.state.coins).toBe(500);
-    expect(bankCapacity(r.state)).toBe(BASE_BANK_SLOTS + 1);
+    expect(bankCapacity(r.state, ctx)).toBe(BASE_BANK_SLOTS + 1);
     expect(applyCommand(r.state, { type: 'bank:buy-slot' }, ctx)).toMatchObject({
       ok: false,
       reason: 'a bank slot costs 590 gp (you have 500)',

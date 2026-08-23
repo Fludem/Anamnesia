@@ -78,6 +78,7 @@ describe('shipped content', () => {
       ...content.monsters,
       ...content.gods,
       ...content.wares,
+      ...content.rooms,
     ].map((x) => x.icon);
     for (const ref of refs) expect(() => icons.get(ref), ref).not.toThrow();
   });
@@ -241,6 +242,7 @@ describe('shipped content', () => {
       ...content.zones,
       ...content.monsters,
       ...content.wares,
+      ...content.rooms,
     ];
     const minor = new Set(['of', 'the', 'and', 'for', 'from']);
     for (const x of named) {
@@ -258,6 +260,7 @@ describe('shipped content', () => {
         x.description,
       ]),
       ...content.wares.map((w): [string, string] => [w.id, w.line]),
+      ...content.rooms.map((r): [string, string] => [r.id, r.line]),
     ];
     for (const [id, line] of lines) {
       expect(line.length, id).toBeGreaterThan(0);
@@ -297,6 +300,25 @@ describe('shipped content', () => {
     const coins = content.items.filter((i) => i.tags.includes('coin'));
     expect(coins.map((i) => i.id)).toEqual(['obol']);
     expect(obtainable().has('obol')).toBe(true);
+  });
+
+  it('the hall has six rooms of three tiers, each a different perk, costed in things the hill gives', () => {
+    expect(content.rooms).toHaveLength(6);
+    const kinds = content.rooms.map((r) => r.tiers[0]!.perk.kind);
+    expect(new Set(kinds).size).toBe(6);
+    const can = obtainable();
+    for (const room of content.rooms) {
+      expect(room.tiers, room.id).toHaveLength(3);
+      room.tiers.forEach((t, i) => {
+        expect(t.cost.length, `${room.id} ${String(i + 1)}`).toBeGreaterThanOrEqual(2);
+        for (const c of t.cost) {
+          expect(can.has(c.item), `${room.id}: ${c.item}`).toBe(true);
+          expect(['kindling', 'obol'], `${room.id}: ${c.item}`).not.toContain(c.item);
+        }
+        // Coins come in from the second tier: the first is raised with work alone.
+        expect(t.coins > 0, `${room.id} ${String(i + 1)}`).toBe(i > 0);
+      });
+    }
   });
 
   it('the four rarities are all used, and the legendary tier is scarce', () => {

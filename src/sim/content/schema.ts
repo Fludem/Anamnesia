@@ -399,6 +399,49 @@ export const WareDefSchema = z.object({
 });
 export type WareDef = z.infer<typeof WareDefSchema>;
 
+/**
+ * What a raised room does for every name in the hall. A tier's perk is the total at that tier,
+ * not a step; all tiers of a room share one kind. Engine-known, like a god's perks.
+ */
+export const RoomPerkSchema = z.discriminatedUnion('kind', [
+  /** Fractional xp bonus in `skill`, or every skill when null (0.02 = +2%). */
+  z.object({ kind: z.literal('xp'), skill: IdSchema.nullable(), bonus: z.number().min(0) }),
+  /** Chance a successful gathering cycle lands twice, in `skill` or every gathering skill. */
+  z.object({
+    kind: z.literal('double-yield'),
+    skill: IdSchema.nullable(),
+    chance: z.number().min(0).max(1),
+  }),
+  /** Food heals this fraction more. */
+  z.object({ kind: z.literal('heal'), bonus: z.number().min(0) }),
+  /** Bank slots on top of the base and the bought. */
+  z.object({ kind: z.literal('bank-slots'), slots: z.number().int().min(0) }),
+  /** Hours added to the offline cap, on top of the trader's lamp. */
+  z.object({ kind: z.literal('night'), hours: z.number().min(0) }),
+  /** The ferryman's fee is cut by this fraction. */
+  z.object({ kind: z.literal('ferryman'), discount: z.number().min(0).max(1) }),
+]);
+export type RoomPerk = z.infer<typeof RoomPerkSchema>;
+
+/** One tier of a room: what the hall must be given to raise it, and what it then does. */
+export const RoomTierSchema = z.object({
+  cost: z.array(z.object({ item: IdSchema, qty: z.number().int().min(1) })).default([]),
+  coins: z.number().int().min(0).default(0),
+  perk: RoomPerkSchema,
+});
+export type RoomTier = z.infer<typeof RoomTierSchema>;
+
+/** A room of the hall: raised tier by tier with gifts. */
+export const RoomDefSchema = z.object({
+  id: IdSchema,
+  name: z.string().min(1),
+  /** One dry line. */
+  line: z.string().min(1),
+  icon: IconRefSchema,
+  tiers: z.array(RoomTierSchema).min(1).max(5),
+});
+export type RoomDef = z.infer<typeof RoomDefSchema>;
+
 function stripDollarKeys(v: unknown): unknown {
   if (typeof v !== 'object' || v === null || Array.isArray(v)) return v;
   return Object.fromEntries(Object.entries(v).filter(([k]) => !k.startsWith('$')));
@@ -443,5 +486,7 @@ export const ContentPackSchema = z.object({
   monsters: contentList(MonsterDefSchema).default([]),
   /** What the trader sells. */
   wares: contentList(WareDefSchema).default([]),
+  /** The hall's rooms, raised by a clan's gifts. */
+  rooms: contentList(RoomDefSchema).default([]),
 });
 export type ContentPack = z.infer<typeof ContentPackSchema>;

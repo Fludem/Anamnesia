@@ -5,6 +5,7 @@
  * browser does not inherit it too. A name that already has a save keeps it; the local one is
  * left alone.
  */
+import { NO_HALL } from '../sim/hall.ts';
 import { migrateSave } from '../sim/migrate.ts';
 import type { SimState } from '../sim/save.ts';
 import type { SaveStore } from './store.ts';
@@ -26,7 +27,9 @@ export async function adoptLocalSave(
     return 'unreadable';
   }
   if ((await server.load(slot)) !== null) return 'name-has-save';
-  const result = await server.write(slot, { ...record, sim: reconcile(record.sim) }, 0);
+  // A save from before names knows nothing of halls; whatever it says is not this name's.
+  const sim = { ...reconcile(record.sim), hall: NO_HALL };
+  const result = await server.write(slot, { ...record, sim }, 0);
   if (!result.ok) return 'refused';
   await local.clear(slot);
   return 'adopted';

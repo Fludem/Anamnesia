@@ -3,8 +3,11 @@ import {
   coinsPerHour,
   combatClimb,
   GEAR_LADDER,
+  hoursForTier,
   hoursToCap,
+  hoursToMake,
   regenPerHour,
+  ROOM_TIER_LEVELS as TIER_LEVELS,
 } from '../sim/progression.ts';
 import { content, simContext } from './index.ts';
 
@@ -181,6 +184,35 @@ describe('progression: the trader', () => {
       const hours = content.ware(id).price / best(level);
       expect(hours, id).toBeLessThanOrEqual(1);
       expect(hours, id).toBeGreaterThan(0.15);
+    }
+  });
+});
+
+describe('progression: the hall', () => {
+  it('every material a room asks for can be come by at the tier level', () => {
+    content.rooms.forEach((room) =>
+      room.tiers.forEach((t, i) => {
+        for (const c of t.cost) {
+          const hours = hoursToMake(c.item, c.qty, TIER_LEVELS[i]!, simContext);
+          expect(Number.isFinite(hours), `${room.id} ${String(i + 1)}: ${c.item}`).toBe(true);
+        }
+      }),
+    );
+  });
+
+  it('one name raises a tier in about an hour, an afternoon, a day of work — a hall shares that', () => {
+    const bounds: [number, number][] = [
+      [0.5, 3],
+      [2, 8],
+      [5, 20],
+    ];
+    for (const room of content.rooms) {
+      room.tiers.forEach((t, i) => {
+        const hours = hoursForTier(t, TIER_LEVELS[i]!, simContext);
+        const [low, high] = bounds[i]!;
+        expect(hours, `${room.id} ${String(i + 1)}`).toBeGreaterThanOrEqual(low);
+        expect(hours, `${room.id} ${String(i + 1)}`).toBeLessThanOrEqual(high);
+      });
     }
   });
 });

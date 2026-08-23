@@ -8,6 +8,7 @@ import type { SimContext } from '../sim/context.ts';
 import { DEFAULT_XP_CURVE } from '../sim/xp.ts';
 import tables from './drop-tables.json' with { type: 'json' };
 import gods from './gods.json' with { type: 'json' };
+import halls from './halls.json' with { type: 'json' };
 import items from './items.json' with { type: 'json' };
 import materials from './materials.json' with { type: 'json' };
 import monsters from './monsters.json' with { type: 'json' };
@@ -36,6 +37,7 @@ export const content: ContentDb = ContentDb.fromPack({
   monsters,
   gods,
   wares: trader,
+  rooms: halls,
 });
 
 export const simContext: SimContext = { content, xp: DEFAULT_XP_CURVE };

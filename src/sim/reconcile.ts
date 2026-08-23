@@ -74,6 +74,10 @@ function eventKnown(e: SimEvent, content: ContentDb): boolean {
       );
     case 'offered':
       return content.hasItem(e.item);
+    case 'gave':
+      return content.hasRoom(e.room) && (e.item === null || content.hasItem(e.item));
+    case 'raised':
+      return content.hasRoom(e.room);
     case 'tutorial':
       return true;
   }
@@ -139,6 +143,20 @@ export function reconcileWithContent(sim: SimState, content: ContentDb): Reconci
       return false;
     }),
   );
+  // A gift for a room that is gone stays on the cart: the register answers it with nothing
+  // taken and the items come back. A gift of an item that is gone has nothing to come back.
+  const rooms = Object.fromEntries(
+    Object.entries(sim.hall.rooms).filter(([id]) => {
+      if (content.hasRoom(id)) return true;
+      dropped.push(`hall: unknown room "${id}"`);
+      return false;
+    }),
+  );
+  const gifts = sim.hall.gifts.filter((g) => {
+    if (g.item === null || content.hasItem(g.item)) return true;
+    dropped.push(`hall: gift of ${String(g.qty)} × unknown item "${g.item}"`);
+    return false;
+  });
 
   if (dropped.length === 0) return { sim, dropped };
   return {
@@ -151,6 +169,7 @@ export function reconcileWithContent(sim: SimState, content: ContentDb): Reconci
       action: { current, queue },
       log,
       upgrades,
+      hall: { ...sim.hall, rooms, gifts },
       combat: { ...sim.combat, food, offering, fight },
     },
     dropped,

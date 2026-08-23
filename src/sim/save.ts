@@ -2,11 +2,12 @@ import { z } from 'zod';
 import { ActionQueueSchema } from './actions.ts';
 import { IdSchema } from './content/schema.ts';
 import { SimEventSchema } from './events.ts';
+import { HallStateSchema } from './hall.ts';
 import { ContainerSchema } from './items.ts';
 import { seedRng } from './rng.ts';
 import { EQUIPMENT_SLOTS, EquipmentSlotSchema } from './slots.ts';
 
-export const CURRENT_SAVE_VERSION = 9;
+export const CURRENT_SAVE_VERSION = 10;
 
 const Uint32 = z.number().int().min(0).max(0xffffffff);
 
@@ -106,9 +107,17 @@ export const SimStateSchema = z.object({
     spent: z.number().int().min(0).default(0),
     /** Deaths the ferryman was paid for, in coin or obol. */
     ferried: z.number().int().min(0).default(0),
+    /** Gp worth ever given to the hall, at the value when given. */
+    given: z.number().int().min(0).default(0),
   }),
   /** Times each of the trader's wares was bought, keyed by ware id. */
   upgrades: z.record(IdSchema, z.number().int().min(0)).default({}),
+  /**
+   * The hall, as the server last said it stood: which one this name is in (null when none),
+   * each room's tier (perks read these), and the gifts on the cart — given here, not yet taken
+   * by the register. `given` counts gifts ever made; a gift's id is its number. See hall.ts.
+   */
+  hall: HallStateSchema.default({ id: null, rooms: {}, gifts: [], given: 0 }),
   combat: CombatStateSchema,
   /** First-steps progress: step ids completed in order, and whether the card was put away. */
   tutorial: z.object({ done: z.array(z.string().min(1)), dismissed: z.boolean() }),
@@ -164,8 +173,10 @@ export function createSimState(seed: number): SimState {
       thrown: 0,
       spent: 0,
       ferried: 0,
+      given: 0,
     },
     upgrades: {},
+    hall: { id: null, rooms: {}, gifts: [], given: 0 },
     tutorial: { done: [], dismissed: false },
     combat: {
       hp: STARTING_HP,

@@ -28,6 +28,16 @@ function stale(): SimState {
     equipment: { ...s.equipment, pickaxe: 'pick', axe: 'bronze-hatchet' },
     combat: { ...s.combat, food: 'cooked-fish', offering: 'lost-votive', fight: null },
     upgrades: { lamp: 1, 'gone-ware': 2 },
+    hall: {
+      id: 1,
+      rooms: { hearth: 2, 'gone-room': 1 },
+      gifts: [
+        { id: 1, room: 'hearth', tier: 3, item: 'log', qty: 4 },
+        { id: 2, room: 'gone-room', tier: 1, item: 'log', qty: 1 },
+        { id: 3, room: 'hearth', tier: 3, item: 'old-potion', qty: 2 },
+      ],
+      given: 3,
+    },
     log: [
       { type: 'gain', tick: 1, skill: 'mining', xp: 10, items: [{ item: 'coal', qty: 1 }] },
       { type: 'gain', tick: 2, skill: 'mining', xp: 10, items: [{ item: 'stone', qty: 1 }] },
@@ -62,6 +72,8 @@ describe('reconciling a save with the content', () => {
     expect(sim.combat.offering).toBeNull();
     expect(sim.log.map((e) => e.tick)).toEqual([2, 4]);
     expect(sim.upgrades).toEqual({ lamp: 1 });
+    expect(sim.hall.rooms).toEqual({ hearth: 2 });
+    expect(sim.hall.gifts.map((g) => g.id)).toEqual([1, 2]);
     expect(dropped).toEqual([
       'action: unknown mining target "coal-rock"',
       'queue: unknown woodcutting target "gone-tree"',
@@ -72,6 +84,8 @@ describe('reconciling a save with the content', () => {
       'bank: 7 × unknown item "coal"',
       'offering: unknown item "lost-votive"',
       'upgrades: unknown ware "gone-ware"',
+      'hall: unknown room "gone-room"',
+      'hall: gift of 2 × unknown item "old-potion"',
     ]);
   });
 

@@ -39,7 +39,9 @@ console.log(
   `${'tier'.padEnd(8)}${SET_PIECES.map((p) => p.padStart(10)).join('')}${'set'.padStart(10)}`,
 );
 for (const step of GEAR_LADDER) {
-  const fees = SET_PIECES.map((p) => ferrymanFee(ctx.content.item(`${step.tier}-${p}`)));
+  const fees = SET_PIECES.map((p) =>
+    ferrymanFee(ctx.content.item(`${step.tier}-${p}`), fresh, ctx),
+  );
   const row = fees.map((f) => k(f).padStart(10)).join('');
   console.log(`${step.tier.padEnd(8)}${row}${k(fees.reduce((a, b) => a + b, 0)).padStart(10)}`);
 }

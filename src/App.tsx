@@ -27,6 +27,7 @@ import { CRAFT_SKILLS, GATHER_SKILLS } from './ui/screens/defs.ts';
 import { FirstSteps } from './ui/screens/FirstSteps.tsx';
 import { GatherScreen } from './ui/screens/GatherScreen.tsx';
 import { HighscoresScreen } from './ui/screens/HighscoresScreen.tsx';
+import { HallScreen } from './ui/screens/HallScreen.tsx';
 import { TraderScreen } from './ui/screens/TraderScreen.tsx';
 import { Shell } from './ui/Shell.tsx';
 import { useGameRuntime } from './ui/useGameHost.ts';
@@ -103,6 +104,8 @@ function Game({ user, onSignOut }: { user: User; onSignOut: () => Promise<void> 
       <EquipmentScreen sim={sim} dispatch={dispatch} juice={juice} />
     ) : view.kind === 'trader' ? (
       <TraderScreen sim={sim} dispatch={dispatch} juice={juice} />
+    ) : view.kind === 'hall' ? (
+      <HallScreen sim={sim} dispatch={dispatch} juice={juice} savedAtMs={snapshot.lastSavedAtMs} />
     ) : view.kind === 'highscores' ? (
       <HighscoresScreen
         sim={sim}

@@ -1,0 +1,431 @@
+[
+  {
+    "$comment": "The hall's rooms. A tier's perk is the total at that tier. Costs climb the material ladder: tier I in what a name at level 20 gathers, tier II at 55, tier III at 80; scripts/tune-hall.ts prints each as hours of one name's work."
+  },
+  {
+    "id": "hearth",
+    "name": "The Hearth",
+    "line": "Warm. Everyone sits a little closer to the work.",
+    "icon": "delapouite/fireplace",
+    "tiers": [
+      {
+        "cost": [
+          {
+            "item": "pine-logs",
+            "qty": 900
+          },
+          {
+            "item": "copper-ore",
+            "qty": 360
+          },
+          {
+            "item": "thyme-sprig",
+            "qty": 240
+          }
+        ],
+        "perk": {
+          "kind": "xp",
+          "skill": null,
+          "bonus": 0.01
+        }
+      },
+      {
+        "cost": [
+          {
+            "item": "willow-logs",
+            "qty": 2200
+          },
+          {
+            "item": "basalt-ore",
+            "qty": 1200
+          },
+          {
+            "item": "iron-bar",
+            "qty": 380
+          }
+        ],
+        "coins": 50000,
+        "perk": {
+          "kind": "xp",
+          "skill": null,
+          "bonus": 0.02
+        }
+      },
+      {
+        "cost": [
+          {
+            "item": "elder-logs",
+            "qty": 4500
+          },
+          {
+            "item": "gold-ore",
+            "qty": 2400
+          },
+          {
+            "item": "gold-bar",
+            "qty": 600
+          }
+        ],
+        "coins": 600000,
+        "perk": {
+          "kind": "xp",
+          "skill": null,
+          "bonus": 0.03
+        }
+      }
+    ]
+  },
+  {
+    "id": "storehouse",
+    "name": "The Storehouse",
+    "line": "Things keep. Some of them come back doubled.",
+    "icon": "delapouite/warehouse",
+    "tiers": [
+      {
+        "cost": [
+          {
+            "item": "oak-logs",
+            "qty": 750
+          },
+          {
+            "item": "iron-ore",
+            "qty": 450
+          },
+          {
+            "item": "raw-perch",
+            "qty": 300
+          }
+        ],
+        "perk": {
+          "kind": "double-yield",
+          "skill": null,
+          "chance": 0.03
+        }
+      },
+      {
+        "cost": [
+          {
+            "item": "blightwood-logs",
+            "qty": 1500
+          },
+          {
+            "item": "marble-block",
+            "qty": 1000
+          },
+          {
+            "item": "raw-pike",
+            "qty": 500
+          }
+        ],
+        "coins": 40000,
+        "perk": {
+          "kind": "double-yield",
+          "skill": null,
+          "chance": 0.06
+        }
+      },
+      {
+        "cost": [
+          {
+            "item": "elder-logs",
+            "qty": 3000
+          },
+          {
+            "item": "gold-ore",
+            "qty": 1800
+          },
+          {
+            "item": "raw-carp",
+            "qty": 1200
+          }
+        ],
+        "coins": 500000,
+        "perk": {
+          "kind": "double-yield",
+          "skill": null,
+          "chance": 0.09
+        }
+      }
+    ]
+  },
+  {
+    "id": "larder",
+    "name": "The Larder",
+    "line": "Salt, smoke and shelves. Nothing goes off.",
+    "icon": "delapouite/granary",
+    "tiers": [
+      {
+        "cost": [
+          {
+            "item": "raw-minnow",
+            "qty": 600
+          },
+          {
+            "item": "raw-perch",
+            "qty": 300
+          },
+          {
+            "item": "pine-logs",
+            "qty": 300
+          }
+        ],
+        "perk": {
+          "kind": "heal",
+          "bonus": 0.1
+        }
+      },
+      {
+        "cost": [
+          {
+            "item": "raw-eel",
+            "qty": 750
+          },
+          {
+            "item": "raw-pike",
+            "qty": 750
+          },
+          {
+            "item": "willow-logs",
+            "qty": 500
+          }
+        ],
+        "coins": 30000,
+        "perk": {
+          "kind": "heal",
+          "bonus": 0.2
+        }
+      },
+      {
+        "cost": [
+          {
+            "item": "raw-carp",
+            "qty": 1200
+          },
+          {
+            "item": "raw-pale-fish",
+            "qty": 900
+          },
+          {
+            "item": "elder-logs",
+            "qty": 1200
+          }
+        ],
+        "coins": 400000,
+        "perk": {
+          "kind": "heal",
+          "bonus": 0.3
+        }
+      }
+    ]
+  },
+  {
+    "id": "strongroom",
+    "name": "The Strongroom",
+    "line": "Thick walls. A thicker door.",
+    "icon": "delapouite/strongbox",
+    "tiers": [
+      {
+        "cost": [
+          {
+            "item": "copper-bar",
+            "qty": 450
+          },
+          {
+            "item": "iron-ore",
+            "qty": 600
+          }
+        ],
+        "perk": {
+          "kind": "bank-slots",
+          "slots": 5
+        }
+      },
+      {
+        "cost": [
+          {
+            "item": "iron-bar",
+            "qty": 500
+          },
+          {
+            "item": "marble-block",
+            "qty": 1000
+          },
+          {
+            "item": "silver-bar",
+            "qty": 250
+          }
+        ],
+        "coins": 60000,
+        "perk": {
+          "kind": "bank-slots",
+          "slots": 10
+        }
+      },
+      {
+        "cost": [
+          {
+            "item": "gold-bar",
+            "qty": 600
+          },
+          {
+            "item": "marble-block",
+            "qty": 1800
+          },
+          {
+            "item": "aether-ingot",
+            "qty": 60
+          }
+        ],
+        "coins": 600000,
+        "perk": {
+          "kind": "bank-slots",
+          "slots": 15
+        }
+      }
+    ]
+  },
+  {
+    "id": "watchtower",
+    "name": "The Watchtower",
+    "line": "Someone is always up. The night lasts longer for it.",
+    "icon": "delapouite/watchtower",
+    "tiers": [
+      {
+        "cost": [
+          {
+            "item": "pine-logs",
+            "qty": 900
+          },
+          {
+            "item": "copper-ore",
+            "qty": 450
+          },
+          {
+            "item": "thyme-sprig",
+            "qty": 300
+          }
+        ],
+        "perk": {
+          "kind": "night",
+          "hours": 2
+        }
+      },
+      {
+        "cost": [
+          {
+            "item": "willow-logs",
+            "qty": 1200
+          },
+          {
+            "item": "basalt-ore",
+            "qty": 1000
+          },
+          {
+            "item": "pine-resin",
+            "qty": 380
+          }
+        ],
+        "coins": 50000,
+        "perk": {
+          "kind": "night",
+          "hours": 4
+        }
+      },
+      {
+        "cost": [
+          {
+            "item": "elder-logs",
+            "qty": 2400
+          },
+          {
+            "item": "gold-ore",
+            "qty": 1200
+          },
+          {
+            "item": "asphodel",
+            "qty": 600
+          }
+        ],
+        "coins": 500000,
+        "perk": {
+          "kind": "night",
+          "hours": 6
+        }
+      }
+    ]
+  },
+  {
+    "id": "pyre",
+    "name": "The Pyre",
+    "line": "He still comes. He charges less for friends of the house.",
+    "icon": "delapouite/pyre",
+    "tiers": [
+      {
+        "cost": [
+          {
+            "item": "pine-logs",
+            "qty": 900
+          },
+          {
+            "item": "laurel-leaf",
+            "qty": 300
+          },
+          {
+            "item": "copper-bar",
+            "qty": 180
+          }
+        ],
+        "perk": {
+          "kind": "ferryman",
+          "discount": 0.1
+        }
+      },
+      {
+        "cost": [
+          {
+            "item": "blightwood-logs",
+            "qty": 1000
+          },
+          {
+            "item": "myrrh-tear",
+            "qty": 500
+          },
+          {
+            "item": "silver-bar",
+            "qty": 250
+          }
+        ],
+        "coins": 60000,
+        "perk": {
+          "kind": "ferryman",
+          "discount": 0.2
+        }
+      },
+      {
+        "cost": [
+          {
+            "item": "elder-logs",
+            "qty": 1800
+          },
+          {
+            "item": "frankincense",
+            "qty": 600
+          },
+          {
+            "item": "gold-bar",
+            "qty": 300
+          },
+          {
+            "item": "aether-shard",
+            "qty": 90
+          }
+        ],
+        "coins": 600000,
+        "perk": {
+          "kind": "ferryman",
+          "discount": 0.3
+        }
+      }
+    ]
+  }
+]

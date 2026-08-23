@@ -3,6 +3,7 @@ import { OFFLINE_CAP_TICKS } from '../sim/constants.ts';
 import { createNewSave, type SaveRecord } from '../sim/save.ts';
 import { offlineCapTicks } from '../sim/trader.ts';
 import { applyCommand, type Command } from '../sim/commands.ts';
+import { applyHallSync } from '../sim/hall.ts';
 import { countItem } from '../sim/items.ts';
 import { reconcileWithContent } from '../sim/reconcile.ts';
 import { makeStep } from '../sim/step.ts';
@@ -316,6 +317,55 @@ describe('GameHost — single tab', () => {
     await elapse(world, [a], 1_000);
     expect(host.getSnapshot().saveProblem).toBeNull();
     expect(world.store.peek('main')?.sim.tick).toBeGreaterThanOrEqual(20);
+  });
+
+  it('applies what the register says about the hall after a write, without saving again', async () => {
+    const world = new FakeWorld(T0);
+    seeded(world, {
+      bank: [{ item: 'log', qty: 30 }],
+      hall: { id: 7, rooms: {}, gifts: [], given: 0 },
+    });
+    // A register: takes up to 10 logs for the hearth and says so with the write.
+    let answers = 0;
+    let rooms: Record<string, number> = {};
+    const register: SaveStore = {
+      load: (slot) => world.store.load(slot),
+      write: async (slot, record, expected) => {
+        const r = await world.store.write(slot, record, expected);
+        if (!r.ok) return r;
+        answers++;
+        const took = record.sim.hall.gifts.map((g) => ({ id: g.id, qty: Math.min(10, g.qty) }));
+        if (took.some((t) => t.qty === 10)) rooms = { hearth: 1 };
+        return { ...r, hall: { id: 7, rooms, took, given: record.sim.hall.given } };
+      },
+      clear: (slot) => world.store.clear(slot),
+    };
+    const a = world.tab('A', { store: register });
+    const host = boot(a, {
+      ...FIXTURE,
+      applySync: (sim, hall) => applyHallSync(sim, hall, fixtureContext),
+      reconcile: (sim) => reconcileWithContent(sim, fixtureContext.content).sim,
+      saveIntervalMs: 1_000,
+    });
+    await flushMicrotasks();
+    expect(host.role).toBe('leader');
+    const writesBefore = world.store.log.filter((l) => l.op === 'write').length;
+    host.dispatch({ type: 'hall:give', room: 'hearth', item: 'log', qty: 14 });
+    await flushMicrotasks();
+    await a.runTimers(0);
+    await flushMicrotasks();
+    const sim = host.getSnapshot().sim!;
+    // The command saved once; the answer came back on that write and was applied, not saved.
+    expect(world.store.log.filter((l) => l.op === 'write')).toHaveLength(writesBefore + 1);
+    expect(sim.hall.gifts).toEqual([]);
+    expect(sim.hall.rooms).toEqual({ hearth: 1 });
+    expect(countItem(sim.bank, 'log')).toBe(30 - 14 + 4);
+    expect(world.store.peek('main')?.sim.hall.gifts).toHaveLength(1);
+    // The next periodic save carries the cleared cart; an answer with nothing new changes nothing.
+    await elapse(world, [a], 1_100);
+    expect(world.store.peek('main')?.sim.hall.gifts).toEqual([]);
+    expect(answers).toBeGreaterThanOrEqual(2);
+    expect(host.getSnapshot().sim?.hall.rooms).toEqual({ hearth: 1 });
   });
 
   it('refuses to start over an unreadable save', async () => {

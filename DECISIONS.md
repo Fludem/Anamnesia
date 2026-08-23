@@ -983,3 +983,100 @@ with its hundreds of hours on the clock is how the rivals got to 99; it will now
 - One process, one SQLite file: fine for a hill of friends; not a deployment story beyond
   "run it somewhere with a disk and put TLS in front" (the cookie is `Secure` whenever the
   request arrives over https, directly or by `x-forwarded-proto`).
+
+## Phase 12 — the hall: clans that raise a place on the hill
+
+The user asked for a social layer, PvP or base building, leaning clans. This is clans _as_
+base building: a name founds a hall, names join it, and together they raise its rooms with
+what the hill gives them. A raised room does a little for everyone in it.
+
+### Why a hall and not the ring
+
+Phase 11 left the server trusting the client's save, which is fine for a board and wrong for
+anything where one name's loss depends on another's save — a console-edited save becomes a
+weapon. A hall loses nobody anything while they are away, works for a hall of one, and is the
+half of the economy fix the trader could not be: until now every item's only destination was
+the sell button, and the top tiers inflate (Phase 10's flag). Rooms eat logs, ore, bars and
+fish in the thousands. The ring stays possible on the same plumbing — a duel's result could
+reach the sim exactly the way a raised room does — but it needs the server to re-simulate
+first, and that is a bigger phase than this one.
+
+### Gifts ride inside the save; the register answers the save
+
+The hall is shared, so it lives in the register: members, each room's tier and progress, and a
+ledger of every gift. The sim stays pure and client-owned, and holds only what the register
+last said — which hall this name is in, how the rooms stand — plus a cart: `hall:give` takes
+the items (or coins) out of the bank and appends a `Gift` to `sim.hall.gifts`. Nothing else
+happens in the sim. The next save carries the cart; inside `writeSave`'s transaction the
+register moves each gift into the hall, clipped to what the room still needs, and answers the
+write with `{ id, rooms, took, given }`. The host applies that answer in memory (`applyHallSync`:
+refund the difference, drop the answered gifts, set the rooms) and does not save again.
+
+Two things were considered and rejected. A second endpoint (`POST /api/hall/give`) would mean
+two writes that could disagree: the client's sim has already removed the items, the stored
+save has not, and a crash between the two either duplicates or loses the gift. A gift in the
+save is in the save or it is not. And stripping the answered gift from the stored record —
+the obvious tidy-up — was a real hole: a tab that died between the reply and its next save
+would reload a record with no gift and no refund. So the stored record keeps the gift; the
+client's own next save removes it; a re-sent gift is answered from the ledger the same way.
+That makes the answer droppable, which is what lets the host ignore it whenever the tab is no
+longer leading or is mid-advance: the next save asks again, nothing is lost.
+
+The details that fell out of the review: gift ids are integers numbered by the sim
+(`hall.given`), and the register stamps `given = max(record's, ledger's)` back into the save
+so a reset save (Settings → Reset writes `given: 0` straight to the store) cannot reuse a
+number. A gift names the tier it was meant for; a tier another member finished first sends
+it back whole rather than quietly funding the next. The cart is capped at 100 gifts and a
+gift at a million — one save cannot hold the SQLite write lock for long. A refund into a full
+bank is allowed to overflow by a stack, as `unequip` already does; the cap is enforced before
+a roll, never after. And the sync is not a `Command`: it never enters the channel, so a
+follower tab cannot forge rooms over it.
+
+Perks read `sim.hall.rooms`, so the sim is still a function of (save, ticks, commands), and
+offline catch-up uses the rooms as of the last save. A tier another member raises while you
+are away applies from your next save, not retroactively. Acceptable for an idle game.
+
+### What the rooms do, and why so little
+
+Six rooms, three tiers each, one perk kind per room, the total at each tier in content:
+the Hearth (+1/2/3% xp everywhere), the Storehouse (gathering lands twice 3/6/9%), the Larder
+(food heals 10/20/30% more), the Strongroom (+5/10/15 bank slots), the Watchtower (the night
++2/4/6 h), the Pyre (the ferryman takes 10/20/30% less). Each plugs into a hook that already
+existed — `xpMultiplier`, `doubleYieldChance`, `eat`, `bankCapacity`, `offlineCapTicks`,
+`ferrymanFee` — so a new room is a content entry. The user chose small perks: a reason to be
+in a hall without making a name alone feel punished. The Strongroom is the one players will
+feel; fifteen slots is half a bank. The perk shapes that did not exist (double yield for
+crafting, favour) were left out rather than invented.
+
+Costs climb the material ladder so every member's skill is wanted, and are set against the
+model: `hoursToMake(item, qty, level)` in `progression.ts` prices an item in hours of one
+name's gathering (or smithing, inputs included), and the content test pins each tier — I in
+0.5–3 h at level 20, II in 2–8 h at 55, III in 5–20 h at 80, of one name's work, which a hall
+of three shares. `scripts/tune-hall.ts` prints the breakdown. Coins come in from tier II: a
+second coin sink, but never the only thing a tier wants.
+
+### The door
+
+Joining is by invite or by asking; the founder decides. Any member may invite; a request
+waiting at the door is answered by the founder; an invite meeting a request, in either order,
+is simply a join. A name asking sees where it asked and may withdraw. A founder leaving hands
+the keys to whoever has been there longest; the last name out closes the hall, and the ledger
+keeps its rows (they carry the hall's id, which goes null). A hall holds twenty names. There
+is no second rank: the hill is a hall of friends.
+
+### What is trusted
+
+The client's gifts, exactly as its save is — the register never checks the items were in the
+bank. Hall progress is therefore a shared resource on the same honour system as the boards,
+and the README's note stands. The first time strangers play, re-simulating saves server-side
+is the fix for all of it at once.
+
+### Flagged
+
+- No design mock for the hall; the screen is Screen A's rows and Screen E's columns again, and
+  the give modal is the bank's sell-amount modal with a what-to-give row on top.
+- The list of halls is a card on the no-hall screen, not a board: the boards rank names.
+- Tuning numbers are the model's, not play's. Tier III of the Hearth is 17 h of one name's
+  elder logs; that is on purpose, it is the flagship room.
+- The narrow layout was checked for the hall's rows only; the trader's buy cell now wraps at
+  700 px, which it did not before. The full narrow pass is still owed.

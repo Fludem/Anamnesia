@@ -10,7 +10,7 @@ They are licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/
 - Icons made by Caro Asercion. Available on https://game-icons.net — 3 icons
 - Icons made by Cathelineau. Available on https://game-icons.net — 2 icons
 - Icons made by DarkZaitzev. Available on https://game-icons.net ([http://darkzaitzev.deviantart.com](http://darkzaitzev.deviantart.com)) — 2 icons
-- Icons made by Delapouite. Available on https://game-icons.net ([http://delapouite.com](http://delapouite.com)) — 54 icons
+- Icons made by Delapouite. Available on https://game-icons.net ([http://delapouite.com](http://delapouite.com)) — 61 icons
 - Icons made by Faithtoken. Available on https://game-icons.net ([http://fungustoken.deviantart.com](http://fungustoken.deviantart.com)) — 2 icons
 - Icons made by Lorc. Available on https://game-icons.net ([http://lorcblog.blogspot.com](http://lorcblog.blogspot.com)) — 82 icons
 - Icons made by Lucas. Available on https://game-icons.net — 1 icon

@@ -1,6 +1,6 @@
 /** Screen C — the bank: grid, filters, search, selection, sell, open, equip. */
 import { useState } from 'react';
-import { content } from '../../content/index.ts';
+import { content, simContext } from '../../content/index.ts';
 import { bankCapacity, bankSlotCost, bankWorth } from '../../sim/bank.ts';
 import type { ItemDef, StatKey } from '../../sim/content/schema.ts';
 import { eventsOfType } from '../../sim/events.ts';
@@ -62,7 +62,7 @@ export function BankScreen({ sim, dispatch, juice }: ScreenProps) {
   const [pops, setPops] = useState<{ key: string; text: string; x: number; at: number }[]>([]);
   const livePops = pops.filter((p) => sim.tick - p.at < 11);
 
-  const capacity = bankCapacity(sim);
+  const capacity = bankCapacity(sim, simContext);
   const used = sim.bank.length;
   const worth = bankWorth(sim, (id) => content.item(id).value);
   const slotCost = bankSlotCost(sim.bankSlotsBought);

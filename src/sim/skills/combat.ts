@@ -17,6 +17,7 @@ import type { SimContext } from '../context.ts';
 import { rollDropTable } from '../drops.ts';
 import { LOSABLE_SLOTS } from '../equipment.ts';
 import { pushEvent } from '../events.ts';
+import { hallFerrymanDiscount, hallHealBonus } from '../hall.ts';
 import { addStacks, countItem, removeItem, type ItemStack } from '../items.ts';
 import { awardXp, recordItems, xpAwarded } from '../perks.ts';
 import { skillLevel } from '../progress.ts';
@@ -71,7 +72,8 @@ export function eat(state: SimState, ctx: SimContext): SimState | null {
   if (state.combat.hp >= maxHp) return null;
   const bank = removeItem(state.bank, food, 1);
   if (bank === null) return null;
-  const hp = Math.min(maxHp, state.combat.hp + heal);
+  const healed = Math.round(heal * (1 + hallHealBonus(state, ctx)));
+  const hp = Math.min(maxHp, state.combat.hp + healed);
   const fight = state.combat.fight;
   return {
     ...state,
@@ -161,8 +163,9 @@ export const FERRYMAN_MULTIPLIER = 2;
 /** A bank item with this tag settles a crossing outright. */
 export const FERRYMAN_COIN_TAG = 'coin';
 
-export function ferrymanFee(item: ItemDef): number {
-  return FERRYMAN_MULTIPLIER * item.value;
+/** Twice the thing's worth, less what the hall's pyre knocks off. */
+export function ferrymanFee(item: ItemDef, state: SimState, ctx: SimContext): number {
+  return Math.round(FERRYMAN_MULTIPLIER * item.value * (1 - hallFerrymanDiscount(state, ctx)));
 }
 
 /** The obols in the bank, dearest first is not a thing: any one will do. */
@@ -193,7 +196,7 @@ function die(state: SimState, m: MonsterDef, ctx: SimContext): SimState {
     [i, rng] = nextInt(rng, 0, worn.length - 1);
     const slot = worn[i]!;
     const item = equipment[slot]!;
-    const fee = ctx.content.hasItem(item) ? ferrymanFee(ctx.content.item(item)) : 0;
+    const fee = ctx.content.hasItem(item) ? ferrymanFee(ctx.content.item(item), state, ctx) : 0;
     const coin = ferrymanCoins(state, ctx)[0];
     if (coin !== undefined) {
       bank = removeItem(bank, coin.item, 1) ?? bank;
@@ -308,7 +311,7 @@ export const combatHandler: ActionHandler<'combat'> = {
       ...m.always.map((a) => a.item),
       ...m.drops.flatMap((t) => t.entries.map((e) => e.item)),
     ];
-    const room = roomFor(state, wants);
+    const room = roomFor(state, wants, ctx);
     if (!room.ok) {
       return {
         ok: false,
