@@ -31,6 +31,7 @@ import { activeView, skillView } from '../derive.ts';
 import { formatAge, formatDuration, formatInt, formatSeconds, ticksToMs } from '../format.ts';
 import { BareIcon } from '../items/ItemTile.tsx';
 import { itemIconSpec, monsterIconSpec } from '../items/spec.ts';
+import { Face } from '../Face.tsx';
 import { Label, TileBox, UiIcon } from '../parts.tsx';
 import { popX, useNow } from '../util.ts';
 import type { Juice } from '../theme/theme.ts';
@@ -177,7 +178,7 @@ function Side({
     <div className="fight-side">
       <div className="who">
         {you ? (
-          <span className="avatar">{view.name.slice(0, 1).toUpperCase()}</span>
+          <Face name={view.name} />
         ) : (
           <TileBox size="md">
             {monster && <BareIcon spec={monsterIconSpec(content, monster)} size={24} />}

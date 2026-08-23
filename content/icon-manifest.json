@@ -31,6 +31,7 @@
     "delapouite/castle",
     "lorc/campfire",
     "lorc/crown-coin",
-    "lorc/cartwheel"
+    "lorc/cartwheel",
+    "delapouite/paint-brush"
   ]
 }

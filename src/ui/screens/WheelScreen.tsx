@@ -27,6 +27,7 @@ import {
 } from '../derive-wheel.ts';
 import { formatInt } from '../format.ts';
 import { Modal } from '../overlays/Modal.tsx';
+import { Face } from '../Face.tsx';
 import { Label, Pops, StatRow } from '../parts.tsx';
 import { useWheel } from '../useWheel.ts';
 import { popX, useNow } from '../util.ts';
@@ -201,12 +202,13 @@ export function WheelScreen({
             {data.table.length > 0 && (
               <div className="stat-block">
                 {data.table.map((p) => (
-                  <StatRow
-                    key={p.name}
-                    k={p.name}
-                    v={`${formatInt(p.bets.reduce((n, b) => n + b.stake, 0))} gp`}
-                    gold={p.name === sim.player.name}
-                  />
+                  <div key={p.name} className="stat-row seat">
+                    <Face name={p.name} size={18} />
+                    <span className="k">{p.name}</span>
+                    <span className={p.name === sim.player.name ? 'v gold' : 'v'}>
+                      {formatInt(p.bets.reduce((n, b) => n + b.stake, 0))} gp
+                    </span>
+                  </div>
                 ))}
               </div>
             )}

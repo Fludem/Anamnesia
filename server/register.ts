@@ -16,6 +16,7 @@ import {
   type StandingRow,
   type User,
 } from '../src/api/protocol.ts';
+import { isBlank, parseLook, type Look } from '../src/look/look.ts';
 import type { SimContext } from '../src/sim/context.ts';
 import { boardIds, standingsOf, type BoardId } from '../src/sim/highscores.ts';
 import type { SaveRecord } from '../src/sim/save.ts';
@@ -75,6 +76,26 @@ export class Register {
       )
       .get(name, key, passwordHash, nowMs) as { id: number };
     return { id: r.id, name, createdAt: nowMs };
+  }
+
+  // ---- looks ------------------------------------------------------------------------------
+
+  /** The look a name shows the hill; null takes it down. */
+  setLook(userId: number, look: Look | null): void {
+    this.db
+      .prepare('UPDATE users SET look = ? WHERE id = ?')
+      .run(look === null || isBlank(look) ? null : JSON.stringify(look), userId);
+  }
+
+  /** The looks of some names, keyed by the name as asked; a name without one, or unknown, is null. */
+  looksOf(names: readonly string[]): Record<string, Look | null> {
+    const out: Record<string, Look | null> = {};
+    const find = this.db.prepare('SELECT look FROM users WHERE name_key = ?');
+    for (const name of names) {
+      const row = find.get(nameKey(name)) as { look: string | null } | undefined;
+      out[name] = row ? parseLook(row.look) : null;
+    }
+    return out;
   }
 
   // ---- sessions ---------------------------------------------------------------------------

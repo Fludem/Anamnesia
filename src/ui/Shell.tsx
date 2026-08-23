@@ -7,6 +7,7 @@ import { content, simContext } from '../content/index.ts';
 import type { SimState } from '../sim/save.ts';
 import { skillView } from './derive.ts';
 import { formatInt } from './format.ts';
+import { Face } from './Face.tsx';
 import { Label, UiIcon } from './parts.tsx';
 import type { View } from './prefs.ts';
 import { TALK_ICON } from './screens/ChatScreen.tsx';
@@ -18,6 +19,7 @@ export const COIN_ICON = 'delapouite/coins';
 export const EQUIPMENT_ICON = 'delapouite/chest-armor';
 export const TRADER_ICON = 'lorc/scales';
 export const HALL_ICON = 'delapouite/castle';
+export const BRUSH_ICON = 'delapouite/paint-brush';
 
 /** Skills with a screen of their own; hitpoints is read on the combat screen. */
 const LISTED = content.skills.filter((s) => s.listed);
@@ -41,10 +43,12 @@ export interface ShellProps {
   unread: number;
   onView: (view: View) => void;
   onSettings: () => void;
+  /** Open the brush on this name's likeness. */
+  onPaint: () => void;
   children: ReactNode;
 }
 
-export function Shell({ sim, view, unread, onView, onSettings, children }: ShellProps) {
+export function Shell({ sim, view, unread, onView, onSettings, onPaint, children }: ShellProps) {
   const isSkill = (id: string) => view.kind === 'skill' && view.id === id;
   const coins = formatInt(sim.coins);
   return (
@@ -139,7 +143,7 @@ export function Shell({ sim, view, unread, onView, onSettings, children }: Shell
             )}
           </button>
           <div className="spacer" />
-          <AvatarMenu name={sim.player.name} onSettings={onSettings} />
+          <AvatarMenu name={sim.player.name} onSettings={onSettings} onPaint={onPaint} />
         </aside>
 
         <main className={view.kind === 'talk' ? 'main main-fill' : 'main'}>{children}</main>
@@ -216,7 +220,15 @@ export function Shell({ sim, view, unread, onView, onSettings, children }: Shell
   );
 }
 
-function AvatarMenu({ name, onSettings }: { name: string; onSettings: () => void }) {
+function AvatarMenu({
+  name,
+  onSettings,
+  onPaint,
+}: {
+  name: string;
+  onSettings: () => void;
+  onPaint: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -241,10 +253,20 @@ function AvatarMenu({ name, onSettings }: { name: string; onSettings: () => void
             <UiIcon id="lorc/cog" size={14} />
             Settings
           </button>
+          <button
+            className="menu-item"
+            onClick={() => {
+              setOpen(false);
+              onPaint();
+            }}
+          >
+            <UiIcon id={BRUSH_ICON} size={14} />
+            Likeness
+          </button>
         </div>
       )}
       <button className="nav-row avatar-row" onClick={() => setOpen((o) => !o)}>
-        <span className="avatar">{name.slice(0, 1).toUpperCase()}</span>
+        <Face name={name} />
         <span className="name">{name}</span>
         <span className={open ? 'caret open' : 'caret'}>▾</span>
       </button>

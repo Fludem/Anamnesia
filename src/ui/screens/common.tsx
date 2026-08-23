@@ -26,9 +26,12 @@ export function ScreenHead({
   chip,
   skill,
   sim,
+  face,
 }: {
   icon: string;
   title: string;
+  /** Stands where the icon would: a hall's mark. */
+  face?: ReactNode;
   level?: SkillView;
   rate?: string | null;
   chip?: string;
@@ -40,7 +43,7 @@ export function ScreenHead({
   const god = bonus > 1 && sim !== undefined ? godOf(sim, simContext) : null;
   return (
     <div className="screen-head">
-      <UiIcon id={icon} size={20} />
+      {face ?? <UiIcon id={icon} size={20} />}
       <span className="screen-title">{title}</span>
       {level && (
         <span className="chip" title={`${formatInt(level.xp)} xp total`}>

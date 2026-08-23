@@ -16,6 +16,7 @@ import type {
   Petition,
   User,
 } from '../src/api/protocol.ts';
+import { isBlank, parseLook, type Look } from '../src/look/look.ts';
 import type { SimContext } from '../src/sim/context.ts';
 import type { Gift, HallSync } from '../src/sim/hall.ts';
 import { nameKey } from './register.ts';
@@ -225,6 +226,27 @@ export class Halls {
       throw new HallError(404, 'No one by that name in the hall.');
     if (target.id === founder.id) throw new HallError(409, 'Leave, if you want to go.');
     this.db.prepare('DELETE FROM members WHERE user_id = ?').run(target.id);
+  }
+
+  /** The founder paints the mark over the door; null takes it down. */
+  setLook(founder: User, look: Look | null): void {
+    const hall = this.hallOf(founder.id);
+    if (!hall || hall.founder_id !== founder.id)
+      throw new HallError(403, 'Only the founder paints the mark.');
+    this.db
+      .prepare('UPDATE halls SET look = ? WHERE id = ?')
+      .run(look === null || isBlank(look) ? null : JSON.stringify(look), hall.id);
+  }
+
+  /** The marks of some halls, keyed by the name as asked; a hall without one, or unknown, is null. */
+  looksOf(names: readonly string[]): Record<string, Look | null> {
+    const out: Record<string, Look | null> = {};
+    const find = this.db.prepare('SELECT look FROM halls WHERE name_key = ?');
+    for (const name of names) {
+      const row = find.get(nameKey(name)) as { look: string | null } | undefined;
+      out[name] = row ? parseLook(row.look) : null;
+    }
+    return out;
   }
 
   // ---- gifts ------------------------------------------------------------------------------

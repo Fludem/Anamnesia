@@ -20,10 +20,12 @@ import {
   MarkReadSchema,
   PlaceBetSchema,
   MAX_BODY_BYTES,
+  MAX_LOOKS_ASKED,
   RequestJoinSchema,
   SavePutSchema,
   SaySchema,
   SESSION_COOKIE,
+  SetLookSchema,
   SESSION_TTL_MS,
   type Session,
   type User,
@@ -384,6 +386,33 @@ export function createApp(options: AppOptions): Handler {
       const at = now();
       wheel.cashOut(user, register.loadSave(user.id)?.sim.wheel.paidThrough ?? 0, at);
       json(res, 200, wheel.view(user.id, at));
+      return;
+    }
+
+    // ---- looks ------------------------------------------------------------------------
+
+    if (route === 'GET /api/looks') {
+      const names = query.getAll('name');
+      const hallNames = query.getAll('hall');
+      if (names.length + hallNames.length > MAX_LOOKS_ASKED)
+        throw new HttpError(400, `At most ${String(MAX_LOOKS_ASKED)} looks at a time.`);
+      json(res, 200, { names: register.looksOf(names), halls: halls.looksOf(hallNames) });
+      return;
+    }
+
+    if (route === 'PUT /api/look') {
+      const user = requireUser(req);
+      const { look } = await readJson(req, SetLookSchema);
+      register.setLook(user.id, look);
+      json(res, 200, {});
+      return;
+    }
+
+    if (route === 'PUT /api/hall/look') {
+      const user = requireUser(req);
+      const { look } = await readJson(req, SetLookSchema);
+      halls.setLook(user, look);
+      json(res, 200, {});
       return;
     }
 

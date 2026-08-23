@@ -1,8 +1,9 @@
 /**
  * The hill's register: SQLite through node's own binding, one file, no daemon. Who has a name,
  * who is logged in, each name's last save, what that save scores on every board — and, since
- * Phase 12, the halls; since Phase 13, what was said; since Phase 14, the wheel. The schema is
- * versioned with `user_version`; bumps append to MIGRATIONS.
+ * Phase 12, the halls; since Phase 13, what was said; since Phase 14, the wheel; since the
+ * looks, the small painted picture a name or a hall shows. The schema is versioned with
+ * `user_version`; bumps append to MIGRATIONS.
  */
 import { DatabaseSync } from 'node:sqlite';
 
@@ -167,6 +168,14 @@ const MIGRATIONS: readonly string[] = [
     PRIMARY KEY (round_id, user_id, spot)
   );
   CREATE INDEX wheel_bets_user ON wheel_bets(user_id, round_id);
+  `,
+  /**
+   * Looks: the picture a name paints for itself, and the mark over a hall's door, as the JSON
+   * of src/look/look.ts's Look; null for the first letter.
+   */
+  `
+  ALTER TABLE users ADD COLUMN look TEXT;
+  ALTER TABLE halls ADD COLUMN look TEXT;
   `,
 ];
 

@@ -12,6 +12,7 @@ import type { Command } from '../../sim/commands.ts';
 import { createNewSave } from '../../sim/save.ts';
 import { godOf } from '../../sim/perks.ts';
 import { nightHours } from '../derive-trader.ts';
+import { Face } from '../Face.tsx';
 import { formatInt } from '../format.ts';
 import { Label, UiIcon } from '../parts.tsx';
 import type { Juice } from '../theme/theme.ts';
@@ -33,6 +34,7 @@ export function Settings({
   onJuice,
   onSignOut,
   dispatch,
+  onPaint,
   onClose,
 }: {
   runtime: GameRuntime;
@@ -43,6 +45,8 @@ export function Settings({
   /** Saves, stops the game here and ends the session. */
   onSignOut: () => Promise<void>;
   dispatch: (cmd: Command) => void;
+  /** Open the brush on this name's likeness (closes the settings). */
+  onPaint: () => void;
   onClose: () => void;
 }) {
   const sim = snapshot.sim;
@@ -121,6 +125,20 @@ export function Settings({
           </button>
         </div>
         <div className="note-line">The hill keeps climbing while you are logged out.</div>
+      </div>
+
+      <div className="settings-section">
+        <Label>Likeness</Label>
+        <div className="settings-row">
+          <Face name={user.name} size={36} />
+          <span className="kv" style={{ flex: 1 }}>
+            what the hill sees beside your name
+          </span>
+          <button className="btn" style={{ flex: 'none' }} onClick={onPaint}>
+            Paint
+          </button>
+        </div>
+        <div className="note-line">Sixteen cells by sixteen, in the hill's own colours.</div>
       </div>
 
       <div className="settings-section">

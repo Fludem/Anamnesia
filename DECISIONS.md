@@ -1252,3 +1252,44 @@ take the item's rarity colour; odds under 1% go gold. `src/ui/derive-drops.ts` i
 tested against the fixture content; locked rows show it too, so a vein's worth can be read
 before it opens. Touch has no hover — on a phone the tip shows while a row has focus, which
 is the tap that starts it.
+
+## Phase 15 — the looks: a likeness for a name, a mark for a hall
+
+The request was a custom avatar painted by hand and with shapes, shown in the talk, on the
+highscores, at the wheel — and the same for a guild. The shape of it:
+
+- **A look is a small vector picture, not a bitmap.** Sixteen cells by sixteen is enough to
+  read at 22 px, and the paint is one string of 256 palette letters — no image upload, no
+  storage to speak of, no moderation surface beyond what a 16×16 grid allows. Shapes (disc,
+  box, triangle, diamond, line) are kept as shapes and drawn as SVG, so a disc is round at
+  52 px and the paint is crisp (`shape-rendering: crispEdges`) at 18. Shapes lie under the
+  paint; "Press" bakes one into cells for anyone who wants paint over a shape.
+- **Only the design's colours.** The rule since Phase 0 is that colours trace back to the
+  design; the palette is the chrome's greys, the accent greens, the gold, the hurt red and
+  the material tiers from `materials.json`, 36 swatches, one letter each. The palette is
+  append-only because a stored look is a list of indices into it.
+- **On the register, not in the save.** A look belongs to the name, not the hero: it
+  survives a reset, it is not the sim's, and it is one `users.look` column (and `halls.look`).
+  No save bump. The founder alone paints the hall's mark, the way the founder alone turns a
+  name out.
+- **Read by name, in batches, through a cache.** Rather than adding a look to every row the
+  register answers (every word at the fire, every board row, every member), `<Face name>`
+  asks one small cache, which asks `/api/looks?name=…&hall=…` once a frame for whatever was
+  wanted — so a board of a hundred names costs one request, the chat's poll stays the size it
+  is, and the wheel's table got faces without touching its protocol. A look is re-asked after
+  five minutes; one painted here is put in the cache at once. The wheel merged while this was
+  built and needed only a `<Face>` on its seat rows.
+- **The brush is a modal, not a screen.** It is reached from the name at the bottom of the
+  sidebar (Likeness) or Settings → Likeness; the hall's from its door. Tools are words, not
+  icons, in the hill's voice: Paint, Fill, Erase, Disc, Box, Tri, Diamond, Line; Mirror,
+  Undo, Clear; Turn, Lower, Raise, Recolour, Press, Remove; Backdrop. One undo step per
+  stroke. The previews on the right are the three sizes the hill shows a face at, beside the
+  name, so what it looks like at 22 px is never a surprise.
+- **What is trusted.** The register checks the schema (grid, palette, at most 24 shapes) and
+  nothing else; a blank look stores as none. There is no way to report a look; if one needs
+  taking down, `UPDATE users SET look = NULL` from the command line.
+- Browser-checked on the dev server with two fixture names and a hall: painting, shapes,
+  backdrop, mirror, undo, press, keep, take down; the fire, the boards, the hall, the sidebar
+  after a reload; the editor at 390 px in an iframe (it scrolls inside the viewport).
+  Running two dev servers on `localhost` at once shares the session cookie between them —
+  serve on the LAN address to test beside a peer.

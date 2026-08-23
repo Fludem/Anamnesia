@@ -261,6 +261,70 @@ describe('boards', () => {
   });
 });
 
+describe('looks', () => {
+  const look = {
+    v: 1,
+    bg: 3,
+    shapes: [{ k: 'disc', x: 2, y: 2, w: 12, h: 12, c: 11, r: 0 }],
+    paint: '.'.repeat(256),
+  };
+
+  it('a name paints its own look, the hill reads it by name, and it can take it down', async () => {
+    const c = new Client(base);
+    await c.register('Painter');
+    expect((await c.call('PUT', '/api/look', { look })).status).toBe(200);
+
+    const seen = await new Client(base).call('GET', '/api/looks?name=painter&name=Nobody%20Here');
+    expect(seen.status).toBe(200);
+    expect(seen.body).toEqual({ names: { painter: look, 'Nobody Here': null }, halls: {} });
+
+    expect((await c.call('PUT', '/api/look', { look: null })).status).toBe(200);
+    const gone = await c.call('GET', '/api/looks?name=Painter');
+    expect(gone.body).toEqual({ names: { Painter: null }, halls: {} });
+  });
+
+  it('refuses a look off the grid, a blank one counts as none, and it needs a login', async () => {
+    const c = new Client(base);
+    await c.register('Dauber');
+    const off = { ...look, shapes: [{ ...look.shapes[0], x: 10 }] };
+    expect((await c.call('PUT', '/api/look', { look: off })).status).toBe(400);
+    const bad = { ...look, paint: '#'.repeat(256) };
+    expect((await c.call('PUT', '/api/look', { look: bad })).status).toBe(400);
+    const blank = { v: 1, bg: null, shapes: [], paint: '.'.repeat(256) };
+    expect((await c.call('PUT', '/api/look', { look: blank })).status).toBe(200);
+    expect((await c.call('GET', '/api/looks?name=Dauber')).body).toEqual({
+      names: { Dauber: null },
+      halls: {},
+    });
+    expect((await new Client(base).call('PUT', '/api/look', { look })).status).toBe(401);
+    const many = Array.from({ length: 101 }, (_, i) => `name=n${String(i)}`).join('&');
+    expect((await c.call('GET', `/api/looks?${many}`)).status).toBe(400);
+  });
+
+  it('only the founder paints the mark over a hall', async () => {
+    const founder = new Client(base);
+    await founder.register('Mark Founder');
+    await founder.call('POST', '/api/hall', { name: 'The Marked Hall' });
+    const other = new Client(base);
+    await other.register('Mark Member');
+    await other.call('POST', '/api/hall/request', { hall: 'The Marked Hall' });
+    const door = (await founder.call('GET', '/api/hall')).body as { requests: { id: number }[] };
+    await founder.call('POST', `/api/hall/petitions/${String(door.requests[0]!.id)}`, {
+      accept: true,
+    });
+
+    const refused = await other.call('PUT', '/api/hall/look', { look });
+    expect(refused.status).toBe(403);
+    expect(refused.body).toEqual({ error: 'Only the founder paints the mark.' });
+    expect((await founder.call('PUT', '/api/hall/look', { look })).status).toBe(200);
+    const seen = await other.call('GET', '/api/looks?hall=the%20marked%20hall&hall=No%20Hall');
+    expect(seen.body).toEqual({ names: {}, halls: { 'the marked hall': look, 'No Hall': null } });
+    const nobody = new Client(base);
+    await nobody.register('Hall-less');
+    expect((await nobody.call('PUT', '/api/hall/look', { look })).status).toBe(403);
+  });
+});
+
 describe('files', () => {
   it('serves the built game, with the page for any route and nothing outside the directory', async () => {
     const page = await fetch(`${base}/`);

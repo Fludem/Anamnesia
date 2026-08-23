@@ -12,6 +12,7 @@ import {
   EmptySchema,
   HallGetSchema,
   HallsSchema,
+  LooksSchema,
   SaidSchema,
   SessionSchema,
   WheelGetSchema,
@@ -23,11 +24,13 @@ import {
   type Credentials,
   type HallGet,
   type HallSummary,
+  type Looks,
   type Session,
   type Talk,
   type WheelGet,
 } from './protocol.ts';
 import type { Spot } from '../sim/wheel.ts';
+import type { Look } from '../look/look.ts';
 
 export class ApiError extends Error {
   override readonly name = 'ApiError';
@@ -119,4 +122,13 @@ export const api = {
   bet: (round: number, spot: Spot, stake: number): Promise<WheelGet> =>
     call('POST', '/api/wheel/bet', WheelGetSchema, { round, spot, stake }),
   cashOut: (): Promise<WheelGet> => call('POST', '/api/wheel/cash-out', WheelGetSchema, {}),
+  looks: (names: readonly string[], halls: readonly string[]): Promise<Looks> => {
+    const q = new URLSearchParams();
+    for (const n of names) q.append('name', n);
+    for (const h of halls) q.append('hall', h);
+    return call('GET', `/api/looks?${q.toString()}`, LooksSchema);
+  },
+  setLook: (look: Look | null): Promise<unknown> => call('PUT', '/api/look', EmptySchema, { look }),
+  setHallLook: (look: Look | null): Promise<unknown> =>
+    call('PUT', '/api/hall/look', EmptySchema, { look }),
 };

@@ -25,6 +25,7 @@ import {
   talkKey,
   timeLabel,
 } from '../derive-chat.ts';
+import { Face } from '../Face.tsx';
 import { formatInt } from '../format.ts';
 import { Label, TileBox, UiIcon } from '../parts.tsx';
 import type { ChatState } from '../useChat.ts';
@@ -110,7 +111,7 @@ export function ChatScreen({ chat }: { chat: ChatState }) {
                 className={`row chat-row${sameTalk(chat.open, talk) ? ' active' : ''}`}
                 onClick={() => lookAt(talk)}
               >
-                <span className="avatar">{n.name.slice(0, 1).toUpperCase()}</span>
+                <Face name={n.name} />
                 <span className="body">
                   <span className="name">
                     {n.name}
@@ -310,17 +311,20 @@ function Word({ m, me, onName }: { m: ChatMessage; me: string; onName: (() => vo
   const mine = nameKey(m.from) === nameKey(me);
   return (
     <div className={mine ? 'chat-word mine' : 'chat-word'}>
-      <span className="chat-who">
-        {onName ? (
-          <button className="chat-name" onClick={onName} title={`A word with ${m.from}`}>
-            {m.from}
-          </button>
-        ) : (
-          <span className="chat-name">{mine ? 'you' : m.from}</span>
-        )}
-        <span className="chat-when">{timeLabel(m.atMs)}</span>
+      <Face name={m.from} size={22} className="chat-face" />
+      <span className="chat-lines">
+        <span className="chat-who">
+          {onName ? (
+            <button className="chat-name" onClick={onName} title={`A word with ${m.from}`}>
+              {m.from}
+            </button>
+          ) : (
+            <span className="chat-name">{mine ? 'you' : m.from}</span>
+          )}
+          <span className="chat-when">{timeLabel(m.atMs)}</span>
+        </span>
+        <span className="chat-what">{m.body}</span>
       </span>
-      <span className="chat-what">{m.body}</span>
     </div>
   );
 }

@@ -26,11 +26,15 @@
  *   GET  /api/wheel               → WheelGet       (the table: this round, who is at it, the last spins)
  *   POST /api/wheel/bet           { round, spot, stake } → WheelGet   (409 closed, or not enough chips)
  *   POST /api/wheel/cash-out      → WheelGet       (chips become a payout the next save takes)
+ *   GET  /api/looks?name=A&hall=H → Looks          (the looks of up to 100 names and halls)
+ *   PUT  /api/look                SetLook → {}     (the caller's look; null takes it down)
+ *   PUT  /api/hall/look           SetLook → {}     (the hall's mark; founder only)
  *
  * Every error is `{ error: string }` in the hill's register. State-changing requests must be
  * JSON (`Content-Type: application/json`), which with a SameSite=Lax cookie is the CSRF guard.
  */
 import { z } from 'zod';
+import { LookSchema } from '../look/look.ts';
 import { PlayerNameSchema } from '../sim/commands.ts';
 import { HallSyncSchema } from '../sim/hall.ts';
 import { SpotSchema, WheelSyncSchema } from '../sim/wheel.ts';
@@ -379,3 +383,18 @@ export const PlaceBetSchema = z.object({
   stake: z.number().int().min(1),
 });
 export type PlaceBet = z.infer<typeof PlaceBetSchema>;
+
+// ---- looks ----------------------------------------------------------------------------------
+
+/** Names (or halls) one request may ask the looks of. */
+export const MAX_LOOKS_ASKED = 100;
+
+/** Keyed by the name as it was asked; a name the register has no look for is null. */
+export const LooksSchema = z.object({
+  names: z.record(z.string(), LookSchema.nullable()),
+  halls: z.record(z.string(), LookSchema.nullable()),
+});
+export type Looks = z.infer<typeof LooksSchema>;
+
+export const SetLookSchema = z.object({ look: LookSchema.nullable() });
+export type SetLook = z.infer<typeof SetLookSchema>;

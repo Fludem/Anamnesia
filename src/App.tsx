@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { api } from './api/client.ts';
 import type { User } from './api/protocol.ts';
+import type { Look } from './look/look.ts';
 import type { Command } from './sim/commands.ts';
 import { oathsReleased } from './sim/trader.ts';
 import { simContext } from './content/index.ts';
@@ -16,6 +18,7 @@ import {
   StalePage,
 } from './ui/overlays/Calm.tsx';
 import { LevelUp } from './ui/overlays/LevelUp.tsx';
+import { LookEditor } from './ui/overlays/LookEditor.tsx';
 import { OfflineRecap } from './ui/overlays/OfflineRecap.tsx';
 import { Settings } from './ui/overlays/Settings.tsx';
 import { JuiceSchema, usePref, ViewSchema, type View } from './ui/prefs.ts';
@@ -32,6 +35,7 @@ import { HallScreen } from './ui/screens/HallScreen.tsx';
 import { TraderScreen } from './ui/screens/TraderScreen.tsx';
 import { WheelScreen } from './ui/screens/WheelScreen.tsx';
 import { Shell } from './ui/Shell.tsx';
+import { peekLook, putLook } from './ui/looks.ts';
 import { useChat } from './ui/useChat.ts';
 import { useGameRuntime } from './ui/useGameHost.ts';
 import { useSession } from './ui/useSession.ts';
@@ -62,6 +66,7 @@ function Game({ user, onSignOut }: { user: User; onSignOut: () => Promise<void> 
   const [juice, setJuice] = usePref('juice', JuiceSchema, 'juicy');
   const [view, setView] = usePref('view', ViewSchema, DEFAULT_VIEW);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [painting, setPainting] = useState(false);
   const { sim, role } = snapshot;
   // Only the tab that plays listens at the fire; a follower shows its calm page and no more.
   const chat = useChat(user, role === 'leader' && sim !== null && snapshot.error === null);
@@ -85,6 +90,17 @@ function Game({ user, onSignOut }: { user: User; onSignOut: () => Promise<void> 
   if (runtime === null || sim === null || role !== 'leader') return <BootingPage />;
 
   const dispatch = (cmd: Command) => runtime.host.dispatch(cmd);
+  /** Keep a likeness on the register and show it here at once. */
+  const paint = async (look: Look | null): Promise<string | null> => {
+    try {
+      await api.setLook(look);
+    } catch (e) {
+      return e instanceof Error ? e.message : String(e);
+    }
+    putLook('name', user.name, look);
+    setPainting(false);
+    return null;
+  };
   if (sim.player.god === null) {
     return (
       <Onboarding
@@ -149,6 +165,7 @@ function Game({ user, onSignOut }: { user: User; onSignOut: () => Promise<void> 
         unread={chat.unread}
         onView={setView}
         onSettings={() => setSettingsOpen(true)}
+        onPaint={() => setPainting(true)}
       >
         {snapshot.commandError && (
           <div className="toast stop" role="alert" style={{ margin: '0 0 14px' }}>
@@ -182,7 +199,20 @@ function Game({ user, onSignOut }: { user: User; onSignOut: () => Promise<void> 
           onJuice={setJuice}
           onSignOut={signOut}
           dispatch={dispatch}
+          onPaint={() => {
+            setSettingsOpen(false);
+            setPainting(true);
+          }}
           onClose={() => setSettingsOpen(false)}
+        />
+      )}
+      {painting && (
+        <LookEditor
+          kind="name"
+          name={user.name}
+          initial={peekLook('name', user.name) ?? null}
+          onSave={paint}
+          onClose={() => setPainting(false)}
         />
       )}
     </div>

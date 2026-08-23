@@ -119,6 +119,18 @@ reload can take it twice or lose it. An American wheel, 0 and 00 — every bet c
 edge, two pockets in thirty-eight. The table has a room of its own in the talk.
 `scripts/tune-wheel.ts` prints the edge and what a chip costs in hours. Save v11 adds the cart.
 
+Phase 15 is the looks: a name paints a likeness, and a hall's founder paints the mark over
+its door, in the same brush (`src/look/`, `LookEditor`). Sixteen cells by sixteen in the
+design's own colours — the chrome's greys, the accent greens, the gold, the hurt red, the
+material tiers — painted by hand (paint, fill, erase, mirror, undo) over a stack of plain
+shapes (disc, box, triangle, diamond, line; turn, lower, raise, recolour, press into the paint,
+remove) on a backdrop. Shapes stay vectors, so a look is crisp at 22 px and at 52. A look
+lives on the register (`users.look`, `halls.look`), never in the save; the hill reads them by
+name in batches (`/api/looks`) through one small cache (`src/ui/looks.ts`) and `<Face>` shows
+the look or falls back to the first letter — beside every word at the fire, on every board,
+in the hall, at the wheel, in the sidebar. The brush is under the name at the bottom of the
+sidebar (or Settings → Likeness); the hall's is "Paint the mark" on its door.
+
 The hill is live at [game.onyxleeds.co.uk](https://game.onyxleeds.co.uk/): one Ubuntu box
 running `dist-server/main.js` under systemd behind Caddy, the name proxied through Cloudflare,
 the register backed up daily (`deploy/`). `scripts/deploy.sh` builds and ships it.
@@ -131,6 +143,7 @@ the register backed up daily (`deploy/`). `scripts/deploy.sh` builds and ships i
 | `src/content/`  | Game content as JSON (skills, gods, materials, rarities, items, rocks, trees, waters, recipes, zones, monsters, drop tables), validated at load; `progression.test.ts` pins hours-to-99.                                                                                                           |
 | `src/runtime/`  | Browser orchestration: save stores (IndexedDB and the server), leader election, channel, GameHost.                                                                                                                                                                                                 |
 | `src/api/`      | The wire: `protocol.ts` (zod schemas both ends import) and `client.ts` (the game's calls).                                                                                                                                                                                                         |
+| `src/look/`     | A look: the painted picture a name or a hall shows — the palette (the design's colours, append-only), the 16×16 paint, the shapes, the schema, flood fill and pressing a shape into the paint. Shared by both ends; no DOM.                                                                        |
 | `server/`       | The register: `db.ts` (SQLite schema), `auth.ts` (scrypt, sessions, cookies, rate limits), `register.ts` (SQL), `hall.ts` (the clans), `chat.ts` (the fire: rooms, words between names, the long poll), `app.ts` (routes + static files), `main.ts` (production), `vite.ts` (dev).                 |
 | `src/ui/`       | React: `Shell`, `screens/`, `overlays/`, `derive.ts` (pure view helpers), `useChat.ts` (the tab's one poll at the fire), `app.css` (the design's classes over the tokens).                                                                                                                         |
 | `src/icons/`    | Icon registry, SVG renderer + cache, badge glyphs, procedural sword geometry.                                                                                                                                                                                                                      |

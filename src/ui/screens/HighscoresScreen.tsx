@@ -9,6 +9,7 @@ import type { StandingRow } from '../../api/protocol.ts';
 import { boardIds, type BoardId } from '../../sim/highscores.ts';
 import { godOf } from '../../sim/perks.ts';
 import type { SimState } from '../../sim/save.ts';
+import { Face } from '../Face.tsx';
 import { formatAge, formatInt } from '../format.ts';
 import { Label, UiIcon } from '../parts.tsx';
 import { useBoard } from '../useBoard.ts';
@@ -143,6 +144,7 @@ export function HighscoresScreen({
                 className={`row board-row${r.you ? ' you' : ''}${r.rank === 1 ? ' first' : ''}`}
               >
                 <span className="rank">{String(r.rank)}</span>
+                <Face name={r.name} size={22} />
                 <span className="god" title={mine ? `sworn to ${mine.name}` : 'sworn to nobody'}>
                   {mine ? <UiIcon id={mine.icon} size={12} /> : <span className="none">·</span>}
                 </span>

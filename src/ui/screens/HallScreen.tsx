@@ -26,8 +26,12 @@ import {
   type NeedRow,
   type RoomRow,
 } from '../derive-hall.ts';
+import { Face } from '../Face.tsx';
 import { formatInt } from '../format.ts';
+import type { Look } from '../../look/look.ts';
+import { peekLook, putLook } from '../looks.ts';
 import { Label, Pops, TileBox, UiIcon } from '../parts.tsx';
+import { LookEditor } from '../overlays/LookEditor.tsx';
 import { Modal } from '../overlays/Modal.tsx';
 import { HALL_ICON } from '../Shell.tsx';
 import { useHall } from '../useHall.ts';
@@ -180,6 +184,7 @@ function Door({
             {halls.length === 0 && <div className="row board-note">nobody has founded one yet</div>}
             {halls.map((h) => (
               <div key={h.name} className="row hall-row">
+                <Face kind="hall" name={h.name} />
                 <span className="body">
                   <span className="name">{h.name}</span>
                   <span className="sub">
@@ -316,6 +321,17 @@ function Inside({
   const [giving, setGiving] = useState<RoomRow | null>(null);
   const [leaving, setLeaving] = useState(false);
   const [doorError, setDoorError] = useState<string | null>(null);
+  const [painting, setPainting] = useState(false);
+  const paintMark = async (look: Look | null): Promise<string | null> => {
+    try {
+      await api.setHallLook(look);
+    } catch (e) {
+      return e instanceof Error ? e.message : String(e);
+    }
+    putLook('hall', view.name, look);
+    setPainting(false);
+    return null;
+  };
 
   const leave = async () => {
     if (!leaving) {
@@ -334,6 +350,7 @@ function Inside({
     <>
       <ScreenHead
         icon={HALL_ICON}
+        face={<Face kind="hall" name={view.name} size={28} />}
         title={view.name}
         chip={`${view.members.length === 1 ? 'one name' : `${String(view.members.length)} names`} · ${raised === 0 ? 'nothing raised yet' : `${String(raised)} raised`}`}
         rate={`gave ${formatInt(me?.given ?? 0)} gp`}
@@ -390,7 +407,7 @@ function Inside({
               const god = m.god !== null && content.hasGod(m.god) ? content.god(m.god) : null;
               return (
                 <div key={m.name} className={`row hall-row${m.you ? ' you' : ''}`}>
-                  <span className="avatar">{m.name.slice(0, 1).toUpperCase()}</span>
+                  <Face name={m.name} />
                   <span className="body">
                     <span className="name">
                       {m.name}
@@ -423,6 +440,16 @@ function Inside({
               <Label>The door</Label>
               <span className="spacer" />
               <span className="hint">{founder ? 'you keep it' : `${view.founder} keeps it`}</span>
+              {founder && (
+                <button
+                  className="btn sm"
+                  style={{ marginLeft: 10 }}
+                  onClick={() => setPainting(true)}
+                  title="the mark over the door, beside every name in the hall"
+                >
+                  Paint the mark
+                </button>
+              )}
             </div>
             {requests.map((p) => (
               <PetitionRow key={p.id} p={p} act={act} />
@@ -480,6 +507,15 @@ function Inside({
           </div>
         </div>
       </div>
+      {painting && (
+        <LookEditor
+          kind="hall"
+          name={view.name}
+          initial={peekLook('hall', view.name) ?? null}
+          onSave={paintMark}
+          onClose={() => setPainting(false)}
+        />
+      )}
       {giving && (
         <GiveModal
           row={giving}
