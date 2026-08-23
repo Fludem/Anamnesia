@@ -17,6 +17,12 @@
  *   POST /api/hall/leave          → HallGet
  *   POST /api/hall/expel          { name } → HallGet        (founder only)
  *   GET  /api/halls               → HallSummary[]  (every hall on the hill, best first)
+ *   GET  /api/chat                → ChatOverview   (each room's last words, the names spoken with)
+ *   GET  /api/chat/poll?after=N   → ChatPoll       (every new word since N; waits up to 25 s for one)
+ *   GET  /api/chat/with/:name     → ChatThread     (the words between the caller and a name; marks them read)
+ *   POST /api/chat                Say → Said       (201; 404 no such name, 403 they turned away, 429 enough)
+ *   POST /api/chat/read           MarkRead → {}    (how far the caller has read in a talk)
+ *   POST /api/chat/block          Block → {}       (turn away from a name, or back)
  *
  * Every error is `{ error: string }` in the hill's register. State-changing requests must be
  * JSON (`Content-Type: application/json`), which with a SameSite=Lax cookie is the CSRF guard.
@@ -31,6 +37,11 @@ export const SESSION_COOKIE = 'anamnesia_session';
 export const SESSION_TTL_MS = 90 * 24 * 3_600_000;
 /** A save on the wire may be this large; the real ones are a few dozen kilobytes. */
 export const MAX_BODY_BYTES = 2 * 1024 * 1024;
+
+/** Names are unique without regard to case or the width of their letters. */
+export function nameKey(name: string): string {
+  return name.normalize('NFKC').toLowerCase().replace(/\s+/g, ' ').trim();
+}
 
 export const PasswordSchema = z.string().min(8, 'at least 8 characters').max(200);
 export const CredentialsSchema = z.object({ name: PlayerNameSchema, password: PasswordSchema });
@@ -202,3 +213,105 @@ export const InviteSchema = z.object({ name: PlayerNameSchema });
 export const RequestJoinSchema = z.object({ hall: HallNameSchema });
 export const AnswerSchema = z.object({ accept: z.boolean() });
 export const ExpelSchema = z.object({ name: PlayerNameSchema });
+
+// ---- the fire -------------------------------------------------------------------------------
+
+/** What can be said at once: the server trims it the same way before it looks at the length. */
+export const MAX_WORDS = 500;
+
+/** Strip what a terminal would not print, keep newlines but not runs of them, trim. */
+export function cleanWords(raw: string): string {
+  return (
+    raw
+      .normalize('NFC')
+      .replace(/\r\n?/g, '\n')
+      // eslint-disable-next-line no-control-regex -- that is the point
+      .replace(/[\u0000-\u0009\u000B-\u001F\u007F-\u009F\u200B-\u200F\u2028\u2029\uFEFF]/g, '')
+      .replace(/[ \t]+\n/g, '\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim()
+  );
+}
+
+export const WordsSchema = z
+  .string()
+  .max(MAX_WORDS * 4)
+  .transform(cleanWords)
+  .pipe(z.string().min(1, 'say something').max(MAX_WORDS, 'at most 500 characters'));
+
+/** The rooms: the fire is where every name is; the wheel is table talk (Phase 14). */
+export const RoomSchema = z.enum(['fire', 'wheel']);
+export type Room = z.infer<typeof RoomSchema>;
+export const ROOMS: readonly Room[] = RoomSchema.options;
+
+export const ChatMessageSchema = z.object({
+  id: z.number().int().positive(),
+  from: z.string(),
+  /** The room it was said in, or null for a word between two names. */
+  room: RoomSchema.nullable(),
+  /** The name it was said to, or null for a room. */
+  to: z.string().nullable(),
+  body: z.string(),
+  /** When it was said, ms since the epoch by the register's clock. */
+  atMs: z.number().int().min(0),
+});
+export type ChatMessage = z.infer<typeof ChatMessageSchema>;
+
+/** Where a word goes: a room, or a name. */
+export const TalkSchema = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('room'), room: RoomSchema }),
+  z.object({ kind: z.literal('name'), name: PlayerNameSchema }),
+]);
+export type Talk = z.infer<typeof TalkSchema>;
+
+/** A name the caller has exchanged words with, newest talk first. */
+export const ChatNameSchema = z.object({
+  name: z.string(),
+  last: ChatMessageSchema,
+  /** Words from this name the caller has not read. */
+  unread: z.number().int().min(0),
+  /** The caller has turned away from this name. */
+  blocked: z.boolean(),
+});
+export type ChatName = z.infer<typeof ChatNameSchema>;
+
+export const ChatRoomSchema = z.object({
+  room: RoomSchema,
+  /** The room's last words, oldest first. */
+  messages: z.array(ChatMessageSchema),
+  /** Words in the room the caller has not read. */
+  unread: z.number().int().min(0),
+});
+export type ChatRoom = z.infer<typeof ChatRoomSchema>;
+
+export const ChatOverviewSchema = z.object({
+  /** The newest word the caller can hear; poll from here. */
+  latest: z.number().int().min(0),
+  /** Names listening right now, the caller among them. */
+  here: z.number().int().min(0),
+  rooms: z.array(ChatRoomSchema),
+  names: z.array(ChatNameSchema),
+});
+export type ChatOverview = z.infer<typeof ChatOverviewSchema>;
+
+export const ChatThreadSchema = z.object({
+  name: z.string(),
+  blocked: z.boolean(),
+  /** Oldest first. */
+  messages: z.array(ChatMessageSchema),
+});
+export type ChatThread = z.infer<typeof ChatThreadSchema>;
+
+export const ChatPollSchema = z.object({
+  latest: z.number().int().min(0),
+  here: z.number().int().min(0),
+  messages: z.array(ChatMessageSchema),
+});
+export type ChatPoll = z.infer<typeof ChatPollSchema>;
+
+export const SaySchema = z.object({ talk: TalkSchema, body: WordsSchema });
+export type Say = z.infer<typeof SaySchema>;
+export const SaidSchema = z.object({ message: ChatMessageSchema });
+export const MarkReadSchema = z.object({ talk: TalkSchema, id: z.number().int().min(0) });
+export const BlockSchema = z.object({ name: PlayerNameSchema, blocked: z.boolean() });
+export const EmptySchema = z.object({});

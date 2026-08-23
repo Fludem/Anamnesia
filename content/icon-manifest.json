@@ -17,6 +17,7 @@
     "lorc/padlock",
     "lorc/rune-stone",
     "lorc/campfire",
+    "lorc/cartwheel",
     "lorc/wood-axe",
     "lorc/pine-tree",
     "lorc/hourglass",
@@ -28,6 +29,7 @@
     "delapouite/stairs-goal",
     "lorc/scales",
     "delapouite/castle",
+    "lorc/campfire",
     "lorc/crown-coin"
   ]
 }

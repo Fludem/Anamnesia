@@ -100,6 +100,14 @@ or taken from a monster — and every tier reaches across the skills: a first ti
 of one name's work, a second a couple of days, a third a week or more, which a hall shares.
 `scripts/tune-hall.ts` prints it. Save v10 adds the hall.
 
+Phase 13 is the fire: talk. A room every name on the hill can hear, and a word with one name
+at a time; a name can turn away from another (their words go unheard and unsent) and turn
+back. Words live in the register (`server/chat.ts`), never in the save; a tab gets them by
+long poll — one open question to `/api/chat/poll` that the register answers when there is a
+word or after 25 s — which is plain HTTP through Caddy and Cloudflare. `useChat` holds the
+one poll for the tab; `ChatPanel` is one talk on its own, so another screen can seat a room
+(the wheel's table talk is already a room id). Rooms keep a month; 20 words a minute a name.
+
 The hill is live at [game.onyxleeds.co.uk](https://game.onyxleeds.co.uk/): one Ubuntu box
 running `dist-server/main.js` under systemd behind Caddy, the name proxied through Cloudflare,
 the register backed up daily (`deploy/`). `scripts/deploy.sh` builds and ships it.
@@ -112,8 +120,8 @@ the register backed up daily (`deploy/`). `scripts/deploy.sh` builds and ships i
 | `src/content/`  | Game content as JSON (skills, gods, materials, rarities, items, rocks, trees, waters, recipes, zones, monsters, drop tables), validated at load; `progression.test.ts` pins hours-to-99.                                                                                                           |
 | `src/runtime/`  | Browser orchestration: save stores (IndexedDB and the server), leader election, channel, GameHost.                                                                                                                                                                                                 |
 | `src/api/`      | The wire: `protocol.ts` (zod schemas both ends import) and `client.ts` (the game's calls).                                                                                                                                                                                                         |
-| `server/`       | The register: `db.ts` (SQLite schema), `auth.ts` (scrypt, sessions, cookies, rate limits), `register.ts` (SQL), `hall.ts` (the clans), `app.ts` (routes + static files), `main.ts` (production), `vite.ts` (dev).                                                                                  |
-| `src/ui/`       | React: `Shell`, `screens/`, `overlays/`, `derive.ts` (pure view helpers), `app.css` (the design's classes over the tokens).                                                                                                                                                                        |
+| `server/`       | The register: `db.ts` (SQLite schema), `auth.ts` (scrypt, sessions, cookies, rate limits), `register.ts` (SQL), `hall.ts` (the clans), `chat.ts` (the fire: rooms, words between names, the long poll), `app.ts` (routes + static files), `main.ts` (production), `vite.ts` (dev).                 |
+| `src/ui/`       | React: `Shell`, `screens/`, `overlays/`, `derive.ts` (pure view helpers), `useChat.ts` (the tab's one poll at the fire), `app.css` (the design's classes over the tokens).                                                                                                                         |
 | `src/icons/`    | Icon registry, SVG renderer + cache, badge glyphs, procedural sword geometry.                                                                                                                                                                                                                      |
 | `src/ui/theme/` | Design tokens (CSS custom properties + TS object) and fonts.                                                                                                                                                                                                                                       |
 | `src/ui/items/` | Maps content onto renderer specs; `<ItemTile>` / `<BareIcon>`.                                                                                                                                                                                                                                     |

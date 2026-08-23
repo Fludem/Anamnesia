@@ -1,6 +1,6 @@
 /**
  * The frame around every screen: sidebar (wide) or top bar + bottom tabs (narrow), from
- * Screens A and C. Navigation only — it reads levels and coins, nothing else.
+ * Screens A and C. Navigation only — it reads levels, coins and unread words, nothing else.
  */
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { content, simContext } from '../content/index.ts';
@@ -9,6 +9,7 @@ import { skillView } from './derive.ts';
 import { formatInt } from './format.ts';
 import { Label, UiIcon } from './parts.tsx';
 import type { View } from './prefs.ts';
+import { TALK_ICON } from './screens/ChatScreen.tsx';
 import { HIGHSCORES_ICON } from './screens/HighscoresScreen.tsx';
 
 export const BANK_ICON = 'delapouite/chest';
@@ -35,12 +36,14 @@ const TAB_LABEL: Record<string, string> = {
 export interface ShellProps {
   sim: SimState;
   view: View;
+  /** Words not yet read, shown on the Talk row. */
+  unread: number;
   onView: (view: View) => void;
   onSettings: () => void;
   children: ReactNode;
 }
 
-export function Shell({ sim, view, onView, onSettings, children }: ShellProps) {
+export function Shell({ sim, view, unread, onView, onSettings, children }: ShellProps) {
   const isSkill = (id: string) => view.kind === 'skill' && view.id === id;
   const coins = formatInt(sim.coins);
   return (
@@ -117,11 +120,21 @@ export function Shell({ sim, view, onView, onSettings, children }: ShellProps) {
             <UiIcon id={HIGHSCORES_ICON} size={17} />
             <span className="grow">Highscores</span>
           </button>
+          <button
+            className={view.kind === 'talk' ? 'nav-row active' : 'nav-row'}
+            onClick={() => onView({ kind: 'talk' })}
+          >
+            <UiIcon id={TALK_ICON} size={17} />
+            <span className="grow">Talk</span>
+            {unread > 0 && (
+              <span className="lvl unread">{unread > 99 ? '99+' : String(unread)}</span>
+            )}
+          </button>
           <div className="spacer" />
           <AvatarMenu name={sim.player.name} onSettings={onSettings} />
         </aside>
 
-        <main className="main">{children}</main>
+        <main className={view.kind === 'talk' ? 'main main-fill' : 'main'}>{children}</main>
       </div>
 
       <nav className="tabbar">
@@ -171,6 +184,13 @@ export function Shell({ sim, view, onView, onSettings, children }: ShellProps) {
         >
           <UiIcon id={HIGHSCORES_ICON} size={20} />
           Scores
+        </button>
+        <button
+          className={`tab${view.kind === 'talk' ? ' active' : ''}${unread > 0 ? ' unread' : ''}`}
+          onClick={() => onView({ kind: 'talk' })}
+        >
+          <UiIcon id={TALK_ICON} size={20} />
+          Talk
         </button>
         <button className="tab" onClick={onSettings}>
           <UiIcon id="lorc/cog" size={20} />

@@ -20,6 +20,7 @@ import { OfflineRecap } from './ui/overlays/OfflineRecap.tsx';
 import { Settings } from './ui/overlays/Settings.tsx';
 import { JuiceSchema, usePref, ViewSchema, type View } from './ui/prefs.ts';
 import { BankScreen } from './ui/screens/BankScreen.tsx';
+import { ChatScreen } from './ui/screens/ChatScreen.tsx';
 import { CombatScreen } from './ui/screens/CombatScreen.tsx';
 import { CraftScreen } from './ui/screens/CraftScreen.tsx';
 import { EquipmentScreen } from './ui/screens/EquipmentScreen.tsx';
@@ -30,6 +31,7 @@ import { HighscoresScreen } from './ui/screens/HighscoresScreen.tsx';
 import { HallScreen } from './ui/screens/HallScreen.tsx';
 import { TraderScreen } from './ui/screens/TraderScreen.tsx';
 import { Shell } from './ui/Shell.tsx';
+import { useChat } from './ui/useChat.ts';
 import { useGameRuntime } from './ui/useGameHost.ts';
 import { useSession } from './ui/useSession.ts';
 import './ui/app.css';
@@ -60,6 +62,8 @@ function Game({ user, onSignOut }: { user: User; onSignOut: () => Promise<void> 
   const [view, setView] = usePref('view', ViewSchema, DEFAULT_VIEW);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { sim, role } = snapshot;
+  // Only the tab that plays listens at the fire; a follower shows its calm page and no more.
+  const chat = useChat(user, role === 'leader' && sim !== null && snapshot.error === null);
   const reload = () => runtime?.env.reloadPage();
   /** Save, stop the game here, then end the session: the last save is the one that counts. */
   const signOut = async () => {
@@ -106,6 +110,8 @@ function Game({ user, onSignOut }: { user: User; onSignOut: () => Promise<void> 
       <TraderScreen sim={sim} dispatch={dispatch} juice={juice} />
     ) : view.kind === 'hall' ? (
       <HallScreen sim={sim} dispatch={dispatch} juice={juice} savedAtMs={snapshot.lastSavedAtMs} />
+    ) : view.kind === 'talk' ? (
+      <ChatScreen chat={chat} />
     ) : view.kind === 'highscores' ? (
       <HighscoresScreen
         sim={sim}
@@ -127,7 +133,13 @@ function Game({ user, onSignOut }: { user: User; onSignOut: () => Promise<void> 
 
   return (
     <div className={juice}>
-      <Shell sim={sim} view={view} onView={setView} onSettings={() => setSettingsOpen(true)}>
+      <Shell
+        sim={sim}
+        view={view}
+        unread={chat.unread}
+        onView={setView}
+        onSettings={() => setSettingsOpen(true)}
+      >
         {snapshot.commandError && (
           <div className="toast stop" role="alert" style={{ margin: '0 0 14px' }}>
             <span className="kind">COULD NOT</span>

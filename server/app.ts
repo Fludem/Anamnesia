@@ -1,7 +1,7 @@
 /**
  * The HTTP face of the register: the routes in src/api/protocol.ts over node's own server,
  * and the built game's files when given a directory to serve. One function per route; the
- * data is all in Register, the hashing in auth. Built for one process on one machine, which
+ * data is all in Register, Halls and Chat, the hashing in auth. Built for one process on one machine, which
  * is what the hill is.
  */
 import { createReadStream, statSync } from 'node:fs';
@@ -12,13 +12,16 @@ import type { ZodType } from 'zod';
 import { simContext } from '../src/content/index.ts';
 import {
   AnswerSchema,
+  BlockSchema,
   CredentialsSchema,
   ExpelSchema,
   FoundHallSchema,
   InviteSchema,
+  MarkReadSchema,
   MAX_BODY_BYTES,
   RequestJoinSchema,
   SavePutSchema,
+  SaySchema,
   SESSION_COOKIE,
   SESSION_TTL_MS,
   type Session,
@@ -34,6 +37,7 @@ import {
   sessionCookie,
   verifyPassword,
 } from './auth.ts';
+import { Chat, ChatError } from './chat.ts';
 import { HallError, Halls } from './hall.ts';
 import { Register } from './register.ts';
 
@@ -45,6 +49,8 @@ export interface AppOptions {
   staticDir?: string | null;
   /** The content the saves are scored against. Defaults to the shipped pack. */
   ctx?: SimContext;
+  /** How long a chat poll is held open; tests shorten it. */
+  pollWaitMs?: number;
 }
 
 export type Handler = (req: IncomingMessage, res: ServerResponse) => void;
@@ -81,6 +87,7 @@ export function createApp(options: AppOptions): Handler {
   const now = options.now ?? (() => Date.now());
   const halls = new Halls(options.db, options.ctx ?? simContext);
   const register = new Register(options.db, options.ctx ?? simContext, halls);
+  const chat = new Chat(options.db, options.pollWaitMs);
   const staticDir = options.staticDir == null ? null : resolve(options.staticDir);
   const loginByName = new RateLimiter(LOGIN_TRIES.name, LOGIN_TRIES.windowMs);
   const loginByAddress = new RateLimiter(LOGIN_TRIES.address, LOGIN_TRIES.windowMs);
@@ -155,7 +162,12 @@ export function createApp(options: AppOptions): Handler {
 
   // ---- routes -----------------------------------------------------------------------------
 
-  async function api(req: IncomingMessage, res: ServerResponse, path: string): Promise<void> {
+  async function api(
+    req: IncomingMessage,
+    res: ServerResponse,
+    path: string,
+    query: URLSearchParams,
+  ): Promise<void> {
     const method = req.method ?? 'GET';
     const route = `${method} ${path}`;
 
@@ -291,6 +303,55 @@ export function createApp(options: AppOptions): Handler {
       return;
     }
 
+    // ---- the fire ---------------------------------------------------------------------
+
+    if (route === 'GET /api/chat') {
+      const user = requireUser(req);
+      json(res, 200, chat.overview(user));
+      return;
+    }
+
+    if (route === 'GET /api/chat/poll') {
+      const user = requireUser(req);
+      const after = Number(query.get('after') ?? '0');
+      if (!Number.isInteger(after) || after < 0) throw new HttpError(400, 'after: a word id');
+      // A tab that goes away takes its question with it.
+      const gone = new AbortController();
+      res.on('close', () => gone.abort());
+      json(res, 200, await chat.poll(user, after, gone.signal));
+      return;
+    }
+
+    const withMatch = /^GET \/api\/chat\/with\/([^/]+)$/.exec(route);
+    if (withMatch) {
+      const user = requireUser(req);
+      json(res, 200, chat.thread(user, decodeURIComponent(withMatch[1]!)));
+      return;
+    }
+
+    if (route === 'POST /api/chat') {
+      const user = requireUser(req);
+      const { talk, body } = await readJson(req, SaySchema);
+      json(res, 201, { message: chat.say(user, talk, body, now()) });
+      return;
+    }
+
+    if (route === 'POST /api/chat/read') {
+      const user = requireUser(req);
+      const mark = await readJson(req, MarkReadSchema);
+      chat.read(user, mark.talk, mark.id);
+      json(res, 200, {});
+      return;
+    }
+
+    if (route === 'POST /api/chat/block') {
+      const user = requireUser(req);
+      const { name, blocked } = await readJson(req, BlockSchema);
+      chat.block(user, name, blocked, now());
+      json(res, 200, {});
+      return;
+    }
+
     throw new HttpError(404, 'Nothing here.');
   }
 
@@ -341,10 +402,10 @@ export function createApp(options: AppOptions): Handler {
     const url = new URL(req.url ?? '/', 'http://localhost');
     const path = url.pathname;
     try {
-      if (path === '/api' || path.startsWith('/api/')) await api(req, res, path);
+      if (path === '/api' || path.startsWith('/api/')) await api(req, res, path, url.searchParams);
       else files(req, res, path);
     } catch (e) {
-      if (e instanceof HttpError || e instanceof HallError) {
+      if (e instanceof HttpError || e instanceof HallError || e instanceof ChatError) {
         json(res, e.status, { error: e.message });
         return;
       }

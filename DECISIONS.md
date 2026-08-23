@@ -1137,3 +1137,43 @@ fight: the monster in an open zone that drops the thing fastest, in ladder gear,
 units per kill. The audit test now checks the spread (five things, four skills, each tier more
 than twice the units of the last, tier III at least five times tier II's coin) so a future
 retune cannot quietly collapse a room back onto one skill.
+
+## Phase 13 — the fire: talk
+
+The request was a chat with other players and a room everyone is in. The shape: words live
+in the register, not the save; a room (`fire`, and `wheel` for the next phase's table talk)
+is heard by every name; a word to a name is between two; a name may turn away from another.
+
+- **Long polling, not WebSockets or SSE.** The box sits behind Caddy behind Cloudflare, and
+  the rule since Phase 11 is no new dependencies. A WebSocket needs an upgrade handler of
+  its own and a proxy chain that honours it; an EventSource needs a response the whole chain
+  flushes as it goes (Caddy's `encode` buffers, Cloudflare's free plan cuts a quiet response
+  at 100 s). A long poll is one ordinary GET the register holds open until there is a word
+  or 25 s pass — nothing between the browser and node has to know it is anything. One poll
+  carries every talk: the reply is "every word newer than N that you can hear", and the tab
+  sorts them. The cost is one open request per playing tab, which is what the fire is for.
+  Who has a poll open right now is the nearest thing to presence and is shown as "N
+  listening".
+- **One poll per tab, in the hook, not the screen.** `useChat` runs in `Game` for as long as
+  the tab leads, so the Talk row's unread count is right before the screen is ever opened,
+  and a second screen (the wheel) can seat `ChatPanel` on the same state. Followers show
+  their calm page and do not listen.
+- **Ids only climb.** `messages.id` is AUTOINCREMENT so "newer than N" stays true after the
+  month-old words in a room are swept. The reply's `latest` points past words the caller
+  cannot hear (other people's talks, names turned from) so a quiet tab does not re-ask for
+  them.
+- **Reads are the register's.** `chat_reads` holds how far each name has read in each talk,
+  so the unread counts survive a reload and agree between devices. The open talk tells the
+  register its last word whenever it moves; a talk with a name is marked read when it is read
+  in. A read never moves back.
+- **Turning away is the only moderation.** A name turned away from has its room words hidden
+  from you and its words to you refused with "That name has turned away." Nothing is deleted
+  and the other name is not told beyond the refusal. There is no global mute; the words keep
+  `from_id`, so one is possible later from the command line. Twenty words a minute a name,
+  five hundred letters a word, control characters stripped and blank lines collapsed —
+  `cleanWords` in the protocol so the screen can count what the register will.
+- **What is trusted.** Less than the save: the register decides ids, times and who hears
+  what; the client sends only where a word goes and what it says.
+- No design screen; the talk is Screen A's rows and a card. The narrow layout (list or talk,
+  a way back) is CSS only and was not checked in a browser this time — the window here would
+  not resize.

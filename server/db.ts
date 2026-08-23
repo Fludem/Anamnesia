@@ -1,7 +1,8 @@
 /**
  * The hill's register: SQLite through node's own binding, one file, no daemon. Who has a name,
  * who is logged in, each name's last save, what that save scores on every board — and, since
- * Phase 12, the halls. The schema is versioned with `user_version`; bumps append to MIGRATIONS.
+ * Phase 12, the halls; since Phase 13, what was said. The schema is versioned with
+ * `user_version`; bumps append to MIGRATIONS.
  */
 import { DatabaseSync } from 'node:sqlite';
 
@@ -91,6 +92,39 @@ const MIGRATIONS: readonly string[] = [
     PRIMARY KEY (user_id, gift_id)
   );
   CREATE INDEX gifts_hall ON gifts(hall_id, created_at DESC);
+  `,
+  /**
+   * Phase 13: words. A message said in a room (`room` set, `to_id` null) is heard by every
+   * name there — the fire is the room everyone is in; one with a `to_id` is a word between
+   * two names. Ids only ever climb: a tab asks for what is newer than the last it heard.
+   * `chat_reads` is how far each name has read in each talk (`room:fire`, `user:12`);
+   * `blocks` is who has turned away from whom.
+   */
+  `
+  CREATE TABLE messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    from_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    to_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    room TEXT,
+    body TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    CHECK ((to_id IS NULL) != (room IS NULL))
+  );
+  CREATE INDEX messages_room ON messages(room, id);
+  CREATE INDEX messages_to ON messages(to_id, id);
+  CREATE INDEX messages_from ON messages(from_id, id);
+  CREATE TABLE chat_reads (
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    talk TEXT NOT NULL,
+    last_id INTEGER NOT NULL,
+    PRIMARY KEY (user_id, talk)
+  );
+  CREATE TABLE blocks (
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    blocked_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at INTEGER NOT NULL,
+    PRIMARY KEY (user_id, blocked_id)
+  );
   `,
 ];
 

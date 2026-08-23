@@ -6,14 +6,24 @@
 import type { ZodType } from 'zod';
 import {
   BoardSchema,
+  ChatOverviewSchema,
+  ChatPollSchema,
+  ChatThreadSchema,
+  EmptySchema,
   HallGetSchema,
   HallsSchema,
+  SaidSchema,
   SessionSchema,
   type Board,
+  type ChatMessage,
+  type ChatOverview,
+  type ChatPoll,
+  type ChatThread,
   type Credentials,
   type HallGet,
   type HallSummary,
   type Session,
+  type Talk,
 } from './protocol.ts';
 
 export class ApiError extends Error {
@@ -31,11 +41,13 @@ async function call<T>(
   path: string,
   schema: ZodType<T>,
   body?: unknown,
+  signal?: AbortSignal,
 ): Promise<T> {
   const init: RequestInit = {
     method,
     credentials: 'same-origin',
     headers: { accept: 'application/json' },
+    ...(signal ? { signal } : {}),
   };
   if (body !== undefined) {
     init.headers = { ...init.headers, 'content-type': 'application/json' };
@@ -88,4 +100,16 @@ export const api = {
   expel: (name: string): Promise<HallGet> =>
     call('POST', '/api/hall/expel', HallGetSchema, { name }),
   halls: (): Promise<HallSummary[]> => call('GET', '/api/halls', HallsSchema),
+  chat: (): Promise<ChatOverview> => call('GET', '/api/chat', ChatOverviewSchema),
+  /** Held open by the register until there is a word or the wait runs out; abort to leave. */
+  chatPoll: (after: number, signal?: AbortSignal): Promise<ChatPoll> =>
+    call('GET', `/api/chat/poll?after=${String(after)}`, ChatPollSchema, undefined, signal),
+  chatWith: (name: string): Promise<ChatThread> =>
+    call('GET', `/api/chat/with/${encodeURIComponent(name)}`, ChatThreadSchema),
+  say: (talk: Talk, body: string): Promise<ChatMessage> =>
+    call('POST', '/api/chat', SaidSchema, { talk, body }).then((r) => r.message),
+  chatRead: (talk: Talk, id: number): Promise<unknown> =>
+    call('POST', '/api/chat/read', EmptySchema, { talk, id }),
+  chatBlock: (name: string, blocked: boolean): Promise<unknown> =>
+    call('POST', '/api/chat/block', EmptySchema, { name, blocked }),
 };

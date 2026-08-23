@@ -7,6 +7,7 @@
  */
 import type { DatabaseSync } from 'node:sqlite';
 import {
+  nameKey,
   SESSION_TTL_MS,
   type Board,
   type BoardRow,
@@ -22,10 +23,7 @@ import { hashToken } from './auth.ts';
 import { transaction } from './db.ts';
 import type { Halls } from './hall.ts';
 
-/** Names are unique without regard to case or the width of their letters. */
-export function nameKey(name: string): string {
-  return name.normalize('NFKC').toLowerCase().replace(/\s+/g, ' ').trim();
-}
+export { nameKey };
 
 /** How many rows a board answers with, besides the caller's own. */
 export const BOARD_TOP = 100;
