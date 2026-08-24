@@ -158,7 +158,8 @@ export interface Elapsed {
 /**
  * What `after` claims that time cannot account for, or null when all of it is possible.
  * `before` is the state the register itself last stored — never one the caller sent with this
- * request — and `elapsed` is the register's clock, not the save's.
+ * request, and null only for a name's first save, which is believed — and `elapsed` is the
+ * register's clock, not the save's.
  *
  * Two things are asked, because either alone can be walked around.
  *
@@ -183,6 +184,13 @@ export function overreach(
   elapsed: Elapsed,
   ctx: SimContext,
 ): Overreach | null {
+  // A name's first save is believed, whole. There is no earlier record to measure it against
+  // and no elapsed anything to measure it over, and a browser adopting the save it played
+  // before there were names (runtime/adopt.ts) honestly arrives with a night already on it and
+  // the xp to match. The tick it comes in on becomes the mark (`tickBase`) and everything
+  // after it is weighed. This is the one save on the hill taken on trust — as every save was,
+  // before this file existed.
+  if (before === null) return null;
   const lived = Math.max(0, after.tick - elapsed.tickBase) * TICK_MS;
   const couldLive = Math.max(0, elapsed.sinceName) + OFFLINE_CAP_MS;
   if (lived > couldLive) {

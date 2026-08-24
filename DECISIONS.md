@@ -1815,12 +1815,19 @@ climb.
 
 Gathered _since the register first wrote the name down_, not since the name was made, and the
 difference is a real player: `runtime/adopt.ts` puts the save a browser played before there
-were names onto that name's first login, so it arrives honestly with forty hours on it and a
-name a minute old. Nothing can weigh a first save — there is no earlier record and no elapsed
-anything — so it is believed once, its tick kept in `saves.tick_base`, and everything after
-measured from there. The migration backfills every save already stored at exactly the tick it
-stands at, which is the same promise made to everyone who was already here. Without this the
-one player most owed their history would have been the one locked out of saving it.
+were names onto that name's first login, so it arrives honestly with forty hours on it, forty
+hours of xp to match, and a name a minute old. Nothing can weigh a first save — there is no
+earlier record and no elapsed anything — so **a first save is believed whole**, its tick kept
+in `saves.tick_base`, and everything after it measured from there. The migration backfills
+every save already stored at exactly the tick it stands at, which is the same promise made to
+everyone already here. Without this the one player most owed their history would have been the
+one locked out of saving it.
+
+Believing the first save is a real hole and it is taken knowingly: a fresh name can be
+registered and seeded with one save saying anything. It buys a place on the boards and nothing
+else — no history, a `created_at` that gives it away at a glance, and a second save that is
+weighed like everyone's. The alternative was refusing a returning player their own past, which
+is a worse thing to do to a real person than to let a fake name stand for a day.
 
 _What those ticks were worth._ Per skill, against the best method open at the level the save
 has **reached** — rates only rise with level, and the hero was never better than they ended up.
@@ -1863,6 +1870,8 @@ nothing, because nobody hijacks a save request to gain six times a fair hour.
   `bet()`); the save's purse is checked client-side. Wealth is now weighed at the save, which
   bounds how much can be staked over time, but the register still issues real payouts against
   a stake it has not verified. Its own purse is the fix.
+- A first save is believed whole (above), so a new name can seed itself once. Closing it needs
+  the browser to say it is adopting, and the register to tell that apart from a claim.
 - A save refused is a line in the journal, not a row in a table. `grep 'refused save'` is
   enough for a hill of friends; a name that trips it often wants somewhere to be counted.
 - The dev _13h away_ button rewinds the local anchor and so makes ticks faster than the clock

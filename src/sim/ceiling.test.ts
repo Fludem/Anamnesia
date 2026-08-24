@@ -75,6 +75,7 @@ describe('how long a name has been on the hill', () => {
     // made a minute ago (runtime/adopt.ts). Nothing can weigh that, so it is believed once and
     // the tick it came in on becomes the mark everything after is measured from.
     const adopting: Elapsed = { sinceWrite: 0, sinceName: 60_000, tickBase: 40 * HOUR_TICKS };
+    // Forty hours of xp with it, which no four-hour window would ever have allowed either.
     const adopted = at(40 * HOUR_TICKS, { skills: mining(3_000_000) });
     expect(overreach(null, adopted, adopting, ctx)).toBeNull();
     // And never again: the next forty hours would have to have actually been lived.
@@ -82,10 +83,25 @@ describe('how long a name has been on the hill', () => {
     expect(overreach(adopted, again, adopting, ctx)).toMatchObject({ what: 'time' });
   });
 
+  it('believes a first save whatever is on it, since nothing can weigh it', () => {
+    const first: Elapsed = { sinceWrite: 0, sinceName: 0, tickBase: 400 * HOUR_TICKS };
+    const lifetime = at(400 * HOUR_TICKS, {
+      skills: { mining: { xp: 200_000_000 }, fishing: { xp: 200_000_000 } },
+      coins: 50_000_000,
+    });
+    expect(overreach(null, lifetime, first, ctx)).toBeNull();
+    // The next one is weighed like anyone's: nothing more came out of no time at all.
+    expect(
+      overreach(lifetime, at(400 * HOUR_TICKS, { ...lifetime, coins: 60_000_000 }), first, ctx),
+    ).toMatchObject({
+      what: 'wealth',
+    });
+  });
+
   it('will not be played for longer than the name has existed, less the cap for a jumped clock', () => {
     const young: Elapsed = { sinceWrite: 0, sinceName: HOUR_MS, tickBase: 0 };
-    expect(overreach(null, at(5 * HOUR_TICKS), young, ctx)).toBeNull();
-    expect(overreach(null, at(5 * HOUR_TICKS + 1), young, ctx)).toMatchObject({
+    expect(overreach(at(0), at(5 * HOUR_TICKS), young, ctx)).toBeNull();
+    expect(overreach(at(0), at(5 * HOUR_TICKS + 1), young, ctx)).toMatchObject({
       what: 'time',
       ceiling: 5 * HOUR_MS,
     });
