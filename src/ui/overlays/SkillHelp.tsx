@@ -1,7 +1,8 @@
 /**
  * The "?" on a skill screen, opened as a card over the page: what the skill is, how a cycle
  * actually resolves, what is lifting it right now — read from this save, not written down —
- * and how best to climb it. The prose is `screens/help.ts`; the numbers are `derive-help.ts`.
+ * and how best to climb it. Three columns wide enough to be read in one go, stacking on a
+ * phone. The prose is `screens/help.ts`; the numbers are `derive-help.ts`.
  */
 import { simContext } from '../../content/index.ts';
 import type { SimState } from '../../sim/save.ts';
@@ -40,57 +41,64 @@ export function SkillHelp({
             ×
           </button>
         </div>
-        <p className="help-lead">{copy.lead}</p>
-
-        <section className="help-section">
-          <Label>How it works</Label>
-          <Lines lines={copy.works} />
-        </section>
-
-        <section className="help-section">
-          <div className="help-section-head">
-            <Label>What lifts it</Label>
-            <span className="spacer" />
-            <span className={lift > 0 ? 'help-total on' : 'help-total'}>
-              {lift > 0 ? `+${String(lift)}% xp in all` : 'nothing yet'}
-            </span>
+        <div className="help-cols">
+          <div className="help-col wide">
+            <p className="help-lead">{copy.lead}</p>
+            <section className="help-section">
+              <Label>How it works</Label>
+              <Lines lines={copy.works} />
+            </section>
           </div>
-          <div className="help-lifts">
-            {view.lifts.map((l) => (
-              <div key={l.k} className={l.on ? 'help-lift on' : 'help-lift'}>
-                <span className="k">{l.k}</span>
-                <span className="v">{l.v}</span>
-                <span className="note">{l.note}</span>
+
+          <div className="help-col">
+            <section className="help-section">
+              <div className="help-section-head">
+                <Label>What lifts it</Label>
+                <span className="spacer" />
+                <span className={lift > 0 ? 'help-total on' : 'help-total'}>
+                  {lift > 0 ? `+${String(lift)}% xp in all` : 'nothing yet'}
+                </span>
               </div>
-            ))}
+              <div className="help-lifts">
+                {view.lifts.map((l) => (
+                  <div key={l.k} className={l.on ? 'help-lift on' : 'help-lift'}>
+                    <span className="k">{l.k}</span>
+                    <span className="v">{l.v}</span>
+                    <span className="note">{l.note}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
           </div>
-        </section>
 
-        <section className="help-section">
-          <Label>The climb</Label>
-          {view.best && (
-            <div className="help-best">
-              <span className="k">Best now</span>
-              <span className="name">{view.best.name}</span>
-              {view.best.quick && <span className="tag-quick">QUICK</span>}
-              <span className="spacer" />
-              <span className="hr">{formatInt(view.best.xpHr)} xp/hr</span>
-            </div>
-          )}
-          {view.best && !view.best.ready && (
-            <div className="help-note">
-              Nothing in the bank for it — gather the inputs, or run the best you can afford.
-            </div>
-          )}
-          {view.next && (
-            <div className="help-note">
-              Next open at Lv {String(view.next.level)}: {view.next.name}
-              {view.level.need !== null &&
-                ` · ${formatInt(view.level.need - view.level.into)} xp to Lv ${String(view.level.level + 1)}`}
-            </div>
-          )}
-          <Lines lines={copy.climb} />
-        </section>
+          <div className="help-col">
+            <section className="help-section">
+              <Label>The climb</Label>
+              {view.best && (
+                <div className="help-best">
+                  <span className="k">Best now</span>
+                  <span className="name">{view.best.name}</span>
+                  {view.best.quick && <span className="tag-quick">QUICK</span>}
+                  <span className="spacer" />
+                  <span className="hr">{formatInt(view.best.xpHr)} xp/hr</span>
+                </div>
+              )}
+              {view.best && !view.best.ready && (
+                <div className="help-note">
+                  Nothing in the bank for it — gather the inputs, or run the best you can afford.
+                </div>
+              )}
+              {view.next && (
+                <div className="help-note">
+                  Next open at Lv {String(view.next.level)}: {view.next.name}
+                  {view.level.need !== null &&
+                    ` · ${formatInt(view.level.need - view.level.into)} xp to Lv ${String(view.level.level + 1)}`}
+                </div>
+              )}
+              <Lines lines={copy.climb} />
+            </section>
+          </div>
+        </div>
 
         <p className="help-chain">{copy.chain}</p>
       </div>

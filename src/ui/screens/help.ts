@@ -17,18 +17,29 @@ export interface HelpCopy {
   chain: string;
 }
 
-/** The lines every gathering skill shares; `noun` is a vein, a tree, a water, a patch. */
-function gatherWorks(noun: string, tool: string | null): string[] {
+/**
+ * The lines every gathering skill shares; `noun` is a vein, a tree, a water, a patch. `own` is
+ * whatever else that skill does with a cycle, said in the skill's own nouns, and lands where
+ * it belongs — after the tool, before the housekeeping.
+ */
+function gatherWorks(noun: string, tool: string | null, own: readonly string[] = []): string[] {
   return [
     `A ${noun} has a level, a time and a chance. Below its level you cannot start it; every level above adds a point to the chance.`,
     `A cycle that lands rolls each of the ${noun}'s tables into the bank and pays its xp. One that misses costs the time and nothing else.`,
     tool === null
       ? 'This one is done by hand: no tool shortens it, and nothing you wear changes what comes up.'
       : `The ${tool} cuts the cycle's time and does nothing else. It never changes what comes out.`,
+    ...own,
     'One action at a time on the hill. Starting here stops whatever else was running.',
     'A full bank stops the work before the drop, not after — so nothing is ever lost to a missing slot.',
   ];
 }
+
+/** What the slab adds to a fishing cycle: the weighing, and what beating your own best pays. */
+const WEIGHED = [
+  'Every catch is weighed. A big fish is drawn on a cubed curve between the band’s floor and what your level can reach — half the band at the water’s own level, all of it thirty levels above.',
+  'Beating your own best pays the water’s xp again, scaled by how far into the band the fish sits. Nothing about a weight touches the bank.',
+];
 
 const NIGHT =
   'The hill counts four hours away without lamps. The trader sells longer nights; a hall’s Watchtower adds more.';
@@ -63,11 +74,12 @@ export const HELP: Readonly<Record<string, HelpCopy>> = {
   },
   fishing: {
     lead: 'Raw fish out of cold water. The rod only makes it quicker.',
-    works: gatherWorks('water', 'rod'),
+    works: gatherWorks('water', 'rod', WEIGHED),
     climb: [
       HIGHEST('water'),
       QUICK,
       'Maren doubles a twentieth of the catch outright, on top of a tenth more xp.',
+      'A trophy line sits near the top of every band, so it stays out of reach until you are a long way above the water — which is what sends a master angler back down the hill for a minnow.',
       NIGHT,
     ],
     chain: 'Raw fish is not food until it is cooked, and cooked fish is what a fight runs on.',
