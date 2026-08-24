@@ -154,6 +154,11 @@ export const MIGRATIONS: MigrationTable = {
     const sim = asObject(raw['sim']);
     return { ...raw, sim: { ...sim, stats: { cast: 0, ...asObject(sim['stats']) } } };
   },
+  /** v12 → v13 (Phase 17): an empty slab. Nothing caught before this was ever weighed. */
+  12: (raw) => {
+    const sim = asObject(raw['sim']);
+    return { ...raw, sim: { ...sim, records: { fish: {}, trophies: [] } } };
+  },
 };
 
 function asObject(v: unknown): Record<string, unknown> {

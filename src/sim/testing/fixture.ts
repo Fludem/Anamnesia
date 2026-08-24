@@ -49,6 +49,14 @@ export const FIXTURE_PACK = {
       value: 20,
     },
     { id: 'fish', name: 'Fish', icon: 'delapouite/flatfish', value: 3 },
+    /** A weighed fish: a 1,000 g band from 100, so reach, curve and trophy line are arithmetic. */
+    {
+      id: 'big-fish',
+      name: 'Big fish',
+      icon: 'delapouite/flatfish',
+      size: { min: 100, max: 1100, bounty: 500 },
+      value: 10,
+    },
     {
       id: 'cooked-fish',
       name: 'Cooked fish',
@@ -194,6 +202,17 @@ export const FIXTURE_PACK = {
       xp: 6,
       success: { base: 1 },
       drops: [{ entries: [{ item: 'fish', weight: 1 }] }],
+    },
+    /** The same water, but what it gives is weighed. 20 xp so a record's share is a round number. */
+    {
+      id: 'deep-water',
+      name: 'Deep water',
+      icon: 'lorc/waves',
+      level: 1,
+      durationTicks: 4,
+      xp: 20,
+      success: { base: 1 },
+      drops: [{ entries: [{ item: 'big-fish', weight: 1 }] }],
     },
   ],
   zones: [

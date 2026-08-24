@@ -101,6 +101,22 @@ export type StatKey = z.infer<typeof StatKeySchema>;
 export const ItemStatsSchema = z.partialRecord(StatKeySchema, z.number());
 export type ItemStats = z.infer<typeof ItemStatsSchema>;
 
+/**
+ * A fish's weight band, in grams: the least the water has ever given up and the most. Every
+ * catch is weighed against it, and only an item that carries a band is weighed at all — the
+ * band is what makes a thing a catch rather than a resource. `bounty` is what the trader pays
+ * for the first one over the trophy line, priced in hours of fishing at the level that line
+ * opens (`scripts/tune-slab.ts` prints it as hours). See `records.ts` for the roll.
+ */
+export const SizeBandSchema = z
+  .object({
+    min: z.number().int().min(1),
+    max: z.number().int().min(1),
+    bounty: z.number().int().min(0).default(0),
+  })
+  .refine(({ min, max }) => max > min, 'size max must be greater than min');
+export type SizeBand = z.infer<typeof SizeBandSchema>;
+
 /** Corner marks layered over an item's icon. Each maps to a badge glyph in the renderer. */
 export const BadgeKindSchema = z.enum([
   'enchanted',
@@ -192,6 +208,8 @@ export const ItemDefSchema = z.object({
    * is null. A cape knows its trade; a pendant is less particular.
    */
   xpBoost: XpBoostSchema.nullable().default(null),
+  /** The weight band a catch is rolled in, or null for anything that is never weighed. */
+  size: SizeBandSchema.nullable().default(null),
   /** Base sell value in coins. */
   value: z.number().int().min(0),
   tags: z.array(z.string()).default([]),

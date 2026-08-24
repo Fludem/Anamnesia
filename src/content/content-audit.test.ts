@@ -7,12 +7,14 @@ import { OFFLINE_CAP_MS } from '../sim/constants.ts';
 import { describe, expect, it } from 'vitest';
 import { icons } from '../icons/registry.ts';
 import type { DropTable } from '../sim/content/schema.ts';
+import { trophyLevel } from '../sim/records.ts';
 import { DEFAULT_XP_CURVE } from '../sim/xp.ts';
 import { content } from './index.ts';
 
 const tableItems = (t: DropTable) => t.entries.map((e) => e.item);
 const GATHERING = ['mining', 'woodcutting', 'fishing', 'foraging'];
 const CRAFTING = ['smithing', 'firemaking', 'cooking', 'sorcery'];
+const MAX_LEVEL = DEFAULT_XP_CURVE.maxLevel;
 
 /** Every item id something in the game hands out. */
 function obtainable(): Set<string> {
@@ -172,6 +174,58 @@ describe('shipped content', () => {
     }
   });
 
+  it('every raw fish is weighed, and only a raw fish is', () => {
+    const raw = content.items.filter((i) => i.tags.includes('fish') && i.tags.includes('raw'));
+    expect(raw.length).toBe(11);
+    for (const fish of raw) expect(fish.size, fish.id).not.toBeNull();
+    for (const item of content.items) {
+      if (item.size === null) continue;
+      expect(item.tags, item.id).toContain('raw');
+      expect(item.size.max, item.id).toBeGreaterThan(item.size.min);
+      // Room for the curve to matter: a band that barely opens is not worth going back for.
+      expect(item.size.max / item.size.min, item.id).toBeGreaterThan(5);
+    }
+  });
+
+  it('the standard waters give bigger fish as they go; the quick ones stay small', () => {
+    const fishOf = (water: (typeof content.waters)[number]) =>
+      water.drops
+        .flatMap((t) => t.entries.map((e) => content.item(e.item)))
+        .find((i) => i.size !== null) ?? null;
+    const banded = content.waters.map((w) => ({ water: w, fish: fishOf(w) }));
+    for (const { water, fish } of banded) expect(fish, water.id).not.toBeNull();
+
+    const ladder = banded.filter(({ water }) => !water.quick);
+    for (let i = 1; i < ladder.length; i++) {
+      const a = ladder[i - 1]!.fish!.size!;
+      const b = ladder[i]!.fish!.size!;
+      expect(b.min, ladder[i]!.water.id).toBeGreaterThan(a.min);
+      expect(b.max, ladder[i]!.water.id).toBeGreaterThan(a.max);
+    }
+    // A quick water's fish is smaller than what the tier below it gives, like its drop value.
+    for (const { water, fish } of banded.filter(({ water }) => water.quick)) {
+      const tier = [...ladder].reverse().find(({ water: w }) => w.level <= water.level);
+      if (tier) expect(fish!.size!.max, water.id).toBeLessThan(tier.fish!.size!.max);
+    }
+  });
+
+  it('a trophy pays a bounty that climbs with the level its line opens at', () => {
+    const bounties = content.waters
+      .map((w) => {
+        const fish = w.drops
+          .flatMap((t) => t.entries.map((e) => content.item(e.item)))
+          .find((i) => i.size !== null);
+        return { level: trophyLevel(w.level, MAX_LEVEL), bounty: fish?.size?.bounty ?? 0 };
+      })
+      .sort((a, b) => a.level - b.level);
+    for (const b of bounties) expect(b.bounty).toBeGreaterThan(0);
+    for (let i = 1; i < bounties.length; i++)
+      expect(bounties[i]!.bounty).toBeGreaterThanOrEqual(bounties[i - 1]!.bounty);
+    // Every line opens on the way up, and the last of them not before the cap.
+    expect(bounties[0]!.level).toBeLessThan(MAX_LEVEL / 2);
+    expect(bounties[bounties.length - 1]!.level).toBe(MAX_LEVEL);
+  });
+
   it('a recipe never destroys value (except a fire, which is the point), and tier recipes unlock at or after their bar', () => {
     const value = (id: string) => content.item(id).value;
     for (const r of content.recipes) {
@@ -184,6 +238,48 @@ describe('shipped content', () => {
         if (producer)
           expect(r.level, `${r.id} needs ${producer.id}`).toBeGreaterThanOrEqual(producer.level);
       }
+    }
+  });
+
+  it('a trophy is a kill and a smith: a part only a beast leaves, and the combat level it asks', () => {
+    const fromNodes = new Set<string>();
+    for (const node of [...content.rocks, ...content.trees, ...content.waters, ...content.patches])
+      for (const t of node.drops) tableItems(t).forEach((i) => fromNodes.add(i));
+    for (const item of content.items)
+      if (item.opens !== null) tableItems(item.opens).forEach((i) => fromNodes.add(i));
+    const fromBench = new Set(content.recipes.flatMap((r) => r.outputs.map((o) => o.item)));
+    const fromBeasts = new Set<string>();
+    for (const m of content.monsters) {
+      for (const t of m.drops) tableItems(t).forEach((i) => fromBeasts.add(i));
+      for (const a of m.always) fromBeasts.add(a.item);
+    }
+
+    const trophies = content.recipes.filter((r) => r.category === 'trophies');
+    expect(trophies.length).toBeGreaterThan(0);
+    for (const r of trophies) {
+      // Something in it comes off a beast and nowhere else: that is what makes it a trophy.
+      const beastly = r.inputs.filter(
+        (i) => fromBeasts.has(i.item) && !fromNodes.has(i.item) && !fromBench.has(i.item),
+      );
+      expect(beastly.length, `${r.id} asks for nothing a beast leaves`).toBeGreaterThan(0);
+      // And it says so: a trophy is gated on the fight as well as the anvil.
+      const fight = r.requires.find((q) => q.skill === 'combat');
+      expect(fight, `${r.id} does not ask for a combat level`).toBeDefined();
+      // The beast that leaves the part is worth that level: some monster dropping it is at or
+      // above what the recipe asks, so the requirement is never a level nothing on the hill meets.
+      for (const input of beastly) {
+        const leaves = content.monsters.filter(
+          (m) =>
+            m.always.some((a) => a.item === input.item) ||
+            m.drops.some((t) => tableItems(t).includes(input.item)),
+        );
+        expect(
+          leaves.some((m) => m.level >= fight!.level),
+          `${r.id}: nothing that leaves ${input.item} is Lv ${String(fight!.level)} or above`,
+        ).toBe(true);
+      }
+      // A trophy is worn, never a stack of stuff.
+      for (const out of r.outputs) expect(content.item(out.item).slot, out.item).not.toBeNull();
     }
   });
 

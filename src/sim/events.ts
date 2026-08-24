@@ -9,14 +9,27 @@ import type { SimState } from './save.ts';
  * leader, and so the UI never has to diff snapshots to learn that a drop landed. It is a
  * ring buffer, not a history — `LOG_CAP` entries, oldest dropped.
  */
+
+/** One fish as it came out of the water. `best` says the slab kept it. See records.ts. */
+export const WeighingSchema = z.object({
+  item: IdSchema,
+  grams: z.number().int().min(1),
+  best: z.boolean().default(false),
+});
+export type WeighingEntry = z.infer<typeof WeighingSchema>;
+
 export const SimEventSchema = z.discriminatedUnion('type', [
-  /** One completed cycle: what landed in the bank and the XP it paid. */
+  /**
+   * One completed cycle: what landed in the bank and the XP it paid. `sizes` is what was
+   * weighed on the way in — fishing only, empty everywhere else and in every old log.
+   */
   z.object({
     type: z.literal('gain'),
     tick: z.number().int().min(0),
     skill: IdSchema,
     xp: z.number().min(0),
     items: z.array(ItemStackSchema),
+    sizes: z.array(WeighingSchema).default([]),
   }),
   z.object({
     type: z.literal('level'),
@@ -102,6 +115,14 @@ export const SimEventSchema = z.discriminatedUnion('type', [
     tick: z.number().int().min(0),
     room: IdSchema,
     tier: z.number().int().min(1),
+  }),
+  /** A kind of fish crossed its trophy line for the first time, and the trader paid for it. */
+  z.object({
+    type: z.literal('trophy'),
+    tick: z.number().int().min(0),
+    item: IdSchema,
+    grams: z.number().int().min(1),
+    coins: z.number().int().min(0),
   }),
   /** Coins staked on the wheel's table. */
   z.object({

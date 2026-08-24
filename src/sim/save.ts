@@ -3,12 +3,13 @@ import { ActionQueueSchema } from './actions.ts';
 import { IdSchema } from './content/schema.ts';
 import { SimEventSchema } from './events.ts';
 import { HallStateSchema } from './hall.ts';
+import { EMPTY_RECORDS, RecordsSchema } from './records.ts';
 import { WheelStateSchema } from './wheel.ts';
 import { ContainerSchema } from './items.ts';
 import { seedRng } from './rng.ts';
 import { EQUIPMENT_SLOTS, EquipmentSlotSchema } from './slots.ts';
 
-export const CURRENT_SAVE_VERSION = 12;
+export const CURRENT_SAVE_VERSION = 13;
 
 const Uint32 = z.number().int().min(0).max(0xffffffff);
 
@@ -126,6 +127,8 @@ export const SimStateSchema = z.object({
   hall: HallStateSchema.default({ id: null, rooms: {}, gifts: [], given: 0 }),
   /** Coins on their way to the wheel, and how far this save has taken its payouts. See wheel.ts. */
   wheel: WheelStateSchema.default({ cart: [], bought: 0, paidThrough: 0 }),
+  /** The slab: the biggest fish of each kind ever landed, and the trophies paid for. See records.ts. */
+  records: RecordsSchema.default(EMPTY_RECORDS),
   combat: CombatStateSchema,
   /** First-steps progress: step ids completed in order, and whether the card was put away. */
   tutorial: z.object({ done: z.array(z.string().min(1)), dismissed: z.boolean() }),
@@ -189,6 +192,7 @@ export function createSimState(seed: number): SimState {
     upgrades: {},
     hall: { id: null, rooms: {}, gifts: [], given: 0 },
     wheel: { cart: [], bought: 0, paidThrough: 0 },
+    records: { fish: {}, trophies: [] },
     tutorial: { done: [], dismissed: false },
     combat: {
       hp: STARTING_HP,

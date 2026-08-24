@@ -90,6 +90,7 @@ export const craftingHandler: ActionHandler<'crafting'> = {
       skill: recipe.skill,
       xp: paid.xp,
       items: outputs,
+      sizes: [],
     });
   },
 };

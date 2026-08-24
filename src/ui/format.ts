@@ -33,6 +33,14 @@ export function formatAge(ms: number): string {
   return `${String(Math.floor(ms / 3_600_000))}h`;
 }
 
+/**
+ * A fish's weight: "84 g" under a kilogram, "4.10 kg" over it. Grams are the sim's unit; the
+ * kilogram only ever appears here, so nothing but the reader ever has to divide by a thousand.
+ */
+export function formatGrams(grams: number): string {
+  return grams < 1000 ? `${String(Math.round(grams))} g` : `${(grams / 1000).toFixed(2)} kg`;
+}
+
 /** "−10%" / "+1" with a real minus sign. */
 export function formatSigned(n: number, suffix = ''): string {
   return `${n < 0 ? '−' : '+'}${String(Math.abs(n))}${suffix}`;

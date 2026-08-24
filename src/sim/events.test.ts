@@ -18,8 +18,22 @@ describe('event log', () => {
     let s = beginAction(createSimState(5), { kind: 'mining', rock: 'sure-rock', count: 2 }, ctx);
     s = run(s, 6);
     expect(s.log).toEqual([
-      { type: 'gain', tick: 3, skill: 'mining', xp: 10, items: [{ item: 'stone', qty: 1 }] },
-      { type: 'gain', tick: 6, skill: 'mining', xp: 10, items: [{ item: 'stone', qty: 1 }] },
+      {
+        type: 'gain',
+        tick: 3,
+        skill: 'mining',
+        xp: 10,
+        items: [{ item: 'stone', qty: 1 }],
+        sizes: [],
+      },
+      {
+        type: 'gain',
+        tick: 6,
+        skill: 'mining',
+        xp: 10,
+        items: [{ item: 'stone', qty: 1 }],
+        sizes: [],
+      },
     ]);
   });
 
@@ -28,7 +42,14 @@ describe('event log', () => {
     s = beginAction(s, { kind: 'crafting', recipe: 'bar', count: null }, ctx);
     s = run(s, 3);
     expect(s.log).toEqual([
-      { type: 'gain', tick: 3, skill: 'smithing', xp: 7, items: [{ item: 'bar', qty: 1 }] },
+      {
+        type: 'gain',
+        tick: 3,
+        skill: 'smithing',
+        xp: 7,
+        items: [{ item: 'bar', qty: 1 }],
+        sizes: [],
+      },
       {
         type: 'stopped',
         tick: 3,

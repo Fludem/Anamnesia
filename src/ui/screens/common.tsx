@@ -10,12 +10,21 @@ import {
   recentLevelUp,
   recentRareDrop,
   recentStop,
+  recentTrophy,
   type ActiveView,
   type SkillView,
 } from '../derive.ts';
-import { formatAge, formatDuration, formatInt, formatSeconds, ticksToMs } from '../format.ts';
+import {
+  formatAge,
+  formatDuration,
+  formatGrams,
+  formatInt,
+  formatSeconds,
+  ticksToMs,
+} from '../format.ts';
 import { ItemIconTile, Label, Pops, RarityTag, TileBox, UiIcon } from '../parts.tsx';
 import { popX, useNow } from '../util.ts';
+import { TROPHY_ICON } from './Slab.tsx';
 import type { Juice } from '../theme/theme.ts';
 
 export function ScreenHead({
@@ -28,6 +37,7 @@ export function ScreenHead({
   skill,
   sim,
   face,
+  onHelp,
 }: {
   icon: string;
   title: string;
@@ -41,6 +51,8 @@ export function ScreenHead({
   /** With `sim`, shows the sworn god's bonus for this skill when there is one. */
   skill?: string;
   sim?: SimState;
+  /** Opens the screen's "?": what this skill is and how best to climb it. */
+  onHelp?: () => void;
 }) {
   const bonus = skill !== undefined && sim !== undefined ? xpMultiplier(sim, skill, simContext) : 1;
   const god = bonus > 1 && sim !== undefined ? godOf(sim, simContext) : null;
@@ -48,6 +60,16 @@ export function ScreenHead({
     <div className="screen-head">
       {face ?? <UiIcon id={icon} size={20} />}
       <span className="screen-title">{title}</span>
+      {onHelp && (
+        <button
+          className="help-dot"
+          onClick={onHelp}
+          title={`How ${title} works`}
+          aria-label={`How ${title} works`}
+        >
+          ?
+        </button>
+      )}
       {level && (
         <span className="chip" title={`${formatInt(level.xp)} xp total`}>
           Lv {String(level.level)} / 99
@@ -182,6 +204,8 @@ export function ActiveCard({
 
 const RARE_TOAST_MIN_RANK = 2; // epic and up
 const RARE_TOAST_TICKS = 26;
+/** A trophy is rarer than an epic and worth dwelling on: the toast holds twice as long. */
+const TROPHY_TOAST_TICKS = 52;
 
 /** Screen A's right column: the drop feed with its rare-drop toast and session footer. */
 export function DropFeed({ sim, skill, juice }: { sim: SimState; skill: string; juice: Juice }) {
@@ -194,6 +218,7 @@ export function DropFeed({ sim, skill, juice }: { sim: SimState; skill: string; 
           skill,
         })
       : null;
+  const won = juice === 'juicy' ? recentTrophy(sim, TROPHY_TOAST_TICKS) : null;
   const actions = sim.stats.actions[skill] ?? 0;
   const session = useSessionMs();
   return (
@@ -203,7 +228,17 @@ export function DropFeed({ sim, skill, juice }: { sim: SimState; skill: string; 
         <span className="spacer" />
         <span className="hint">{formatInt(actions)} actions</span>
       </div>
-      {toast && (
+      {won && (
+        <div className="toast trophy">
+          <UiIcon id={TROPHY_ICON} size={16} />
+          <span className="kind">TROPHY</span>
+          <span className="name">
+            {content.item(won.item).name.replace(/^Raw /, '')} · {formatGrams(won.grams)}
+          </span>
+          <span className="paid">+{formatInt(won.coins)} gp</span>
+        </div>
+      )}
+      {toast && !won && (
         <div className={`toast ${toast.item.rarity}`}>
           <UiIcon id={toast.item.icon} size={16} />
           <span className="kind">
@@ -229,6 +264,14 @@ export function DropFeed({ sim, skill, juice }: { sim: SimState; skill: string; 
             <ItemIconTile item={r.item} size="sm" juice={juice} feed={fresh > 0} />
             <span className="name">{r.item.name}</span>
             {r.found && <span className="found-tag">found</span>}
+            {r.grams !== null && (
+              <span
+                className={r.best ? 'weight best' : 'weight'}
+                title={r.best ? 'a new best' : ''}
+              >
+                {formatGrams(r.grams)}
+              </span>
+            )}
             <RarityTag rarity={r.item.rarity} />
             <span className="qty">+{String(r.qty)}</span>
             <span className="age">{formatAge(ticksToMs(r.ageTicks))}</span>

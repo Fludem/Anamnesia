@@ -11,8 +11,10 @@ import { dropTip } from '../derive-drops.ts';
 import { formatInt, formatSeconds, ticksToMs } from '../format.ts';
 import { BareIcon } from '../items/ItemTile.tsx';
 import { itemIconSpec, rockIconSpec } from '../items/spec.ts';
+import { SkillHelp } from '../overlays/SkillHelp.tsx';
 import { Label, TileBox, UiIcon } from '../parts.tsx';
 import { ActiveCard, DropFeed, ScreenHead, XpRow } from './common.tsx';
+import { Slab } from './Slab.tsx';
 import { TOOL_ICON, type GatherSkillDef, type ScreenProps } from './defs.ts';
 
 export function GatherScreen({ sim, dispatch, juice, def }: ScreenProps & { def: GatherSkillDef }) {
@@ -31,6 +33,8 @@ export function GatherScreen({ sim, dispatch, juice, def }: ScreenProps & { def:
   const cut = def.toolSlot === null ? 0 : toolCutPercent(sim, def.toolSlot, content);
   /** The node whose drops are being looked at (hover or keyboard focus). */
   const [peek, setPeek] = useState<string | null>(null);
+  /** The "?" card: what the skill is and how best to climb it. */
+  const [help, setHelp] = useState(false);
 
   return (
     <>
@@ -41,6 +45,7 @@ export function GatherScreen({ sim, dispatch, juice, def }: ScreenProps & { def:
         sim={sim}
         level={sv}
         rate={mine ? `${formatInt(mine.xpHr)} xp/hr` : null}
+        onHelp={() => setHelp(true)}
       />
       <XpRow view={sv} sim={sim} />
       <div className="columns">
@@ -155,8 +160,10 @@ export function GatherScreen({ sim, dispatch, juice, def }: ScreenProps & { def:
 
         <div className="col-side">
           <DropFeed sim={sim} skill={def.skill} juice={juice} />
+          {def.slab && <Slab sim={sim} />}
         </div>
       </div>
+      {help && <SkillHelp sim={sim} topic={def.skill} onClose={() => setHelp(false)} />}
     </>
   );
 }

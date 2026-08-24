@@ -5,6 +5,7 @@ import type { Command } from '../../sim/commands.ts';
 import type { GatherNodeDef } from '../../sim/content/schema.ts';
 import type { SimState } from '../../sim/save.ts';
 import type { ToolSlot } from '../../sim/slots.ts';
+import { nodeRequest } from '../derive.ts';
 import type { Juice } from '../theme/theme.ts';
 
 export interface GatherSkillDef {
@@ -17,6 +18,8 @@ export interface GatherSkillDef {
   unlockVerb: string;
   nodes: readonly GatherNodeDef[];
   request: (nodeId: string) => ActionRequest;
+  /** The skill keeps a slab: what it lands is weighed and the biggest of each kind is kept. */
+  slab?: boolean;
 }
 
 export const GATHER_SKILLS: Readonly<Record<string, GatherSkillDef>> = {
@@ -26,7 +29,7 @@ export const GATHER_SKILLS: Readonly<Record<string, GatherSkillDef>> = {
     noun: 'Veins',
     unlockVerb: 'New vein surveyed',
     nodes: content.rocks,
-    request: (rock) => ({ kind: 'mining', rock, count: null }),
+    request: (id) => nodeRequest('mining', id),
   },
   woodcutting: {
     skill: 'woodcutting',
@@ -34,7 +37,7 @@ export const GATHER_SKILLS: Readonly<Record<string, GatherSkillDef>> = {
     noun: 'Trees',
     unlockVerb: 'New grove surveyed',
     nodes: content.trees,
-    request: (tree) => ({ kind: 'woodcutting', tree, count: null }),
+    request: (id) => nodeRequest('woodcutting', id),
   },
   fishing: {
     skill: 'fishing',
@@ -42,7 +45,8 @@ export const GATHER_SKILLS: Readonly<Record<string, GatherSkillDef>> = {
     noun: 'Waters',
     unlockVerb: 'New water found',
     nodes: content.waters,
-    request: (water) => ({ kind: 'fishing', water, count: null }),
+    request: (id) => nodeRequest('fishing', id),
+    slab: true,
   },
   foraging: {
     skill: 'foraging',
@@ -50,7 +54,7 @@ export const GATHER_SKILLS: Readonly<Record<string, GatherSkillDef>> = {
     noun: 'Patches',
     unlockVerb: 'New patch found',
     nodes: content.patches,
-    request: (patch) => ({ kind: 'foraging', patch, count: null }),
+    request: (id) => nodeRequest('foraging', id),
   },
 };
 

@@ -124,6 +124,22 @@ export function requestNode(req: ActionRequest): string | null {
   }
 }
 
+/** The request that works `node` in a gathering skill — the inverse of `requestNode`. */
+export function nodeRequest(skill: string, node: string): ActionRequest {
+  switch (skill) {
+    case 'mining':
+      return { kind: 'mining', rock: node, count: null };
+    case 'woodcutting':
+      return { kind: 'woodcutting', tree: node, count: null };
+    case 'fishing':
+      return { kind: 'fishing', water: node, count: null };
+    case 'foraging':
+      return { kind: 'foraging', patch: node, count: null };
+    default:
+      throw new RangeError(`${skill} works no nodes`);
+  }
+}
+
 export function requestRecipe(req: ActionRequest): string | null {
   return req.kind === 'crafting' ? req.recipe : null;
 }
@@ -244,6 +260,10 @@ export interface FeedRow {
   skill: string;
   /** Left by the hill (the skill's finds table), not paid by the cycle. */
   found: boolean;
+  /** What it weighed, for a fish; null for anything that is never weighed. */
+  grams: number | null;
+  /** The slab kept it: this one beat every one before it. */
+  best: boolean;
 }
 
 /**
@@ -262,6 +282,7 @@ export function dropFeed(
     if (e.type !== 'gain' && e.type !== 'found') continue;
     if (opts.skill !== undefined && e.skill !== opts.skill) continue;
     e.items.forEach((stack, j) => {
+      const weighed = e.type === 'gain' ? e.sizes.find((w) => w.item === stack.item) : undefined;
       rows.push({
         key: `${String(e.tick)}:${e.type}:${String(j)}`,
         item: content.item(stack.item),
@@ -269,10 +290,19 @@ export function dropFeed(
         ageTicks: sim.tick - e.tick,
         skill: e.skill,
         found: e.type === 'found',
+        grams: weighed?.grams ?? null,
+        best: weighed?.best ?? false,
       });
     });
   }
   return rows.slice(0, limit);
+}
+
+/** The newest trophy younger than `withinTicks`, for the feed's toast. */
+export function recentTrophy(sim: SimState, withinTicks: number): SimEventOf<'trophy'> | null {
+  const won = eventsOfType(sim, 'trophy');
+  const last = won[won.length - 1];
+  return last && sim.tick - last.tick < withinTicks ? last : null;
 }
 
 /** The most recent level-up younger than `withinTicks`, for the overlay. */
@@ -345,6 +375,8 @@ export interface Recap {
   skills: RecapSkill[];
   /** Items that are in the bank now and were not (or were fewer) before. */
   items: ItemStack[];
+  /** Slab lines beaten while away: the kind, and what it stands at now. */
+  records: { item: string; grams: number }[];
   totalActions: number;
 }
 
@@ -373,7 +405,13 @@ export function recap(before: SimState, after: SimState, ctx: SimContext): Recap
     if (gained > 0) items.push({ item: s.item, qty: gained });
   }
   items.sort((x, y) => y.qty - x.qty);
-  return { skills, items, totalActions: skills.reduce((n, s) => n + s.actions, 0) };
+  const records: { item: string; grams: number }[] = [];
+  for (const [item, line] of Object.entries(after.records.fish)) {
+    if (line.grams > (before.records.fish[item]?.grams ?? 0))
+      records.push({ item, grams: line.grams });
+  }
+  records.sort((x, y) => y.grams - x.grams);
+  return { skills, items, records, totalActions: skills.reduce((n, s) => n + s.actions, 0) };
 }
 
 // ---- tools --------------------------------------------------------------------------------

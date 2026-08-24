@@ -57,6 +57,7 @@ function eventKnown(e: SimEvent, content: ContentDb): boolean {
     stacks.every((s) => content.hasItem(s.item));
   switch (e.type) {
     case 'gain':
+      return content.hasSkill(e.skill) && items(e.items) && items(e.sizes);
     case 'found':
       return content.hasSkill(e.skill) && items(e.items);
     case 'level':
@@ -73,6 +74,7 @@ function eventKnown(e: SimEvent, content: ContentDb): boolean {
         (e.kept === null || content.hasItem(e.kept))
       );
     case 'offered':
+    case 'trophy':
       return content.hasItem(e.item);
     case 'gave':
       return content.hasRoom(e.room) && (e.item === null || content.hasItem(e.item));
@@ -159,6 +161,15 @@ export function reconcileWithContent(sim: SimState, content: ContentDb): Reconci
     dropped.push(`hall: gift of ${String(g.qty)} × unknown item "${g.item}"`);
     return false;
   });
+  // A fish that is gone takes its line off the slab; the trophy it paid for is not taken back.
+  const fish = Object.fromEntries(
+    Object.entries(sim.records.fish).filter(([id]) => {
+      if (content.hasItem(id)) return true;
+      dropped.push(`slab: unknown fish "${id}"`);
+      return false;
+    }),
+  );
+  const trophies = sim.records.trophies.filter((id) => content.hasItem(id));
 
   if (dropped.length === 0) return { sim, dropped };
   return {
@@ -172,6 +183,7 @@ export function reconcileWithContent(sim: SimState, content: ContentDb): Reconci
       log,
       upgrades,
       hall: { ...sim.hall, rooms, gifts },
+      records: { fish, trophies },
       combat: { ...sim.combat, food, offering, fight },
     },
     dropped,

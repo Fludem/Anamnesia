@@ -50,16 +50,23 @@ export function proceduralSwordParts(content: ContentDb, item: ItemDef): SwordPa
   return rollSword(seedFromString(item.id), { materialRank, rarityRank }).parts;
 }
 
+/** An icon reference in a material's palette — for everything that is not an item. */
+export function refIconSpec(
+  content: ContentDb,
+  icon: string,
+  material: string | null,
+  locked = false,
+): IconSpec {
+  const entry = icons.get(icon);
+  return { layers: [{ id: entry.id, d: entry.d, fill: materialFill(content, material, locked) }] };
+}
+
 export function monsterIconSpec(content: ContentDb, monster: MonsterDef): IconSpec {
-  const entry = icons.get(monster.icon);
-  return { layers: [{ id: entry.id, d: entry.d, fill: materialFill(content, monster.material) }] };
+  return refIconSpec(content, monster.icon, monster.material);
 }
 
 export function rockIconSpec(content: ContentDb, rock: RockDef, locked = false): IconSpec {
-  const entry = icons.get(rock.icon);
-  return {
-    layers: [{ id: entry.id, d: entry.d, fill: materialFill(content, rock.material, locked) }],
-  };
+  return refIconSpec(content, rock.icon, rock.material, locked);
 }
 
 /** Gem colour by rarity: rare gems read as `gem`, epic as `aether` (the design's pairing). */

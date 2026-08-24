@@ -723,6 +723,128 @@
   color: var(--gold);
 }
 
+.toast.trophy {
+  background: rgba(var(--gold-rgb), 0.09);
+  border-color: rgba(var(--gold-rgb), 0.45);
+  box-shadow: 0 0 16px rgba(var(--gold-rgb), 0.18);
+}
+.toast.trophy .kind,
+.toast.trophy .icon {
+  color: var(--gold-hi);
+}
+.toast.trophy .name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.toast.trophy .paid {
+  font: 500 var(--fs-meta) var(--font-mono);
+  color: var(--gold);
+}
+
+/* ---- the slab: what each water has given up, and the line the trader pays for ------------ */
+
+.card.slab {
+  padding: 6px 0 0;
+  margin-top: 12px;
+}
+.slab-note {
+  padding: 0 14px 8px;
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+  line-height: 1.5;
+}
+.slab-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 14px;
+  border-top: 1px solid var(--border-row);
+}
+.slab-row .body {
+  flex: 1;
+  min-width: 0;
+}
+.slab-row.locked .body,
+.slab-row.locked .slab-line .name {
+  color: var(--fg-disabled);
+}
+.slab-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.slab-line .name {
+  font: 400 var(--fs-body) var(--font-sans);
+  color: var(--fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.slab-line .best {
+  font: 500 var(--fs-meta) var(--font-mono);
+  color: var(--accent);
+}
+.slab-line .best.none {
+  color: var(--fg-disabled);
+}
+.slab-row.won .slab-line .best {
+  color: var(--gold-hi);
+}
+/* The whole band a kind comes in; the fill is the best, the notch the trophy line. */
+.band {
+  position: relative;
+  height: 5px;
+  margin: 5px 0 4px;
+  background: var(--bg-track);
+  border: 1px solid var(--border-track);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+}
+.band-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-lo), var(--accent));
+}
+.slab-row.won .band-fill {
+  background: linear-gradient(90deg, var(--gold), var(--gold-hi));
+}
+.band-line {
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--fg-icon);
+}
+.band-line.won {
+  background: var(--gold-hi);
+}
+.slab-sub {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+}
+.slab-trophy {
+  flex: none;
+  color: var(--gold-hi);
+  padding-top: 2px;
+}
+.slab-foot {
+  border-top: 1px solid var(--border-row);
+  padding: 9px 14px;
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+}
+.feed-row .weight {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-2);
+}
+.feed-row .weight.best {
+  color: var(--gold-hi);
+  font-weight: 600;
+}
+
 /* ---- buttons ---------------------------------------------------------------------------- */
 
 .btn {
@@ -4385,6 +4507,36 @@ button.chat-name:hover {
   }
 }
 
+/* ---- where a recipe's inputs come from (hover card on the craft rows) -------------------- */
+/* Wider than the drop tip: every line carries a place as well as a name and its odds. */
+.source-tip {
+  width: min(420px, calc(100% - 68px));
+}
+.source-tip .drop-tip-line .name {
+  flex: 1 1 auto;
+}
+.source-tip .drop-tip-line .where {
+  flex: 0 0 auto;
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+  white-space: nowrap;
+}
+.source-tip .drop-tip-line .odds {
+  flex: 0 0 auto;
+  min-width: 44px;
+  text-align: right;
+}
+.source-none {
+  padding: 3px 2px;
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+}
+@media (max-width: 700px) {
+  .source-tip {
+    width: calc(100% - 16px);
+  }
+}
+
 /* ---- looks: painted faces and the brush ------------------------------------------------ */
 
 /* a painted look fills the disc it sits in; the disc's grey shows through bare cells */
@@ -4804,5 +4956,202 @@ button.chat-name:hover {
   }
   .card.sheet .sheet-close {
     display: inline-flex;
+  }
+}
+
+/* ---- the "?" on a skill screen ----------------------------------------------------------- */
+/* A dot beside the title, and the card it opens: the prose of the skill, the lifts read from
+   this save, and the climb. The card is the modal at its widest, scrolling inside itself with
+   the head pinned, since it says more than any other overlay. */
+.help-dot {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-panel);
+  color: var(--fg-3);
+  font: 600 var(--fs-hint) var(--font-mono);
+  line-height: 1;
+  letter-spacing: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.help-dot:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.modal.wide:has(.skill-help) {
+  width: 440px;
+  max-height: min(84vh, 720px);
+  overflow-y: auto;
+  padding: 0 20px 18px;
+}
+.help-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 0 10px;
+  background: var(--bg-panel);
+}
+.help-head .icon {
+  color: var(--accent);
+}
+.help-title {
+  font: 600 var(--fs-title) var(--font-sans);
+}
+.help-close {
+  border: 0;
+  background: transparent;
+  padding: 0 2px;
+  font: 500 var(--fs-heading) var(--font-sans);
+  color: var(--fg-3);
+  line-height: 1;
+}
+.help-close:hover:not(:disabled) {
+  border: 0;
+  color: var(--fg);
+}
+.help-lead {
+  margin: 0 0 4px;
+  font: 400 var(--fs-body) var(--font-sans);
+  color: var(--fg-soft);
+  line-height: 1.5;
+}
+.help-section {
+  margin-top: 16px;
+}
+.help-section-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.help-total {
+  font: 500 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+}
+.help-total.on {
+  color: var(--accent);
+}
+.help-list {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.help-list li {
+  position: relative;
+  padding-left: 14px;
+  font: 400 var(--fs-body) var(--font-sans);
+  color: var(--fg-2);
+  line-height: 1.5;
+}
+.help-list li::before {
+  content: '·';
+  position: absolute;
+  left: 4px;
+  color: var(--fg-3);
+}
+
+.help-lifts {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+}
+.help-lift {
+  display: grid;
+  grid-template-columns: 62px minmax(0, auto) minmax(0, 1fr);
+  align-items: baseline;
+  gap: 10px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 7px 10px;
+}
+.help-lift .k {
+  font: 500 var(--fs-hint) var(--font-mono);
+  letter-spacing: var(--tracking-tag);
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.help-lift .v {
+  font: 500 var(--fs-body) var(--font-mono);
+  color: var(--fg-disabled);
+  white-space: nowrap;
+}
+.help-lift.on .v {
+  color: var(--accent);
+}
+.help-lift .note {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+  text-align: right;
+  line-height: 1.4;
+}
+
+.help-best {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  background: rgba(var(--accent-rgb), 0.07);
+  border: 1px solid rgba(var(--accent-rgb), 0.28);
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
+}
+.help-best .k {
+  font: 500 var(--fs-hint) var(--font-mono);
+  letter-spacing: var(--tracking-tag);
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.help-best .name {
+  font: 400 var(--fs-name) var(--font-sans);
+  color: var(--fg);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.help-best .hr {
+  font: 500 var(--fs-body) var(--font-mono);
+  color: var(--accent);
+  white-space: nowrap;
+}
+.help-note {
+  margin-top: 6px;
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+  line-height: 1.5;
+}
+.help-chain {
+  margin: 16px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font: 400 var(--fs-meta) var(--font-mono);
+  color: var(--gold);
+  line-height: 1.5;
+}
+
+@media (max-width: 700px) {
+  .modal.wide:has(.skill-help) {
+    width: 100%;
+    max-height: 86vh;
+  }
+  .help-lift {
+    grid-template-columns: 58px minmax(0, 1fr);
+  }
+  .help-lift .note {
+    grid-column: 1 / -1;
+    text-align: left;
   }
 }

@@ -6,8 +6,9 @@ import { eventsOfType } from '../../sim/events.ts';
 import { totalKills } from '../derive-combat.ts';
 import { numeral } from '../derive-hall.ts';
 import { recap } from '../derive.ts';
-import { formatDuration, formatInt } from '../format.ts';
+import { formatDuration, formatGrams, formatInt } from '../format.ts';
 import { ItemIconTile, Label, RarityTag, SkillIcon, UiIcon } from '../parts.tsx';
+import { TROPHY_ICON } from '../screens/Slab.tsx';
 import { HALL_ICON } from '../Shell.tsx';
 import type { Juice } from '../theme/theme.ts';
 import { Modal } from './Modal.tsx';
@@ -55,6 +56,10 @@ export function OfflineRecap({
   const ferried = sim.stats.ferried - info.before.stats.ferried;
   const fee = sim.stats.spent - info.before.stats.spent;
   const obols = since.filter((d) => d.obol).length;
+  // Trophies crossed while away, as far as the log still remembers.
+  const trophies = eventsOfType(sim, 'trophy')
+    .filter((t) => t.tick > info.before.tick && content.hasItem(t.item))
+    .map((t) => content.item(t.item).name.replace(/^Raw /, ''));
   // Rooms the hall raised while away, as the register said on the way back in.
   const raised = eventsOfType(sim, 'raised')
     .filter((r) => r.tick > info.before.tick && content.hasRoom(r.room))
@@ -110,6 +115,16 @@ export function OfflineRecap({
             })}
           </div>
         </>
+      )}
+      {r.records.length > 0 && (
+        <div className="recap-note found">
+          <UiIcon id={TROPHY_ICON} size={13} />
+          the slab:{' '}
+          {r.records
+            .map((w) => `${content.item(w.item).name.replace(/^Raw /, '')} ${formatGrams(w.grams)}`)
+            .join(', ')}
+          {trophies.length > 0 ? ` · the trader paid for ${trophies.join(' and ')}` : ''}
+        </div>
       )}
       {found.length > 0 && (
         <div className="recap-note found">

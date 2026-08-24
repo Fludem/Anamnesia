@@ -1380,3 +1380,54 @@ Sorcery sits between Smithing and Combat in the nav; the bottom tab reads "Cast"
 - The bottom tab bar is twelve tabs now; the narrow pass is still owed.
 - `tsc -p tsconfig.node.json` fails on `server/chat.ts` (two `as MessageRow` casts) from Phase
   13, before this phase; not touched here.
+
+## The ? — a skill screen that says how it works
+
+The user asked for a "?" on every skill page explaining how the skill works and how best to
+level it. It sits beside the title in `ScreenHead` (one optional `onHelp`, so a screen without
+help simply does not pass it) and opens the widest modal there is, scrolling inside itself with
+its head pinned, because it says more than any other overlay.
+
+### Half of it is prose, half of it is this save
+
+A help page that is only prose goes stale the first time content is retuned, and a player
+reading "work the highest vein you can hold" still has to go and work out which that is. So the
+card is two halves. The prose — what the skill is, how a cycle resolves, the climb, what it
+feeds — is copy in `src/ui/screens/help.ts`, beside `defs.ts`, where the screens' other written
+lines already live. Everything with a number in it is derived in `src/ui/derive-help.ts` from
+the same functions the sim rolls with: `nodeViews` / `recipeViews` / `zoneRows` for the best xp
+an hour actually open to this hero, `toolCutPercent`, `xpMultiplier`, `gearXpBoost`,
+`hallXpBonus`, `doubleYieldChance`, `findsRolls`, `entryChance`. Nothing is written down twice,
+so a content retune moves the panel with it.
+
+The lift rows say what is missing as loudly as what is there: an off row is the panel telling
+the player where to go — "smith one, then equip it from the bank", "Tharok pays 10% more here",
+"the trader's Second Look would roll it twice". That is the "how best to level it" the question
+was really about, and it is per-save, not per-skill.
+
+### The fight is one topic, not two
+
+Sorcery is a bench skill and a fighting style, and the combat screen's title already follows the
+worn weapon. Two topics would have meant the "?" on the combat screen opening the inscribing
+help whenever a staff was in hand. So the topic is not always a skill id: `FIGHT` is its own,
+covering both styles, and `helpSkill` resolves it through `heroStats` to whichever skill the
+weapon pays. The sorcery bench screen keeps the `sorcery` topic and points at the fight in its
+own copy. Everything else is its skill id.
+
+### Along the way
+
+`nodeRequest(skill, node)` moved into `derive.ts` as the inverse of `requestNode`, since the
+help needed the same four requests `GATHER_SKILLS` was already building by hand; `defs.ts` now
+calls it too.
+
+### Flagged
+
+- Not browser-verified: the user asked to skip Chrome this time. The narrow rules (the lift
+  rows drop to two lines under 700px) are written but unseen.
+- A few numbers in the prose are still hand-written where no function holds them — the quick
+  methods named by fish, the "seven hundred to twelve hundred marks an hour" from
+  `tune-sorcery.ts`, the "two points a level" of a cooking dish. A content retune would leave
+  those behind; everything else moves on its own.
+- The panel names Tharok, Vessith, Maren and Ashkar in its climb lines, so a fifth god (or a god
+  for sorcery or foraging) wants those lines read again.
+- No "?" on the bank, gear, trader, hall, wheel or talk screens. The ask was the skills.

@@ -75,10 +75,14 @@ describe('migrateSave', () => {
         applied.push(11);
         return r;
       },
+      12: (r) => {
+        applied.push(12);
+        return r;
+      },
     };
     const v0 = { ...fresh(), version: 0, writerId: undefined };
     const out = migrateSave(v0, migrations, CURRENT_SAVE_VERSION);
-    expect(applied).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+    expect(applied).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
     expect(out.version).toBe(CURRENT_SAVE_VERSION);
     expect(out.writerId).toBe('migrated-from-v0');
   });
@@ -119,6 +123,7 @@ describe('migrateSave', () => {
       upgrades: {},
       hall: { id: null, rooms: {}, gifts: [], given: 0 },
       wheel: { cart: [], bought: 0, paidThrough: 0 },
+      records: { fish: {}, trophies: [] },
       tutorial: { done: [], dismissed: false },
       combat: {
         hp: 10,
@@ -379,6 +384,18 @@ describe('migrateSave', () => {
     const out = migrateSave(v11);
     expect(out.version).toBe(CURRENT_SAVE_VERSION);
     expect(out.sim.stats).toMatchObject({ thrown: 4, cast: 0 });
+  });
+
+  it('migrates a v12 record to v13: an empty slab, and the coins that were there are kept', () => {
+    const v12 = JSON.parse(JSON.stringify(fresh())) as Record<string, unknown>;
+    const sim = v12['sim'] as Record<string, unknown>;
+    v12['version'] = 12;
+    delete sim['records'];
+    sim['coins'] = 4_200;
+    const out = migrateSave(v12);
+    expect(out.version).toBe(CURRENT_SAVE_VERSION);
+    expect(out.sim.records).toEqual({ fish: {}, trophies: [] });
+    expect(out.sim.coins).toBe(4_200);
   });
 
   it('refuses a future version rather than guessing', () => {

@@ -165,6 +165,11 @@ describe('recap', () => {
     expect(r.skills).toEqual([{ skill: 'mining', xp: 100, from: 1, to: 2, actions: 10 }]);
     expect(r.items).toEqual([{ item: 'stone', qty: 10 }]);
     expect(r.totalActions).toBe(10);
-    expect(recap(before, before, ctx)).toEqual({ skills: [], items: [], totalActions: 0 });
+    expect(recap(before, before, ctx)).toEqual({
+      skills: [],
+      items: [],
+      records: [],
+      totalActions: 0,
+    });
   });
 });

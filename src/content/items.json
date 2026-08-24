@@ -1521,6 +1521,7 @@
     "icon": "delapouite/tropical-fish",
     "class": "resource",
     "material": "silver",
+    "size": { "min": 5, "max": 90, "bounty": 30000 },
     "value": 2,
     "tags": ["fish", "raw"]
   },
@@ -1544,6 +1545,7 @@
     "icon": "delapouite/clownfish",
     "class": "resource",
     "material": "oak",
+    "size": { "min": 60, "max": 1400, "bounty": 50000 },
     "value": 5,
     "tags": ["fish", "raw"]
   },
@@ -1567,6 +1569,7 @@
     "icon": "delapouite/school-of-fish",
     "class": "resource",
     "material": "iron",
+    "size": { "min": 4, "max": 60, "bounty": 50000 },
     "value": 1,
     "tags": ["fish", "raw"]
   },
@@ -1590,6 +1593,7 @@
     "icon": "cathelineau/flying-trout",
     "class": "resource",
     "material": "copper",
+    "size": { "min": 150, "max": 4500, "bounty": 60000 },
     "value": 9,
     "tags": ["fish", "raw"]
   },
@@ -1613,6 +1617,7 @@
     "icon": "delapouite/eel",
     "class": "resource",
     "material": "blight",
+    "size": { "min": 300, "max": 7000, "bounty": 90000 },
     "value": 15,
     "tags": ["fish", "raw"]
   },
@@ -1636,6 +1641,7 @@
     "icon": "delapouite/double-fish",
     "class": "resource",
     "material": "silver",
+    "size": { "min": 10, "max": 150, "bounty": 120000 },
     "value": 2,
     "tags": ["fish", "raw"]
   },
@@ -1659,6 +1665,7 @@
     "icon": "delapouite/fish-monster",
     "class": "resource",
     "material": "pine",
+    "size": { "min": 800, "max": 18000, "bounty": 130000 },
     "value": 28,
     "tags": ["fish", "raw"]
   },
@@ -1682,6 +1689,7 @@
     "icon": "delapouite/flatfish",
     "class": "resource",
     "material": "gold",
+    "size": { "min": 1500, "max": 34000, "bounty": 230000 },
     "value": 48,
     "tags": ["fish", "raw"]
   },
@@ -1705,6 +1713,7 @@
     "icon": "delapouite/circling-fish",
     "class": "resource",
     "material": "marble",
+    "size": { "min": 15, "max": 220, "bounty": 260000 },
     "value": 4,
     "tags": ["fish", "raw"]
   },
@@ -1728,6 +1737,7 @@
     "icon": "lorc/fish-corpse",
     "class": "resource",
     "material": "aether",
+    "size": { "min": 2500, "max": 60000, "bounty": 280000 },
     "value": 110,
     "tags": ["fish", "raw"]
   },
@@ -1751,6 +1761,7 @@
     "icon": "cathelineau/flying-trout",
     "class": "resource",
     "material": "basalt",
+    "size": { "min": 200, "max": 4000, "bounty": 300000 },
     "value": 10,
     "tags": ["fish", "raw"]
   },
@@ -2790,5 +2801,132 @@
     },
     "value": 600,
     "tags": ["cape", "drop", "armour"]
+  },
+  {
+    "id": "bat-leather-rod",
+    "name": "Bat-Leather Rod",
+    "description": "Wings stretched over a willow shaft. The bats were not using them.",
+    "icon": "delapouite/fishing-pole",
+    "class": "tool",
+    "material": "blight",
+    "rarity": "rare",
+    "slot": "rod",
+    "stats": {
+      "gather": 17
+    },
+    "value": 130,
+    "tags": ["tool", "smithing", "trophy"]
+  },
+  {
+    "id": "hound-tooth-pick",
+    "name": "Hound-Tooth Pick",
+    "description": "Teeth set in silver. They were made for bone, but rock gives first.",
+    "icon": "delapouite/war-pick",
+    "class": "tool",
+    "material": "marble",
+    "rarity": "rare",
+    "slot": "pickaxe",
+    "stats": {
+      "gather": 22
+    },
+    "value": 900,
+    "tags": ["tool", "smithing", "trophy"]
+  },
+  {
+    "id": "bull-horn-axe",
+    "name": "Bull-Horn Axe",
+    "description": "He held the hill a long time. Now he holds the haft.",
+    "icon": "lorc/wood-axe",
+    "class": "tool",
+    "material": "marble",
+    "rarity": "rare",
+    "slot": "axe",
+    "stats": {
+      "gather": 27
+    },
+    "value": 1500,
+    "tags": ["tool", "smithing", "trophy"]
+  },
+  {
+    "id": "bone-braced-greaves",
+    "name": "Bone-Braced Greaves",
+    "description": "Somebody's shins over yours. They had no further use for them.",
+    "icon": "delapouite/greaves",
+    "class": "armour",
+    "material": "marble",
+    "rarity": "rare",
+    "slot": "legs",
+    "stats": {
+      "defence": 11,
+      "strength": 2
+    },
+    "value": 1050,
+    "tags": ["armour", "smithing", "trophy"]
+  },
+  {
+    "id": "hound-tooth-blade",
+    "name": "Hound-Tooth Blade",
+    "description": "It curves the way the tooth curved. That was never an improvement on the dog.",
+    "icon": "lorc/crescent-blade",
+    "class": "weapon",
+    "material": "marble",
+    "rarity": "rare",
+    "slot": "weapon",
+    "stats": {
+      "attack": 22,
+      "strength": 9,
+      "speed": -3
+    },
+    "value": 980,
+    "tags": ["weapon", "smithing", "trophy"]
+  },
+  {
+    "id": "ferrymans-amulet",
+    "name": "Ferryman's Amulet",
+    "description": "Three coins on a cord. Enough for the crossing, if you ever decide to pay.",
+    "icon": "delapouite/primitive-necklace",
+    "class": "armour",
+    "material": "silver",
+    "rarity": "rare",
+    "slot": "amulet",
+    "stats": {
+      "attack": 5,
+      "defence": 3
+    },
+    "value": 1850,
+    "tags": ["jewellery", "smithing", "trophy"]
+  },
+  {
+    "id": "bull-horn-helm",
+    "name": "Bull-Horn Helm",
+    "description": "The horns still point forward. That is where he kept the trouble.",
+    "icon": "lorc/horned-helm",
+    "class": "armour",
+    "material": "marble",
+    "rarity": "epic",
+    "slot": "head",
+    "stats": {
+      "defence": 8,
+      "attack": 4,
+      "strength": 2
+    },
+    "value": 19000,
+    "tags": ["armour", "smithing", "trophy"]
+  },
+  {
+    "id": "stoneheart-shield",
+    "name": "Stoneheart Shield",
+    "description": "A piece of the Stone, set in aether. It has not agreed to this.",
+    "icon": "sbed/shield",
+    "class": "armour",
+    "material": "basalt",
+    "rarity": "legendary",
+    "slot": "shield",
+    "stats": {
+      "defence": 14,
+      "strength": 3
+    },
+    "value": 40000,
+    "tags": ["armour", "smithing", "trophy"]
   }
 ]

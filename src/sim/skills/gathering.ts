@@ -7,6 +7,7 @@ import { pushEvent } from '../events.ts';
 import { addStacks, type ItemStack } from '../items.ts';
 import { awardXp, doubleYieldChance, extraDropTables, recordItems } from '../perks.ts';
 import { skillLevel } from '../progress.ts';
+import type { Weighed } from '../records.ts';
 import { nextFloat } from '../rng.ts';
 import type { SimState } from '../save.ts';
 import type { ToolSlot } from '../slots.ts';
@@ -27,6 +28,17 @@ export interface GatheringSkill<K extends ActionKind> {
   nodeId(req: RequestOf<K>): string;
   hasNode(ctx: SimContext, id: string): boolean;
   node(ctx: SimContext, id: string): GatherNodeDef;
+  /**
+   * Run over the haul once it is decided: fishing weighs what it landed and keeps the biggest
+   * (records.ts). A skill without one draws nothing extra, so mining, woodcutting and foraging
+   * take exactly the draws they always took and every old save replays unchanged.
+   */
+  weigh?(
+    state: SimState,
+    landed: readonly ItemStack[],
+    node: GatherNodeDef,
+    ctx: SimContext,
+  ): Weighed;
 }
 
 /** Action time after the tool's `gather` cut: `base × (1 − gather/100)`, never below one tick. */
@@ -107,13 +119,17 @@ export function gatheringHandler<K extends ActionKind>(def: GatheringSkill<K>): 
         landed = addStacks(landed, stacks);
       }
       const bank = addStacks(state.bank, landed);
-      const paid = awardXp(recordItems({ ...state, rng, bank }, landed), def.skill, node.xp, ctx);
+      const counted = recordItems({ ...state, rng, bank }, landed);
+      // Weighed before the xp is paid, so a new best pays inside the same cycle's award.
+      const weighed = def.weigh?.(counted, landed, node, ctx);
+      const paid = awardXp(weighed?.state ?? counted, def.skill, node.xp + (weighed?.xp ?? 0), ctx);
       return pushEvent(paid.state, {
         type: 'gain',
         tick: paid.state.tick,
         skill: def.skill,
         xp: paid.xp,
         items: landed,
+        sizes: weighed?.weighings ?? [],
       });
     },
   };

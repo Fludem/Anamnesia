@@ -33,6 +33,8 @@
     "lorc/campfire",
     "lorc/crown-coin",
     "lorc/cartwheel",
-    "delapouite/paint-brush"
+    "delapouite/paint-brush",
+    "delapouite/trophy-cup",
+    "lorc/fishing-hook"
   ]
 }

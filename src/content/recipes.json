@@ -2995,5 +2995,288 @@
         "qty": 1
       }
     ]
+  },
+  {
+    "$comment": "Trophies: the anvil's answer to what the deep and the summit leave behind. Each pairs the tier's metal with one beast's part and asks for the combat level that beast demands, so a trophy is a kill and a smith, never one alone. They sit beside the tier's own gear rather than above it — the pick and the axe bridge two rungs of the tool ladder, the blade trades reach for a quicker swing, and the shield is the Stone itself. Off the ladder the progression model measures, which is bars."
+  },
+  {
+    "id": "bat-leather-rod",
+    "name": "Bat-Leather Rod",
+    "skill": "smithing",
+    "category": "trophies",
+    "level": 45,
+    "requires": [
+      {
+        "skill": "combat",
+        "level": 45
+      }
+    ],
+    "durationTicks": 42,
+    "xp": 160,
+    "inputs": [
+      {
+        "item": "basalt-core",
+        "qty": 1
+      },
+      {
+        "item": "willow-logs",
+        "qty": 1
+      },
+      {
+        "item": "bat-wing",
+        "qty": 8
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bat-leather-rod",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "hound-tooth-pick",
+    "name": "Hound-Tooth Pick",
+    "skill": "smithing",
+    "category": "trophies",
+    "level": 58,
+    "requires": [
+      {
+        "skill": "combat",
+        "level": 60
+      }
+    ],
+    "durationTicks": 96,
+    "xp": 1260,
+    "inputs": [
+      {
+        "item": "silver-bar",
+        "qty": 2
+      },
+      {
+        "item": "hound-tooth",
+        "qty": 4
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "hound-tooth-pick",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "bone-braced-greaves",
+    "name": "Bone-Braced Greaves",
+    "skill": "smithing",
+    "category": "trophies",
+    "level": 60,
+    "requires": [
+      {
+        "skill": "combat",
+        "level": 50
+      }
+    ],
+    "durationTicks": 144,
+    "xp": 1890,
+    "inputs": [
+      {
+        "item": "silver-bar",
+        "qty": 3
+      },
+      {
+        "item": "bone",
+        "qty": 12
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bone-braced-greaves",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "hound-tooth-blade",
+    "name": "Hound-Tooth Blade",
+    "skill": "smithing",
+    "category": "trophies",
+    "level": 63,
+    "requires": [
+      {
+        "skill": "combat",
+        "level": 60
+      }
+    ],
+    "durationTicks": 96,
+    "xp": 1260,
+    "inputs": [
+      {
+        "item": "silver-bar",
+        "qty": 2
+      },
+      {
+        "item": "hound-tooth",
+        "qty": 5
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "hound-tooth-blade",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "bull-horn-axe",
+    "name": "Bull-Horn Axe",
+    "skill": "smithing",
+    "category": "trophies",
+    "level": 74,
+    "requires": [
+      {
+        "skill": "combat",
+        "level": 82
+      }
+    ],
+    "durationTicks": 108,
+    "xp": 2160,
+    "inputs": [
+      {
+        "item": "gold-bar",
+        "qty": 2
+      },
+      {
+        "item": "bull-horn",
+        "qty": 2
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bull-horn-axe",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "ferrymans-amulet",
+    "name": "Ferryman's Amulet",
+    "skill": "smithing",
+    "category": "trophies",
+    "level": 78,
+    "requires": [
+      {
+        "skill": "combat",
+        "level": 64
+      }
+    ],
+    "durationTicks": 108,
+    "xp": 2160,
+    "inputs": [
+      {
+        "item": "gold-bar",
+        "qty": 2
+      },
+      {
+        "item": "obol",
+        "qty": 3
+      },
+      {
+        "item": "rune-stone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "ferrymans-amulet",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "bull-horn-helm",
+    "name": "Bull-Horn Helm",
+    "skill": "smithing",
+    "category": "trophies",
+    "level": 85,
+    "requires": [
+      {
+        "skill": "combat",
+        "level": 82
+      }
+    ],
+    "durationTicks": 260,
+    "xp": 10260,
+    "inputs": [
+      {
+        "item": "aether-ingot",
+        "qty": 2
+      },
+      {
+        "item": "bull-horn",
+        "qty": 2
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bull-horn-helm",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "stoneheart-shield",
+    "name": "Stoneheart Shield",
+    "skill": "smithing",
+    "category": "trophies",
+    "level": 92,
+    "requires": [
+      {
+        "skill": "combat",
+        "level": 90
+      }
+    ],
+    "durationTicks": 390,
+    "xp": 15390,
+    "inputs": [
+      {
+        "item": "aether-ingot",
+        "qty": 3
+      },
+      {
+        "item": "piece-of-the-stone",
+        "qty": 1
+      },
+      {
+        "item": "marble-whetstone",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "stoneheart-shield",
+        "qty": 1
+      }
+    ]
   }
 ]

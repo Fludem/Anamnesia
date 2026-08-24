@@ -30,10 +30,12 @@ import {
 } from '../derive-combat.ts';
 import { deathLine, ferrymanView } from '../derive-trader.ts';
 import { activeView, recentStop, skillView } from '../derive.ts';
+import { FIGHT } from '../derive-help.ts';
 import { formatAge, formatDuration, formatInt, formatSeconds, ticksToMs } from '../format.ts';
 import { BareIcon } from '../items/ItemTile.tsx';
 import { itemIconSpec, monsterIconSpec } from '../items/spec.ts';
 import { Face } from '../Face.tsx';
+import { SkillHelp } from '../overlays/SkillHelp.tsx';
 import { Label, TileBox, UiIcon } from '../parts.tsx';
 import { popX, useNow } from '../util.ts';
 import type { Juice } from '../theme/theme.ts';
@@ -54,6 +56,8 @@ export function CombatScreen({ sim, dispatch, juice }: ScreenProps) {
   const sv = skillView(sim, hero.skill, simContext);
   const hp = skillView(sim, 'hitpoints', simContext);
   const fight = fightView(sim, simContext);
+  /** The "?" card: how a fight resolves, in either style, and how best to climb it. */
+  const [help, setHelp] = useState(false);
   return (
     <>
       <ScreenHead
@@ -64,6 +68,7 @@ export function CombatScreen({ sim, dispatch, juice }: ScreenProps) {
         skill={hero.skill}
         sim={sim}
         rate={fight ? `${formatInt(fight.xpHr)} xp/hr` : null}
+        onHelp={() => setHelp(true)}
       />
       <XpRow view={sv} sim={sim} />
       <div className="columns">
@@ -82,6 +87,7 @@ export function CombatScreen({ sim, dispatch, juice }: ScreenProps) {
         </div>
         <KillLog sim={sim} juice={juice} />
       </div>
+      {help && <SkillHelp sim={sim} topic={FIGHT} onClose={() => setHelp(false)} />}
     </>
   );
 }

@@ -142,6 +142,14 @@ sword and a staff; `scripts/tune-combat.ts` now sets hp against the style a mons
 `scripts/tune-sorcery.ts` prints both climbs, the marks an hour of casting burns and what
 inscribing to 99 eats. Save v12 counts marks cast.
 
+Every skill screen has a **?** beside its title. It opens a card that says what the skill is,
+how a cycle actually resolves, what is lifting it in this save — the tool's cut, the oath, the
+worn capes, the hall's Hearth, the trader's second look, whatever doubles the haul — and how best
+to climb it, ending with the best xp an hour open to the hero right now and the next thing a
+level opens. Every number is read from the functions the sim rolls with (`src/ui/derive-help.ts`),
+so the panel cannot drift from the game; only the prose is written down (`src/ui/screens/help.ts`).
+The combat screen's is the fight's, and covers both styles at once.
+
 The hill is live at [game.onyxleeds.co.uk](https://game.onyxleeds.co.uk/): one Ubuntu box
 running `dist-server/main.js` under systemd behind Caddy, the name proxied through Cloudflare,
 the register backed up daily (`deploy/`). `scripts/deploy.sh` builds and ships it.
