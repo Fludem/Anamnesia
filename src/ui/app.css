@@ -54,9 +54,12 @@
 }
 
 .tabbar {
+  box-sizing: border-box;
+  height: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+  align-items: center;
   background: var(--bg-chrome);
   border-top: 1px solid var(--border);
-  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  padding: 0 4px env(safe-area-inset-bottom, 0px);
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -4101,5 +4104,48 @@ button.chat-name:hover {
   .look-previews {
     flex-wrap: wrap;
     gap: 12px;
+/* ---- a phone's detail card rises as a sheet ---------------------------------------------- */
+/* Wide: nothing here applies — the card stays a column. Narrow: the detail card (the bank's
+   Selected, the gear screen's Selected) sits after the grid, a screen or more below the thing
+   just tapped, so a tap looked like nothing happened. `.sheet` pins it to the foot of the
+   screen instead, just above the tab bar (both sized by --tabbar-h), until it is dismissed. */
+.sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.sheet-close {
+  display: none;
+  border: 0;
+  background: transparent;
+  padding: 0 2px;
+  font: 500 var(--fs-heading) var(--font-sans);
+  color: var(--fg-2);
+  line-height: 1;
+  cursor: pointer;
+}
+@media (max-width: 700px) {
+  .col-side.sheets {
+    display: contents;
+  }
+  .col-side.sheets > * {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  .card.sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+    z-index: 5;
+    max-height: min(60vh, 480px);
+    overflow-y: auto;
+    border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+    border-color: var(--border-strong);
+    box-shadow: 0 -10px 28px rgba(0, 0, 0, 0.45);
+  }
+  .card.sheet .sheet-close {
+    display: inline-flex;
   }
 }

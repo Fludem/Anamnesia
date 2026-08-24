@@ -51,6 +51,12 @@ export function EquipmentScreen({ sim, dispatch }: ScreenProps) {
   const boost = wornXpBoost(sim, content);
   const god = godOf(sim, simContext);
   const [sel, setSel] = useState<EquipmentSlot>('weapon');
+  // On a phone the Selected card is a sheet, raised by a tap on a slot and closed with its ×.
+  const [open, setOpen] = useState(false);
+  const pick = (slot: EquipmentSlot) => {
+    setSel(slot);
+    setOpen(true);
+  };
   const wornCount = worn.filter((w) => w.item !== null).length;
   const tools = (Object.keys(TOOL_SLOTS) as ToolSlot[]).map((slot) => {
     const id = sim.equipment[slot];
@@ -78,7 +84,7 @@ export function EquipmentScreen({ sim, dispatch }: ScreenProps) {
                 key={slot}
                 className={`worn-cell${item ? ' has' : ''}${sel === slot ? ' on' : ''}`}
                 style={{ gridArea: slot }}
-                onClick={() => setSel(slot)}
+                onClick={() => pick(slot)}
                 title={item ? item.name : `${SLOT_LABEL[slot]} — empty`}
               >
                 {item ? (
@@ -126,7 +132,7 @@ export function EquipmentScreen({ sim, dispatch }: ScreenProps) {
               <button
                 key={slot}
                 className={sel === slot ? 'belt-row on' : 'belt-row'}
-                onClick={() => setSel(slot)}
+                onClick={() => pick(slot)}
               >
                 <TileBox size="md" dim={item === null}>
                   {item ? (
@@ -158,6 +164,8 @@ export function EquipmentScreen({ sim, dispatch }: ScreenProps) {
           slot={sel}
           item={selItem}
           sim={sim}
+          open={open}
+          onClose={() => setOpen(false)}
           onUnequip={() => dispatch({ type: 'unequip', slot: sel })}
           onEquip={(item) => dispatch({ type: 'equip', item })}
         />
@@ -170,12 +178,17 @@ function Selected({
   slot,
   item,
   sim,
+  open,
+  onClose,
   onUnequip,
   onEquip,
 }: {
   slot: EquipmentSlot;
   item: ItemDef | null;
   sim: ScreenProps['sim'];
+  /** Raised as a sheet on a phone; ignored on a wide screen. */
+  open: boolean;
+  onClose: () => void;
   onUnequip: () => void;
   onEquip: (item: string) => void;
 }) {
@@ -183,8 +196,15 @@ function Selected({
   const label = SLOT_LABEL[slot];
   const inBank = bankItemsFor(sim, content, slot);
   return (
-    <div className="card">
-      <Label>Selected</Label>
+    <div className={open ? 'card sheet' : 'card'}>
+      <div className="sheet-head">
+        <Label>Selected</Label>
+        {open && (
+          <button className="sheet-close" onClick={onClose} aria-label="Close">
+            ×
+          </button>
+        )}
+      </div>
       <div className="sel-head">
         <TileBox size="xl" dim={item === null}>
           {item ? (

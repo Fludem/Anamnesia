@@ -178,9 +178,20 @@ export function BankScreen({ sim, dispatch, juice }: ScreenProps) {
           </div>
         </div>
 
-        <div className="col-side">
-          <div className="card selected-card">
-            <Label>Selected</Label>
+        <div className="col-side sheets">
+          <div className={sel ? 'card selected-card sheet' : 'card selected-card'}>
+            <div className="sheet-head">
+              <Label>Selected</Label>
+              {sel && (
+                <button
+                  className="sheet-close"
+                  onClick={() => setSelected(null)}
+                  aria-label="Put it back"
+                >
+                  ×
+                </button>
+              )}
+            </div>
             {sel ? (
               <>
                 <div className="active-head">

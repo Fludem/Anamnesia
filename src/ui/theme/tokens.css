@@ -95,6 +95,8 @@
   --radius-modal: 10px;
 
   --sidebar-width: 224px;
+  /* the phone tab bar, before the safe-area inset; a sheet rests on top of it */
+  --tabbar-h: 57px;
   --progress-bar-height: 20px;
   --xp-bar-height: 6px;
 
