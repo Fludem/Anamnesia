@@ -1431,3 +1431,78 @@ calls it too.
 - The panel names Tharok, Vessith, Maren and Ashkar in its climb lines, so a fifth god (or a god
   for sorcery or foraging) wants those lines read again.
 - No "?" on the bank, gear, trader, hall, wheel or talk screens. The ask was the skills.
+
+## Phase 17 — the slab: a fish has a size, and the biggest of each kind stays
+
+The user asked for fish in variable sizes, a collection of the largest of each kind, and
+achievements or rewards from it. Four things were theirs to decide and were asked. What a size
+_does_: my draft made it a record only, and they chose instead that **beating your best pays
+xp** — which is the better idea, because it makes the moment land in the same feed as the
+cycle rather than only on a card. What it pays: **coins per trophy**, not a slab-filling prize
+and not a growing perk. Where it lives: **a card on the Fishing screen**, since Phase 16 left
+the tab bar at twelve tabs and still owes a narrow pass. And the unit: **grams and kilograms**
+— "84 g", "17.14 kg" — which reads at a glance and sorts, next to xp/hr and −10%.
+
+### A weight is a moment, not goods
+
+The bank has one slot per distinct item and no item instances; a fish is a stack. Rather than
+build instances for this, a weight is never attached to the fish at all. It is rolled as the
+fish lands, shown on the cycle that landed it, and kept only where it beat the kind's best —
+`sim.records.fish[id] = { grams, tick }`. So the sell value, the heal, the cooking pot, the
+hall's prices and the progression model are all untouched by the feature, and the whole thing
+is one record in the save plus a list of trophies paid for (v13). That is the reason the
+answer to "does size change the fish" mattered enough to ask: the other answers would have
+re-tuned fishing's gp/hr and moved bands the 36-hour target is measured against.
+
+### Reach is what makes a small fish worth going back for
+
+The roll is `min + (ceiling − min) × f³`, and the ceiling is the half of the band that is open
+at the water's own level widening to the whole band thirty levels above it. Two consequences,
+both wanted. Most fish are small — the cube puts the median about an eighth into what is open —
+so a big one is an occasion. And the top of a band is unreachable until the hero has long
+outgrown the water, which turns the Rain Pool into something a master angler goes back down the
+hill for. The span is thirty levels rather than the whole climb because a headroom-based span
+put every trophy line at 90+, and a collection that is dead for the entire climb and then
+finished in an afternoon is not a collection. Thirty puts the minnow's line at 28, the eel's at
+62, the ghost carp's at 92; the last three waters have less than thirty levels of headroom
+left, so they are the ones that hold out to 97, 98 and 99. `trophyLevel` is the one formula
+both the audit and the card read, so the number on the row is the number the sim enforces.
+
+### The bounty is content, because value could not carry it
+
+The first draft priced a trophy at a multiple of the fish's sell value. That is wrong here and
+the tuning script showed it: the quick waters' fish are deliberately near-worthless (the design
+already trades their bank value for xp), so the sprat and the char — two of the hardest lines,
+at 42 and 99 — would have paid least of anything on the hill. So `size` carries a `bounty` and
+it is authored, the way the hall's costs are, with `scripts/tune-slab.ts` printing each as
+hours. They are set at about four hours of fishing at the level the line opens: 30k for the
+minnow up to 300k for the char, 1.6M for a full slab, which is the trader's whole catalogue
+once over for an eleven-piece collection spanning levels 28 to 99. An audit test holds the
+shape — the bounty may not fall as the opening level rises — and it caught the first pass,
+where the char's line opened last and paid less than the pale fish's.
+
+### The draw order is fishing's alone
+
+Draw order is a save-compatible contract and the other gathering skills must replay exactly as
+before. So the weighing is an optional `weigh` hook on `GatheringSkill` that only fishing
+supplies: mining, woodcutting and foraging take precisely the draws they always took, and a
+water whose fish has no band (the fixture's `sure-water`) draws nothing either. One draw per
+fish, and a doubled catch gets two and keeps the better, capped so no content change can make
+one cycle cost the rng dearly. The `gain` event gained `sizes` (defaulted, so every old log
+parses) and there is a new `trophy` event; `reconcile` prunes a slab line whose fish content
+has dropped, but never takes back a trophy already paid for.
+
+### Flagged
+
+- A record pays xp, so a fishing climb is now a hair quicker than `progression.test.ts` models
+  it. Records are logarithmic in catches — a whole climb is a handful — so the band holds, but
+  the model does not know about them and it is not measured.
+- No highscore board for the biggest fish. It is the obvious next thing and it is server work:
+  the slab is in the save, not on the register.
+- The bands themselves are a first pass. Standard waters rise in both floor and ceiling with
+  their level and the quick ones stay small, which the audit pins, but nothing measures a band
+  against how long a player actually spends at that water.
+- Not browser-checked. The user asked to skip it and ship; the tests, the typecheck and the
+  lint are green, and the card has never been seen rendered.
+- This landed in the same working tree as the trophies/`?` work and was committed with it
+  (3b360a4) rather than on its own.

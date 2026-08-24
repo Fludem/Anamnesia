@@ -142,6 +142,22 @@ sword and a staff; `scripts/tune-combat.ts` now sets hp against the style a mons
 `scripts/tune-sorcery.ts` prints both climbs, the marks an hour of casting burns and what
 inscribing to 99 eats. Save v12 counts marks cast.
 
+Phase 17 is the slab: fish come out of the water in sizes, and the biggest of each kind stays.
+Every raw fish carries a weight band in grams (`items.json`), and a catch is drawn on a cubed
+curve between the band's floor and what the hero can actually reach — half the band at the
+water's own level, all of it thirty levels above it — so a big minnow is the work of someone who
+long ago left the Rain Pool. Beating your own best pays the water's xp again, scaled by how far
+into the band the fish sits; it is a moment and not a rate, because the nth catch only beats
+every one before it about one time in n. Near the top of each band is a **trophy line**, and the
+first fish of a kind over it is one the trader will buy the story of, for coins priced at about
+four hours of fishing at the level that line opens (`scripts/tune-slab.ts` prints all of it).
+The lines open across the whole climb — the minnow's at 28, the pale fish's at 98, the char's
+not until 99 — so the slab is something to go back down the hill for rather than a chore saved
+for the end. It is a card under the drop feed on the Fishing screen, one row per kind: the best
+against the whole band, with the trophy line notched on it. Nothing about a weight touches the
+bank — a fish is still one stack worth what it is worth — so the economy, the cooking pot and the
+hall's prices are exactly as they were. Save v13 adds the slab.
+
 Every skill screen has a **?** beside its title. It opens a card that says what the skill is,
 how a cycle actually resolves, what is lifting it in this save — the tool's cut, the oath, the
 worn capes, the hall's Hearth, the trader's second look, whatever doubles the haul — and how best
