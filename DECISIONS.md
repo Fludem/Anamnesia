@@ -1507,6 +1507,27 @@ has dropped, but never takes back a trophy already paid for.
 - This landed in the same working tree as the trophies/`?` work and was committed with it
   (3b360a4) rather than on its own.
 
+### Along the way: what a banked thing is for
+
+`derive-sources.ts` answers where a thing comes from; the bank kept asking the other half of
+the question, so hovering a cell now says what the thing is _for_. `src/ui/derive-uses.ts` is
+its mirror — pure over content, tested against the fixture — and reads the same data the sim
+works from: every recipe whose `inputs` name the item (with what one turn eats, the skill and
+the level), what it does in hand (the slot it is worn in, a tool's skill, ammo thrown or burnt
+as a mark, food's heal, an offering's favour, what a container holds, and the ferryman taking
+anything tagged `coin`), and every room of the hall whose tier cost names it. The groups are
+ordered as a player asks them — in hand, benches, the hall — the long lists are cut to the
+soonest five with the rest counted ("+37 more" for the marble whetstone, which forty-two
+benches want), and the foot always says what it sells for, because that is the answer for a
+thing nothing else wants.
+
+The tip is the craft screen's card in a grid instead of a list, which is the one new thing:
+a cell in the last column would hang out of the card, so `restOn` measures the cell against
+the grid card and places the tip inside it in `left`/`top`/`width`. It is absolute within the
+card, so it still scrolls with the page like the other two tips. The cell's native `title` is
+gone — the tip supersedes it, and two tooltips over one square is one too many. Focus opens
+it as well as hover, which is the tap that selects on a phone.
+
 ## Gear asks for a level before it goes on
 
 The user asked for Combat and Sorcery level requirements to wear the different gears. The

@@ -979,6 +979,8 @@
 
 .bank-card {
   padding: 14px;
+  /* the uses tip hangs off a cell and is placed against this card, so it never leaves it */
+  position: relative;
 }
 .grid {
   display: grid;
@@ -4562,6 +4564,25 @@ button.chat-name:hover {
   .source-tip {
     width: calc(100% - 16px);
   }
+}
+
+/* ---- what a banked thing is for (hover tip on the bank's cells) -------------------------- */
+/* Placed in JS against the grid card: a cell in the last column would otherwise hang out of it. */
+.uses-tip {
+  /* both are set inline from the cell's place in the card; these are only the fallback */
+  top: 0;
+  left: 0;
+}
+.uses-tip .uses-desc {
+  padding: 6px 2px 0;
+  font: 400 var(--fs-hint) var(--font-sans);
+  color: var(--fg-3);
+}
+.uses-tip .drop-tip-line .where {
+  color: var(--fg-2);
+}
+.uses-tip .drop-tip-foot {
+  color: var(--gold);
 }
 
 /* ---- looks: painted faces and the brush ------------------------------------------------ */

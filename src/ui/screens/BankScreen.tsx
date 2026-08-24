@@ -1,5 +1,5 @@
 /** Screen C — the bank: grid, filters, search, selection, sell, open, equip. */
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { content, simContext } from '../../content/index.ts';
 import { bankCapacity, bankSlotCost, bankWorth } from '../../sim/bank.ts';
 import type { ItemDef, StatKey } from '../../sim/content/schema.ts';
@@ -8,9 +8,10 @@ import { countItem } from '../../sim/items.ts';
 import type { SimState } from '../../sim/save.ts';
 import { EQUIPMENT_SLOTS, type EquipmentSlot } from '../../sim/slots.ts';
 import { wearView, xpBoostText } from '../derive-combat.ts';
+import { itemUseTip } from '../derive-uses.ts';
 import { formatInt, formatShort } from '../format.ts';
 import { BareIcon } from '../items/ItemTile.tsx';
-import { itemIconSpec } from '../items/spec.ts';
+import { itemIconSpec, refIconSpec } from '../items/spec.ts';
 import { Badges, ItemGlyph, Label, Pops, StatRow, TileBox, UiIcon } from '../parts.tsx';
 import { popX } from '../util.ts';
 import { Modal } from '../overlays/Modal.tsx';
@@ -43,6 +44,17 @@ const FILTERS: Filter[] = [
   { id: 'misc', label: 'Misc', match: (i) => !SPECIFIC.some((f) => f.match(i)) },
 ];
 
+/** How wide the hover tip is at most; a narrow card cuts it down to its own width. */
+const TIP_WIDTH = 340;
+
+/** The cell being looked at, and where its tip hangs inside the grid card. */
+interface Peek {
+  id: string;
+  left: number;
+  top: number;
+  width: number;
+}
+
 const STAT_LABEL: Record<StatKey, string> = {
   attack: 'attack',
   strength: 'strength',
@@ -61,6 +73,9 @@ export function BankScreen({ sim, dispatch, juice }: ScreenProps) {
   const [sold, setSold] = useState(0);
   const [pops, setPops] = useState<{ key: string; text: string; x: number; at: number }[]>([]);
   const livePops = pops.filter((p) => sim.tick - p.at < 11);
+  /** The cell the pointer (or focus) is resting on, and where its tip hangs in the card. */
+  const [peek, setPeek] = useState<Peek | null>(null);
+  const gridCard = useRef<HTMLDivElement>(null);
 
   const capacity = bankCapacity(sim, simContext);
   const used = sim.bank.length;
@@ -87,6 +102,19 @@ export function BankScreen({ sim, dispatch, juice }: ScreenProps) {
       ...p.filter((x) => at - x.at < 11),
       { key: `${String(at)}:${String(p.length)}`, text, x: popX(at + p.length), at },
     ]);
+  };
+  /** Hang the tip under the cell, kept inside the card so an edge column never overflows it. */
+  const restOn = (id: string, cell: HTMLElement) => {
+    const card = gridCard.current;
+    if (!card) return;
+    const c = card.getBoundingClientRect();
+    const r = cell.getBoundingClientRect();
+    const width = Math.min(TIP_WIDTH, c.width);
+    const left = Math.min(Math.max(0, r.left - c.left - card.clientLeft), c.width - width);
+    setPeek({ id, left, top: r.bottom - c.top - card.clientTop + 6, width });
+  };
+  const lookAway = (id: string) => {
+    setPeek((p) => (p && p.id === id ? null : p));
   };
   const sell = (n: number) => {
     if (!sel || n <= 0) return;
@@ -125,7 +153,7 @@ export function BankScreen({ sim, dispatch, juice }: ScreenProps) {
 
       <div className="columns" style={{ marginTop: 14 }}>
         <div className="col-main">
-          <div className="card bank-card">
+          <div className="card bank-card" ref={gridCard}>
             {used === 0 ? (
               <div className="bank-empty">
                 <div className="lead">The bank is empty.</div>
@@ -138,7 +166,18 @@ export function BankScreen({ sim, dispatch, juice }: ScreenProps) {
                     key={item.id}
                     className={`cell ${item.rarity}${item.id === held ? ' selected' : ''}`}
                     onClick={() => setSelected(item.id)}
-                    title={`${item.name} · ${item.description}`}
+                    onMouseEnter={(e) => {
+                      restOn(item.id, e.currentTarget);
+                    }}
+                    onMouseLeave={() => {
+                      lookAway(item.id);
+                    }}
+                    onFocus={(e) => {
+                      restOn(item.id, e.currentTarget);
+                    }}
+                    onBlur={() => {
+                      lookAway(item.id);
+                    }}
                   >
                     <ItemGlyph item={item} size={26} />
                     <span className="qty">{formatShort(qty)}</span>
@@ -175,6 +214,9 @@ export function BankScreen({ sim, dispatch, juice }: ScreenProps) {
                   </div>
                 )}
               </div>
+            )}
+            {peek !== null && content.hasItem(peek.id) && (
+              <UsesTip item={content.item(peek.id)} at={peek} />
             )}
           </div>
         </div>
@@ -467,5 +509,47 @@ function SellAmount({
         </button>
       </div>
     </Modal>
+  );
+}
+
+/**
+ * What the thing under the pointer is for, hung beneath its cell: the benches that eat it and
+ * how many one turn takes, what it does in hand, the rooms of the hall that would take it as
+ * a gift, and what it sells for. The long lists are trimmed to the soonest few.
+ */
+function UsesTip({ item, at }: { item: ItemDef; at: Peek }) {
+  const sections = itemUseTip(item.id, simContext);
+  return (
+    <div
+      className="drop-tip source-tip uses-tip"
+      role="tooltip"
+      style={{ left: at.left, top: at.top, width: at.width }}
+    >
+      <div className="drop-tip-head">
+        <span className="name">{item.name}</span>
+        <span className="hint">what it is for</span>
+      </div>
+      {item.description && <div className="uses-desc">{item.description}</div>}
+      {sections.length === 0 && <div className="source-none">nothing on the hill wants it.</div>}
+      {sections.map((s) => (
+        <div key={s.group} className="drop-tip-section">
+          <div className="drop-tip-title">
+            <Label>{s.title}</Label>
+            {s.more > 0 && <span className="hint">+{String(s.more)} more</span>}
+          </div>
+          {s.lines.map((l) => (
+            <div key={`${l.kind}:${l.name}:${l.where}`} className="drop-tip-line">
+              <TileBox size="sm">
+                <BareIcon spec={refIconSpec(content, l.icon, l.material)} size={16} />
+              </TileBox>
+              <span className="name">{l.name}</span>
+              <span className="where">{l.where}</span>
+              {l.qty !== '' && <span className="odds">{l.qty}</span>}
+            </div>
+          ))}
+        </div>
+      ))}
+      <div className="drop-tip-foot">sells for {formatInt(item.value)} gp each</div>
+    </div>
   );
 }
