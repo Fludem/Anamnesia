@@ -2882,7 +2882,6 @@
 }
 /* how far the coins have got towards a ware not yet affordable */
 .gap-wrap {
-  flex: 0 1 132px;
   width: 132px;
   max-width: 100%;
   min-width: 44px;
@@ -2965,6 +2964,15 @@
     gap: 5px 10px;
     width: 100%;
     min-width: 0;
+    justify-content: flex-end;
+    padding-left: 46px;
+  }
+  /* here the buy cell runs in a row, so the basis is width and the bar may shrink */
+  .ware-buy .gap-wrap {
+    flex: 0 1 132px;
+  }
+  .ware-row .lock.needs {
+    flex: 1 0 100%;
     justify-content: flex-end;
     padding-left: 46px;
   }
