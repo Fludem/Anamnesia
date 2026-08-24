@@ -58,6 +58,8 @@ export interface NeedRow extends HallNeed {
   /** How much of it this name holds (coins for `$gp`). */
   held: number;
   met: boolean;
+  /** How much of it rides on this name's cart toward the raising tier, not yet taken. */
+  cart: number;
 }
 
 export interface RoomRow {
@@ -74,6 +76,8 @@ export interface RoomRow {
   canGive: boolean;
   /** The sub line: "stands at II · next +2% xp in every skill". */
   sub: string;
+  /** Who brought the last cart in, from the ledger; null when nobody has. */
+  lastGiver: string | null;
 }
 
 /** The rooms in content order, with the register's progress and what this name could give. */
@@ -93,14 +97,24 @@ export function roomRows(view: HallView, sim: SimState, ctx: SimContext): RoomRo
       name: needName(n.what, ctx),
       held: n.what === GP ? sim.coins : countItem(sim.bank, n.what),
       met: n.have >= n.need,
+      cart: sim.hall.gifts
+        .filter(
+          (g) => g.room === room.id && g.tier === tier + 1 && (g.item ?? GP) === n.what,
+        )
+        .reduce((a, g) => a + g.qty, 0),
     }));
-    const total = needs.reduce((a, n) => a + n.need, 0);
-    const have = needs.reduce((a, n) => a + Math.min(n.have, n.need), 0);
-    const fraction = next === null ? 1 : total === 0 ? 0 : have / total;
+    // Every term counts the same, as the bar draws it — a 2M-gp term must not drown the pelts.
+    const fraction =
+      next === null
+        ? 1
+        : needs.length === 0
+          ? 0
+          : needs.reduce((a, n) => a + Math.min(1, n.have / n.need), 0) / needs.length;
     const canGive = needs.some((n) => !n.met && n.held > 0);
     const stands = tier === 0 ? 'not yet raised' : `stands at ${numeral(tier)}`;
     const sub = next === null ? `${stands} · finished` : `${stands} · next ${perkLine(next, ctx)}`;
-    return { room, tier, now, next, needs, fraction, canGive, sub };
+    const lastGiver = view.ledger.find((l) => l.room === room.id)?.name ?? null;
+    return { room, tier, now, next, needs, fraction, canGive, sub, lastGiver };
   });
 }
 

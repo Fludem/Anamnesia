@@ -2826,77 +2826,332 @@
   }
 }
 
-/* ---- the hall (Phase 12) — Screen A's rows, Screen E's columns, the trader's buy cell ---- */
+/* ---- the hall (Screen G): the rooms and their shared bars, the names, the door, the ledger --- */
+
+.rooms .card-note {
+  font: 400 var(--fs-meta) var(--font-sans);
+  color: var(--fg-3);
+  padding: 0 16px 8px;
+  margin-top: -2px;
+}
+/* The register unreachable, or still being read: one gold note, not a broken page. */
+.hall-warn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 8px 12px;
+  background: rgba(var(--gold-rgb), 0.08);
+  border: 1px solid rgba(var(--gold-rgb), 0.5);
+  border-radius: var(--radius-md);
+  font: 500 var(--fs-meta) var(--font-mono);
+  color: var(--gold);
+}
+/* The head's rate slot: what this name has given, ever, valued in coins. */
+.hall-gave {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hall-gave .k {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+}
+.hall-gave .icon,
+.hall-gave .v {
+  color: var(--gold);
+}
+.hall-gave .v {
+  font: 500 var(--fs-name) var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+/* An unpainted disc reads as an object, not a button: the letter stays quiet. */
+.avatar.plain {
+  color: var(--fg-icon);
+}
+
+.room-row {
+  align-items: flex-start;
+  cursor: default;
+}
+.room-row:hover:not(:disabled) {
+  background: transparent;
+}
+.room-row.finished {
+  opacity: 0.75;
+}
 .room-row .body {
   display: flex;
   flex-direction: column;
 }
-.room-row .sub + .sub {
-  color: var(--fg-2);
-}
-.room-row.raised .tile-box {
-  border-color: rgba(var(--accent-rgb), 0.4);
-}
 .room-row .name .tag-active {
   margin-left: 8px;
 }
-.room-row .room-bar {
-  display: block;
-  margin-top: 8px;
-  max-width: 360px;
+.room-row .done-note {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-disabled);
+  margin-left: 8px;
 }
-.room-row .room-bar .steps-fill {
-  display: block;
+.room-row .sub.line {
+  font: 400 var(--fs-meta) var(--font-sans);
+  color: var(--fg-2);
+  margin-top: 3px;
+  text-wrap: pretty;
+}
+.room-row .sub.line + .sub {
+  margin-top: 4px;
+}
+.room-row.raised .tile-box {
+  border-color: rgba(var(--accent-rgb), 0.45);
+  color: var(--accent);
+}
+/* The tier's bar: one slot per term, equal width, each filled by its own fraction. The pale
+   stretch after a fill is what rides on this name's cart, not yet taken by the register. */
+.terms-track {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 9px;
+}
+.terms-bar {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  gap: 2px;
+  height: 9px;
+  background: var(--bg-track);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  padding: 1px;
+}
+.terms-bar .seg {
+  flex: 1;
+  min-width: 2px;
+  position: relative;
+  background: var(--border-row);
+  border-radius: 1px;
+  overflow: hidden;
+}
+.terms-bar .seg.hot {
+  background: var(--bg-menu-hover);
+}
+.terms-bar .fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--accent);
+  opacity: 0.82;
+}
+.terms-bar .seg.hot .fill {
+  opacity: 1;
+}
+.terms-bar .cart {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--accent);
+  opacity: 0.26;
+}
+.terms-bar .fill.gp,
+.terms-bar .cart.gp {
+  background: var(--gold);
+}
+.terms-track .pct {
+  font: 500 var(--fs-meta) var(--font-mono);
+  color: var(--fg-2);
+  font-variant-numeric: tabular-nums;
+  flex: none;
 }
 .room-row .needs {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 12px;
-  margin-top: 6px;
+  gap: 3px 14px;
+  margin-top: 7px;
 }
 .room-row .need {
+  color: var(--fg-icon);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  cursor: default;
+}
+.room-row .need .n {
+  font-weight: 500;
+  color: var(--fg-soft);
+  margin-right: 5px;
+}
+.room-row .need .n.gp {
   color: var(--gold);
 }
-.room-row .need.met {
-  color: var(--fg-3);
-  text-decoration: line-through;
+.room-row .need.met,
+.room-row .need.met .n {
+  color: var(--fg-disabled);
+  font-weight: 400;
 }
-.room-give {
-  flex: 0 0 auto;
+.room-row .need.hot {
+  color: var(--fg);
 }
-.room-give .btn {
-  padding: 6px 14px;
-  border-color: rgba(var(--accent-rgb), 0.45);
+.room-row .need.hot .n {
   color: var(--accent);
 }
+.room-row .fold {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-disabled);
+  border-bottom: 1px dashed var(--border-strong);
+  border-radius: 0;
+}
+.room-row .fold:hover:not(:disabled) {
+  color: var(--fg-2);
+}
+.room-give {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  min-width: 96px;
+}
+.room-give .btn {
+  padding: 6px 13px;
+  font-size: var(--fs-hint);
+}
 .room-give .btn:disabled {
+  background: transparent;
   border-color: var(--border);
   color: var(--fg-disabled);
   cursor: default;
 }
+.last-in {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font: 400 var(--fs-label) var(--font-mono);
+  color: var(--fg-disabled);
+  white-space: nowrap;
+}
+
+/* The hall gives you: a Roman tag per raised room, a dash for the rest. */
+.perks {
+  padding-bottom: 8px;
+}
+.perk-row {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  padding: 6px 16px;
+}
+.perk-row .tier {
+  flex: none;
+  min-width: 32px;
+  text-align: center;
+  box-sizing: border-box;
+  padding: 1px 6px;
+}
+.perk-row .tier.off {
+  font: 600 var(--fs-hint) var(--font-mono);
+  color: var(--fg-disabled-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.perk-row .text {
+  font: 400 var(--fs-meta) var(--font-sans);
+  color: var(--fg-soft);
+  text-wrap: pretty;
+}
+.perk-row .text.off {
+  color: var(--fg-disabled);
+}
+
 .hall-row {
   cursor: default;
+}
+.hall-row:hover:not(:disabled) {
+  background: transparent;
 }
 .hall-row .body {
   display: flex;
   flex-direction: column;
 }
-.hall-row .name .tag-active {
-  margin-left: 8px;
-}
 .hall-row.you {
-  background: rgba(var(--accent-rgb), 0.05);
+  background: rgba(var(--accent-rgb), 0.045);
+  box-shadow: inset 2px 0 0 rgba(var(--accent-rgb), 0.45);
 }
 .hall-row .avatar {
   flex: none;
 }
-.hall-row.ledger .sub b {
+.hall-tag {
+  font: 600 var(--fs-label) var(--font-mono);
   color: var(--fg-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 1px 5px;
+  letter-spacing: var(--tracking-tag);
+  text-transform: uppercase;
+  margin-left: 7px;
+}
+.hall-row .sub.meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 3px;
+}
+.hall-row .sub.meta .dot {
+  color: var(--border-strong);
+}
+.hall-row .sub.meta .on {
+  color: var(--accent);
+}
+.hall-row .sub.meta .icon {
+  color: var(--fg-disabled);
+}
+/* The founder's quiet expel: one click arms it, the second shows the name the door. */
+.turn-out {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-disabled-2);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 4px 6px;
+  cursor: pointer;
+  flex: none;
+}
+.turn-out:hover {
+  color: var(--fg-2);
+}
+.turn-out.armed {
+  color: var(--gold);
+  border-color: rgba(var(--gold-rgb), 0.5);
+}
+
+.hall-row.ledger {
+  align-items: flex-start;
+  gap: 9px;
+}
+.hall-row.ledger .sub.text {
+  font: 400 var(--fs-meta) var(--font-sans);
+  color: var(--fg-2);
+  text-wrap: pretty;
+  margin-top: 0;
+}
+.hall-row.ledger .sub b {
+  color: var(--fg);
   font-weight: 500;
 }
-.hall-row .sub .accent {
-  vertical-align: -1px;
+.hall-row.ledger .sub b.you {
+  color: var(--accent);
 }
+.hall-row.ledger .qty {
+  font: 500 var(--fs-meta) var(--font-mono);
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+.hall-row.ledger .when {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-disabled);
+  flex: none;
+}
+
 .hall-answer {
   display: flex;
   gap: 6px;
@@ -2904,6 +3159,18 @@
 }
 .hall-answer .btn {
   flex: none;
+}
+/* .btn.sm sits later in the file than .btn.solid: restate the solid colours it washes out. */
+.hall-answer .btn.solid {
+  padding: 5px 12px;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0e1512;
+}
+.hall-answer .btn.solid:hover:not(:disabled) {
+  background: var(--accent-hi);
+  border-color: var(--accent-hi);
+  color: #0e1512;
 }
 .hall-form {
   padding: 16px;
@@ -2925,31 +3192,63 @@
 }
 .hall-form-row .btn {
   flex: none;
+  padding: 7px 12px;
 }
 .note-line.warn {
   color: var(--gold);
 }
 .hall-cart {
-  padding: 10px 16px 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px 8px;
+}
+.hall-cart .icon {
+  color: var(--fg-disabled);
 }
 .hall-door {
   padding: 8px 10px 10px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  border-top: 1px solid var(--border-row);
 }
 .hall-door .hall-form {
-  padding: 10px 6px 0;
+  padding: 2px 6px 0;
   background: transparent;
   border: 0;
 }
+.hall-door .hall-form .sel-flavour {
+  margin-bottom: 8px;
+}
 .hall-leave {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 10px;
   padding: 0 6px;
+  flex-wrap: wrap;
 }
-.hall-leave .btn {
-  flex: 1;
+.hall-leave .leave {
+  font: 500 var(--fs-meta) var(--font-sans);
+  color: var(--fg-3);
+}
+.hall-leave .leave:hover:not(:disabled) {
+  color: var(--fg-2);
+}
+.hall-leave .really {
+  font: 500 var(--fs-meta) var(--font-mono);
+  color: var(--gold);
+}
+.hall-leave .leave-go {
+  border-color: rgba(var(--gold-rgb), 0.6);
+  color: var(--gold);
+  padding: 5px 11px;
+  letter-spacing: var(--tracking-chip);
+}
+.keys-hint {
+  padding: 0 16px 10px;
+  font: 400 var(--fs-label) var(--font-mono);
+  color: var(--fg-disabled);
 }
 .give-what {
   margin-top: 12px;
@@ -2960,8 +3259,18 @@
   color: var(--accent);
 }
 @media (max-width: 700px) {
-  .room-row .room-bar {
-    max-width: none;
+  /* The give cell drops under the bar: a full-width row, button and last giver right-aligned. */
+  .room-give {
+    flex: 1 0 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    min-width: 0;
+    padding-left: 48px;
+  }
+  .room-row {
+    flex-wrap: wrap;
   }
 }
 

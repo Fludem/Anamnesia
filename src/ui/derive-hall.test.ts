@@ -61,7 +61,10 @@ describe('derive-hall', () => {
       [0, true],
       [0, false],
     ]);
-    expect(hearth.fraction).toBeCloseTo(10 / 125);
+    // The gift on the cart rides toward tier 2 of the hearth: it ghosts into the log term.
+    expect(hearth.needs.map((n) => n.cart)).toEqual([2, 0, 0]);
+    // Terms weigh the same regardless of size: (5/20 + 1 + 0) / 3.
+    expect(hearth.fraction).toBeCloseTo((5 / 20 + 1) / 3);
     expect(hearth.canGive).toBe(true);
     const store = rows.find((r) => r.room.id === 'store')!;
     expect(store.sub).toBe('stands at I · finished');

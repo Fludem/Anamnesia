@@ -33,7 +33,7 @@ export function ScreenHead({
   /** Stands where the icon would: a hall's mark. */
   face?: ReactNode;
   level?: SkillView;
-  rate?: string | null;
+  rate?: ReactNode;
   chip?: string;
   /** With `sim`, shows the sworn god's bonus for this skill when there is one. */
   skill?: string;
