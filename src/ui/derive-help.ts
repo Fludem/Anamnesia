@@ -275,8 +275,8 @@ function wornLift(sim: SimState, skill: SkillDef, ctx: SimContext): HelpLift {
       names.length > 0
         ? names.join(' · ')
         : cape !== null
-          ? `the ${cape.name} turns up in the work itself`
-          : 'no cape for this one',
+          ? 'no cape worn · see below for where one comes from'
+          : 'nothing worn lifts this one',
   };
 }
 
@@ -305,10 +305,12 @@ function findsLift(sim: SimState, skill: SkillDef, ctx: SimContext): HelpLift | 
   const odds = formatChance(entryChance(table, entry?.weight ?? 1, rolls));
   return {
     k: 'Finds',
-    v: `${cape.name} · ${odds} a cycle`,
+    v: `${odds} a cycle`,
     on: rolls > 1,
     note:
-      rolls > 1 ? 'A Second Look rolls it twice' : "the trader's Second Look would roll it twice",
+      rolls > 1
+        ? `the ${cape.name}, rolled twice by A Second Look`
+        : `the ${cape.name} · the trader's Second Look doubles it`,
   };
 }
 
