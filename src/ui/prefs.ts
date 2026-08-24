@@ -21,6 +21,9 @@ export type View = z.infer<typeof ViewSchema>;
 
 export const JuiceSchema = z.enum(['deadpan', 'quiet', 'juicy']);
 
+/** Whether a word said to this name alone rings the small bell. */
+export const ChimeSchema = z.boolean();
+
 const PREFIX = 'anamnesia:';
 
 function read<T>(key: string, schema: z.ZodType<T>, fallback: T): T {

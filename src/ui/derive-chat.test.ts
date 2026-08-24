@@ -7,6 +7,7 @@ import {
   KEEP,
   preview,
   previewLine,
+  ringsFor,
   sameTalk,
   talkKey,
   talkOf,
@@ -83,5 +84,29 @@ describe('the clock beside a word', () => {
       ['yesterday', [1, 2]],
       ['today', [3]],
     ]);
+  });
+});
+
+describe('what rings the bell', () => {
+  const toMe = [word(1, 'Birch', 'Ash')];
+  it('is a word said to this name by somebody else, and nothing else', () => {
+    expect(ringsFor(toMe, 'Ash', null, true)).toBe(true);
+    // The fire is loud enough on its own.
+    expect(ringsFor([word(2, 'Birch', null)], 'Ash', null, true)).toBe(false);
+    // A word this name just said, come back from the register.
+    expect(ringsFor([word(3, 'Ash', 'Birch')], 'ash', null, true)).toBe(false);
+    expect(ringsFor([], 'Ash', null, true)).toBe(false);
+  });
+
+  it('stays quiet in the talk on screen, unless the player is looking elsewhere', () => {
+    const open = { kind: 'name', name: 'birch' } as const;
+    expect(ringsFor(toMe, 'Ash', open, true)).toBe(false);
+    expect(ringsFor(toMe, 'Ash', open, false)).toBe(true);
+    expect(ringsFor(toMe, 'Ash', { kind: 'name', name: 'Elm' }, true)).toBe(true);
+    expect(ringsFor(toMe, 'Ash', { kind: 'room', room: 'fire' }, true)).toBe(true);
+  });
+
+  it('rings once for a handful of words that came together', () => {
+    expect(ringsFor([word(4, 'Birch', null), word(5, 'Elm', 'Ash')], 'Ash', null, true)).toBe(true);
   });
 });

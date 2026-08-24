@@ -1,8 +1,10 @@
 /**
  * The fire, kept in one place for the whole tab: one long poll to the register carries every
  * new word — in any room, to or from this name — and this hook sorts them into talks, counts
- * what has not been read, and tells the register how far the open talk has been read. The
- * screen and the nav badge both read from here; nothing about words touches the sim.
+ * what has not been read, and tells the register how far the open talk has been read. A word
+ * said to this name alone rings the small bell on its way in, unless the player is already
+ * watching that talk. The screen and the nav badge both read from here; nothing about words
+ * touches the sim.
  */
 import { useCallback, useEffect, useReducer, useRef } from 'react';
 import { api, ApiError } from '../api/client.ts';
@@ -17,7 +19,8 @@ import {
   type Talk,
   type User,
 } from '../api/protocol.ts';
-import { appendWord, LISTED_ROOMS, sameTalk, talkKey, talkOf } from './derive-chat.ts';
+import { ring } from './chime.ts';
+import { appendWord, LISTED_ROOMS, ringsFor, sameTalk, talkKey, talkOf } from './derive-chat.ts';
 
 export interface RoomState {
   messages: readonly ChatMessage[];
@@ -170,6 +173,9 @@ function reduce(s: Inner, a: Action): Inner {
 }
 
 const reason = (e: unknown): string => (e instanceof ApiError ? e.message : String(e));
+
+/** Whether the player is at this tab with their eyes on it: a talk they watch needs no bell. */
+const watching = (): boolean => !document.hidden && document.hasFocus();
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 /** The last word in a talk as this tab holds it, or 0. */
@@ -180,12 +186,15 @@ function lastIdOf(s: Inner, talk: Talk | null): number {
   return list[list.length - 1]?.id ?? 0;
 }
 
-export function useChat(user: User, enabled: boolean): ChatState {
+export function useChat(user: User, enabled: boolean, chime: boolean): ChatState {
   const [state, dispatch] = useReducer(reduce, user.name, initial);
   const open = useRef(state.open);
   open.current = state.open;
   const threads = useRef(state.threads);
   threads.current = state.threads;
+  // Read inside the poll, so turning the bell on or off never restarts it.
+  const bell = useRef(chime);
+  bell.current = chime;
 
   // The poll: an overview, then one open question after another until the tab lets go.
   useEffect(() => {
@@ -209,6 +218,7 @@ export function useChat(user: User, enabled: boolean): ChatState {
           if (!live) return;
           after = got.latest;
           dispatch({ type: 'arrived', messages: got.messages, here: got.here });
+          if (bell.current && ringsFor(got.messages, user.name, open.current, watching())) ring();
           dispatch({ type: 'error', message: null });
           backoff = 1000;
         } catch (e) {
@@ -228,7 +238,7 @@ export function useChat(user: User, enabled: boolean): ChatState {
       live = false;
       leaving.abort();
     };
-  }, [enabled, user.id]);
+  }, [enabled, user.id, user.name]);
 
   // Tell the register how far the open talk has been read, whenever its last word moves.
   const openKey = state.open === null ? null : talkKey(state.open);

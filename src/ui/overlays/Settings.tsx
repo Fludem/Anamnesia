@@ -1,7 +1,7 @@
 /**
- * Settings: feel (how much the UI celebrates), who is logged in and the way out, a save export,
- * and — in dev builds — the runtime inspection buttons from Phase 0.5 (simulate time away,
- * reset).
+ * Settings: feel (how much the UI celebrates), the bell that rings for a word with a name,
+ * who is logged in and the way out, a save export, and — in dev builds — the runtime
+ * inspection buttons from Phase 0.5 (simulate time away, reset).
  */
 import { useState } from 'react';
 import type { GameRuntime } from '../useGameHost.ts';
@@ -11,6 +11,7 @@ import type { User } from '../../api/protocol.ts';
 import type { Command } from '../../sim/commands.ts';
 import { createNewSave } from '../../sim/save.ts';
 import { godOf } from '../../sim/perks.ts';
+import { ringNow } from '../chime.ts';
 import { nightHours } from '../derive-trader.ts';
 import { Face } from '../Face.tsx';
 import { formatInt } from '../format.ts';
@@ -32,6 +33,8 @@ export function Settings({
   user,
   juice,
   onJuice,
+  chime,
+  onChime,
   onSignOut,
   dispatch,
   onPaint,
@@ -42,6 +45,9 @@ export function Settings({
   user: User;
   juice: Juice;
   onJuice: (j: Juice) => void;
+  /** Whether a word said to this name alone rings the small bell. */
+  chime: boolean;
+  onChime: (on: boolean) => void;
   /** Saves, stops the game here and ends the session. */
   onSignOut: () => Promise<void>;
   dispatch: (cmd: Command) => void;
@@ -104,6 +110,31 @@ export function Settings({
           ))}
         </div>
         <div className="hint">{FEELS.find((f) => f.id === juice)?.hint}</div>
+      </div>
+
+      <div className="settings-section">
+        <Label>Bell</Label>
+        <div className="settings-row">
+          <button
+            className={chime ? 'btn on' : 'btn'}
+            onClick={() => {
+              onChime(true);
+              // Struck here and now, so the player hears what they just turned on — and so the
+              // browser lets this tab make a sound at all.
+              ringNow();
+            }}
+          >
+            On
+          </button>
+          <button className={chime ? 'btn' : 'btn on'} onClick={() => onChime(false)}>
+            Off
+          </button>
+        </div>
+        <div className="hint">
+          {chime
+            ? 'A word said to you alone rings a small bell. The fire never does.'
+            : 'Nothing rings; the badge on Talk still counts.'}
+        </div>
       </div>
 
       <div className="settings-section">

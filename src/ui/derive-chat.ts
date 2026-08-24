@@ -97,3 +97,22 @@ export function previewLine(m: ChatMessage, me: string, max = 48): string {
   const mine = nameKey(m.from) === nameKey(me);
   return mine ? `you: ${preview(m.body, max - 5)}` : preview(m.body, max);
 }
+
+/**
+ * Whether words that just arrived should ring the bell: one of them was said to this name by
+ * somebody else, and it is not landing in a talk the player is looking at right now. Words in
+ * a room never ring, however many of them there are.
+ */
+export function ringsFor(
+  messages: readonly ChatMessage[],
+  me: string,
+  open: Talk | null,
+  watching: boolean,
+): boolean {
+  return messages.some(
+    (m) =>
+      m.room === null &&
+      nameKey(m.from) !== nameKey(me) &&
+      !(watching && sameTalk(open, talkOf(m, me))),
+  );
+}

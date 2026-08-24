@@ -21,7 +21,7 @@ import { LevelUp } from './ui/overlays/LevelUp.tsx';
 import { LookEditor } from './ui/overlays/LookEditor.tsx';
 import { OfflineRecap } from './ui/overlays/OfflineRecap.tsx';
 import { Settings } from './ui/overlays/Settings.tsx';
-import { JuiceSchema, usePref, ViewSchema, type View } from './ui/prefs.ts';
+import { ChimeSchema, JuiceSchema, usePref, ViewSchema, type View } from './ui/prefs.ts';
 import { BankScreen } from './ui/screens/BankScreen.tsx';
 import { ChatScreen } from './ui/screens/ChatScreen.tsx';
 import { CombatScreen } from './ui/screens/CombatScreen.tsx';
@@ -67,12 +67,13 @@ const PAGE_TITLE = 'Anamnesia Idle';
 function Game({ user, onSignOut }: { user: User; onSignOut: () => Promise<void> }) {
   const { runtime, snapshot } = useGameRuntime(user);
   const [juice, setJuice] = usePref('juice', JuiceSchema, 'juicy');
+  const [chime, setChime] = usePref('chime', ChimeSchema, true);
   const [view, setView] = usePref('view', ViewSchema, DEFAULT_VIEW);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [painting, setPainting] = useState(false);
   const { sim, role } = snapshot;
   // Only the tab that plays listens at the fire; a follower shows its calm page and no more.
-  const chat = useChat(user, role === 'leader' && sim !== null && snapshot.error === null);
+  const chat = useChat(user, role === 'leader' && sim !== null && snapshot.error === null, chime);
   // The browser tab says when a word with a name waits, for whoever is on another tab.
   useEffect(() => {
     const n = chat.unreadNames;
@@ -211,6 +212,8 @@ function Game({ user, onSignOut }: { user: User; onSignOut: () => Promise<void> 
           user={user}
           juice={juice}
           onJuice={setJuice}
+          chime={chime}
+          onChime={setChime}
           onSignOut={signOut}
           dispatch={dispatch}
           onPaint={() => {
