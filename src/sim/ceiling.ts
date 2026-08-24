@@ -53,6 +53,13 @@ const BEST_TOOL_CUT = 30;
  */
 export const HEADROOM = 6;
 
+/**
+ * Longer than anyone has played anything. Nothing on the hill is measured against this — it is
+ * only here to say that a tick count past it is not a claim, and to keep a number that a double
+ * cannot hold exactly out of a column every board reads back.
+ */
+export const A_LIFETIME_MS = 100 * 365 * 24 * 3_600_000;
+
 /** The skills a fight pays: both styles, and the hitpoints that come with either. */
 const FIGHT_SKILLS: ReadonlySet<string> = new Set([COMBAT_SKILL, SORCERY_SKILL, HITPOINTS_SKILL]);
 
@@ -184,6 +191,13 @@ export function overreach(
   elapsed: Elapsed,
   ctx: SimContext,
 ): Overreach | null {
+  if (!Number.isSafeInteger(after.tick) || after.tick * TICK_MS > A_LIFETIME_MS) {
+    // Before anything else, and before the first save is believed: a tick count that is not a
+    // plain whole number of tenths of a second is not a claim about the hill, it is a number
+    // put somewhere to see what breaks. Nothing has been played for a century, and an integer
+    // past what a double holds exactly is one SQLite hands back as something JS will not take.
+    return { what: 'time', gained: after.tick, ceiling: A_LIFETIME_MS / TICK_MS, windowMs: 0 };
+  }
   // A name's first save is believed, whole. There is no earlier record to measure it against
   // and no elapsed anything to measure it over, and a browser adopting the save it played
   // before there were names (runtime/adopt.ts) honestly arrives with a night already on it and

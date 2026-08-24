@@ -50,6 +50,13 @@ interface StandingKeys {
 
 const asUser = (r: UserRow): User => ({ id: r.id, name: r.name, createdAt: r.created_at });
 
+/** A wall-clock stamp, or null when the column holds something no clock ever produced. */
+function sane(ms: number | undefined): number | null {
+  return ms !== undefined && Number.isFinite(ms) && ms > 0 && ms <= Date.UTC(2200, 0, 1)
+    ? ms
+    : null;
+}
+
 export class Register {
   constructor(
     private readonly db: DatabaseSync,
@@ -161,8 +168,8 @@ export class Register {
     return transaction(this.db, () => {
       const stored = this.db
         .prepare(
-          'SELECT counter, writer_id, record, CAST(updated_at AS REAL) AS updated_at, tick_base' +
-            ' FROM saves WHERE user_id = ?',
+          'SELECT counter, writer_id, record, CAST(updated_at AS REAL) AS updated_at,' +
+            ' CAST(tick_base AS REAL) AS tick_base FROM saves WHERE user_id = ?',
         )
         .get(userId) as
         | {
@@ -202,13 +209,20 @@ export class Register {
       // A name's first save is taken on trust and its tick written down: there is nothing to
       // weigh it against, and a browser adopting the save it played before there were names
       // (runtime/adopt.ts) honestly arrives with a night already on it.
-      const tickBase = stored?.tick_base ?? sim.tick;
+      const tickBase =
+        stored !== undefined && Number.isSafeInteger(stored.tick_base) && stored.tick_base >= 0
+          ? stored.tick_base
+          : sim.tick;
       const past = overreach(
         acked?.sim ?? null,
         sim,
         {
-          sinceWrite: nowMs - (stored?.updated_at ?? user.createdAt),
-          sinceName: nowMs - user.createdAt,
+          // A stamp that is not a sane millisecond says nothing about when this name last wrote,
+          // so it is not read as saying anything: no time credited, and the ceiling falls back
+          // to the ticks the save claims against the cap. The age bound below is what stops that
+          // being a way to keep asking. One such row is on the box already (see DECISIONS).
+          sinceWrite: sane(stored?.updated_at) === null ? 0 : nowMs - sane(stored?.updated_at)!,
+          sinceName: sane(user.createdAt) === null ? 0 : nowMs - user.createdAt,
           tickBase,
         },
         this.ctx,

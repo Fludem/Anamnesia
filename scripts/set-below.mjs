@@ -64,7 +64,10 @@ function find(name) {
     .get(nameKey(name));
   if (!u) return null;
   const s = db
-    .prepare('SELECT counter, writer_id, record, updated_at FROM saves WHERE user_id = ?')
+    .prepare(
+      'SELECT counter, writer_id, record, CAST(updated_at AS REAL) AS updated_at' +
+        ' FROM saves WHERE user_id = ?',
+    )
     .get(u.id);
   return { user: u, save: s ? { ...s, record: JSON.parse(s.record) } : null };
 }
@@ -104,6 +107,11 @@ const show = (who) => {
   console.log(`\n${who.user.name}  #${String(who.user.id)}  save ${String(who.save.counter)}`);
   console.log(`  name made ${ageH.toFixed(1)} h ago, save claims ${playedH.toFixed(1)} h played`);
   console.log(`  coins ${String(sim.coins)}, bank ${String((sim.bank ?? []).length)} kinds`);
+  if (!(who.save.updated_at > 0 && who.save.updated_at <= Date.UTC(2200, 0, 1))) {
+    console.log(
+      `  last-written stamp is ${String(who.save.updated_at)}, which no clock made — writing fixes it`,
+    );
+  }
   console.log(`  ${rows.join('  ') || '(no xp)'}`);
 };
 show(below);

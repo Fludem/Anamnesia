@@ -230,6 +230,24 @@ describe('saves', () => {
     expect((await c.put(played, 1)).status).toBe(200);
   });
 
+  it('will not write down a tick no clock could have made, even on a first save', async () => {
+    now += 3_600_001; // past the register's per-address window; this file makes many names
+    const c = new Client(base);
+    await c.register('Farfetched');
+    // A first save is believed whole, so its tick is what the register writes into the column
+    // it measures every later save against. A number past what a double holds exactly would be
+    // one SQLite hands back as something JS refuses to take — a save its owner could never
+    // write again. So the trust stops short of arithmetic that is not arithmetic.
+    // Past a safe integer the save schema already refuses it as a shape.
+    expect((await c.put(save('tab', { tick: 1e18 }), 0)).status).toBe(400);
+    // Inside one, three million years is still not a claim about the hill.
+    const absurd = await c.put(save('tab', { tick: 1e15 }), 0);
+    expect(absurd.status).toBe(409);
+    expect(absurd.body).toMatchObject({ ok: false, reason: 'impossible' });
+    // And an ordinary first save still goes in.
+    expect((await c.put(save('tab', { tick: 3_000 }), 0)).status).toBe(200);
+  });
+
   it('believes a name once, at its first save, and remembers where that put it', async () => {
     const c = new Client(base);
     await c.register('Homecomer');

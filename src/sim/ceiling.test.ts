@@ -83,6 +83,19 @@ describe('how long a name has been on the hill', () => {
     expect(overreach(adopted, again, adopting, ctx)).toMatchObject({ what: 'time' });
   });
 
+  it('will not believe a tick count no clock could have made, first save or not', () => {
+    // A number put somewhere to see what breaks. Past what a double holds exactly it is also a
+    // number SQLite hands back as something JavaScript refuses to take, which on this hill once
+    // meant every board answering 500 — so it does not reach a column at all.
+    const first: Elapsed = { sinceWrite: 0, sinceName: 0, tickBase: 0 };
+    expect(overreach(null, at(1e18), first, ctx)).toMatchObject({ what: 'time' });
+    expect(overreach(null, at(Number.MAX_SAFE_INTEGER), first, ctx)).toMatchObject({
+      what: 'time',
+    });
+    // A century is past anything; a decade of playing without pause is not.
+    expect(overreach(null, at(10 * 365 * 24 * HOUR_TICKS), first, ctx)).toBeNull();
+  });
+
   it('believes a first save whatever is on it, since nothing can weigh it', () => {
     const first: Elapsed = { sinceWrite: 0, sinceName: 0, tickBase: 400 * HOUR_TICKS };
     const lifetime = at(400 * HOUR_TICKS, {

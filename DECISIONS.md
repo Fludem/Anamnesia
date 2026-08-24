@@ -1849,6 +1849,14 @@ what is stored and goes back to it, exactly as after a lost race. The wire reaso
 `impossible` rather than `stale` so the log says which it was; `server-store.ts` has always read
 any 409 as stale, so a tab open across the deploy needs nothing.
 
+**Two numbers are not weighed, they are simply refused.** A tick count that is not a safe
+integer, or that comes to more than a century of playing, is not a claim about the hill — and
+past what a double holds exactly it is a number SQLite hands back as something JavaScript will
+not take, which on this hill already meant every board answering 500 for everybody. The save
+schema catches the first as a shape; the ceiling catches the second before a first save is
+believed, because a first save's tick is what gets written into `tick_base` and read back
+forever after.
+
 **The numbers are loose on purpose.** `HEADROOM` is 6. The model counts expected values with no
 god sworn, no xp on the gear and no hearth in the hall — together about four parts in ten — and
 the slab pays a cycle again for a new best fish, which can double a lucky spell of fishing.
@@ -1872,6 +1880,11 @@ nothing, because nobody hijacks a save request to gain six times a fair hour.
   a stake it has not verified. Its own purse is the fix.
 - A first save is believed whole (above), so a new name can seed itself once. Closing it needs
   the browser to say it is adopting, and the register to tell that apart from a claim.
+- A stamp in `saves.updated_at` that no clock produced is read as saying nothing about when a
+  name last wrote, rather than as a negative gap: no time is credited, and the ceiling falls
+  back to the ticks the save claims against the offline cap. That is deliberately not a way to
+  keep asking, because the age bound above still counts from `tick_base`. One such row is on
+  the box (see the ring session's write-up); it heals on that name's next save.
 - A save refused is a line in the journal, not a row in a table. `grep 'refused save'` is
   enough for a hill of friends; a name that trips it often wants somewhere to be counted.
 - The dev _13h away_ button rewinds the local anchor and so makes ticks faster than the clock
