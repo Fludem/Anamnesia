@@ -1821,6 +1821,33 @@
   color: var(--gold);
 }
 
+/*
+ * The ring's call-out modal. It is a list of gear with a reason beside each piece, so it wants
+ * the wide form and 460px of it, keyed off .ring-pick the way settings keys off its own class.
+ * A refusal is prose and sits under the item, never beside it: in the row's flex line a span
+ * will not shrink past its longest word, and .body (min-width: 0) would give up all its width
+ * to it and wrap the sub line one word per line.
+ */
+.modal.wide:has(.ring-pick) {
+  width: 460px;
+  max-height: min(88vh, 900px);
+  overflow-y: auto;
+}
+.ring-pick .pick-lead {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-2);
+  padding: 0 16px 10px;
+}
+.ring-pick .pick-stats {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+  padding: 0 16px 12px;
+}
+.ring-pick .row .sub.refuse {
+  color: var(--gold);
+  white-space: normal;
+}
+
 /* settings */
 /*
  * The settings panel is a page, not a dialog: nine sections, a name, a face and the save. It

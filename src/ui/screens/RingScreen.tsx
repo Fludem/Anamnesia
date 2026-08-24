@@ -240,29 +240,29 @@ function PickModal({
   onCall: (item: string) => void;
 }) {
   return (
-    <Modal onClose={onClose} tone="accent">
-      <div className="card-head">
-        <Label>Call out {card.name}</Label>
-      </div>
-      <div className="sub" style={{ padding: '0 16px 10px' }}>
-        Play for one thing they are wearing. You put up what you wear in the same slot, and it must
-        be worth at least as much — you can only play for a helm by wagering your helm. The register
-        fights it the moment you ask.
-      </div>
-      <div className="sub" style={{ padding: '0 16px 12px', color: 'var(--fg-3)' }}>
-        {statsLine(card.fighter)}
-      </div>
-      <div className="card list" style={{ margin: 0 }}>
-        {playable(card).map((w) => (
-          <WornRow key={w.slot} worn={w} onCall={() => onCall(w.item)} />
-        ))}
-        {card.worn.length === 0 && (
-          <div className="row">
-            <div className="body">
-              <div className="name">{card.name} is wearing nothing that can be played for</div>
+    <Modal onClose={onClose} tone="accent" wide>
+      <div className="ring-pick">
+        <div className="card-head">
+          <Label>Call out {card.name}</Label>
+        </div>
+        <div className="pick-lead">
+          Play for one thing they are wearing. You put up what you wear in the same slot, and it
+          must be worth at least as much — you can only play for a helm by wagering your helm. The
+          register fights it the moment you ask.
+        </div>
+        <div className="pick-stats">{statsLine(card.fighter)}</div>
+        <div className="card list" style={{ margin: 0 }}>
+          {playable(card).map((w) => (
+            <WornRow key={w.slot} worn={w} onCall={() => onCall(w.item)} />
+          ))}
+          {card.worn.length === 0 && (
+            <div className="row">
+              <div className="body">
+                <div className="name">{card.name} is wearing nothing that can be played for</div>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </Modal>
   );
@@ -283,14 +283,15 @@ function WornRow({ worn, onCall }: { worn: RingWorn; onCall: () => void }) {
           {worn.slot} · worth {formatInt(worn.value)} gp
           {stake ? ` · you put up your ${stake.name}` : ''}
         </div>
+        {worn.refusal !== null && <div className="sub refuse">{worn.refusal}</div>}
       </div>
-      <span className="spacer" />
-      {worn.ok ? (
-        <button className="btn sm primary" onClick={onCall}>
-          Play for it
-        </button>
-      ) : (
-        <span className="hint">{worn.refusal}</span>
+      {worn.ok && (
+        <>
+          <span className="spacer" />
+          <button className="btn sm primary" onClick={onCall}>
+            Play for it
+          </button>
+        </>
       )}
     </div>
   );
