@@ -24,12 +24,14 @@ class Client {
   counter = 0;
   played = 0;
   /** What this name's last save said; the harness keeps it so a save is one line. */
-  sim: { coins: number; equipment: Partial<Equipment>; open: boolean; settledThrough: number } = {
-    coins: 0,
-    equipment: {},
-    open: true,
-    settledThrough: 0,
-  };
+  sim: {
+    coins: number;
+    equipment: Partial<Equipment>;
+    open: boolean;
+    settledThrough: number;
+    /** What this save claims it has done in the ring. A forged one claims plenty. */
+    claim?: { bouts: number; taken: number; lost: number };
+  } = { coins: 0, equipment: {}, open: true, settledThrough: 0 };
   bank: { item: string; qty: number }[] = [];
   constructor(
     private readonly base: string,
@@ -69,6 +71,7 @@ class Client {
         equipment: { ...base.sim.equipment, ...this.sim.equipment },
         combat: { ...base.sim.combat, bouts: { open: this.sim.open } },
         bouts: { settledThrough: this.sim.settledThrough, owed: 0 },
+        ...(this.sim.claim ? { stats: { ...base.sim.stats, ...this.sim.claim } } : {}),
       },
     };
     const r = await this.call('PUT', '/api/save', { record, expectedCounter: this.counter });
@@ -413,5 +416,32 @@ describe('a debt that cannot be paid in kind', () => {
     const refused = await loser.callOut('Bystander', 'helm');
     expect(refused.status).toBe(409);
     expect((refused.body as { error: string }).error).toMatch(/already owe/);
+  });
+});
+
+describe('what the ring board ranks', () => {
+  it("counts a name's bouts off the register's settlements, not off the save", async () => {
+    restEveryone();
+    const [a, b] = await names('Counted', 'Tallied');
+    for (const c of [a, b]) {
+      c.sim = { ...c.sim, equipment: { head: 'helm' } };
+      await c.save();
+    }
+    const { bout } = (await a.callOut('Tallied', 'helm')).body as RingCalled;
+    for (const c of [a, b]) await c.saveAndAck();
+    const winner = bout.winner === 'Counted' ? a : b;
+    const loser = bout.winner === 'Counted' ? b : a;
+    const stats = async (c: Client) => (await c.stored()).sim.stats;
+    expect(await stats(winner)).toMatchObject({ bouts: 1, taken: 1, lost: 0 });
+    expect(await stats(loser)).toMatchObject({ bouts: 1, taken: 0, lost: 1 });
+  });
+
+  it('stamps a forged claim back down to what the register has actually seen', async () => {
+    restEveryone();
+    const [a] = await names('Liar');
+    a.sim = { ...a.sim, equipment: { head: 'helm' }, claim: { bouts: 999, taken: 999, lost: 0 } };
+    expect((await a.save()).status).toBe(200);
+    // The save said 999 taken; the register has minted no settlement for this name at all.
+    expect((await a.stored()).sim.stats).toMatchObject({ bouts: 0, taken: 0, lost: 0 });
   });
 });

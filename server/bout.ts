@@ -452,6 +452,24 @@ export class Ring {
     return { settle, settledThrough, owed: led.owed };
   }
 
+  /**
+   * How many bouts this name has been in, taken and lost, counted off the register's own
+   * settlements rather than read out of the save. Every settlement is minted here, so this is
+   * the one account of a name's record that a save cannot write for itself — which is what the
+   * ring board has to rank on, the same way the boards rank a standing the register computes.
+   */
+  tally(userId: number): { bouts: number; taken: number; lost: number } {
+    const row = this.db
+      .prepare(
+        `SELECT COUNT(*) AS bouts,
+                COALESCE(SUM(won), 0) AS taken,
+                COALESCE(SUM(1 - won), 0) AS lost
+         FROM bout_settlements WHERE user_id = ?`,
+      )
+      .get(userId) as { bouts: number; taken: number; lost: number };
+    return { bouts: Number(row.bouts), taken: Number(row.taken), lost: Number(row.lost) };
+  }
+
   /** The balance after a save has paid what it could; the register's number, not the save's. */
   setOwed(userId: number, owed: number): void {
     const led = this.ledger(userId);

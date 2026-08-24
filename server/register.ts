@@ -239,6 +239,11 @@ export class Register {
       const settled = applyBoutSync(sim, answered, this.ctx);
       this.ring.setOwed(userId, settled.bouts.owed);
       const bouts = { ...answered, owed: settled.bouts.owed };
+      // What the ring has actually seen this name do, counted off its own settlements. The
+      // sim keeps these counters too, so a screen moves the moment an answer lands, but the
+      // ring board ranks them and a save can write its own — so the register's count is
+      // stamped over the save's, the way the account's name and the hall's rooms are.
+      const fought = this.ring.tally(userId);
       const paid = wheel.paid.reduce((n, p) => n + p.coins, 0);
       const paidThrough = wheel.paid.reduce((n, p) => Math.max(n, p.seq), served);
       const record: SaveRecord = {
@@ -247,6 +252,7 @@ export class Register {
         sim: {
           ...settled,
           coins: settled.coins + paid,
+          stats: { ...settled.stats, ...fought },
           player: { ...sim.player, name: user.name },
           hall: { ...sim.hall, id: hall.id, rooms: hall.rooms, given: hall.given },
           wheel: {

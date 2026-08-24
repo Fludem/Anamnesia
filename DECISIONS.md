@@ -1759,9 +1759,24 @@ content gives a best-case xp per tick — and it is the re-simulation phase in m
 this phase does instead is keep every bout's resolved stat blocks on its row, so an impossible
 fighter stays findable and a bout stays reversible long after the save that fielded it moved on.
 
+### The board ranks what the register saw, not what the save says
+
+`standingsOf` scores the ring on bouts taken and bouts fought, and those counters live in the
+save like every other counter — which would have put a forged save straight onto a board with
+no fight behind it. The register mints every settlement, so it already holds the only honest
+account of a name's record: `Ring.tally` counts it off `bout_settlements`, and `writeSave`
+stamps it over the save's own before the standings are computed, exactly as the account's name
+and the hall's rooms are stamped. The sim keeps its counters too, so a screen moves the moment
+an answer lands; they are simply not what anything ranks.
+
+The same is true of `stats.kills`, `stats.items` and `sold`, which nothing ranks today and
+which the register has no independent account of. Those stay the save's word.
+
 ### Flagged
 
-- The inputs are still trusted (above). Re-simulating saves server-side remains the one fix.
+- Gear provenance is still the save's word. The ceiling (below) bounds how fast a name can
+  have got anywhere, which is most of the hole; it does not check that a particular sword was
+  ever smithed. Re-simulating saves server-side remains the one complete fix.
 - A name that goes quiet inside the week mints one item: the winner is paid at once, and a
   debt whose owner never plays again is never collected.
 - An answer a tab drops is not re-sent, by choice (above).

@@ -178,9 +178,11 @@ own next save, so a bout never makes anyone's open tab go stale; a debt whose it
 sold costs twice its worth in coin and is carried, never forgiven. A new highscores board ranks
 the ring. Save v15 adds it.
 
-**A note on trust, honestly.** The register decides every fight, so no client can claim a win —
-but it still takes the save's word for the levels and gear it fields, exactly as the boards and
-the hall do. Because levels clamp at 99 and gear stats are content ids, the strongest fighter a
+**A note on trust, honestly.** The register decides every fight, so no client can claim a win,
+and it counts a name's record off its own settlements rather than off the save, so the ring's
+board cannot be written to directly. What it still takes on the save's word is the gear a
+fighter fields — though since the ceiling landed (`src/sim/ceiling.ts`), a save can no longer
+claim to have got there faster than the clock allows. Because levels clamp at 99 and gear stats are content ids, the strongest fighter a
 forged save can present is one a legitimate save can also field; a cheat can reach the top of
 the ring early, but cannot invent a fighter nothing can beat. Re-simulating saves server-side
 is still the fix for all of it, and still a phase of its own. Play among friends.
