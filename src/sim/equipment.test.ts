@@ -143,7 +143,7 @@ describe('marks', () => {
 });
 
 describe('finds', () => {
-  /** The fixture with mining finding a cape every cycle, and combat claiming to. */
+  /** The fixture with mining finding a cape every cycle, and combat one per kill. */
   const pack = {
     ...FIXTURE_PACK,
     skills: FIXTURE_PACK.skills.map((sk) =>
@@ -171,7 +171,7 @@ describe('finds', () => {
     expect(found.length).toBe(gains);
   });
 
-  it('a full bank finds nothing and spends no rng; a fight never rolls', () => {
+  it('a full bank finds nothing and spends no rng; a fight rolls per kill, not per swing', () => {
     const junk = Array.from({ length: 30 }, (_, i) => ({ item: `junk-${String(i)}`, qty: 1 }));
     const fullPack = {
       ...pack,
@@ -194,7 +194,10 @@ describe('finds', () => {
     expect(a.rng).toEqual(b.rng);
     expect(a.bank).toEqual(b.bank);
     const fought = run(fightingState(7, 'goat', { weapon: 'sword' }), 120, finding);
-    expect(eventsOfType(fought, 'kill').length).toBeGreaterThan(0);
-    expect(eventsOfType(fought, 'found')).toEqual([]);
+    const kills = eventsOfType(fought, 'kill');
+    expect(kills.length).toBeGreaterThan(0);
+    const found = eventsOfType(fought, 'found');
+    expect(found.length).toBe(kills.length);
+    expect(found.every((f) => f.skill === 'combat')).toBe(true);
   });
 });

@@ -3,6 +3,7 @@
  * no clock; the numbers the screens draw are computed here so tests can pin them.
  */
 import { actionHandler } from '../sim/actions.ts';
+import { ambushWinChance, pickAmbusher } from '../sim/ambush.ts';
 import {
   BODY_SLOTS,
   FAVOUR_EVERY_TICKS,
@@ -203,6 +204,55 @@ export function recentOffering(sim: SimState, withinTicks: number): SimEventOf<'
   const all = eventsOfType(sim, 'offered');
   const last = all[all.length - 1];
   return last !== undefined && sim.tick - last.tick < withinTicks ? last : null;
+}
+
+// ---- the open road ------------------------------------------------------------------------
+
+export interface RoadView {
+  open: boolean;
+  /** The figure the road would send today, or null before any zone has one. */
+  ambusher: MonsterDef | null;
+  /** The chance of fending it off, as the hero stands right now. */
+  winChance: number | null;
+  /** Fought off and driven off, lifetime. */
+  ambushes: number;
+  routed: number;
+}
+
+/** The road card's numbers. Never exposes when the next ambush falls. */
+export function roadView(sim: SimState, ctx: SimContext): RoadView {
+  const ambusher = pickAmbusher(sim, ctx);
+  return {
+    open: sim.combat.road.open,
+    ambusher,
+    winChance: ambusher === null ? null : ambushWinChance(sim, ambusher, ctx),
+    ambushes: sim.stats.ambushes,
+    routed: sim.stats.routed,
+  };
+}
+
+/** The most recent ambush within `withinTicks`, for the banner. */
+export function recentAmbush(sim: SimState, withinTicks: number): SimEventOf<'ambush'> | null {
+  const all = eventsOfType(sim, 'ambush');
+  const last = all[all.length - 1];
+  return last !== undefined && sim.tick - last.tick < withinTicks ? last : null;
+}
+
+/** The newest combat find (the wreath) within `withinTicks`, for the same toast as rare kills. */
+export function recentCombatFind(
+  sim: SimState,
+  content: ContentDb,
+  withinTicks: number,
+): { item: ItemDef; tick: number } | null {
+  const finds = eventsOfType(sim, 'found');
+  for (let i = finds.length - 1; i >= 0; i--) {
+    const f = finds[i]!;
+    if (sim.tick - f.tick >= withinTicks) return null;
+    if (f.skill !== 'combat') continue;
+    const first = f.items[0];
+    if (first !== undefined) return { item: content.item(first.item), tick: f.tick };
+  }
+  return null;
 }
 
 // ---- zones --------------------------------------------------------------------------------

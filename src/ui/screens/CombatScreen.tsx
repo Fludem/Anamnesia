@@ -5,6 +5,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { content, simContext } from '../../content/index.ts';
+import { ROAD_COIN_BONUS } from '../../sim/ambush.ts';
 import { STYLE_SKILL, heroStats } from '../../sim/combat.ts';
 import type { CombatBoon, CombatStyle, MonsterDef } from '../../sim/content/schema.ts';
 import type { SimState, Splat } from '../../sim/save.ts';
@@ -20,8 +21,10 @@ import {
   killLog,
   lastDeath,
   offeringOptions,
+  recentCombatFind,
   recentOffering,
   recentRareKill,
+  roadView,
   totalKills,
   zoneRows,
   type AmmoView,
@@ -83,6 +86,7 @@ export function CombatScreen({ sim, dispatch, juice }: ScreenProps) {
           <FoodRow sim={sim} dispatch={dispatch} maxHp={hero.maxHp} />
           <FavourRow sim={sim} dispatch={dispatch} juice={juice} />
           <FerrymanRow sim={sim} dispatch={dispatch} />
+          <RoadRow sim={sim} dispatch={dispatch} />
           <Zones sim={sim} dispatch={dispatch} />
         </div>
         <KillLog sim={sim} juice={juice} />
@@ -557,6 +561,47 @@ function FerrymanRow({ sim, dispatch }: { sim: SimState; dispatch: ScreenProps['
   );
 }
 
+/** The open road: opt in to ambushes for the coin bonus and what the road-figures carry. */
+function RoadRow({ sim, dispatch }: { sim: SimState; dispatch: ScreenProps['dispatch'] }) {
+  const rv = roadView(sim, simContext);
+  const tried = rv.ambushes + rv.routed;
+  return (
+    <div className="card food-row">
+      <Label>The road</Label>
+      <TileBox size="md" dim={!rv.open}>
+        <UiIcon id={rv.ambusher?.icon ?? 'lorc/crossed-swords'} size={18} />
+      </TileBox>
+      <div style={{ minWidth: 0 }}>
+        <div className="name">{rv.open ? 'The Open Road' : 'The Road Is Barred'}</div>
+        <div className="sub">
+          {rv.open
+            ? `kills pay +${String(Math.round(ROAD_COIN_BONUS * 100))}% gp` +
+              (rv.ambusher !== null
+                ? ` · the ${rv.ambusher.name} walks it · you fend it off ${String(Math.round((rv.winChance ?? 0) * 100))}% of the time`
+                : '')
+            : 'Nothing on the road but the road. Walk it open and things will try you for what you carry. They carry more.'}
+          {tried > 0
+            ? ` · fought off ${formatInt(rv.ambushes)}${rv.routed > 0 ? `, driven off ${formatInt(rv.routed)}` : ''}`
+            : ''}
+        </div>
+      </div>
+      <span className="spacer" />
+      <button
+        className="btn sm"
+        style={{ padding: '6px 12px' }}
+        title={
+          rv.open
+            ? 'bar the road: no ambushes, no bonus'
+            : 'walk it open: ambushes mid-work, against what you are wearing'
+        }
+        onClick={() => dispatch({ type: 'combat:road', open: !rv.open })}
+      >
+        {rv.open ? 'Bar the road' : 'Open the road'}
+      </button>
+    </div>
+  );
+}
+
 function Zones({ sim, dispatch }: { sim: SimState; dispatch: ScreenProps['dispatch'] }) {
   const rows = zoneRows(sim, simContext);
   const style = heroStats(sim, simContext).style;
@@ -653,7 +698,9 @@ function Zones({ sim, dispatch }: { sim: SimState; dispatch: ScreenProps['dispat
 function KillLog({ sim, juice }: { sim: SimState; juice: Juice }) {
   const rows = killLog(sim, content, 12);
   const kills = totalKills(sim);
-  const toast = juice === 'juicy' ? recentRareKill(sim, content, RARE_TOAST_TICKS) : null;
+  const rare = juice === 'juicy' ? recentRareKill(sim, content, RARE_TOAST_TICKS) : null;
+  const wreath = juice === 'juicy' ? recentCombatFind(sim, content, RARE_TOAST_TICKS) : null;
+  const toast = wreath !== null && (rare === null || wreath.tick > rare.tick) ? wreath : rare;
   const kinds = Object.keys(sim.stats.kills).length;
   const session = useNow(1000) - SESSION_START;
   return (

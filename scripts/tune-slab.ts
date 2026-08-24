@@ -6,6 +6,7 @@
  * Run: `npx tsx scripts/tune-slab.ts`
  */
 import { simContext as ctx } from '../src/content/index.ts';
+import type { SizeBand } from '../src/sim/content/schema.ts';
 import { coinsPerHour } from '../src/sim/progression.ts';
 import {
   bandCeiling,
@@ -24,7 +25,7 @@ const kg = (g: number) => (g >= 1000 ? `${(g / 1000).toFixed(2)}kg` : `${String(
 
 /** Chance one catch at `level` beats `grams`, on the curve. */
 const chanceOver = (
-  band: { min: number; max: number },
+  band: SizeBand,
   level: number,
   nodeLevel: number,
   grams: number,

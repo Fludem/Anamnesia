@@ -723,6 +723,23 @@
   color: var(--gold);
 }
 
+.toast.ambush {
+  background: rgba(var(--accent-rgb), 0.07);
+  border-color: rgba(var(--accent-rgb), 0.4);
+}
+.toast.ambush .kind,
+.toast.ambush .icon {
+  color: var(--accent);
+}
+.toast.ambush.lost {
+  background: rgba(var(--hurt-rgb), 0.07);
+  border-color: rgba(var(--hurt-rgb), 0.45);
+}
+.toast.ambush.lost .kind,
+.toast.ambush.lost .icon {
+  color: var(--hurt);
+}
+
 .toast.trophy {
   background: rgba(var(--gold-rgb), 0.09);
   border-color: rgba(var(--gold-rgb), 0.45);

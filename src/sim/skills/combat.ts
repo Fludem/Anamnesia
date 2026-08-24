@@ -1,6 +1,8 @@
 import type { ActionHandler } from '../actions.ts';
+import { ROAD_COIN_BONUS } from '../ambush.ts';
 import { roomFor } from '../bank.ts';
 import {
+  COMBAT_SKILL,
   FAVOUR_EVERY_TICKS,
   HITPOINTS_SKILL,
   HITPOINTS_XP_SHARE,
@@ -19,6 +21,7 @@ import type { SimContext } from '../context.ts';
 import { rollDropTable } from '../drops.ts';
 import { LOSABLE_SLOTS } from '../equipment.ts';
 import { pushEvent } from '../events.ts';
+import { rollFinds } from '../finds.ts';
 import { hallFerrymanDiscount, hallHealBonus } from '../hall.ts';
 import { addStacks, countItem, removeItem, type ItemStack } from '../items.ts';
 import { awardXp, recordItems, xpAwarded } from '../perks.ts';
@@ -297,6 +300,8 @@ function kill(state: SimState, m: MonsterDef, skill: string, ctx: SimContext): S
   }
   let coins = 0;
   if (m.coins[1] > 0) [coins, rng] = nextInt(rng, m.coins[0], m.coins[1]);
+  // The open road's standing reward: a quarter more coin off every kill. No extra draw.
+  if (state.combat.road.open) coins = Math.round(coins * (1 + ROAD_COIN_BONUS));
   let s: SimState = {
     ...state,
     rng,
@@ -314,6 +319,9 @@ function kill(state: SimState, m: MonsterDef, skill: string, ctx: SimContext): S
     items: landed,
     coins,
   });
+  // Combat's finds roll per kill, not per swing — always on the Combat table, whatever the
+  // style: the wreath is the fighter's chase, not the bench's, and the odds live per kill.
+  s = rollFinds(s, COMBAT_SKILL, ctx);
   // The next one steps up; the last numbers stay so the bars can finish popping them.
   return { ...s, combat: { ...s.combat, fight: freshFight(m, s.tick, s.combat.fight!.splats) } };
 }

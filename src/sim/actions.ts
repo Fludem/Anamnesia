@@ -135,7 +135,7 @@ export function tickAction(state: SimState, ctx: SimContext): SimState {
   }
   const skill = skillOfRequest(cur.request, s, ctx);
   let after = handler.resolve(s, req, success, ctx);
-  // A fight's cycle is one swing; the hill leaves nothing for a swing.
+  // A fight's cycle is one swing; combat's finds roll per kill instead, inside kill().
   if (success && cur.request.kind !== 'combat') after = rollFinds(after, skill, ctx);
   s = logLevelUps(s, after, ctx);
   s = countAction(s, skill);

@@ -117,7 +117,16 @@
   {
     "id": "combat",
     "name": "Combat",
-    "icon": "lorc/crossed-swords"
+    "icon": "lorc/crossed-swords",
+    "finds": {
+      "nothingWeight": 399,
+      "entries": [
+        {
+          "item": "wreath-of-the-hill",
+          "weight": 1
+        }
+      ]
+    }
   },
   {
     "id": "hitpoints",

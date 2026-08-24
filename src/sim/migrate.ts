@@ -159,6 +159,18 @@ export const MIGRATIONS: MigrationTable = {
     const sim = asObject(raw['sim']);
     return { ...raw, sim: { ...sim, records: { fish: {}, trophies: [] } } };
   },
+  /** v13 → v14 (Phase 18): the road barred, nothing tried, no one driven off. */
+  13: (raw) => {
+    const sim = asObject(raw['sim']);
+    return {
+      ...raw,
+      sim: {
+        ...sim,
+        stats: { ambushes: 0, routed: 0, ...asObject(sim['stats']) },
+        combat: { road: { open: false, ambushAt: null }, ...asObject(sim['combat']) },
+      },
+    };
+  },
 };
 
 function asObject(v: unknown): Record<string, unknown> {

@@ -67,6 +67,8 @@ function eventKnown(e: SimEvent, content: ContentDb): boolean {
       return content.hasItem(e.item) && items(e.items);
     case 'kill':
       return content.hasMonster(e.monster) && items(e.items);
+    case 'ambush':
+      return content.hasAmbusher(e.ambusher) && items(e.items);
     case 'died':
       return (
         content.hasMonster(e.monster) &&

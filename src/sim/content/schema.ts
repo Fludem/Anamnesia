@@ -513,6 +513,12 @@ export const ContentPackSchema = z.object({
   gods: contentList(GodDefSchema).default([]),
   zones: contentList(ZoneDefSchema).default([]),
   monsters: contentList(MonsterDefSchema).default([]),
+  /**
+   * Road-figures for the open road: monsters in shape, but kept apart so they never appear
+   * in a zone's roster, the tune script leaves them alone, and the zone-band audits skip them.
+   * `zone` gates when one starts turning up (its zone's level vs the hero's style skill).
+   */
+  ambushers: contentList(MonsterDefSchema).default([]),
   /** What the trader sells. */
   wares: contentList(WareDefSchema).default([]),
   /** The hall's rooms, raised by a clan's gifts. */

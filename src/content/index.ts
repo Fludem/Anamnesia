@@ -6,6 +6,7 @@
 import { ContentDb } from '../sim/content/db.ts';
 import type { SimContext } from '../sim/context.ts';
 import { DEFAULT_XP_CURVE } from '../sim/xp.ts';
+import ambushers from './ambushers.json' with { type: 'json' };
 import tables from './drop-tables.json' with { type: 'json' };
 import gods from './gods.json' with { type: 'json' };
 import halls from './halls.json' with { type: 'json' };
@@ -35,6 +36,7 @@ export const content: ContentDb = ContentDb.fromPack({
   recipes,
   zones,
   monsters,
+  ambushers,
   gods,
   wares: trader,
   rooms: halls,

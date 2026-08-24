@@ -2928,5 +2928,236 @@
     },
     "value": 40000,
     "tags": ["armour", "smithing", "trophy"]
+  },
+  {
+    "id": "goat-horn-idol",
+    "name": "Goat-Horn Idol",
+    "description": "Carved where the horn curls. Somebody up here worships goats, or worshipped.",
+    "icon": "lorc/totem-head",
+    "class": "misc",
+    "material": "oak",
+    "rarity": "rare",
+    "value": 350,
+    "tags": ["spoils", "drop", "trophy"]
+  },
+  {
+    "id": "footworn-ring",
+    "name": "Footworn Ring",
+    "description": "Worn smooth by a thumb that worried at it all the way up.",
+    "icon": "delapouite/ring",
+    "class": "armour",
+    "material": "copper",
+    "rarity": "rare",
+    "slot": "ring",
+    "stats": {
+      "attack": 1,
+      "defence": 1
+    },
+    "value": 500,
+    "tags": ["jewellery", "spoils", "drop"]
+  },
+  {
+    "id": "wolf-fang-charm",
+    "name": "Wolf Fang Charm",
+    "description": "Strung to keep wolves off. Its last owner would ask for it back, but.",
+    "icon": "skoll/fangs",
+    "class": "misc",
+    "material": "iron",
+    "rarity": "rare",
+    "value": 550,
+    "tags": ["spoils", "drop", "trophy"]
+  },
+  {
+    "id": "owl-feather-amulet",
+    "name": "Owl-Feather Amulet",
+    "description": "The owl sees everything coming. The feather does its best.",
+    "icon": "delapouite/feather-necklace",
+    "class": "armour",
+    "material": "birch",
+    "rarity": "rare",
+    "slot": "amulet",
+    "stats": {
+      "attack": 2,
+      "defence": 1
+    },
+    "value": 800,
+    "tags": ["jewellery", "spoils", "drop"]
+  },
+  {
+    "id": "quarry-idol",
+    "name": "Quarry Idol",
+    "description": "Cut in the old style, from stone the quarry no longer gives.",
+    "icon": "delapouite/totem",
+    "class": "misc",
+    "material": "basalt",
+    "rarity": "epic",
+    "value": 1400,
+    "tags": ["spoils", "drop", "trophy"]
+  },
+  {
+    "id": "masons-gauntlets",
+    "name": "Mason's Gauntlets",
+    "description": "Marble dust in the seams. The hands that filled them cut half the summit.",
+    "icon": "delapouite/gauntlet",
+    "class": "armour",
+    "material": "marble",
+    "rarity": "epic",
+    "slot": "hands",
+    "stats": {
+      "defence": 4,
+      "strength": 2
+    },
+    "value": 2600,
+    "tags": ["armour", "spoils", "drop"]
+  },
+  {
+    "id": "drowned-lantern",
+    "name": "Drowned Lantern",
+    "description": "Still lit. Do not ask what it burns.",
+    "icon": "delapouite/old-lantern",
+    "class": "misc",
+    "material": "silver",
+    "rarity": "epic",
+    "value": 2400,
+    "tags": ["spoils", "drop", "trophy"]
+  },
+  {
+    "id": "hound-hide-boots",
+    "name": "Hound-Hide Boots",
+    "description": "The hound did not need them. You do.",
+    "icon": "lorc/boots",
+    "class": "armour",
+    "material": "marble",
+    "rarity": "epic",
+    "slot": "feet",
+    "stats": {
+      "defence": 5,
+      "strength": 1
+    },
+    "value": 3000,
+    "tags": ["armour", "spoils", "drop"]
+  },
+  {
+    "id": "summit-votive",
+    "name": "Summit Votive",
+    "description": "Carried up to be left at the top. It never got there. Now that is your problem.",
+    "icon": "delapouite/amphora",
+    "class": "misc",
+    "material": "gold",
+    "rarity": "epic",
+    "value": 3200,
+    "tags": ["spoils", "drop", "trophy"]
+  },
+  {
+    "id": "pilgrims-circlet",
+    "name": "Pilgrim's Circlet",
+    "description": "Thin silver, dented once. Whoever wore it made it further than most.",
+    "icon": "delapouite/tiara",
+    "class": "armour",
+    "material": "silver",
+    "rarity": "epic",
+    "slot": "head",
+    "stats": {
+      "defence": 6,
+      "attack": 2
+    },
+    "value": 4200,
+    "tags": ["armour", "spoils", "drop"]
+  },
+  {
+    "id": "wreath-of-the-hill",
+    "name": "Wreath of the Hill",
+    "description": "Laurel and thorn in equal parts, worn across the shoulders. The hill remembers who walked it.",
+    "icon": "lorc/laurels",
+    "class": "armour",
+    "material": "gold",
+    "rarity": "epic",
+    "slot": "cape",
+    "stats": {
+      "defence": 2
+    },
+    "xpBoost": {
+      "skill": null,
+      "fraction": 0.03
+    },
+    "value": 5000,
+    "tags": ["cape", "find", "drop", "armour"]
+  },
+  {
+    "id": "footpads-hood",
+    "name": "Footpad's Hood",
+    "description": "Deep enough to hide a face and whatever the face was planning.",
+    "icon": "lorc/hood",
+    "class": "armour",
+    "material": "oak",
+    "rarity": "rare",
+    "slot": "head",
+    "stats": {
+      "defence": 2,
+      "attack": 1
+    },
+    "value": 600,
+    "tags": ["armour", "road", "drop"]
+  },
+  {
+    "id": "path-wolf-pelt",
+    "name": "Path-Wolf Pelt",
+    "description": "Greyer than the blight ever made one. This wolf chose the road.",
+    "icon": "delapouite/animal-hide",
+    "class": "misc",
+    "material": "pine",
+    "rarity": "rare",
+    "value": 900,
+    "tags": ["road", "drop", "trophy"]
+  },
+  {
+    "id": "bandits-knife",
+    "name": "Bandit's Knife",
+    "description": "Balanced for throwing, used for everything else.",
+    "icon": "lorc/bowie-knife",
+    "class": "weapon",
+    "material": "silver",
+    "rarity": "epic",
+    "slot": "weapon",
+    "stats": {
+      "attack": 18,
+      "strength": 7,
+      "speed": -4
+    },
+    "value": 2200,
+    "tags": ["weapon", "road", "drop"]
+  },
+  {
+    "id": "prowlers-shroud",
+    "name": "Prowler's Shroud",
+    "description": "Cut to move without a sound. On you it manages a whisper.",
+    "icon": "lucasms/cloak",
+    "class": "armour",
+    "material": "blight",
+    "rarity": "epic",
+    "slot": "body",
+    "stats": {
+      "defence": 12,
+      "attack": 3
+    },
+    "value": 9000,
+    "tags": ["armour", "road", "drop"]
+  },
+  {
+    "id": "toll-takers-mask",
+    "name": "The Toll-Taker's Mask",
+    "description": "He took tolls in it for a hundred years. Nobody ever saw the face, and now nobody will.",
+    "icon": "delapouite/ceremonial-mask",
+    "class": "armour",
+    "material": "gold",
+    "rarity": "legendary",
+    "slot": "head",
+    "stats": {
+      "defence": 9,
+      "attack": 5,
+      "strength": 3
+    },
+    "value": 12000,
+    "tags": ["legendary", "armour", "road", "drop"]
   }
 ]

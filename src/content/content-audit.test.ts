@@ -26,7 +26,7 @@ function obtainable(): Set<string> {
   for (const sk of content.skills) if (sk.finds) tableItems(sk.finds).forEach((i) => out.add(i));
   for (const r of content.recipes)
     for (const o of [...r.outputs, ...r.failOutputs]) out.add(o.item);
-  for (const m of content.monsters) {
+  for (const m of [...content.monsters, ...content.ambushers]) {
     for (const t of m.drops) tableItems(t).forEach((i) => out.add(i));
     for (const a of m.always) out.add(a.item);
   }
@@ -81,6 +81,7 @@ describe('shipped content', () => {
       ...content.patches,
       ...content.zones,
       ...content.monsters,
+      ...content.ambushers,
       ...content.gods,
       ...content.wares,
       ...content.rooms,
@@ -330,7 +331,15 @@ describe('shipped content', () => {
       // One in two thousand cycles: an hour or two of work at the standard nodes.
       expect(sk.finds!.nothingWeight / sk.finds!.entries[0]!.weight).toBe(1999);
     }
-    expect(content.skill('combat').finds).toBeNull();
+    // Combat's find is the wreath: rolled per kill, a chase for every trade at once.
+    const combatFinds = content.skill('combat').finds!;
+    expect(combatFinds).not.toBeNull();
+    const wreath = content.item(combatFinds.entries[0]!.item);
+    expect(combatFinds.entries.length).toBe(1);
+    expect(wreath.slot).toBe('cape');
+    expect(wreath.xpBoost).toEqual({ skill: null, fraction: 0.03 });
+    // One in four hundred kills: kills are slower than cycles, so the chase stays hours-long.
+    expect(combatFinds.nothingWeight / combatFinds.entries[0]!.weight).toBe(399);
     const beastCapes = content.monsters.filter((m) =>
       m.drops.some((t) => t.entries.some((e) => content.item(e.item).slot === 'cape')),
     );
@@ -360,6 +369,40 @@ describe('shipped content', () => {
     }
   });
 
+  it('every monster rolls its zone spoils on top of its own haul', () => {
+    const spoils = new Set(content.items.filter((i) => i.tags.includes('spoils')).map((i) => i.id));
+    expect(spoils.size).toBeGreaterThanOrEqual(10);
+    for (const m of content.monsters) {
+      const rolls = m.drops.some((t) => t.entries.some((e) => spoils.has(e.item)));
+      expect(rolls, `${m.id} leaves no spoils`).toBe(true);
+    }
+  });
+
+  it('the road has one figure per zone, in its band, carrying more than it should', () => {
+    const zones = content.zones;
+    expect(content.ambushers.length).toBe(zones.length);
+    expect(new Set(content.ambushers.map((a) => a.zone)).size).toBe(zones.length);
+    for (const a of content.ambushers) {
+      const zi = zones.findIndex((z) => z.id === a.zone);
+      const zone = zones[zi]!;
+      const next = zones[zi + 1];
+      expect(a.level, a.id).toBeGreaterThanOrEqual(zone.level);
+      if (next) expect(a.level, a.id).toBeLessThan(next.level);
+      // They carry what they have taken: well past any honest monster of the zone.
+      const honest = Math.max(...content.monstersIn(a.zone).map((m) => m.coins[1]));
+      expect(a.coins[1], a.id).toBeGreaterThanOrEqual(honest * 5);
+      // The first table is the unique: one in forty wins, and nothing else drops it.
+      const unique = a.drops[0]!;
+      expect(unique.entries.length, a.id).toBe(1);
+      expect(unique.nothingWeight / unique.entries[0]!.weight, a.id).toBe(39);
+      const item = unique.entries[0]!.item;
+      const elsewhere = [...content.monsters, ...content.ambushers.filter((x) => x !== a)].some(
+        (m) => m.drops.some((t) => t.entries.some((e) => e.item === item)),
+      );
+      expect(elsewhere, item).toBe(false);
+    }
+  });
+
   it('names are Title Case and unique; every description is one dry line', () => {
     const named = [
       ...content.items,
@@ -368,6 +411,7 @@ describe('shipped content', () => {
       ...content.recipes,
       ...content.zones,
       ...content.monsters,
+      ...content.ambushers,
       ...content.wares,
       ...content.rooms,
     ];
@@ -382,10 +426,9 @@ describe('shipped content', () => {
     const names = content.items.map((i) => i.name);
     expect(new Set(names).size).toBe(names.length);
     const lines: [string, string][] = [
-      ...[...content.items, ...content.zones, ...content.monsters].map((x): [string, string] => [
-        x.id,
-        x.description,
-      ]),
+      ...[...content.items, ...content.zones, ...content.monsters, ...content.ambushers].map(
+        (x): [string, string] => [x.id, x.description],
+      ),
       ...content.wares.map((w): [string, string] => [w.id, w.line]),
       ...content.rooms.map((r): [string, string] => [r.id, r.line]),
     ];

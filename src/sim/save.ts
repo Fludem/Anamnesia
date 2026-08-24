@@ -9,7 +9,7 @@ import { ContainerSchema } from './items.ts';
 import { seedRng } from './rng.ts';
 import { EQUIPMENT_SLOTS, EquipmentSlotSchema } from './slots.ts';
 
-export const CURRENT_SAVE_VERSION = 13;
+export const CURRENT_SAVE_VERSION = 14;
 
 const Uint32 = z.number().int().min(0).max(0xffffffff);
 
@@ -57,6 +57,14 @@ export const CombatStateSchema = z.object({
   favour: z.number().int().min(0),
   /** Pay the ferryman on death (twice the lost item's worth) rather than lose the item. */
   ferryman: z.boolean().default(true),
+  /**
+   * The open road: walk it open and ambushers try the hero mid-work — carrying more than
+   * they should. Barred (the default) draws nothing, ever. `ambushAt` is the tick the next
+   * ambush falls on, or null while the road is barred.
+   */
+  road: z
+    .object({ open: z.boolean(), ambushAt: z.number().int().min(0).nullable() })
+    .default({ open: false, ambushAt: null }),
   fight: FightSchema.nullable(),
 });
 export type CombatState = z.infer<typeof CombatStateSchema>;
@@ -116,6 +124,9 @@ export const SimStateSchema = z.object({
     /** Coins ever staked on the wheel, and coins it ever sent home. */
     boughtIn: z.number().int().min(0).default(0),
     cashedOut: z.number().int().min(0).default(0),
+    /** Ambushers fought off on the open road, and times one drove the hero off. */
+    ambushes: z.number().int().min(0).default(0),
+    routed: z.number().int().min(0).default(0),
   }),
   /** Times each of the trader's wares was bought, keyed by ware id. */
   upgrades: z.record(IdSchema, z.number().int().min(0)).default({}),
@@ -188,6 +199,8 @@ export function createSimState(seed: number): SimState {
       given: 0,
       boughtIn: 0,
       cashedOut: 0,
+      ambushes: 0,
+      routed: 0,
     },
     upgrades: {},
     hall: { id: null, rooms: {}, gifts: [], given: 0 },
@@ -201,6 +214,7 @@ export function createSimState(seed: number): SimState {
       offering: null,
       favour: 0,
       ferryman: true,
+      road: { open: false, ambushAt: null },
       fight: null,
     },
   };

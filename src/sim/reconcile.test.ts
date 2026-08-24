@@ -1,8 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { beginAction } from './actions.ts';
+import { ContentDb } from './content/db.ts';
 import { reconcileWithContent, requestKnown } from './reconcile.ts';
 import { createSimState, type SimState } from './save.ts';
-import { fixtureContent as content, fixtureContext as ctx } from './testing/fixture.ts';
+import {
+  FIXTURE_PACK,
+  fixtureContent as content,
+  fixtureContext as ctx,
+} from './testing/fixture.ts';
 
 /** A save from a build whose content had things this one does not. */
 function stale(): SimState {
@@ -57,6 +62,15 @@ function stale(): SimState {
       },
       { type: 'kill', tick: 3, monster: 'dragon', xp: 1, items: [], coins: 0 },
       { type: 'tutorial', tick: 4, step: 'anything', reward: 0 },
+      {
+        type: 'ambush',
+        tick: 5,
+        ambusher: 'gone-lurker',
+        won: true,
+        items: [],
+        coins: 3,
+        stolen: 0,
+      },
     ],
   };
 }
@@ -93,7 +107,7 @@ describe('reconciling a save with the content', () => {
       'queue: unknown woodcutting target "gone-tree"',
       'worn axe: unknown item "bronze-hatchet"',
       'skills: unknown skill "alchemy"',
-      'log: 2 entries naming things that are gone',
+      'log: 3 entries naming things that are gone',
       'inventory: 1 × unknown item "old-potion"',
       'bank: 7 × unknown item "coal"',
       'offering: unknown item "lost-votive"',
@@ -101,6 +115,35 @@ describe('reconciling a save with the content', () => {
       'hall: unknown room "gone-room"',
       'hall: gift of 2 × unknown item "old-potion"',
     ]);
+  });
+
+  it('an ambush event stays while its ambusher is still on the road', () => {
+    const withRoad = ContentDb.fromPack({
+      ...FIXTURE_PACK,
+      ambushers: [
+        {
+          id: 'lurker',
+          name: 'Lurker',
+          icon: 'lorc/hood',
+          zone: 'slope',
+          level: 2,
+          hp: 6,
+          stats: { attack: 1, strength: 1, defence: 0, speed: 10 },
+          weak: 'melee',
+          xp: 1,
+        },
+      ],
+    });
+    const s = createSimState(1);
+    const kept: SimState = {
+      ...s,
+      log: [
+        { type: 'ambush', tick: 1, ambusher: 'lurker', won: false, items: [], coins: 0, stolen: 2 },
+      ],
+    };
+    const r = reconcileWithContent(kept, withRoad);
+    expect(r.sim.log).toHaveLength(1);
+    expect(r.dropped).toEqual([]);
   });
 
   it('a fight with a monster that is gone ends', () => {

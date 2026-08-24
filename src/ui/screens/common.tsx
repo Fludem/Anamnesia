@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { content, simContext } from '../../content/index.ts';
 import { godOf, xpMultiplier } from '../../sim/perks.ts';
 import type { SimState } from '../../sim/save.ts';
+import { recentAmbush } from '../derive-combat.ts';
 import {
   activeView,
   dropFeed,
@@ -206,6 +207,8 @@ const RARE_TOAST_MIN_RANK = 2; // epic and up
 const RARE_TOAST_TICKS = 26;
 /** A trophy is rarer than an epic and worth dwelling on: the toast holds twice as long. */
 const TROPHY_TOAST_TICKS = 52;
+/** An ambush interrupted the work; the banner stays long enough to explain itself. */
+const AMBUSH_TOAST_TICKS = 100;
 
 /** Screen A's right column: the drop feed with its rare-drop toast and session footer. */
 export function DropFeed({ sim, skill, juice }: { sim: SimState; skill: string; juice: Juice }) {
@@ -219,6 +222,7 @@ export function DropFeed({ sim, skill, juice }: { sim: SimState; skill: string; 
         })
       : null;
   const won = juice === 'juicy' ? recentTrophy(sim, TROPHY_TOAST_TICKS) : null;
+  const tried = recentAmbush(sim, AMBUSH_TOAST_TICKS);
   const actions = sim.stats.actions[skill] ?? 0;
   const session = useSessionMs();
   return (
@@ -228,6 +232,17 @@ export function DropFeed({ sim, skill, juice }: { sim: SimState; skill: string; 
         <span className="spacer" />
         <span className="hint">{formatInt(actions)} actions</span>
       </div>
+      {tried && content.hasAmbusher(tried.ambusher) && (
+        <div className={`toast ambush${tried.won ? '' : ' lost'}`}>
+          <UiIcon id={content.ambusher(tried.ambusher).icon} size={16} />
+          <span className="kind">{tried.won ? 'FOUGHT OFF' : 'DRIVEN OFF'}</span>
+          <span className="name">
+            {tried.won
+              ? `${content.ambusher(tried.ambusher).name} tried you on the road · +${formatInt(tried.coins)} gp`
+              : `${content.ambusher(tried.ambusher).name} took the day · −${formatInt(tried.stolen)} gp`}
+          </span>
+        </div>
+      )}
       {won && (
         <div className="toast trophy">
           <UiIcon id={TROPHY_ICON} size={16} />

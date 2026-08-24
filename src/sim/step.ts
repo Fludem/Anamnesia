@@ -1,4 +1,5 @@
 import { tickAction } from './actions.ts';
+import { ambushTick } from './ambush.ts';
 import { REGEN_EVERY_TICKS } from './combat.ts';
 import type { SimContext } from './context.ts';
 import type { SimState } from './save.ts';
@@ -14,7 +15,7 @@ export type StepFn = (state: SimState) => SimState;
  * inside an action, so this stays small as skills are added.
  */
 export function stepTick(state: SimState, ctx: SimContext): SimState {
-  const ticked = tickAction({ ...state, tick: state.tick + 1 }, ctx);
+  const ticked = ambushTick(tickAction({ ...state, tick: state.tick + 1 }, ctx), ctx);
   return tickTutorial(regenTick(ticked, ctx, REGEN_EVERY_TICKS));
 }
 

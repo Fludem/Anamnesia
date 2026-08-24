@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ActionRequestSchema, beginAction, canStartAction, startNextQueued } from './actions.ts';
+import { scheduleAmbush } from './ambush.ts';
 import { bankFull, bankSlotCost, roomFor } from './bank.ts';
 import { IdSchema } from './content/schema.ts';
 import type { SimContext } from './context.ts';
@@ -61,6 +62,8 @@ export const CommandSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('combat:offer') }),
   /** Pay the ferryman on death (twice the lost item's worth) rather than lose the item. */
   z.object({ type: z.literal('combat:ferryman'), pay: z.boolean() }),
+  /** Walk the open road (ambushes come, and pay) or bar it. Barred is the default. */
+  z.object({ type: z.literal('combat:road'), open: z.boolean() }),
   /** Buy one of the trader's wares at its current price. */
   z.object({ type: z.literal('trader:buy'), ware: IdSchema }),
   /** Put a gift on the cart for the hall: `qty` of `item`, or coins when `item` is null. */
@@ -270,6 +273,15 @@ export function applyCommand(state: SimState, cmd: Command, ctx: SimContext): Co
     }
     case 'combat:ferryman':
       return { ok: true, state: { ...state, combat: { ...state.combat, ferryman: cmd.pay } } };
+    case 'combat:road': {
+      if (cmd.open === state.combat.road.open) return { ok: true, state };
+      // Opening draws the first gap; barring clears it, so a barred road never draws again.
+      if (cmd.open) return { ok: true, state: scheduleAmbush(state) };
+      return {
+        ok: true,
+        state: { ...state, combat: { ...state.combat, road: { open: false, ambushAt: null } } },
+      };
+    }
     case 'trader:buy': {
       const bought = buyWare(state, cmd.ware, ctx);
       return bought.ok ? bought : reject(state, bought.reason);

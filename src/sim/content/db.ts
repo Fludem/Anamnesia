@@ -34,6 +34,7 @@ interface ResolvedPack {
   recipes: readonly RecipeDef[];
   zones: readonly ZoneDef[];
   monsters: readonly MonsterDef[];
+  ambushers: readonly MonsterDef[];
   gods: readonly GodDef[];
   wares: readonly WareDef[];
   rooms: readonly RoomDef[];
@@ -71,6 +72,8 @@ export class ContentDb {
   /** Sorted by recommended level ascending. */
   readonly zones: readonly ZoneDef[];
   readonly monsters: readonly MonsterDef[];
+  /** Road-figures of the open road, in authored order (lowest zone first by convention). */
+  readonly ambushers: readonly MonsterDef[];
   /** In authored order — the order Screen D lists them. */
   readonly gods: readonly GodDef[];
   /** The trader's wares, in authored order — the order the screen lists them. */
@@ -89,6 +92,7 @@ export class ContentDb {
   private readonly godById: ReadonlyMap<string, GodDef>;
   private readonly zoneById: ReadonlyMap<string, ZoneDef>;
   private readonly monsterById: ReadonlyMap<string, MonsterDef>;
+  private readonly ambusherById: ReadonlyMap<string, MonsterDef>;
   private readonly wareById: ReadonlyMap<string, WareDef>;
   private readonly roomById: ReadonlyMap<string, RoomDef>;
 
@@ -104,6 +108,7 @@ export class ContentDb {
     this.recipes = pack.recipes;
     this.zones = [...pack.zones].sort((a, b) => a.level - b.level);
     this.monsters = pack.monsters;
+    this.ambushers = pack.ambushers;
     this.gods = pack.gods;
     this.wares = pack.wares;
     this.rooms = pack.rooms;
@@ -119,6 +124,7 @@ export class ContentDb {
     this.godById = new Map(pack.gods.map((g) => [g.id, g]));
     this.zoneById = new Map(pack.zones.map((z) => [z.id, z]));
     this.monsterById = new Map(pack.monsters.map((m) => [m.id, m]));
+    this.ambusherById = new Map(pack.ambushers.map((a) => [a.id, a]));
     this.wareById = new Map(pack.wares.map((w) => [w.id, w]));
     this.roomById = new Map(pack.rooms.map((r) => [r.id, r]));
   }
@@ -225,6 +231,13 @@ export class ContentDb {
       'monster',
       pack.monsters.map((m) => m.id),
     );
+    dupes(
+      'ambusher',
+      pack.ambushers.map((a) => a.id),
+    );
+    const monsterIds = new Set(pack.monsters.map((m) => m.id));
+    for (const a of pack.ambushers)
+      if (monsterIds.has(a.id)) problems.push(`ambusher "${a.id}" shares its id with a monster`);
     for (const [name, table] of tables) checkTable(`table "${name}"`, table);
 
     const skills: SkillDef[] = pack.skills.map((skill) => {
@@ -305,6 +318,13 @@ export class ContentDb {
       checkItemQty(`${owner} always`, m.always);
       return { ...m, drops: resolveAll(owner, m.drops) };
     });
+    const ambushers: MonsterDef[] = pack.ambushers.map((a) => {
+      const owner = `ambusher "${a.id}"`;
+      checkMaterial(owner, a.material);
+      if (!zoneIds.has(a.zone)) problems.push(`${owner}: unknown zone "${a.zone}"`);
+      checkItemQty(`${owner} always`, a.always);
+      return { ...a, drops: resolveAll(owner, a.drops) };
+    });
     const wareIds = new Set(pack.wares.map((w) => w.id));
     dupes(
       'ware',
@@ -355,6 +375,7 @@ export class ContentDb {
       recipes: pack.recipes,
       zones: pack.zones,
       monsters,
+      ambushers,
       gods,
       wares: pack.wares,
       rooms: pack.rooms,
@@ -408,6 +429,12 @@ export class ContentDb {
   }
   hasMonster(id: string): boolean {
     return this.monsterById.has(id);
+  }
+  ambusher(id: string): MonsterDef {
+    return lookup(this.ambusherById, 'ambusher', id);
+  }
+  hasAmbusher(id: string): boolean {
+    return this.ambusherById.has(id);
   }
   hasWater(id: string): boolean {
     return this.waterById.has(id);

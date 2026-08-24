@@ -37,6 +37,9 @@
             "weight": 0.05
           }
         ]
+      },
+      {
+        "$ref": "spoils-slope"
       }
     ],
     "always": [
@@ -74,6 +77,9 @@
             "quantity": [1, 2]
           }
         ]
+      },
+      {
+        "$ref": "spoils-slope"
       }
     ],
     "always": []
@@ -106,6 +112,9 @@
             "quantity": [1, 2]
           }
         ]
+      },
+      {
+        "$ref": "spoils-slope"
       }
     ],
     "always": []
@@ -137,6 +146,9 @@
             "weight": 1
           }
         ]
+      },
+      {
+        "$ref": "spoils-slope"
       }
     ],
     "always": []
@@ -181,6 +193,9 @@
             "quantity": [1, 2]
           }
         ]
+      },
+      {
+        "$ref": "spoils-copse"
       }
     ],
     "always": []
@@ -220,6 +235,9 @@
             "weight": 0.05
           }
         ]
+      },
+      {
+        "$ref": "spoils-copse"
       }
     ],
     "always": []
@@ -255,6 +273,9 @@
             "weight": 1
           }
         ]
+      },
+      {
+        "$ref": "spoils-copse"
       }
     ],
     "always": []
@@ -291,6 +312,9 @@
             "weight": 1
           }
         ]
+      },
+      {
+        "$ref": "spoils-copse"
       }
     ],
     "always": []
@@ -335,6 +359,9 @@
       },
       {
         "$ref": "shade-coins"
+      },
+      {
+        "$ref": "spoils-quarry"
       }
     ],
     "always": []
@@ -371,6 +398,9 @@
             "weight": 1
           }
         ]
+      },
+      {
+        "$ref": "spoils-quarry"
       }
     ],
     "always": []
@@ -411,6 +441,9 @@
             "weight": 1
           }
         ]
+      },
+      {
+        "$ref": "spoils-quarry"
       }
     ],
     "always": []
@@ -451,6 +484,9 @@
             "weight": 0.5
           }
         ]
+      },
+      {
+        "$ref": "spoils-quarry"
       }
     ],
     "always": []
@@ -483,6 +519,9 @@
             "quantity": [1, 2]
           }
         ]
+      },
+      {
+        "$ref": "spoils-deep"
       }
     ],
     "always": []
@@ -526,6 +565,9 @@
       },
       {
         "$ref": "shade-coins"
+      },
+      {
+        "$ref": "spoils-deep"
       }
     ],
     "always": [
@@ -580,6 +622,9 @@
             "weight": 0.5
           }
         ]
+      },
+      {
+        "$ref": "spoils-deep"
       }
     ],
     "always": []
@@ -623,6 +668,9 @@
             "weight": 0.05
           }
         ]
+      },
+      {
+        "$ref": "spoils-deep"
       }
     ],
     "always": []
@@ -667,6 +715,9 @@
             "weight": 0.02
           }
         ]
+      },
+      {
+        "$ref": "spoils-deep"
       }
     ],
     "always": []
@@ -715,6 +766,9 @@
             "weight": 0.3
           }
         ]
+      },
+      {
+        "$ref": "spoils-summit"
       }
     ],
     "always": []
@@ -756,6 +810,9 @@
             "weight": 1
           }
         ]
+      },
+      {
+        "$ref": "spoils-summit"
       }
     ],
     "always": []
@@ -800,6 +857,9 @@
             "weight": 0.05
           }
         ]
+      },
+      {
+        "$ref": "spoils-summit"
       }
     ],
     "always": [
@@ -845,6 +905,9 @@
             "weight": 0.1
           }
         ]
+      },
+      {
+        "$ref": "spoils-summit"
       }
     ],
     "always": [

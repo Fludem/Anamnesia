@@ -171,7 +171,7 @@ export class Chat {
         `INSERT INTO messages (from_id, to_id, room, body, created_at) VALUES (?, ?, ?, ?, ?)
          RETURNING ${COLS}`,
       )
-      .get(user.id, toId, room, body, nowMs) as MessageRow;
+      .get(user.id, toId, room, body, nowMs) as unknown as MessageRow;
     if (room !== null) {
       this.db
         .prepare('DELETE FROM messages WHERE room IS NOT NULL AND created_at < ?')
@@ -194,7 +194,7 @@ export class Chat {
            AND from_id NOT IN (SELECT blocked_id FROM blocks WHERE user_id = ?)
          ORDER BY id LIMIT ?`,
       )
-      .all(after, userId, userId, userId, limit) as MessageRow[];
+      .all(after, userId, userId, userId, limit) as unknown as MessageRow[];
   }
 
   private inRoom(userId: number, room: Room): MessageRow[] {
@@ -205,7 +205,7 @@ export class Chat {
            WHERE room = ? AND from_id NOT IN (SELECT blocked_id FROM blocks WHERE user_id = ?)
            ORDER BY id DESC LIMIT ?`,
         )
-        .all(room, userId, ROOM_ROWS) as MessageRow[]
+        .all(room, userId, ROOM_ROWS) as unknown as MessageRow[]
     ).reverse();
   }
 
@@ -217,7 +217,7 @@ export class Chat {
            WHERE (from_id = ? AND to_id = ?) OR (from_id = ? AND to_id = ?)
            ORDER BY id DESC LIMIT ?`,
         )
-        .all(userId, peerId, peerId, userId, THREAD_ROWS) as MessageRow[]
+        .all(userId, peerId, peerId, userId, THREAD_ROWS) as unknown as MessageRow[]
     ).reverse();
   }
 
@@ -251,7 +251,7 @@ export class Chat {
     const last = this.db.prepare(`SELECT ${COLS} FROM messages WHERE id = ?`);
     return rows.map((r) => ({
       name: this.nameOf(r.peer),
-      last: this.message(last.get(r.last_id) as MessageRow),
+      last: this.message(last.get(r.last_id) as unknown as MessageRow),
       unread: this.unreadFrom(userId, r.peer),
       blocked: this.blocks(userId, r.peer),
     }));

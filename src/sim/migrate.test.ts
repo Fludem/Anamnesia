@@ -79,10 +79,14 @@ describe('migrateSave', () => {
         applied.push(12);
         return r;
       },
+      13: (r) => {
+        applied.push(13);
+        return r;
+      },
     };
     const v0 = { ...fresh(), version: 0, writerId: undefined };
     const out = migrateSave(v0, migrations, CURRENT_SAVE_VERSION);
-    expect(applied).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+    expect(applied).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
     expect(out.version).toBe(CURRENT_SAVE_VERSION);
     expect(out.writerId).toBe('migrated-from-v0');
   });
@@ -119,6 +123,8 @@ describe('migrateSave', () => {
         given: 0,
         boughtIn: 0,
         cashedOut: 0,
+        ambushes: 0,
+        routed: 0,
       },
       upgrades: {},
       hall: { id: null, rooms: {}, gifts: [], given: 0 },
@@ -132,6 +138,7 @@ describe('migrateSave', () => {
         offering: null,
         favour: 0,
         ferryman: true,
+        road: { open: false, ambushAt: null },
         fight: null,
       },
     });
@@ -181,6 +188,8 @@ describe('migrateSave', () => {
       given: 0,
       boughtIn: 0,
       cashedOut: 0,
+      ambushes: 0,
+      routed: 0,
     });
     expect(out.sim.bank).toEqual([{ item: 'copper-ore', qty: 3 }]);
   });
@@ -217,6 +226,8 @@ describe('migrateSave', () => {
       given: 0,
       boughtIn: 0,
       cashedOut: 0,
+      ambushes: 0,
+      routed: 0,
     });
     expect(out.sim.tutorial).toEqual({ done: [], dismissed: false });
     // A v4 stop has no skill, so it is dropped; everything else in the log is kept.
@@ -245,6 +256,8 @@ describe('migrateSave', () => {
       given: 0,
       boughtIn: 0,
       cashedOut: 0,
+      ambushes: 0,
+      routed: 0,
     });
     expect(out.sim.combat).toEqual({
       hp: 10,
@@ -253,6 +266,7 @@ describe('migrateSave', () => {
       offering: null,
       favour: 0,
       ferryman: true,
+      road: { open: false, ambushAt: null },
       fight: null,
     });
   });
@@ -274,6 +288,7 @@ describe('migrateSave', () => {
       offering: null,
       favour: 0,
       ferryman: true,
+      road: { open: false, ambushAt: null },
       fight: null,
     });
   });
@@ -299,6 +314,8 @@ describe('migrateSave', () => {
       given: 0,
       boughtIn: 0,
       cashedOut: 0,
+      ambushes: 0,
+      routed: 0,
     });
   });
 
@@ -380,6 +397,8 @@ describe('migrateSave', () => {
       given: 0,
       boughtIn: 0,
       cashedOut: 0,
+      ambushes: 0,
+      routed: 0,
     };
     const out = migrateSave(v11);
     expect(out.version).toBe(CURRENT_SAVE_VERSION);
@@ -396,6 +415,20 @@ describe('migrateSave', () => {
     expect(out.version).toBe(CURRENT_SAVE_VERSION);
     expect(out.sim.records).toEqual({ fish: {}, trophies: [] });
     expect(out.sim.coins).toBe(4_200);
+  });
+
+  it('migrates a v13 record to v14: the road comes up barred, and the fight is kept', () => {
+    const v13 = JSON.parse(JSON.stringify(fresh())) as Record<string, unknown>;
+    const sim = v13['sim'] as Record<string, unknown>;
+    v13['version'] = 13;
+    const combat = sim['combat'] as Record<string, unknown>;
+    delete combat['road'];
+    combat['hp'] = 7;
+    const out = migrateSave(v13);
+    expect(out.version).toBe(CURRENT_SAVE_VERSION);
+    expect(out.sim.combat.road).toEqual({ open: false, ambushAt: null });
+    expect(out.sim.combat.hp).toBe(7);
+    expect(out.sim.stats).toMatchObject({ ambushes: 0, routed: 0 });
   });
 
   it('refuses a future version rather than guessing', () => {

@@ -117,5 +117,78 @@
         "weight": 0.2
       }
     ]
+  },
+  "spoils-slope": {
+    "nothingWeight": 399,
+    "entries": [
+      {
+        "item": "goat-horn-idol",
+        "weight": 0.7
+      },
+      {
+        "item": "footworn-ring",
+        "weight": 0.3
+      }
+    ]
+  },
+  "spoils-copse": {
+    "nothingWeight": 399,
+    "entries": [
+      {
+        "item": "wolf-fang-charm",
+        "weight": 0.7
+      },
+      {
+        "item": "owl-feather-amulet",
+        "weight": 0.3
+      }
+    ]
+  },
+  "spoils-quarry": {
+    "nothingWeight": 399,
+    "entries": [
+      {
+        "item": "quarry-idol",
+        "weight": 0.7
+      },
+      {
+        "item": "masons-gauntlets",
+        "weight": 0.3
+      }
+    ]
+  },
+  "spoils-deep": {
+    "nothingWeight": 197,
+    "entries": [
+      {
+        "item": "obol",
+        "weight": 2
+      },
+      {
+        "item": "drowned-lantern",
+        "weight": 0.6
+      },
+      {
+        "item": "hound-hide-boots",
+        "weight": 0.4
+      }
+    ]
+  },
+  "spoils-summit": {
+    "nothingWeight": 196,
+    "entries": [
+      {
+        "item": "obol",
+        "weight": 3
+      },
+      {
+        "item": "summit-votive",
+        "weight": 0.6
+      },
+      {
+        "item": "pilgrims-circlet",
+        "weight": 0.4
+      }
+    ]
   }
 }
