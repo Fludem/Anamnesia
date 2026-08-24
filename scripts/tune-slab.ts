@@ -24,12 +24,7 @@ const k = (n: number) => (n >= 10_000 ? `${String(Math.round(n / 1000))}k` : Str
 const kg = (g: number) => (g >= 1000 ? `${(g / 1000).toFixed(2)}kg` : `${String(Math.round(g))}g`);
 
 /** Chance one catch at `level` beats `grams`, on the curve. */
-const chanceOver = (
-  band: SizeBand,
-  level: number,
-  nodeLevel: number,
-  grams: number,
-): number => {
+const chanceOver = (band: SizeBand, level: number, nodeLevel: number, grams: number): number => {
   const ceiling = bandCeiling(band, reachOf(level, nodeLevel, MAX));
   if (grams > ceiling) return 0;
   const into = (grams - band.min) / (ceiling - band.min);
