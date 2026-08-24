@@ -110,6 +110,12 @@ export interface FaceOfProps {
   title?: string;
 }
 
+/**
+ * Below this the frame's hairline is too much of the disc, so it steps inside and the picture
+ * covers it. Everything the hill shows today is above it; the ramp goes down to 11.
+ */
+const FRAME_MIN = 16;
+
 /** A face for a look already in hand (the editor's previews). */
 export function FaceOf({
   look,
@@ -119,11 +125,16 @@ export function FaceOf({
   className,
   title,
 }: FaceOfProps & { look: Look | null | undefined }) {
+  // One measure drives the whole ramp: the frame, the letter, a hall's corners.
   const style: CSSProperties | undefined =
-    size === undefined
-      ? undefined
-      : { width: size, height: size, fontSize: Math.max(8, Math.round(size * 0.42)) };
-  const classes = ['avatar', kind === 'hall' ? 'hall' : '', look ? 'look' : '', className ?? '']
+    size === undefined ? undefined : ({ '--face': `${String(size)}px` } as CSSProperties);
+  const classes = [
+    'avatar',
+    kind === 'hall' ? 'hall' : '',
+    look ? 'look' : '',
+    size !== undefined && size < FRAME_MIN ? 'tiny' : '',
+    className ?? '',
+  ]
     .filter(Boolean)
     .join(' ');
   return (

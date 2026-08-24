@@ -1,16 +1,20 @@
 /**
- * Painting a look: sixteen cells by sixteen under the pointer, in the design's colours, with
- * a few plain shapes to lay under the paint. Paint, fill and rub out by hand; drag a disc,
- * box, triangle, diamond or line over the grid; turn, lower, recolour, press or remove the
- * shape picked; mirror the paint down the middle; undo. The previews on the right are the
- * sizes the hill shows a face at. No design screen exists for this; it is the modal's card
- * with the bank's chips and buttons.
+ * The brush: sixteen cells by sixteen under the pointer, in the design's colours, with a few
+ * plain shapes to lay under the paint. Paint, fill and rub out by hand; drag a disc, box,
+ * triangle, diamond or line over the grid; tap a shape to pick it up, then turn, lower,
+ * recolour, press or remove it. Mirror paints both halves at once, Fold over folds the left
+ * half onto the right. The previews on the right are the honest mirror: the sizes the hill
+ * actually shows a face at. Designed as "Likeness — Disc & Brush"; it is the game's one
+ * creative surface, so it is laid out as a tool, not as another form.
  */
-import { useRef, useState, type PointerEvent } from 'react';
+import { Fragment, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
 import {
+  bands,
+  cellAt,
   emptyLook,
   flood,
   GRID,
+  inside,
   isBlank,
   marks,
   MAX_SHAPES,
@@ -38,6 +42,8 @@ const TOOLS: { id: Tool; label: string; hint: string }[] = [
   { id: 'diamond', label: 'Diamond', hint: 'drag a box; the diamond fills it' },
   { id: 'line', label: 'Line', hint: 'drag corner to corner; Turn takes the other diagonal' },
 ];
+/** Tapping a shape picks it up instead of laying a new one, so the canvas is the shortest path. */
+const TAP_HINT = 'tap a shape to pick it up';
 
 const SHAPE_WORD: Record<ShapeKind, string> = {
   disc: 'disc',
@@ -52,6 +58,8 @@ const UNDO_DEPTH = 40;
 const FIRST_COLOUR = 7;
 /** Cells the canvas shows per side, px. */
 const CELL_PX = 18;
+/** The sizes the previews answer for: the ramp's top, middle and floor. */
+const PREVIEW_SIZES = [52, 36, 22];
 
 export interface LookEditorProps {
   kind: LookKind;
@@ -82,6 +90,12 @@ function dragBox(d: Drag): { x: number; y: number; w: number; h: number; r: numb
     // A line dragged up and across takes the other diagonal.
     r: (d.x1 - d.x0) * (d.y1 - d.y0) < 0 ? 1 : 0,
   };
+}
+
+/** The topmost shape covering a cell's centre, or null. */
+function shapeAt(shapes: Shape[], x: number, y: number): number | null {
+  for (let i = shapes.length - 1; i >= 0; i--) if (inside(shapes[i]!, x + 0.5, y + 0.5)) return i;
+  return null;
 }
 
 export function LookEditor({ kind, name, initial, onSave, onClose }: LookEditorProps) {
@@ -119,6 +133,15 @@ export function LookEditor({ kind, name, initial, onSave, onClose }: LookEditorP
     commit(() => emptyLook());
     setSelected(null);
   };
+  /** Fold the left half onto the right: symmetry after the fact, not only while painting. */
+  const foldOver = () =>
+    commit((l) => {
+      let paint = l.paint;
+      for (let y = 0; y < GRID; y++)
+        for (let x = 0; x < GRID / 2; x++)
+          paint = withCell(paint, GRID - 1 - x, y, cellAt(l.paint, x, y));
+      return paint === l.paint ? l : { ...l, paint };
+    });
 
   // ---- the canvas -----------------------------------------------------------------------
 
@@ -165,10 +188,17 @@ export function LookEditor({ kind, name, initial, onSave, onClose }: LookEditorP
     const before = strokeFrom.current;
     strokeFrom.current = null;
     if (before !== null && before !== look) remember(before);
-    if (drag && isShapeTool && look.shapes.length < MAX_SHAPES) {
-      const shape: Shape = { k: tool, ...dragBox(drag), c: colour };
-      commit((l) => ({ ...l, shapes: [...l.shapes, shape] }));
-      setSelected(look.shapes.length);
+    if (drag && isShapeTool) {
+      // A tap that lands on a shape picks it up; a tap on bare ground lays a single cell.
+      const tap = drag.x0 === drag.x1 && drag.y0 === drag.y1;
+      const hit = tap ? shapeAt(look.shapes, drag.x0, drag.y0) : null;
+      if (hit !== null) {
+        setSelected(hit);
+      } else if (look.shapes.length < MAX_SHAPES) {
+        const shape: Shape = { k: tool, ...dragBox(drag), c: colour };
+        commit((l) => ({ ...l, shapes: [...l.shapes, shape] }));
+        setSelected(look.shapes.length);
+      }
     }
     setDrag(null);
   };
@@ -232,6 +262,7 @@ export function LookEditor({ kind, name, initial, onSave, onClose }: LookEditorP
 
   const blank = isBlank(look);
   const count = marks(look);
+  const painted = /[^.]/.test(look.paint);
   const title = kind === 'hall' ? "The hall's mark" : 'Your likeness';
   const lead =
     kind === 'hall'
@@ -239,13 +270,17 @@ export function LookEditor({ kind, name, initial, onSave, onClose }: LookEditorP
       : 'What the hill sees beside your name: at the fire, on the boards, in the hall.';
   const canvasPx = GRID * CELL_PX;
   const toolHint = TOOLS.find((t) => t.id === tool)?.hint ?? '';
+  const canvasStyle = {
+    width: canvasPx,
+    height: canvasPx,
+    '--cell': `${String(CELL_PX)}px`,
+  } as CSSProperties;
 
   return (
     <Modal onClose={busy ? undefined : onClose} wide>
       <div className="look-editor">
         <div className="look-head">
-          <Label>{title}</Label>
-          <span className="spacer" />
+          <span className="look-title">{title}</span>
           <span className="hint">
             {count === 0 ? 'nothing yet' : `${String(count)} ${count === 1 ? 'mark' : 'marks'}`}
             {look.shapes.length >= MAX_SHAPES ? ' · no room for another shape' : ''}
@@ -255,7 +290,7 @@ export function LookEditor({ kind, name, initial, onSave, onClose }: LookEditorP
 
         <div className="look-body">
           <div className="look-left" style={{ width: canvasPx + 2 }}>
-            <div className="chips look-tools">
+            <div className="look-tools">
               {TOOLS.map((t) => (
                 <button
                   key={t.id}
@@ -269,11 +304,7 @@ export function LookEditor({ kind, name, initial, onSave, onClose }: LookEditorP
             </div>
             <div
               className={`look-canvas${mirror ? ' mirrored' : ''}`}
-              style={{
-                width: canvasPx,
-                height: canvasPx,
-                backgroundSize: `${String(CELL_PX)}px ${String(CELL_PX)}px`,
-              }}
+              style={canvasStyle}
               onPointerDown={onDown}
               onPointerMove={onMove}
               onPointerUp={onUp}
@@ -281,149 +312,201 @@ export function LookEditor({ kind, name, initial, onSave, onClose }: LookEditorP
               role="img"
               aria-label={`${title}: ${String(GRID)} by ${String(GRID)} cells`}
             >
+              {blank && (
+                <span className="look-ghost" aria-hidden="true">
+                  {name.slice(0, 1).toUpperCase()}
+                </span>
+              )}
               <LookArt look={look} className="look-layer" />
               {previewLook && <LookArt look={previewLook} className="look-layer preview" />}
+              <span className="look-grid" />
               {picked && (
                 <span
                   className="look-picked"
                   style={{
-                    left: picked.x * CELL_PX,
-                    top: picked.y * CELL_PX,
-                    width: picked.w * CELL_PX,
-                    height: picked.h * CELL_PX,
+                    left: picked.x * CELL_PX - 1,
+                    top: picked.y * CELL_PX - 1,
+                    width: picked.w * CELL_PX + 2,
+                    height: picked.h * CELL_PX + 2,
                   }}
                 />
               )}
             </div>
-            <div className="hint look-hint">{toolHint}</div>
-            <div className="chips look-actions">
+            <div className="hint look-hint">
+              {toolHint}
+              {isShapeTool ? ` · ${TAP_HINT}` : ''}
+            </div>
+            <div className="look-actions">
               <button
                 className={mirror ? 'btn sm on' : 'btn sm'}
                 onClick={() => setMirror((m) => !m)}
-                title="paint both halves at once"
+                title="paints both halves at once"
               >
                 Mirror
               </button>
+              <button
+                className="btn sm"
+                onClick={foldOver}
+                disabled={!painted}
+                title="mirror what I have, left onto right"
+              >
+                Fold over
+              </button>
+              <span className="spacer" />
               <button className="btn sm" onClick={undo} disabled={history.length === 0}>
                 Undo
               </button>
-              <button className="btn sm" onClick={clear} disabled={blank}>
+              <button className="btn sm undoing" onClick={clear} disabled={blank}>
                 Clear
               </button>
             </div>
           </div>
 
           <div className="look-right">
-            <Label>Colour</Label>
-            <div className="look-palette" role="radiogroup" aria-label="Colour">
-              {PALETTE.map((sw, i) => (
+            <div className="look-section">
+              <div className="look-section-head">
+                <Label>Colour</Label>
+                <span className="look-colour-name">{PALETTE[colour]!.name}</span>
+                <span className="spacer" />
                 <button
-                  key={sw.hex}
-                  className={i === colour ? 'look-swatch on' : 'look-swatch'}
-                  style={{ background: sw.hex }}
-                  onClick={() => setColour(i)}
-                  title={sw.name}
-                  role="radio"
-                  aria-checked={i === colour}
-                  aria-label={sw.name}
-                />
-              ))}
-            </div>
-            <div className="look-colour-line">
-              <span className="look-swatch tiny" style={{ background: PALETTE[colour]!.hex }} />
-              <span className="hint">{PALETTE[colour]!.name}</span>
-              <span className="spacer" />
-              <button
-                className="btn sm"
-                onClick={() => commit((l) => (l.bg === colour ? l : { ...l, bg: colour }))}
-                disabled={look.bg === colour}
-                title="fill the whole face with this, under everything"
-              >
-                Backdrop
-              </button>
-              <button
-                className="btn sm"
-                onClick={() => commit((l) => (l.bg === null ? l : { ...l, bg: null }))}
-                disabled={look.bg === null}
-                title="no backdrop: the disc shows through"
-              >
-                None
-              </button>
-            </div>
-
-            <Label>Shapes</Label>
-            {look.shapes.length === 0 ? (
-              <div className="hint look-hint">none yet · pick a shape tool and drag</div>
-            ) : (
-              <div className="look-shapes">
-                {look.shapes.map((s, i) => (
-                  <button
-                    key={i}
-                    className={i === selected ? 'look-shape on' : 'look-shape'}
-                    onClick={() => setSelected(i === selected ? null : i)}
-                    title={`${SHAPE_WORD[s.k]} · ${PALETTE[s.c]!.name}`}
-                  >
-                    <span className="look-swatch tiny" style={{ background: PALETTE[s.c]!.hex }} />
-                    {SHAPE_WORD[s.k]}
-                  </button>
+                  className="btn sm"
+                  onClick={() => commit((l) => (l.bg === colour ? l : { ...l, bg: colour }))}
+                  disabled={look.bg === colour}
+                  title="fill the whole face with this, under everything"
+                >
+                  Backdrop
+                </button>
+                <button
+                  className={look.bg === null ? 'btn sm on' : 'btn sm'}
+                  onClick={() => commit((l) => (l.bg === null ? l : { ...l, bg: null }))}
+                  disabled={look.bg === null}
+                  title="no backdrop: the disc shows through"
+                >
+                  None
+                </button>
+              </div>
+              <div className="look-palette" role="radiogroup" aria-label="Colour">
+                {bands().map((band) => (
+                  <div className="look-band" key={band.name}>
+                    <span className="look-band-name">{band.name}</span>
+                    <div className="look-band-swatches">
+                      {band.swatches.map(({ index, swatch }) => (
+                        <button
+                          key={swatch.hex}
+                          className={index === colour ? 'look-swatch on' : 'look-swatch'}
+                          style={{ background: swatch.hex }}
+                          onClick={() => setColour(index)}
+                          title={swatch.name}
+                          role="radio"
+                          aria-checked={index === colour}
+                          aria-label={swatch.name}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
-            )}
-            {picked && (
-              <div className="chips look-actions">
-                <button
-                  className="btn sm"
-                  onClick={() => changeShape((s) => ({ ...s, r: (s.r + 1) % 4 }))}
-                  disabled={picked.k !== 'tri' && picked.k !== 'line'}
-                  title="a quarter turn"
-                >
-                  Turn
-                </button>
-                <button
-                  className="btn sm"
-                  onClick={() => moveShape(-1)}
-                  disabled={selected === 0}
-                  title="one step further under"
-                >
-                  Lower
-                </button>
-                <button
-                  className="btn sm"
-                  onClick={() => moveShape(1)}
-                  disabled={selected === look.shapes.length - 1}
-                  title="one step nearer the top"
-                >
-                  Raise
-                </button>
-                <button
-                  className="btn sm"
-                  onClick={() => changeShape((s) => ({ ...s, c: colour }))}
-                  disabled={picked.c === colour}
-                  title="give it the colour picked"
-                >
-                  Recolour
-                </button>
-                <button
-                  className="btn sm"
-                  onClick={stampShape}
-                  title="press it into the paint, cell by cell"
-                >
-                  Press
-                </button>
-                <button className="btn sm" onClick={removeShape}>
-                  Remove
-                </button>
-              </div>
-            )}
+            </div>
 
-            <Label>As the hill sees it</Label>
-            <div className="look-previews">
-              {[52, 36, 22].map((px) => (
-                <span key={px} className="look-preview">
-                  <FaceOf look={blank ? null : look} name={name} kind={kind} size={px} />
-                  <span className="name">{name}</span>
+            <div className="look-section">
+              <div className="look-section-head">
+                <Label>Shapes</Label>
+                {look.shapes.length > 0 && (
+                  <span className="hint">
+                    {String(look.shapes.length)} of {String(MAX_SHAPES)} · bottom to top
+                  </span>
+                )}
+              </div>
+              <div className="look-stack">
+                {look.shapes.length === 0 ? (
+                  <div className="look-stack-empty">none yet · pick a shape tool and drag</div>
+                ) : (
+                  look.shapes.map((s, i) => (
+                    <Fragment key={i}>
+                      <button
+                        className={i === selected ? 'look-shape on' : 'look-shape'}
+                        onClick={() => setSelected(i === selected ? null : i)}
+                        title={`${SHAPE_WORD[s.k]} · ${PALETTE[s.c]!.name}`}
+                      >
+                        <span
+                          className="look-swatch tiny"
+                          style={{ background: PALETTE[s.c]!.hex }}
+                        />
+                        {SHAPE_WORD[s.k]}
+                        <span className="look-shape-pos">
+                          {i === 0 ? 'bottom' : i === look.shapes.length - 1 ? 'top' : ''}
+                        </span>
+                      </button>
+                      {i === selected && (
+                        <div className="look-shape-actions">
+                          {(s.k === 'tri' || s.k === 'line') && (
+                            <button
+                              className="btn sm"
+                              onClick={() => changeShape((sh) => ({ ...sh, r: (sh.r + 1) % 4 }))}
+                              title="a quarter turn"
+                            >
+                              Turn
+                            </button>
+                          )}
+                          <button
+                            className="btn sm"
+                            onClick={() => moveShape(-1)}
+                            disabled={i === 0}
+                            title="one step further under"
+                          >
+                            Lower
+                          </button>
+                          <button
+                            className="btn sm"
+                            onClick={() => moveShape(1)}
+                            disabled={i === look.shapes.length - 1}
+                            title="one step nearer the top"
+                          >
+                            Raise
+                          </button>
+                          <button
+                            className="btn sm"
+                            onClick={() => changeShape((sh) => ({ ...sh, c: colour }))}
+                            disabled={s.c === colour}
+                            title={`give it ${PALETTE[colour]!.name}`}
+                          >
+                            Recolour
+                          </button>
+                          <button
+                            className="btn sm"
+                            onClick={stampShape}
+                            title="press it into the paint, cell by cell"
+                          >
+                            Press
+                          </button>
+                          <button
+                            className="btn sm undoing"
+                            onClick={removeShape}
+                            title="take it off the stack"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      )}
+                    </Fragment>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="look-section">
+              <Label>As the hill sees it</Label>
+              <div className="look-previews">
+                {PREVIEW_SIZES.map((px) => (
+                  <span key={px} className="look-preview">
+                    <FaceOf look={blank ? null : look} name={name} kind={kind} size={px} />
+                    <span className="size">{px}px</span>
+                  </span>
+                ))}
+                <span className="look-previews-note">
+                  what reads at {String(canvasPx)} often dies at {String(PREVIEW_SIZES.at(-1))}
                 </span>
-              ))}
+              </div>
             </div>
           </div>
         </div>
@@ -433,7 +516,10 @@ export function LookEditor({ kind, name, initial, onSave, onClose }: LookEditorP
             {error}
           </div>
         )}
-        <div className="foot">
+        <div className="foot look-foot">
+          <span className="look-foot-note">
+            {busy ? 'the register is taking it down' : 'nothing is kept until you keep it'}
+          </span>
           <button className="btn quiet" onClick={onClose} disabled={busy}>
             Cancel
           </button>
@@ -449,7 +535,6 @@ export function LookEditor({ kind, name, initial, onSave, onClose }: LookEditorP
           )}
           <button
             className="btn primary"
-            style={{ flex: 1 }}
             onClick={() => void save(blank ? null : look)}
             disabled={busy || (blank && initial === null)}
           >

@@ -206,9 +206,15 @@
   gap: 9px;
   font-size: var(--fs-body);
 }
+/*
+ * A face's disc. `--face` is the one measure: the frame, the letter and a hall's corners all
+ * come off it, so the ramp holds at 52, 36, 28, 22, 18 and 11. Round is a name, square is a
+ * hall; no other tell is needed.
+ */
 .avatar {
-  width: 22px;
-  height: 22px;
+  --face: 22px;
+  width: var(--face);
+  height: var(--face);
   flex: none;
   border-radius: 50%;
   background: var(--bg-menu-hover);
@@ -216,8 +222,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font: 600 var(--fs-hint) var(--font-mono);
-  color: var(--accent);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: max(6px, calc(var(--face) * 0.44));
+  line-height: 1;
+  color: var(--fg-icon);
+}
+/* Under 16px a hairline frame would eat the disc, so it steps inside. */
+.avatar.tiny {
+  border-color: transparent;
+  box-shadow: inset 0 0 0 1px var(--border-strong);
 }
 .avatar-row .name {
   flex: 1;
@@ -1334,9 +1348,7 @@
   gap: 14px;
 }
 .avatar.big {
-  width: 52px;
-  height: 52px;
-  font-size: 20px;
+  --face: 52px;
   background: var(--bg-inset);
 }
 .calm-card input.hero {
@@ -1850,9 +1862,7 @@
   gap: 10px;
 }
 .fight-side .who .avatar {
-  width: 38px;
-  height: 38px;
-  font-size: 15px;
+  --face: 36px;
 }
 .fight-side .name {
   font: 600 var(--fs-name) var(--font-sans);
@@ -2999,11 +3009,6 @@
   font: 500 var(--fs-name) var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
-/* An unpainted disc reads as an object, not a button: the letter stays quiet. */
-.avatar.plain {
-  color: var(--fg-icon);
-}
-
 .room-row {
   align-items: flex-start;
   cursor: default;
@@ -3497,10 +3502,7 @@
   white-space: nowrap;
 }
 .chat-row .avatar {
-  width: 36px;
-  height: 36px;
-  font-size: var(--fs-body);
-  border-radius: var(--radius-md);
+  --face: 36px;
 }
 .chat-row .tag-active.dim {
   margin-left: 8px;
@@ -4008,8 +4010,9 @@ button.chat-name:hover {
   width: 100%;
   height: 100%;
 }
+/* a hall's mark: the corners keep their share of the disc all the way down the ramp */
 .avatar.hall {
-  border-radius: var(--radius-md);
+  border-radius: max(2px, calc(var(--face) * 0.24));
 }
 .board-row .avatar {
   flex: none;
@@ -4019,31 +4022,45 @@ button.chat-name:hover {
   margin-right: 8px;
 }
 
+/* the brush: the hill's one creative surface, so it gets the room a tool needs */
 .look-editor {
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
 .modal.wide:has(.look-editor) {
-  width: 640px;
+  width: 860px;
   max-height: calc(100vh - 32px);
   max-height: calc(100dvh - 32px);
   overflow-y: auto;
 }
 .look-head {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.look-title {
+  font: 600 var(--fs-title) var(--font-sans);
+  color: var(--fg);
 }
 .look-head .hint {
   font: 400 var(--fs-hint) var(--font-mono);
   color: var(--fg-3);
 }
+.look-editor .lead {
+  font: 400 var(--fs-meta) var(--font-sans);
+  color: var(--fg-icon);
+  margin-top: 6px;
+  max-width: 560px;
+}
 .look-body {
   display: flex;
-  gap: 20px;
+  gap: 18px;
   margin-top: 14px;
   min-width: 0;
+  flex-wrap: wrap;
+  align-items: flex-start;
 }
 .look-left {
   flex: none;
@@ -4052,36 +4069,70 @@ button.chat-name:hover {
   gap: 8px;
 }
 .look-right {
-  flex: 1;
-  min-width: 0;
+  flex: 1 1 300px;
+  min-width: 260px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 14px;
 }
-.look-right .label {
-  margin-top: 8px;
+.look-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
 }
-.look-right .label:first-child {
-  margin-top: 0;
+.look-section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.look-section-head .hint {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-disabled);
 }
 .look-tools,
-.look-actions {
+.look-actions,
+.look-shape-actions {
+  display: flex;
   flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
   margin-top: 0;
 }
 .look-tools .btn,
-.look-actions .btn {
+.look-actions .btn,
+.look-shape-actions .btn,
+.look-section-head .btn {
   flex: none;
   padding: 5px 9px;
 }
+/* the tool you are holding: solid, like a pressed key */
+.look-tools .btn.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0e1512;
+  font-weight: 600;
+}
+/* a switch that is on: lit, not held */
+.look-actions .btn.on,
+.look-section-head .btn.on {
+  border-color: rgba(var(--accent-rgb), 0.45);
+  background: rgba(var(--accent-rgb), 0.1);
+  color: var(--accent);
+}
+.look-actions .btn.undoing:hover:not(:disabled),
+.look-shape-actions .btn.undoing:hover:not(:disabled) {
+  border-color: rgba(var(--hurt-rgb), 0.5);
+  color: var(--hurt);
+}
+
+/* the canvas ground is darker than any card, so a bare cell reads as empty */
 .look-canvas {
   position: relative;
   flex: none;
-  background-color: var(--bg-inset);
-  background-image:
-    linear-gradient(to right, var(--border) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--border) 1px, transparent 1px);
-  border: 1px solid var(--border-strong);
+  background: var(--bg-track);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   box-sizing: content-box;
   cursor: crosshair;
@@ -4089,14 +4140,15 @@ button.chat-name:hover {
   user-select: none;
   overflow: hidden;
 }
-.look-canvas.mirrored::after {
-  content: '';
+/* the first letter, faint, so a blank grid is not a cold start */
+.look-ghost {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 1px;
-  background: rgba(var(--accent-rgb), 0.45);
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 600 calc(var(--cell) * 8.3) / 1 var(--font-mono);
+  color: rgba(139, 136, 127, 0.09);
   pointer-events: none;
 }
 .look-layer {
@@ -4109,132 +4161,216 @@ button.chat-name:hover {
 .look-layer.preview {
   opacity: 0.7;
 }
+/* the cells stay legible over the paint, not only under it */
+.look-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      transparent 0 calc(var(--cell) - 1px),
+      rgba(232, 230, 223, 0.045) calc(var(--cell) - 1px) var(--cell)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 calc(var(--cell) - 1px),
+      rgba(232, 230, 223, 0.045) calc(var(--cell) - 1px) var(--cell)
+    );
+}
+.look-canvas.mirrored::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: rgba(var(--accent-rgb), 0.45);
+  pointer-events: none;
+}
+/* chalk, not accent: the box has to read over green as well as over grey */
 .look-picked {
   position: absolute;
-  border: 1px dashed var(--accent);
-  border-radius: 2px;
+  border: 1px dashed rgba(232, 230, 223, 0.65);
   pointer-events: none;
-  box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.25);
 }
 .look-hint {
   font: 400 var(--fs-hint) var(--font-mono);
   color: var(--fg-3);
   min-height: 14px;
 }
+
+/* the palette in bands, the family's word in the gutter */
 .look-palette {
-  display: grid;
-  grid-template-columns: repeat(9, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 4px;
 }
-.look-swatch {
-  width: 100%;
-  aspect-ratio: 1;
-  border: 1px solid rgba(0, 0, 0, 0.35);
-  border-radius: var(--radius-xs);
-  padding: 0;
-  cursor: pointer;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
-}
-.look-swatch:hover:not(:disabled) {
-  border-color: var(--fg-2);
-}
-.look-swatch.on {
-  border-color: var(--accent);
-  box-shadow:
-    0 0 0 1px var(--accent),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.4);
-}
-.look-swatch.tiny {
-  width: 12px;
-  height: 12px;
-  flex: none;
-  cursor: default;
-  display: inline-block;
-  vertical-align: -1px;
-}
-.look-colour-line {
+.look-band {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-.look-colour-line .hint {
-  font: 400 var(--fs-hint) var(--font-mono);
-  color: var(--fg-2);
-}
-.look-colour-line .btn {
+.look-band-name {
+  font: 400 var(--fs-label) var(--font-mono);
+  color: var(--fg-disabled);
+  letter-spacing: var(--tracking-tab);
+  width: 46px;
   flex: none;
-  padding: 5px 9px;
 }
-.look-shapes {
+.look-band-swatches {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
 }
-.look-shape {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 3px 8px;
+.look-swatch {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  padding: 0;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(232, 230, 223, 0.12);
+}
+.look-swatch:hover:not(:disabled) {
+  box-shadow: inset 0 0 0 1px rgba(232, 230, 223, 0.4);
+}
+/* the ring is chalk with the card's own gap inside it, so it reads on any colour */
+.look-swatch.on {
+  box-shadow:
+    inset 0 0 0 1px rgba(232, 230, 223, 0.12),
+    0 0 0 2px var(--bg-panel),
+    0 0 0 3px var(--fg);
+}
+.look-swatch.tiny {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-xs);
+  cursor: inherit;
+}
+.look-colour-name {
+  font: 500 var(--fs-meta) var(--font-mono);
+  color: var(--fg-soft);
+}
+
+/* the shape stack, bottom to top, with the picked one's actions folded under it */
+.look-stack {
+  background: var(--bg-inset);
   border: 1px solid var(--border);
-  border-radius: var(--radius-chip);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.look-stack-empty {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-disabled);
+  padding: 10px 12px;
+}
+.look-shape {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 10px;
+  border: 0;
+  border-top: 1px solid var(--border-row);
   background: transparent;
   color: var(--fg-2);
-  font: 400 var(--fs-hint) var(--font-mono);
+  font: 400 var(--fs-meta) var(--font-mono);
   letter-spacing: 0;
   text-transform: none;
+  text-align: left;
   cursor: pointer;
 }
+.look-shape:first-child {
+  border-top: 0;
+}
 .look-shape:hover {
-  border-color: var(--fg-2);
   color: var(--fg);
 }
 .look-shape.on {
-  border-color: rgba(var(--accent-rgb), 0.45);
-  background: rgba(var(--accent-rgb), 0.1);
-  color: var(--accent);
+  background: var(--bg-hover);
+  color: var(--fg);
+  box-shadow: inset 2px 0 0 var(--accent);
 }
+.look-shape-pos {
+  font: 400 var(--fs-label) var(--font-mono);
+  color: var(--fg-disabled-2);
+  margin-left: auto;
+}
+.look-shape-actions {
+  padding: 0 10px 9px 30px;
+  background: var(--bg-hover);
+}
+
+/* the honest mirror: what reads at 288 often dies at 22 */
 .look-previews {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 18px;
-  padding: 10px 12px;
+  padding: 12px 14px;
   background: var(--bg-inset);
   border: 1px solid var(--border);
-  border-radius: var(--radius-cell);
+  border-radius: var(--radius-md);
+  flex-wrap: wrap;
 }
 .look-preview {
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
 }
-.look-preview .name {
-  font: 500 var(--fs-body) var(--font-sans);
-  color: var(--fg);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.look-preview .size {
+  font: 500 var(--fs-hint) var(--font-mono);
+  color: var(--fg-icon);
 }
-.look-preview:first-child {
-  flex: 1;
-}
-.look-preview:not(:first-child) .name {
-  display: none;
+.look-previews-note {
+  font: 400 var(--fs-label) var(--font-mono);
+  color: var(--fg-disabled-2);
+  text-align: right;
+  max-width: 110px;
+  margin-left: auto;
 }
 .look-editor .note-line.warn {
-  margin-top: 10px;
+  margin-top: 12px;
+}
+.look-foot {
+  align-items: center;
+  border-top: 1px solid var(--border-row);
+  padding-top: 14px;
+}
+.look-foot-note {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-disabled-2);
+  flex: 1;
+  min-width: 0;
+}
+.look-foot .btn {
+  flex: none;
 }
 
+/* narrow: the columns stack and the canvas keeps its 288, strokeable to the last cell */
 @media (max-width: 700px) {
   .look-body {
     flex-direction: column;
+    gap: 16px;
   }
-  .look-canvas {
+  .look-left {
     align-self: center;
+    max-width: 100%;
   }
-  .look-previews {
-    flex-wrap: wrap;
-    gap: 12px;
+  .look-right {
+    width: 100%;
+    min-width: 0;
+  }
+  .look-previews-note {
+    display: none;
+  }
+  .look-foot-note {
+    flex-basis: 100%;
+    order: 3;
+    margin-top: 4px;
   }
 }
 

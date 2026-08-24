@@ -77,6 +77,43 @@ export const PALETTE: readonly Swatch[] = [
 
 if (PALETTE.length > DIGITS.length) throw new Error('the palette outgrew its letters');
 
+/**
+ * The palette in bands, in palette order. Thirty-six dots of the same size is a wall; the
+ * brush shows them as six families with the family's word in the gutter. Append only, like
+ * the palette: a colour added to the end must be counted into the last band (or a band added
+ * for it), which the check below insists on.
+ */
+export const FAMILIES: readonly { name: string; count: number }[] = [
+  { name: 'chrome', count: 8 },
+  { name: 'moss', count: 6 },
+  { name: 'gold', count: 6 },
+  { name: 'rust', count: 4 },
+  { name: 'basalt', count: 8 },
+  { name: 'aether', count: 4 },
+];
+
+if (FAMILIES.reduce((n, f) => n + f.count, 0) !== PALETTE.length)
+  throw new Error('the families do not cover the palette');
+
+export interface Band {
+  name: string;
+  /** Each swatch with the index a look stores it by. */
+  swatches: { index: number; swatch: Swatch }[];
+}
+
+/** The palette split into its families. */
+export function bands(): Band[] {
+  let at = 0;
+  return FAMILIES.map((f) => {
+    const from = at;
+    at += f.count;
+    return {
+      name: f.name,
+      swatches: PALETTE.slice(from, at).map((swatch, j) => ({ index: from + j, swatch })),
+    };
+  });
+}
+
 export const SHAPE_KINDS = ['disc', 'box', 'tri', 'diamond', 'line'] as const;
 export type ShapeKind = (typeof SHAPE_KINDS)[number];
 

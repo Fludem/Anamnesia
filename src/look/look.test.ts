@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  bands,
   cellAt,
   emptyLook,
   emptyPaint,
+  FAMILIES,
   flood,
   GRID,
   inside,
@@ -38,6 +40,14 @@ describe('the palette', () => {
     expect(hexes).toContain('#c96a5a');
     expect(hexes).toContain('#e8e6df');
     expect(PALETTE.length).toBeLessThanOrEqual(36);
+  });
+
+  it('splits into bands that cover it once each, in the order a look stores', () => {
+    const got = bands();
+    expect(got.map((b) => b.name)).toEqual(FAMILIES.map((f) => f.name));
+    const seen = got.flatMap((b) => b.swatches);
+    expect(seen.map((s) => s.index)).toEqual(PALETTE.map((_, i) => i));
+    for (const { index, swatch } of seen) expect(swatch).toBe(PALETTE[index]);
   });
 });
 
