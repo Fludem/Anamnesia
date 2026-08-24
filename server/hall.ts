@@ -28,6 +28,26 @@ export const LEDGER_ROWS = 20;
 /** The `what` of a gift of coins, in progress and the ledger (ids cannot start with `$`). */
 export const GP = '$gp';
 
+/** A gift as the ledger keeps it; `what` is the item id, or `GP` for coins. */
+interface GiftRow {
+  room: string;
+  what: string;
+  qty: number;
+  taken: number;
+}
+
+/**
+ * Whether the gift the ledger recorded under a number is the very gift now arriving under it:
+ * the same thing, in the same amount, for the same room, and still on the cart the register
+ * last saw. A save that has been reset counts from one again, and the gifts it sends under
+ * those numbers are strangers to them.
+ */
+function sameGift(row: GiftRow, cart: Gift | undefined, what: string, qty: number): boolean {
+  if (cart === undefined) return false;
+  const carried = (cart.item ?? GP) === what && cart.qty === qty && cart.room === row.room;
+  return carried && row.what === what && row.qty === qty;
+}
+
 /** A refusal with the status the route should answer. */
 export class HallError extends Error {
   override readonly name = 'HallError';
@@ -258,21 +278,38 @@ export class Halls {
    * only as much as is still needed — the rest goes back. A tier whose every need is met
    * stands. `given` is the highest gift number the ledger knows, so a save cannot reuse one.
    */
-  applyGifts(userId: number, gifts: readonly Gift[], recordGiven: number, nowMs: number): HallSync {
+  applyGifts(
+    userId: number,
+    gifts: readonly Gift[],
+    recordGiven: number,
+    pending: readonly Gift[],
+    nowMs: number,
+  ): HallSync {
     const hall = this.hallOf(userId);
     const took: { id: number; qty: number }[] = [];
-    const known = this.db.prepare('SELECT taken FROM gifts WHERE user_id = ? AND gift_id = ?');
+    const known = this.db.prepare(
+      'SELECT room, what, qty, taken FROM gifts WHERE user_id = ? AND gift_id = ?',
+    );
+    const cart = new Map(pending.map((g) => [g.id, g]));
     const insert = this.db.prepare(
       `INSERT INTO gifts (user_id, gift_id, hall_id, room, what, qty, taken, value, created_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     );
     for (const g of [...gifts].sort((a, b) => a.id - b.id)) {
-      const seen = known.get(userId, g.id) as { taken: number } | undefined;
+      const what = g.item ?? GP;
+      const seen = known.get(userId, g.id) as GiftRow | undefined;
       if (seen) {
-        took.push({ id: g.id, qty: seen.taken });
+        // The number is spent. If this is the very gift that spent it — the register's own copy
+        // of the last cart still holds it, and the ledger row was written from it — the answer
+        // is the one it gave before, so a reply that went missing costs nothing. Otherwise the
+        // save has been reset or rolled back and is counting from one again over the ledger:
+        // that gift is not the one this number bought, so it is sent back whole rather than
+        // answered with a stranger's share, and the answer's `given` tells the save where the
+        // count really is so its next gift is numbered past it.
+        const resent = sameGift(seen, cart.get(g.id), what, g.qty);
+        took.push({ id: g.id, qty: resent ? seen.taken : 0 });
         continue;
       }
-      const what = g.item ?? GP;
       let taken = 0;
       let value = 0;
       if (hall && this.ctx.content.hasRoom(g.room)) {
@@ -318,19 +355,21 @@ export class Halls {
       insert.run(userId, g.id, hall?.id ?? null, g.room, what, g.qty, taken, value, nowMs);
       took.push({ id: g.id, qty: taken });
     }
-    const max = (
-      this.db
-        .prepare('SELECT COALESCE(MAX(gift_id), 0) AS n FROM gifts WHERE user_id = ?')
-        .get(userId) as {
-        n: number;
-      }
-    ).n;
     return {
       id: hall?.id ?? null,
       rooms: hall ? this.roomsOf(hall.id) : {},
       took,
-      given: Math.max(recordGiven, max),
+      given: Math.max(recordGiven, this.givenOf(userId)),
     };
+  }
+
+  /** The highest gift number this name's ledger has spent; a save may never reuse one. */
+  private givenOf(userId: number): number {
+    return (
+      this.db
+        .prepare('SELECT COALESCE(MAX(gift_id), 0) AS n FROM gifts WHERE user_id = ?')
+        .get(userId) as { n: number }
+    ).n;
   }
 
   // ---- reading ----------------------------------------------------------------------------

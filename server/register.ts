@@ -172,10 +172,27 @@ export class Register {
       }
       const next = current + 1;
       const sim = put.record.sim;
-      const hall = this.halls.applyGifts(userId, sim.hall.gifts, sim.hall.given, nowMs);
-      const wheel = this.wheel.applyCart(userId, sim.wheel.cart, sim.wheel.paidThrough, nowMs);
+      const acked = JSON.parse(stored?.record ?? 'null') as SaveRecord | null;
+      // The cart the register last saw is how it tells a gift resent because an answer went
+      // missing from a gift wearing a number the ledger has already spent (see applyGifts).
+      const hall = this.halls.applyGifts(
+        userId,
+        sim.hall.gifts,
+        sim.hall.given,
+        acked?.sim.hall.gifts ?? [],
+        nowMs,
+      );
+      // What the save says it has been paid is an acknowledgement, never a floor. A save that
+      // has forgotten — reset, imported, rolled back — would otherwise be handed its whole
+      // history of payouts a second time, and the record the register stored is its own account
+      // of what it has already served. The one save believed when it says less than the record
+      // does is a retry: its writer never saw the answer, so its coins really are behind.
+      const served = retry
+        ? sim.wheel.paidThrough
+        : Math.max(sim.wheel.paidThrough, acked?.sim.wheel.paidThrough ?? 0);
+      const wheel = this.wheel.applyCart(userId, sim.wheel.cart, served, nowMs);
       const paid = wheel.paid.reduce((n, p) => n + p.coins, 0);
-      const paidThrough = wheel.paid.reduce((n, p) => Math.max(n, p.seq), sim.wheel.paidThrough);
+      const paidThrough = wheel.paid.reduce((n, p) => Math.max(n, p.seq), served);
       const record: SaveRecord = {
         ...put.record,
         saveCounter: next,

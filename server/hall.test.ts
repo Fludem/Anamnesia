@@ -41,7 +41,12 @@ class Client {
     return this.call('GET', '/api/hall').then((r) => r.body as HallGet);
   }
   /** Save with these gifts on the cart; returns the hall's answer. */
-  async save(gifts: Gift[] = [], given = gifts.length, sim: Partial<SaveRecord['sim']> = {}) {
+  /** `given` defaults to the highest number on the cart, which is what a save really carries. */
+  async save(
+    gifts: Gift[] = [],
+    given = gifts.reduce((n, g) => Math.max(n, g.id), 0),
+    sim: Partial<SaveRecord['sim']> = {},
+  ) {
     const base = createNewSave({ seed: 1, nowMs: T0, writerId: 'tab' });
     const record: SaveRecord = {
       ...base,
@@ -282,6 +287,30 @@ describe('gifts', () => {
       { id: 4, qty: 0 },
       { id: 5, qty: 0 },
     ]);
+  });
+
+  it('a gift under a number the ledger has spent comes home whole, not answered as the old one', async () => {
+    const [a] = await names('Wiper');
+    await a.call('POST', '/api/hall', { name: 'The Wiped Hall' });
+    // Six logs to the hearth, taken.
+    expect((await a.save([gift(1, 'hearth', 'log', 6)])).hall.took).toEqual([{ id: 1, qty: 6 }]);
+    // Settings → Reset: a fresh save that has never given anything. It is told where the count
+    // really is, and nothing on the empty cart is taken.
+    const wiped = await a.save([], 0);
+    expect(wiped.hall).toMatchObject({ took: [], given: 1 });
+    // The same gift again under the same number is a stranger to it now: it is sent back whole
+    // rather than answered with what that number bought the first time, so the logs come home.
+    const again = await a.save([gift(1, 'hearth', 'log', 6)], 1);
+    expect(again.hall.took).toEqual([{ id: 1, qty: 0 }]);
+    expect(again.hall.given).toBe(1);
+    const view = (await a.hall()).hall!;
+    expect(view.rooms.find((r) => r.room === 'hearth')?.progress).toEqual([
+      { what: 'log', have: 6, need: 10 },
+    ]);
+    expect(view.members.find((m) => m.name === 'Wiper')?.given).toBe(12);
+    // Numbered past the ledger, the very same gift is taken as it should be.
+    const past = await a.save([gift(2, 'hearth', 'log', 6)], 2);
+    expect(past.hall.took).toEqual([{ id: 2, qty: 4 }]);
   });
 
   it('a gift from a name with no hall comes back, and a number is never reused', async () => {

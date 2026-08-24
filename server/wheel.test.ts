@@ -114,7 +114,9 @@ describe('what the wheel owes', () => {
     const stored = await a.stored();
     expect(stored.sim.coins).toBe(1000);
     expect(stored.sim.wheel.paidThrough).toBe(1);
-    // A reply that went missing: the same save again is answered the same way, not doubled.
+    // A reply that went missing: the writer never saw the answer, so it writes again on the
+    // counter it still holds. The same save is answered the same way, and not doubled.
+    a.counter -= 1;
     const lost = await a.save(900, [{ id: 1, coins: 100 }], 0, 1);
     expect(lost.wheel).toEqual({ took: [1], paid: [{ seq: 1, coins: 100 }], purse: 0, bought: 1 });
     expect((await a.stored()).sim.coins).toBe(1000);
@@ -122,6 +124,29 @@ describe('what the wheel owes', () => {
     const taken = await a.save(1000, [], 1, 1);
     expect(taken.wheel.paid).toEqual([]);
     expect((await a.stored()).sim.coins).toBe(1000);
+  });
+
+  it('a save that has forgotten what it was paid is not paid it all over again', async () => {
+    const [a] = await names('Forgetful');
+    const first = await a.save(0, [{ id: 1, coins: 500 }]);
+    expect(first.wheel.paid).toEqual([{ seq: 1, coins: 500 }]);
+    expect((await a.stored()).sim.coins).toBe(500);
+    // Settings → Reset writes a fresh save on the counter the register holds, saying it has
+    // never been paid anything. What it says is an acknowledgement, not a floor: the register
+    // has its own record of what it served, and serves none of it again.
+    const wiped = await a.save(0, [], 0, 0);
+    expect(wiped.wheel.paid).toEqual([]);
+    expect((await a.stored()).sim.coins).toBe(0);
+    expect((await a.stored()).sim.wheel.paidThrough).toBe(1);
+    // Nor on the next save, however long it goes on saying it.
+    expect((await a.save(0, [], 0, 0)).wheel.paid).toEqual([]);
+    expect((await a.stored()).sim.coins).toBe(0);
+    // What the wheel owes after the reset is still paid, once.
+    const [b] = await names('Forgetful Winner');
+    await b.save(0, [{ id: 1, coins: 50 }]);
+    const after = await b.save(0, [{ id: 2, coins: 70 }], 0, 2);
+    expect(after.wheel.paid).toEqual([{ seq: 2, coins: 70 }]);
+    expect((await b.stored()).sim.coins).toBe(70);
   });
 
   it('the answer never lets the buy-in count fall behind the ledger', async () => {

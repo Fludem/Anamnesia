@@ -1609,3 +1609,57 @@ two lines of copy: how the two fights measure gear, and where the tiers open.
   for a decision.
 - Not browser-verified: the tests, the typecheck and the lint are green, and the locked rows
   have not been seen rendered.
+
+## Two ledgers that believed the save: reset paid out a lifetime, and buried a gift
+
+Two live bugs of one family, found by the session planning the ring and fixed here. Both come
+from the same mistake: the register let a save's own word set the low-water mark for something
+the register alone is meant to number.
+
+### The wheel paid its whole history to anyone who pressed Reset
+
+`applyCart` serves every payout with `seq > paidThrough` and repeats until the save says it has
+them — which is right, because coins arriving late is better than coins going missing. But
+`paidThrough` came from the save being written, and Settings → Reset writes a fresh save saying
+`paidThrough: 0` on the counter the register holds. Nothing ever deletes from `wheel_payouts`,
+so every payout the name had ever taken was served and credited again. Reset twice, get paid
+twice.
+
+The record the register stores is its own account of what it has served — it stamps
+`paidThrough` into it — so the floor is `max(the save's word, the stored record's)`, and the
+save's word is only ever an acknowledgement that can move the mark up. The one save believed
+when it says less than the record does is a **retry**: `writeSave` already knows one, by the
+writer id and a counter one behind, and a retrying writer never saw the answer, so its coins
+really are behind. That keeps repeat-until-acknowledged exactly where it was earned and takes
+it away where it was being forged.
+
+### A gift under a spent number was answered with what that number bought before
+
+`gifts` is keyed `(user_id, gift_id)` and the number comes from the save, which counts its
+gifts from one. A reset counts from one again, so the new gift #1 found the old gift #1's row
+and was answered with _its_ share: the goods left the bank and the hall got nothing. The
+register already told a reset save where the count really is (the answer's `given`), so the
+next gift is numbered past the ledger — the hole was only ever the gifts already on the cart
+when the count was rebased, but for those the goods were destroyed.
+
+A number that is spent is now answered as a stranger — nothing taken, the gift sent back whole
+— unless it really is the gift that spent it. Telling those apart wants an identity the number
+alone does not carry, and the register has one to hand: the cart of the record it last stored.
+A gift is a resend only if that cart still holds it, unchanged, _and_ the ledger's row was
+written from the same thing in the same amount for the same room. A missing answer costs
+nothing (the same answer comes back), and a stranger comes home.
+
+### What this does not fix, and why the ring went the other way
+
+The residual: a gift identical to the one that spent its number — same room, same item, same
+amount — sent again _after_ an answer for it went missing, is still taken for a resend. Closing
+it wants a per-generation key on `gifts`, which is a table rebuild; it was not worth a migration
+on a live register for a compound of two rare things, particularly with Phase 19 holding the
+next migration slot. `wheel_buyins` has the same shape of hole and no way to reach it: no save
+has put anything on the cart since Phase 14, and a reset empties it.
+
+The ring's settlements chose the other fork for the same problem — apply once, advance a
+server-side `settled_through`, never repeat — because repeating an _item_ stake would mint the
+item. That is the right call there and the wrong one here: coins arriving late is a nuisance,
+coins never arriving is a loss, and the wheel's payouts are already numbered so they can be
+repeated safely once the mark is the register's own.
