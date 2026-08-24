@@ -134,7 +134,7 @@ function Game({ user, onSignOut }: { user: User; onSignOut: () => Promise<void> 
     ) : view.kind === 'equipment' ? (
       <EquipmentScreen sim={sim} dispatch={dispatch} juice={juice} />
     ) : view.kind === 'trader' ? (
-      <TraderScreen sim={sim} dispatch={dispatch} juice={juice} />
+      <TraderScreen sim={sim} dispatch={dispatch} juice={juice} onGo={setView} />
     ) : view.kind === 'hall' ? (
       <HallScreen sim={sim} dispatch={dispatch} juice={juice} savedAtMs={snapshot.lastSavedAtMs} />
     ) : view.kind === 'talk' ? (

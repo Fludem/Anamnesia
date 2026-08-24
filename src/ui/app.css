@@ -1664,6 +1664,9 @@
 .lock.needs {
   color: var(--gold);
 }
+.lock.needs .icon {
+  color: var(--gold);
+}
 
 /* settings */
 .sworn-line {
@@ -2743,12 +2746,19 @@
   }
 }
 
-/* the trader (Phase 10): Screen A's rows with a price on the right; the ferryman's card */
+/* the trader (Screen F): the night ladder, the other wares, the ferryman's terms */
 .wares {
   position: relative;
 }
+.wares .card-note {
+  font: 400 var(--fs-meta) var(--font-sans);
+  color: var(--fg-3);
+  padding: 0 16px 8px;
+  margin-top: -2px;
+}
 .ware-row {
   cursor: default;
+  padding: 11px 16px;
 }
 .ware-row:hover:not(:disabled) {
   background: transparent;
@@ -2762,25 +2772,86 @@
   font-size: var(--fs-tag);
   padding: 2px 6px;
 }
+.tag-gold {
+  font: 600 var(--fs-tag) var(--font-mono);
+  color: var(--gold);
+  border: 1px solid rgba(var(--gold-rgb), 0.4);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  letter-spacing: var(--tracking-chip);
+}
 .ware-row .body {
   display: flex;
   flex-direction: column;
 }
-.ware-row .sub + .sub {
+.ware-row .sub.line {
+  font: 400 var(--fs-meta) var(--font-sans);
   color: var(--fg-2);
+  margin-top: 3px;
+  text-wrap: pretty;
+}
+.ware-row .sub.effect {
+  margin-top: 3px;
+}
+.ware-row .sub.effect.accent {
+  color: var(--accent);
+}
+.ware-row .sub.effect.dim {
+  color: var(--fg-disabled);
 }
 .ware-row.owned .tile-box {
-  border-color: rgba(var(--accent-rgb), 0.4);
+  color: var(--accent);
+  border-color: rgba(var(--accent-rgb), 0.55);
+}
+/* the lamp ladder's rail: a segment, the rung's node, a segment; lit as far as the hero owns */
+.ware-rail {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 12px;
+  flex: none;
+}
+.ware-rail .seg {
+  width: 2px;
+  flex: 1;
+  min-height: 4px;
+  background: var(--border);
+}
+.ware-rail .seg.on {
+  background: rgba(var(--accent-rgb), 0.5);
+}
+.ware-rail .seg.blank {
+  background: transparent;
+}
+.ware-rail .node {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  border-radius: 50%;
+  margin: 2px 0;
+  border: 1.5px solid var(--border-strong);
+}
+.ware-rail .node.owned {
+  background: var(--accent);
+  border: 0;
+}
+.ware-rail .node.next {
+  border-color: var(--accent);
 }
 .ware-buy {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
   flex: 0 0 auto;
+  min-width: 120px;
 }
 .ware-buy .price {
-  font: 500 var(--fs-body) var(--font-mono);
+  font: 500 var(--fs-name) var(--font-mono);
   color: var(--gold);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 .ware-buy .price.short {
   color: var(--fg-3);
@@ -2795,14 +2866,68 @@
   color: var(--fg-disabled);
   cursor: default;
 }
+.ware-buy .btn.arm {
+  border-color: rgba(var(--gold-rgb), 0.6);
+  color: var(--gold);
+}
+/* how far the coins have got towards a ware not yet affordable */
+.gap-wrap {
+  flex: 0 1 132px;
+  width: 132px;
+  max-width: 100%;
+  min-width: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+.gap-wrap .ware-note {
+  white-space: nowrap;
+}
+.gap-bar {
+  display: block;
+  width: 100%;
+  height: 4px;
+  background: var(--bg-track);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+.gap-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--gold);
+}
+.ware-note {
+  font: 400 var(--fs-label) var(--font-mono);
+  color: var(--fg-3);
+}
 .ferryman-card .card-head {
   padding: 0 0 8px;
 }
-.ferryman-card .sel-flavour {
-  margin: 0 0 12px;
+.ferryman-card .card-head .hint {
+  color: var(--gold);
+}
+.ferry-terms {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+.ferry-terms .tile-box {
+  color: var(--gold);
+}
+.ferry-terms .sel-flavour {
+  margin: 0;
 }
 .ferryman-card .card-foot {
   margin-top: 10px;
+}
+.ferryman-card .card-foot .linkish {
+  font: 400 var(--fs-hint) var(--font-mono);
 }
 .ferryman-row .name {
   font: 500 var(--fs-body) var(--font-sans);
@@ -2824,8 +2949,14 @@
     flex-wrap: wrap;
   }
   .ware-buy {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px 10px;
     width: 100%;
+    min-width: 0;
     justify-content: flex-end;
+    padding-left: 46px;
   }
 }
 

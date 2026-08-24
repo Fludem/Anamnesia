@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { content, simContext } from '../content/index.ts';
 import type { SimState } from '../sim/save.ts';
 import { skillView } from './derive.ts';
+import { nightHours } from './derive-trader.ts';
 import { formatInt } from './format.ts';
 import { Face } from './Face.tsx';
 import { Label, UiIcon } from './parts.tsx';
@@ -126,6 +127,7 @@ export function Shell({
           >
             <UiIcon id={TRADER_ICON} size={17} />
             <span className="grow">Trader</span>
+            <span className="lvl">{nightHours(sim, simContext)} h</span>
           </button>
           <button
             className={view.kind === 'hall' ? 'nav-row active' : 'nav-row'}
