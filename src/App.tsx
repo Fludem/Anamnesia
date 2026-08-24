@@ -34,6 +34,7 @@ import { HighscoresScreen } from './ui/screens/HighscoresScreen.tsx';
 import { HallScreen } from './ui/screens/HallScreen.tsx';
 import { TraderScreen } from './ui/screens/TraderScreen.tsx';
 import { WheelScreen } from './ui/screens/WheelScreen.tsx';
+import { NowDock } from './ui/NowDock.tsx';
 import { Shell } from './ui/Shell.tsx';
 import { peekLook, putLook } from './ui/looks.ts';
 import { useChat } from './ui/useChat.ts';
@@ -189,6 +190,8 @@ function Game({ user, onSignOut }: { user: User; onSignOut: () => Promise<void> 
         )}
         {screen}
       </Shell>
+
+      <NowDock sim={sim} view={view} juice={juice} onView={setView} />
 
       {levelUp && (
         <LevelUp key={`${String(levelUp.tick)}:${levelUp.skill}`} event={levelUp} juice={juice} />

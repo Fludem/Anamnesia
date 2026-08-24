@@ -249,6 +249,21 @@ export function activeView(sim: SimState, ctx: SimContext): ActiveView | null {
   };
 }
 
+/**
+ * The skill screen a request lives on: where the floating now-bar's tap goes. A fight shows
+ * on the combat screen whatever style it trains; a recipe on its skill's bench.
+ */
+export function actionScreen(req: ActionRequest, ctx: SimContext): string {
+  switch (req.kind) {
+    case 'combat':
+      return 'combat';
+    case 'crafting':
+      return ctx.content.recipe(req.recipe).skill;
+    default:
+      return req.kind;
+  }
+}
+
 // ---- the log, as the screens read it ------------------------------------------------------
 
 export interface FeedRow {
@@ -296,6 +311,55 @@ export function dropFeed(
     });
   }
   return rows.slice(0, limit);
+}
+
+export interface TickerRow {
+  key: string;
+  item: ItemDef;
+  /** Landed within the window, merged across events. */
+  gained: number;
+  /** Held in the bank now — the running count the ticker shows beside the gain. */
+  total: number;
+}
+
+/**
+ * Item gains younger than `withinTicks`, one row per item, newest first — the bottom ticker's
+ * "Oak logs 566 +1". Every way an item lands counts: cycles, the hill's finds, kills, opened
+ * containers and the road. The key carries the item's newest tick so a fresh gain remounts
+ * its pill and the animation plays again.
+ */
+export function gainTicker(
+  sim: SimState,
+  content: ContentDb,
+  withinTicks: number,
+  limit = 4,
+): TickerRow[] {
+  const seen = new Map<string, { gained: number; tick: number }>();
+  for (let i = sim.log.length - 1; i >= 0; i--) {
+    const e = sim.log[i]!;
+    if (sim.tick - e.tick >= withinTicks) break;
+    if (
+      e.type !== 'gain' &&
+      e.type !== 'found' &&
+      e.type !== 'kill' &&
+      e.type !== 'opened' &&
+      e.type !== 'ambush'
+    )
+      continue;
+    for (const stack of e.items) {
+      const row = seen.get(stack.item);
+      if (row) row.gained += stack.qty;
+      else seen.set(stack.item, { gained: stack.qty, tick: e.tick });
+    }
+  }
+  const held = new Map<string, number>();
+  for (const s of sim.bank) held.set(s.item, (held.get(s.item) ?? 0) + s.qty);
+  return [...seen.entries()].slice(0, limit).map(([item, row]) => ({
+    key: `${item}:${String(row.tick)}`,
+    item: content.item(item),
+    gained: row.gained,
+    total: held.get(item) ?? 0,
+  }));
 }
 
 /** The newest trophy younger than `withinTicks`, for the feed's toast. */

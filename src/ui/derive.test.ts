@@ -6,8 +6,10 @@ import { createSimState, type SimState } from '../sim/save.ts';
 import { stepTick } from '../sim/step.ts';
 import { fixtureContext as ctx } from '../sim/testing/fixture.ts';
 import {
+  actionScreen,
   activeView,
   dropFeed,
+  gainTicker,
   nodeViews,
   recap,
   recentLevelUp,
@@ -171,5 +173,37 @@ describe('recap', () => {
       records: [],
       totalActions: 0,
     });
+  });
+});
+
+describe('actionScreen', () => {
+  it('sends gathering home, a recipe to its bench and every fight to the combat screen', () => {
+    expect(actionScreen(mine('sure-rock'), ctx)).toBe('mining');
+    expect(actionScreen({ kind: 'crafting', recipe: 'bar', count: null }, ctx)).toBe('smithing');
+    expect(actionScreen({ kind: 'combat', monster: 'goat', count: null }, ctx)).toBe('combat');
+  });
+});
+
+describe('gainTicker', () => {
+  it('counts what just landed against the bank, merging cycles into one moving pill', () => {
+    const seeded = { ...createSimState(1), bank: addItem([], 'stone', 563) };
+    let s = beginAction(seeded, mine('sure-rock'), ctx);
+    s = run(s, 3); // one cycle: +1 stone
+    const first = gainTicker(s, ctx.content, 45);
+    expect(first).toHaveLength(1);
+    expect(first[0]).toMatchObject({ gained: 1, total: 564 });
+    expect(first[0]!.item.id).toBe('stone');
+    s = run(s, 6); // two more cycles merge in, and the key moves with the newest tick
+    const merged = gainTicker(s, ctx.content, 45);
+    expect(merged[0]).toMatchObject({ gained: 3, total: 566 });
+    expect(merged[0]!.key).not.toBe(first[0]!.key);
+  });
+
+  it('forgets gains older than the window', () => {
+    let s = beginAction(createSimState(1), mine('sure-rock'), ctx);
+    s = run(s, 3);
+    s = { ...s, action: { current: null, queue: [] } };
+    s = run(s, 45);
+    expect(gainTicker(s, ctx.content, 45)).toEqual([]);
   });
 });

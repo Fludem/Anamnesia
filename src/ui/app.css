@@ -5172,3 +5172,117 @@ button.chat-name:hover {
     text-align: left;
   }
 }
+
+/* ---- the now dock: what the hero is doing, and what just landed ------------------------- */
+
+.now-dock {
+  position: fixed;
+  left: var(--sidebar-width);
+  right: 0;
+  bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  z-index: 30;
+  pointer-events: none;
+}
+@media (max-width: 700px) {
+  .now-dock {
+    left: 0;
+    bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 10px);
+  }
+}
+
+.now-gains {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.now-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 12px 3px 4px;
+  background: var(--bg-menu);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  animation:
+    toastIn 0.18s ease-out,
+    nowPillOut 0.4s ease-in 3.8s forwards;
+}
+.now-pill .name {
+  font: 500 var(--fs-label) var(--font-sans);
+  color: var(--fg);
+}
+.now-pill .count {
+  font: 500 var(--fs-label) var(--font-mono);
+  color: var(--fg-2);
+}
+.now-pill .count .plus {
+  font-weight: 600;
+  color: var(--accent);
+  margin-left: 4px;
+}
+@keyframes nowPillOut {
+  to {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+.deadpan .now-pill {
+  animation: none;
+}
+
+.now-bar {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(92%, 440px);
+  padding: 7px 14px 8px;
+  background: var(--bg-menu);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  pointer-events: auto;
+  animation: toastIn 0.18s ease-out;
+}
+.now-bar:hover {
+  border-color: var(--accent-lo);
+}
+.now-bar .doing {
+  font: 600 var(--fs-hint) var(--font-mono);
+  letter-spacing: var(--tracking-chip);
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.now-bar .what {
+  font: 500 var(--fs-label) var(--font-sans);
+  color: var(--fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.now-bar .left {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+  white-space: nowrap;
+}
+.now-bar .go {
+  font: 600 14px var(--font-sans);
+  color: var(--fg-3);
+  line-height: 1;
+}
+.now-bar .now-fill {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--accent);
+  transition: width 0.12s linear;
+}
