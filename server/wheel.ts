@@ -3,11 +3,15 @@
  * seconds — bets until twenty-four, then the pocket — and the pocket is drawn here, the moment
  * the bets close, with the process's own randomness, never the sim's. Nothing runs on a timer:
  * every look at the table settles whatever has closed first, so a round a bet was placed on is
- * always drawn, however long ago, and a process that was down for it draws it on waking. Chips are kept per name in `wheel_purses`: a save
- * carries buy-ins in on its cart (credited once each, by id), bets debit the purse as they are
- * placed and are final, settlement pays winners back into it, and a cash-out becomes a numbered
- * payout that the name's next save takes (see src/sim/wheel.ts for the other half). SQL for the
- * table lives here and nowhere else.
+ * always drawn, however long ago, and a process that was down for it draws it on waking.
+ *
+ * A bet is staked straight from the purse: the register records it here and the sim takes the
+ * coins out of the save (trusted, like everything the save says). Until the bets close a name
+ * may take a bet back. What the wheel owes a name — winnings, take-backs, and whatever an old
+ * save's cart still carries in — sits in `wheel_purses.coins` only until that name's next save,
+ * when `applyCart` turns it into a numbered payout the save brings home (see src/sim/wheel.ts
+ * for the other half). `staked`/`returned` on the same row are the ledger the screen shows.
+ * SQL for the table lives here and nowhere else.
  */
 import { randomInt } from 'node:crypto';
 import type { DatabaseSync } from 'node:sqlite';
@@ -62,11 +66,14 @@ export class Wheel {
   }
 
   /**
-   * Settle a save's cart with the table, inside the save's own transaction: each buy-in not yet
-   * on the ledger is credited once, every payout the save has not taken is answered again, and
-   * the answer carries the buy-in count so a save cannot fall behind the ledger.
+   * Settle a save with the table, inside the save's own transaction: each buy-in an old cart
+   * still carries is credited once, whatever the wheel owes becomes a numbered payout, every
+   * payout the save has not taken is answered again, and the answer carries the buy-in count
+   * so a save cannot fall behind the ledger. Settlement runs first, so a round that closed
+   * since the last look pays its winners into this very answer.
    */
   applyCart(userId: number, cart: readonly BuyIn[], paidThrough: number, nowMs: number): WheelSync {
+    this.settle(nowMs);
     const took: number[] = [];
     const insert = this.db.prepare(
       'INSERT OR IGNORE INTO wheel_buyins (user_id, buyin_id, coins, created_at) VALUES (?, ?, ?, ?)',
@@ -76,6 +83,7 @@ export class Wheel {
       if (r.changes > 0) this.credit(userId, b.coins, 0);
       took.push(b.id);
     }
+    this.flush(userId, paidThrough, nowMs);
     const paid = this.db
       .prepare('SELECT seq, coins FROM wheel_payouts WHERE user_id = ? AND seq > ? ORDER BY seq')
       .all(userId, paidThrough) as { seq: number; coins: number }[];
@@ -88,25 +96,53 @@ export class Wheel {
   }
 
   /**
-   * Every chip in the purse becomes a payout for the next save; the purse is left empty. The
-   * payout is numbered past both the ledger and `paidThrough` of the stored save, so a ledger
-   * restored from an older backup can never hand out a number the save has already taken.
+   * Whatever the wheel owes becomes a payout for the save being written; the credit is left
+   * empty. The payout is numbered past both the ledger and `paidThrough` of the stored save, so
+   * a ledger restored from an older backup can never hand out a number the save has already
+   * taken.
    */
-  cashOut(user: User, paidThrough: number, nowMs: number): void {
+  private flush(userId: number, paidThrough: number, nowMs: number): void {
+    const purse = this.purseOf(userId);
+    if (purse === null || purse.coins <= 0) return;
+    const known = (
+      this.db
+        .prepare('SELECT COALESCE(MAX(seq), 0) AS n FROM wheel_payouts WHERE user_id = ?')
+        .get(userId) as { n: number }
+    ).n;
+    const seq = Math.max(known, paidThrough) + 1;
+    this.db
+      .prepare('INSERT INTO wheel_payouts (user_id, seq, coins, created_at) VALUES (?, ?, ?, ?)')
+      .run(userId, seq, purse.coins, nowMs);
+    this.db.prepare('UPDATE wheel_purses SET coins = 0 WHERE user_id = ?').run(userId);
+  }
+
+  /**
+   * Take back this round's bets — all of them, or one spot's — while its bets are still open.
+   * The coins join what the wheel owes and come home with the next save; the screen asks for
+   * one straight away. `staked` is unwound too: a bet taken back never rode a spin.
+   */
+  takeBack(user: User, round: number, spot: Spot | null, nowMs: number): void {
     transaction(this.db, () => {
       this.settle(nowMs);
-      const purse = this.purseOf(user.id);
-      if (purse === null || purse.coins <= 0) throw new WheelError(409, 'no chips to take back');
-      const known = (
+      const r = roundAt(nowMs);
+      if (round !== r.id || nowMs >= r.closesAt) throw new WheelError(409, 'bets are closed');
+      const where = spot === null ? '' : ' AND spot = ?';
+      const args = spot === null ? [r.id, user.id] : [r.id, user.id, spot];
+      const sum = (
         this.db
-          .prepare('SELECT COALESCE(MAX(seq), 0) AS n FROM wheel_payouts WHERE user_id = ?')
-          .get(user.id) as { n: number }
+          .prepare(
+            `SELECT COALESCE(SUM(stake), 0) AS n FROM wheel_bets
+             WHERE round_id = ? AND user_id = ?${where}`,
+          )
+          .get(...args) as { n: number }
       ).n;
-      const seq = Math.max(known, paidThrough) + 1;
+      if (sum <= 0) throw new WheelError(409, 'nothing to take back');
       this.db
-        .prepare('INSERT INTO wheel_payouts (user_id, seq, coins, created_at) VALUES (?, ?, ?, ?)')
-        .run(user.id, seq, purse.coins, nowMs);
-      this.db.prepare('UPDATE wheel_purses SET coins = 0 WHERE user_id = ?').run(user.id);
+        .prepare(`DELETE FROM wheel_bets WHERE round_id = ? AND user_id = ?${where}`)
+        .run(...args);
+      this.db
+        .prepare('UPDATE wheel_purses SET coins = coins + ?, staked = staked - ? WHERE user_id = ?')
+        .run(sum, sum, user.id);
     });
   }
 
@@ -130,7 +166,7 @@ export class Wheel {
 
   /**
    * Draw the pocket of every round whose bets have closed and pay its bets. Cheap when there
-   * is nothing to do; runs inside every bet, cash-out and look at the table.
+   * is nothing to do; runs inside every bet, take-back, save and look at the table.
    */
   settle(nowMs: number): void {
     const due = this.db
@@ -169,8 +205,10 @@ export class Wheel {
   }
 
   /**
-   * Put `stake` on `spot` for the round that is open now. Refused when the round named is not
-   * this one or its bets have closed, when the purse is short, or when too many spots are covered.
+   * Put `stake` on `spot` for the round that is open now, straight from the purse — the sim
+   * takes the coins out of the save once the register says yes, and is trusted to, the way it
+   * is about the save itself. Refused when the round named is not this one or its bets have
+   * closed, or when too many spots are covered.
    */
   bet(user: User, round: number, spot: Spot, stake: number, nowMs: number): void {
     if (!Number.isInteger(stake) || stake < 1 || stake > MAX_STAKE)
@@ -187,12 +225,12 @@ export class Wheel {
           .get(r.id, user.id, spot) as { n: number }
       ).n;
       if (spots >= MAX_SPOTS) throw new WheelError(409, 'that is enough of the table for one name');
-      const debit = this.db
+      this.db
         .prepare(
-          'UPDATE wheel_purses SET coins = coins - ?, staked = staked + ? WHERE user_id = ? AND coins >= ?',
+          `INSERT INTO wheel_purses (user_id, coins, staked, returned) VALUES (?, 0, ?, 0)
+           ON CONFLICT(user_id) DO UPDATE SET staked = staked + excluded.staked`,
         )
-        .run(stake, stake, user.id, stake);
-      if (debit.changes === 0) throw new WheelError(409, 'not enough chips at the table');
+        .run(user.id, stake);
       this.db.prepare('INSERT OR IGNORE INTO wheel_rounds (id) VALUES (?)').run(r.id);
       this.db
         .prepare(

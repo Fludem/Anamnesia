@@ -110,7 +110,7 @@ export const SimStateSchema = z.object({
     ferried: z.number().int().min(0).default(0),
     /** Gp worth ever given to the hall, at the value when given. */
     given: z.number().int().min(0).default(0),
-    /** Coins ever taken to the wheel, and chips ever brought back from it. */
+    /** Coins ever staked on the wheel, and coins it ever sent home. */
     boughtIn: z.number().int().min(0).default(0),
     cashedOut: z.number().int().min(0).default(0),
   }),

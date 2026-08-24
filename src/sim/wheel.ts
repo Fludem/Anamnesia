@@ -6,25 +6,25 @@ import type { SimState } from './save.ts';
  * The wheel: one table on the hill, turned by the register, that every name bets on at once.
  * A round is thirty seconds of the register's clock — bets for the first twenty-four, the
  * pocket for the last six — and the pocket is drawn there, not here, so the sim's own dice
- * never touch it. Coins reach the table the way gifts reach the hall: `buyIn` takes them out
- * of the purse and onto a cart (`state.wheel.cart`); the save carries the cart to the register,
- * which credits this name's chips and answers with a `WheelSync`; `applyWheelSync` clears the
- * cart and adds whatever was cashed out since the last answer. Bets themselves are the
- * register's business (`/api/wheel`); the sim only ever knows what went in and what came back.
+ * never touch it. A bet is staked straight from the purse: the screen tells the register
+ * (`/api/wheel/bet`) and, once it says yes, `stake` takes the coins out of the save. What the
+ * wheel gives back — winnings, and bets taken back before the close — becomes a numbered
+ * payout at the register that `applyWheelSync` brings home with the next save, repeated until
+ * the save says it has been seen (`paidThrough`), so a tab that reloads onto a stored record
+ * is never owed twice and never short.
  *
- * The sync is droppable, like the hall's: a buy-in stays on the cart until this name's own save
- * has been answered, and a payout is repeated until the save says it has been seen
- * (`paidThrough`). The register stamps both into the stored record, so a tab that reloads onto
- * it is never owed twice and never short.
+ * The cart is the old road coins took to the table (buy-ins, Phase 14); no save puts anything
+ * on it any more, but a cart carried in by an old save is still credited by the register and
+ * flushed straight home, so nothing a name ever set down is lost.
  */
 
 export const MAX_PENDING_BUY_INS = 20;
-export const MAX_BUY_IN = 1_000_000_000;
+export const MAX_STAKE = 1_000_000_000;
 
-/** Coins on their way to the table: taken from the purse, not yet credited by the register. */
+/** Coins an old save is still carrying to the table; nothing new ever joins them. */
 export const BuyInSchema = z.object({
   id: z.number().int().min(1),
-  coins: z.number().int().min(1).max(MAX_BUY_IN),
+  coins: z.number().int().min(1).max(MAX_STAKE),
 });
 export type BuyIn = z.infer<typeof BuyInSchema>;
 
@@ -52,25 +52,22 @@ export type WheelSync = z.infer<typeof WheelSyncSchema>;
 
 export const NO_WHEEL: WheelState = { cart: [], bought: 0, paidThrough: 0 };
 
-export type BuyInResult = { ok: true; state: SimState } | { ok: false; reason: string };
+export type StakeResult = { ok: true; state: SimState } | { ok: false; reason: string };
 
 /**
- * Put coins on the cart for the table. Rejected, with the state untouched, when it is less
- * than one, more than the purse holds, or the cart is full.
+ * Coins the register just accepted as a bet leave the purse. Rejected, with the state
+ * untouched, when the stake is less than one or more than the purse holds — the screen asks
+ * the register first, so a refusal here means the two disagreed about the purse.
  */
-export function buyIn(state: SimState, coins: number): BuyInResult {
+export function stake(state: SimState, coins: number): StakeResult {
   if (!Number.isInteger(coins) || coins < 1)
-    return { ok: false, reason: 'buy in with at least 1 gp' };
-  if (coins > MAX_BUY_IN) return { ok: false, reason: 'the table will not take that much at once' };
+    return { ok: false, reason: 'a stake is at least 1 gp' };
+  if (coins > MAX_STAKE) return { ok: false, reason: 'the table will not take that much at once' };
   if (state.coins < coins)
     return { ok: false, reason: `that is ${String(coins)} gp (you have ${String(state.coins)})` };
-  if (state.wheel.cart.length >= MAX_PENDING_BUY_INS)
-    return { ok: false, reason: 'the table has not counted your last coins yet' };
-  const id = state.wheel.bought + 1;
   const s: SimState = {
     ...state,
     coins: state.coins - coins,
-    wheel: { ...state.wheel, cart: [...state.wheel.cart, { id, coins }], bought: id },
     stats: { ...state.stats, boughtIn: state.stats.boughtIn + coins },
   };
   return { ok: true, state: pushEvent(s, { type: 'bought-in', tick: s.tick, coins }) };

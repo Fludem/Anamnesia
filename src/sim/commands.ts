@@ -12,7 +12,7 @@ import type { SimState } from './save.ts';
 import { give } from './hall.ts';
 import { eat, offer } from './skills/combat.ts';
 import { buyWare } from './trader.ts';
-import { buyIn } from './wheel.ts';
+import { stake } from './wheel.ts';
 import { EquipmentSlotSchema } from './slots.ts';
 
 /** 3–16 visible characters; trimmed by the UI, checked here so a save never holds junk. */
@@ -70,8 +70,8 @@ export const CommandSchema = z.discriminatedUnion('type', [
     item: IdSchema.nullable(),
     qty: z.number().int().min(1),
   }),
-  /** Put coins on the cart for the wheel; the register counts them as chips. */
-  z.object({ type: z.literal('wheel:buy-in'), coins: z.number().int().min(1) }),
+  /** Coins the register accepted as a bet on the wheel leave the purse. */
+  z.object({ type: z.literal('wheel:stake'), coins: z.number().int().min(1) }),
 ]);
 export type Command = z.infer<typeof CommandSchema>;
 
@@ -278,9 +278,9 @@ export function applyCommand(state: SimState, cmd: Command, ctx: SimContext): Co
       const gave = give(state, { room: cmd.room, item: cmd.item, qty: cmd.qty }, ctx);
       return gave.ok ? gave : reject(state, gave.reason);
     }
-    case 'wheel:buy-in': {
-      const bought = buyIn(state, cmd.coins);
-      return bought.ok ? bought : reject(state, bought.reason);
+    case 'wheel:stake': {
+      const staked = stake(state, cmd.coins);
+      return staked.ok ? staked : reject(state, staked.reason);
     }
   }
 }

@@ -19,6 +19,7 @@ import {
   InviteSchema,
   MarkReadSchema,
   PlaceBetSchema,
+  TakeBackSchema,
   MAX_BODY_BYTES,
   MAX_LOOKS_ASKED,
   RequestJoinSchema,
@@ -377,14 +378,11 @@ export function createApp(options: AppOptions): Handler {
       return;
     }
 
-    if (route === 'POST /api/wheel/cash-out') {
+    if (route === 'POST /api/wheel/take-back') {
       const user = requireUser(req);
-      if (
-        (req.headers['content-type'] ?? '').toLowerCase().startsWith('application/json') === false
-      )
-        throw new HttpError(415, 'Send JSON.');
+      const { round, spot } = await readJson(req, TakeBackSchema);
       const at = now();
-      wheel.cashOut(user, register.loadSave(user.id)?.sim.wheel.paidThrough ?? 0, at);
+      wheel.takeBack(user, round, spot ?? null, at);
       json(res, 200, wheel.view(user.id, at));
       return;
     }

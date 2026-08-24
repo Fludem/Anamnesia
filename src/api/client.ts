@@ -121,7 +121,8 @@ export const api = {
   wheel: (): Promise<WheelGet> => call('GET', '/api/wheel', WheelGetSchema),
   bet: (round: number, spot: Spot, stake: number): Promise<WheelGet> =>
     call('POST', '/api/wheel/bet', WheelGetSchema, { round, spot, stake }),
-  cashOut: (): Promise<WheelGet> => call('POST', '/api/wheel/cash-out', WheelGetSchema, {}),
+  takeBack: (round: number, spot?: Spot): Promise<WheelGet> =>
+    call('POST', '/api/wheel/take-back', WheelGetSchema, spot ? { round, spot } : { round }),
   looks: (names: readonly string[], halls: readonly string[]): Promise<Looks> => {
     const q = new URLSearchParams();
     for (const n of names) q.append('name', n);

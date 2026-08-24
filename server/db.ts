@@ -128,10 +128,11 @@ const MIGRATIONS: readonly string[] = [
   );
   `,
   /**
-   * Phase 14: the wheel. Chips at the table per name (`wheel_purses`), the ledger of buy-ins the
-   * save carried in (`wheel_buyins`, one per cart id) and of cash-outs waiting for a save to take
-   * them (`wheel_payouts`, numbered per name), each round the table has turned (`wheel_rounds`,
-   * pocket null until it has) and every bet on it.
+   * Phase 14: the wheel. Per name, what the wheel owes and the lifetime ledger (`wheel_purses`;
+   * since Screen H, `coins` holds only winnings and take-backs until the next save flushes them),
+   * the buy-ins old saves carried in (`wheel_buyins`, one per cart id), the payouts waiting for a
+   * save to take them (`wheel_payouts`, numbered per name), each round the table has turned
+   * (`wheel_rounds`, pocket null until it has) and every bet on it.
    */
   `
   CREATE TABLE wheel_purses (

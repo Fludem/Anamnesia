@@ -99,13 +99,13 @@ export const SimEventSchema = z.discriminatedUnion('type', [
     room: IdSchema,
     tier: z.number().int().min(1),
   }),
-  /** Coins put on the cart for the wheel. */
+  /** Coins staked on the wheel's table. */
   z.object({
     type: z.literal('bought-in'),
     tick: z.number().int().min(0),
     coins: z.number().int().min(1),
   }),
-  /** Chips the register sent back from the wheel. */
+  /** Coins the wheel sent home: winnings, and bets taken back before the close. */
   z.object({
     type: z.literal('cashed-out'),
     tick: z.number().int().min(0),

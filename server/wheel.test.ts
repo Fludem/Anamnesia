@@ -51,8 +51,8 @@ class Client {
   bet(round: number, spot: Spot, stake: number) {
     return this.call('POST', '/api/wheel/bet', { round, spot, stake });
   }
-  cashOut() {
-    return this.call('POST', '/api/wheel/cash-out', {});
+  takeBack(round: number, spot?: Spot) {
+    return this.call('POST', '/api/wheel/take-back', spot ? { round, spot } : { round });
   }
   /** Save with these coins and this cart; returns the wheel's answer. */
   async save(coins: number, cart: BuyIn[] = [], paidThrough = 0, bought = cart.length) {
@@ -106,20 +106,22 @@ afterAll(async () => {
   await new Promise<void>((r) => server.close(() => r()));
 });
 
-describe('chips', () => {
-  it('a buy-in on the cart is credited once, however many saves carry it', async () => {
+describe('what the wheel owes', () => {
+  it('an old cart is credited once and flushed home with the very same answer', async () => {
     const [a] = await names('Alpha');
     const first = await a.save(900, [{ id: 1, coins: 100 }]);
-    expect(first.wheel).toEqual({ took: [1], paid: [], purse: 100, bought: 1 });
-    const again = await a.save(900, [{ id: 1, coins: 100 }]);
-    expect(again.wheel).toEqual({ took: [1], paid: [], purse: 100, bought: 1 });
-    const more = await a.save(850, [
-      { id: 1, coins: 100 },
-      { id: 2, coins: 50 },
-    ]);
-    expect(more.wheel).toEqual({ took: [1, 2], paid: [], purse: 150, bought: 2 });
-    expect((await a.stored()).sim.wheel.cart).toHaveLength(2);
-    expect((await a.wheel()).purse).toEqual({ coins: 150, staked: 0, returned: 0 });
+    expect(first.wheel).toEqual({ took: [1], paid: [{ seq: 1, coins: 100 }], purse: 0, bought: 1 });
+    const stored = await a.stored();
+    expect(stored.sim.coins).toBe(1000);
+    expect(stored.sim.wheel.paidThrough).toBe(1);
+    // A reply that went missing: the same save again is answered the same way, not doubled.
+    const lost = await a.save(900, [{ id: 1, coins: 100 }], 0, 1);
+    expect(lost.wheel).toEqual({ took: [1], paid: [{ seq: 1, coins: 100 }], purse: 0, bought: 1 });
+    expect((await a.stored()).sim.coins).toBe(1000);
+    // Once the tab has taken it, nothing more comes.
+    const taken = await a.save(1000, [], 1, 1);
+    expect(taken.wheel.paid).toEqual([]);
+    expect((await a.stored()).sim.coins).toBe(1000);
   });
 
   it('the answer never lets the buy-in count fall behind the ledger', async () => {
@@ -130,50 +132,21 @@ describe('chips', () => {
     expect((await a.stored()).sim.wheel.bought).toBe(3);
   });
 
-  it('a cash-out is paid into the next save once, and stamped into the stored record', async () => {
-    const [a] = await names('Cash');
-    await a.save(0, [{ id: 1, coins: 250 }]);
-    expect((await a.cashOut()).status).toBe(200);
-    expect((await a.wheel()).purse?.coins).toBe(0);
-    // The tab still says paidThrough 0: the payout is added to what it sent, and stamped.
-    const w = await a.save(40, [{ id: 1, coins: 250 }], 0, 1);
-    expect(w.wheel).toEqual({ took: [1], paid: [{ seq: 1, coins: 250 }], purse: 0, bought: 1 });
-    const stored = await a.stored();
-    expect(stored.sim.coins).toBe(290);
-    expect(stored.sim.wheel.paidThrough).toBe(1);
-    // A reply that went missing: the same save again is answered the same way, not doubled.
-    const lost = await a.save(40, [{ id: 1, coins: 250 }], 0, 1);
-    expect(lost.wheel.paid).toEqual([{ seq: 1, coins: 250 }]);
-    expect((await a.stored()).sim.coins).toBe(290);
-    // Once the tab has taken it, nothing more comes.
-    const taken = await a.save(290, [], 1, 1);
-    expect(taken.wheel.paid).toEqual([]);
-    expect((await a.stored()).sim.coins).toBe(290);
-    expect((await a.cashOut()).status).toBe(409);
-  });
-
   it('a payout is numbered past what the save has taken, even when the ledger is behind', async () => {
     const [a] = await names('Restored');
-    await a.save(0, [{ id: 1, coins: 30 }], 5, 1);
-    await a.cashOut();
     const w = await a.save(0, [{ id: 1, coins: 30 }], 5, 1);
     expect(w.wheel.paid).toEqual([{ seq: 6, coins: 30 }]);
   });
 });
 
 describe('the table', () => {
-  it('takes bets while the round is open, from the purse, and shows everyone at it', async () => {
+  it('takes bets while the round is open, straight from the purse, and shows everyone at it', async () => {
     const [a, b] = await names('Ann', 'Bea');
-    await a.save(0, [{ id: 1, coins: 1000 }]);
-    await b.save(0, [{ id: 1, coins: 500 }]);
     const r = round();
     expect((await a.bet(r, 'red', 100)).status).toBe(200);
     expect((await a.bet(r, 'red', 50)).status).toBe(200);
     expect((await a.bet(r, 'straight:17', 10)).status).toBe(200);
     expect((await b.bet(r, 'black', 500)).status).toBe(200);
-    const short = await b.bet(r, 'black', 1);
-    expect(short.status).toBe(409);
-    expect((short.body as { error: string }).error).toMatch(/not enough/);
     const view = await a.wheel();
     expect(view.round).toMatchObject({
       id: r,
@@ -181,7 +154,7 @@ describe('the table', () => {
       closesAt: now + BETS_MS,
       pocket: null,
     });
-    expect(view.purse).toEqual({ coins: 840, staked: 160, returned: 0 });
+    expect(view.purse).toEqual({ coins: 0, staked: 160, returned: 0 });
     expect(view.table).toEqual([
       {
         name: 'Ann',
@@ -195,9 +168,36 @@ describe('the table', () => {
     expect((await b.wheel()).table).toEqual(view.table);
   });
 
+  it('gives a bet back until the close — one spot, or every one at once', async () => {
+    const [a] = await names('Sorry');
+    const r = round();
+    await a.bet(r, 'red', 100);
+    await a.bet(r, 'straight:17', 40);
+    expect((await a.takeBack(r, 'red')).status).toBe(200);
+    let view = await a.wheel();
+    expect(view.purse).toEqual({ coins: 100, staked: 40, returned: 0 });
+    expect(view.table).toEqual([{ name: 'Sorry', bets: [{ spot: 'straight:17', stake: 40 }] }]);
+    expect((await a.takeBack(r)).status).toBe(200);
+    view = await a.wheel();
+    expect(view.purse).toEqual({ coins: 140, staked: 0, returned: 0 });
+    expect(view.table).toEqual([]);
+    const bare = await a.takeBack(r);
+    expect(bare.status).toBe(409);
+    expect((bare.body as { error: string }).error).toMatch(/nothing/);
+    // What was taken back comes home with the next save.
+    const w = await a.save(0);
+    expect(w.wheel.paid).toEqual([{ seq: 1, coins: 140 }]);
+    // After the close, nothing comes back.
+    await a.bet(r, 'odd', 10);
+    now += BETS_MS;
+    const closed = await a.takeBack(r);
+    expect(closed.status).toBe(409);
+    expect((closed.body as { error: string }).error).toMatch(/closed/);
+    now += ROUND_MS - BETS_MS;
+  });
+
   it('refuses a bet after the close, on another round, or of a broken size', async () => {
     const [a] = await names('Late');
-    await a.save(0, [{ id: 1, coins: 100 }]);
     const r = round();
     now += BETS_MS - 1;
     expect((await a.bet(r, 'odd', 1)).status).toBe(200);
@@ -208,13 +208,11 @@ describe('the table', () => {
     expect((await a.bet(r + 1, 'odd', 1)).status).toBe(409);
     expect((await a.bet(r, 'green', 1)).status).toBe(400);
     expect((await a.bet(r, 'odd', 0)).status).toBe(400);
-    expect((await a.wheel()).purse?.coins).toBe(99);
+    expect((await a.wheel()).purse).toMatchObject({ staked: 1 });
   });
 
-  it('draws the pocket when the bets close and pays the winners into their purses', async () => {
+  it('draws the pocket when the bets close and sets the winnings on their way home', async () => {
     const [a, b] = await names('Win', 'Lose');
-    await a.save(0, [{ id: 1, coins: 1000 }]);
-    await b.save(0, [{ id: 1, coins: 1000 }]);
     const r = round();
     await a.bet(r, 'straight:17', 10);
     await a.bet(r, 'red', 100);
@@ -226,8 +224,8 @@ describe('the table', () => {
     const shown = await a.wheel();
     expect(shown.round.pocket).toBe(17);
     // 17 is black and in the second dozen: the number and the dozen pay, the red does not.
-    expect(shown.purse).toEqual({ coins: 860 + 360 + 90, staked: 140, returned: 450 });
-    expect((await b.wheel()).purse).toEqual({ coins: 750 + 400, staked: 250, returned: 400 });
+    expect(shown.purse).toEqual({ coins: 360 + 90, staked: 140, returned: 450 });
+    expect((await b.wheel()).purse).toEqual({ coins: 400, staked: 250, returned: 400 });
     now += ROUND_MS - BETS_MS;
     const next = await a.wheel();
     expect(next.round.id).toBe(r + 1);
@@ -240,11 +238,14 @@ describe('the table', () => {
         { name: 'Lose', staked: 250, returned: 400 },
       ],
     });
+    // The winnings become a payout the moment the next save is written.
+    const w = await a.save(1000);
+    expect(w.wheel.paid).toEqual([{ seq: 1, coins: 450 }]);
+    expect((await a.stored()).sim.coins).toBe(1450);
   });
 
   it('the double zero beats every outside bet', async () => {
     const [a] = await names('Zero');
-    await a.save(0, [{ id: 1, coins: 100 }]);
     const r = round();
     await a.bet(r, 'red', 10);
     await a.bet(r, 'black', 10);
@@ -252,12 +253,11 @@ describe('the table', () => {
     await a.bet(r, 'straight:37', 10);
     draws.push(DOUBLE_ZERO);
     now += ROUND_MS;
-    expect((await a.wheel()).purse).toEqual({ coins: 60 + 360, staked: 40, returned: 360 });
+    expect((await a.wheel()).purse).toEqual({ coins: 360, staked: 40, returned: 360 });
   });
 
   it('a round nobody looked at for hours is still drawn, and the strip is no longer than it needs to be', async () => {
     const [a] = await names('Away');
-    await a.save(0, [{ id: 1, coins: 100 }]);
     await a.bet(round(), 'even', 100);
     draws.push(2);
     now += 5 * 3_600_000;

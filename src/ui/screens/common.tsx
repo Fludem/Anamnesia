@@ -24,6 +24,7 @@ export function ScreenHead({
   level,
   rate,
   chip,
+  chipGold,
   skill,
   sim,
   face,
@@ -35,6 +36,8 @@ export function ScreenHead({
   level?: SkillView;
   rate?: ReactNode;
   chip?: string;
+  /** The chip turns gold: the wheel's closing seconds. */
+  chipGold?: boolean;
   /** With `sim`, shows the sworn god's bonus for this skill when there is one. */
   skill?: string;
   sim?: SimState;
@@ -50,7 +53,7 @@ export function ScreenHead({
           Lv {String(level.level)} / 99
         </span>
       )}
-      {chip && <span className="chip">{chip}</span>}
+      {chip && <span className={chipGold ? 'chip gold' : 'chip'}>{chip}</span>}
       {god && (
         <span className="chip sworn" title={`sworn to ${god.name} ${god.title}`}>
           <UiIcon id={god.icon} size={11} />+{String(Math.round((bonus - 1) * 100))}% xp

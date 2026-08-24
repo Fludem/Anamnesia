@@ -24,8 +24,8 @@
  *   POST /api/chat/read           MarkRead → {}    (how far the caller has read in a talk)
  *   POST /api/chat/block          Block → {}       (turn away from a name, or back)
  *   GET  /api/wheel               → WheelGet       (the table: this round, who is at it, the last spins)
- *   POST /api/wheel/bet           { round, spot, stake } → WheelGet   (409 closed, or not enough chips)
- *   POST /api/wheel/cash-out      → WheelGet       (chips become a payout the next save takes)
+ *   POST /api/wheel/bet           { round, spot, stake } → WheelGet   (409 closed; staked from the purse)
+ *   POST /api/wheel/take-back     { round, spot? } → WheelGet   (this round's bets return; 409 closed)
  *   GET  /api/looks?name=A&hall=H → Looks          (the looks of up to 100 names and halls)
  *   PUT  /api/look                SetLook → {}     (the caller's look; null takes it down)
  *   PUT  /api/hall/look           SetLook → {}     (the hall's mark; founder only)
@@ -362,7 +362,10 @@ export const WheelGetSchema = z.object({
   /** The register's clock, so the screen counts down on it and not its own. */
   now: z.number().int().min(0),
   round: WheelRoundSchema,
-  /** The caller's chips and lifetime figures; null before they ever bought in. */
+  /**
+   * The caller's ledger; null before they ever bet. `coins` is only what the wheel owes and the
+   * next save will bring home — winnings and take-backs the save has not carried in yet.
+   */
   purse: z
     .object({
       coins: z.number().int().min(0),
@@ -383,6 +386,13 @@ export const PlaceBetSchema = z.object({
   stake: z.number().int().min(1),
 });
 export type PlaceBet = z.infer<typeof PlaceBetSchema>;
+
+/** Take back this round's bets while they are open — one spot's, or every one when omitted. */
+export const TakeBackSchema = z.object({
+  round: z.number().int().min(0),
+  spot: SpotSchema.optional(),
+});
+export type TakeBack = z.infer<typeof TakeBackSchema>;
 
 // ---- looks ----------------------------------------------------------------------------------
 

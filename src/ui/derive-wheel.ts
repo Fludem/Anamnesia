@@ -4,7 +4,7 @@
  * and a line for the last spin. No React, no clock of its own — the screen passes `nowMs`.
  */
 import type { WheelGet, WheelSpin } from '../api/protocol.ts';
-import { pocketColour, pocketLabel, spotLabel, type Spot } from '../sim/wheel.ts';
+import { payout, pocketColour, pocketLabel, spotLabel, spotOdds, type Spot } from '../sim/wheel.ts';
 import { formatInt } from './format.ts';
 
 export type Phase =
@@ -23,6 +23,57 @@ export function phaseAt(data: WheelGet, nowMs: number): Phase {
   return r.pocket === null
     ? { kind: 'turning', leftMs }
     : { kind: 'shown', leftMs, pocket: r.pocket };
+}
+
+/** The last seconds of the open phase, when the countdown turns gold. */
+export const CLOSING_MS = 4_000;
+
+export function closing(phase: Phase): boolean {
+  return phase.kind === 'open' && phase.leftMs <= CLOSING_MS;
+}
+
+// ---- the reveal -----------------------------------------------------------------------------
+
+/** How long the reveal stands after the bets close, and when it starts to go. */
+export const REVEAL_MS = 4_600;
+export const REVEAL_HOLD_MS = 4_000;
+
+export interface Reveal {
+  /** The pocket, once the register has shown it; null while the wheel still turns. */
+  pocket: number | null;
+  /** Seconds until the next round opens, for the landed face's line. */
+  leftS: number;
+  /** The reveal is on its way out. */
+  fading: boolean;
+  /** What this name put down this round, and what the pocket gave back for it. */
+  put: number;
+  got: number;
+}
+
+/**
+ * The moment between rounds, as the screen shows it: from the close until the next round is
+ * nearly open, the drawn pocket stands over the table — or a turning face, while the register
+ * has not answered yet. Null outside that window, and the phase chip carries the pocket alone.
+ */
+export function revealAt(data: WheelGet, me: string, nowMs: number): Reveal | null {
+  const since = nowMs - data.round.closesAt;
+  if (since < 0 || since >= REVEAL_MS) return null;
+  const pocket = data.round.pocket;
+  const put = myStake(data, me);
+  const got =
+    pocket === null
+      ? 0
+      : data.table
+          .filter((p) => p.name === me)
+          .flatMap((p) => p.bets)
+          .reduce((n, b) => n + payout(b.stake, b.spot, pocket), 0);
+  return {
+    pocket,
+    leftS: Math.max(0, Math.ceil((data.round.endsAt - nowMs) / 1000)),
+    fading: since >= REVEAL_HOLD_MS,
+    put,
+    got,
+  };
 }
 
 export interface SpotStack {
@@ -59,6 +110,8 @@ export interface StripPocket {
   pocket: number;
   label: string;
   colour: 'red' | 'black' | 'house';
+  /** "17 · black", "0 · the house" — the token's title, so colour is never the only signal. */
+  word: string;
 }
 
 /** The last pockets, newest first, for the strip. */
@@ -68,20 +121,22 @@ export function strip(data: WheelGet): StripPocket[] {
     pocket: s.pocket,
     label: pocketLabel(s.pocket),
     colour: pocketColour(s.pocket),
+    word: `${pocketLabel(s.pocket)} · ${colourWord(s.pocket)}`,
   }));
 }
 
-/** "17 black · Ann took 450 of 140 · Bea lost 250", or "17 black · nobody had a bet down". */
-export function spinLine(spin: WheelSpin): string {
+/** "17 black · you took 450 for 140 · Bea lost 250", or "17 black · nobody had a bet down". */
+export function spinLine(spin: WheelSpin, me = ''): string {
   const head = `${pocketLabel(spin.pocket)} ${colourWord(spin.pocket)}`;
   if (spin.players.length === 0) return `${head} · nobody had a bet down`;
-  const parts = spin.players.map((p) =>
-    p.returned > p.staked
-      ? `${p.name} took ${formatInt(p.returned)} for ${formatInt(p.staked)}`
+  const parts = spin.players.map((p) => {
+    const who = p.name === me ? 'you' : p.name;
+    return p.returned > p.staked
+      ? `${who} took ${formatInt(p.returned)} for ${formatInt(p.staked)}`
       : p.returned === p.staked
-        ? `${p.name} broke even`
-        : `${p.name} lost ${formatInt(p.staked - p.returned)}`,
-  );
+        ? `${who} broke even`
+        : `${who} lost ${formatInt(p.staked - p.returned)}`;
+  });
   return `${head} · ${parts.join(' · ')}`;
 }
 
@@ -113,7 +168,13 @@ function trim(x: number): string {
   return x >= 10 ? String(Math.round(x)) : String(Math.round(x * 10) / 10);
 }
 
-/** What a chip on `spot` would bring back if it won, for the title. */
-export function wouldPay(spot: Spot, stake: number, odds: number): string {
-  return `${spotLabel(spot)} · ${formatInt(stake)} pays ${formatInt(stake * (odds + 1))}`;
+/**
+ * The spot's title: with chips down, what they would bring back and how to take them back;
+ * bare, what the spot pays.
+ */
+export function spotTip(spot: Spot, mine: number): string {
+  const odds = spotOdds(spot);
+  return mine > 0
+    ? `${spotLabel(spot)} · ${formatInt(mine)} pays ${formatInt(mine * (odds + 1))} · right-click takes it back`
+    : `${spotLabel(spot)} · pays ${formatInt(odds)} to 1`;
 }

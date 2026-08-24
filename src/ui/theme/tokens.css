@@ -38,6 +38,18 @@
   --hurt: #c96a5a;
   --hurt-rgb: 201, 106, 90;
 
+  /* the wheel's pockets (Screen H); bone marks the house, gold-soft this name's chips */
+  --pocket-red: #dd9a8a;
+  --pocket-red-bg: #2c1e1d;
+  --pocket-black-bg: #17191d;
+  --pocket-house-bg: #1d2126;
+  --pocket-out-bg: #191c20;
+  --pocket-dim-bg: #15171a;
+  --pocket-hit-bg: #2c2f2c;
+  --bone: #d8d0bf;
+  --bone-rgb: 216, 208, 191;
+  --gold-soft: #f0d9a8;
+
   --rare: #8fd0e6;
   --rare-border: #4d8ba3;
   --rare-rgb: 143, 208, 230;

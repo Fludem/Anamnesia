@@ -3689,63 +3689,87 @@ button.chat-name:hover {
   }
 }
 
-/* ---- the wheel (Phase 14) — one table for the hill, Screen A's card with a grid inside ---- */
+/* ---- the wheel (Screen H) — the table, the drain, the pockets, the reveal ---------------- */
 .wheel-card {
   position: relative;
+  overflow: hidden;
 }
-.wheel-table {
+.wheel-drain {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: var(--bg-inset);
+}
+.wheel-drain .fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  display: block;
+  background: var(--accent);
+  opacity: 0.85;
+  transition: width 0.25s linear;
+}
+.wheel-drain .fill.closing {
+  background: var(--gold);
+}
+.wheel-count {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.wheel-count .cl,
+.wheel-count .unit {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-3);
+}
+.wheel-count .big {
+  font: 500 var(--fs-heading) var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+}
+.wheel-count.closing .cl,
+.wheel-count.closing .big {
+  color: var(--gold);
+}
+.wheel-card.closed .wheel-count .big {
+  color: var(--fg-icon);
+}
+.chip.gold {
+  color: var(--gold);
+  border-color: rgba(var(--gold-rgb), 0.5);
+}
+.screen-head .rate .gold {
+  color: var(--gold);
+}
+
+/* the grid: the house column, twelve columns of three, the 2:1s, the outside rows */
+.wheel-grid {
   display: grid;
-  grid-template-columns: 36px 1fr;
-  grid-template-rows: auto auto;
+  grid-template-columns: 44px repeat(12, minmax(0, 1fr)) 52px;
+  grid-template-rows: repeat(6, 25px) 36px 36px;
   gap: 4px;
   margin-top: 4px;
   user-select: none;
 }
-.wheel-table .house {
-  grid-row: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.wheel-table .house .spot {
-  flex: 1;
-}
-.wheel-table .numbers {
-  grid-row: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-.wheel-table .num-row,
-.wheel-table .out-row {
-  display: grid;
-  gap: 4px;
-}
-.wheel-table .num-row {
-  grid-template-columns: repeat(12, minmax(0, 1fr)) 36px;
-}
-.wheel-table .outside-rows {
-  grid-column: 2;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.wheel-table .out-row {
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
-  margin-right: 40px;
-}
 .spot {
   position: relative;
-  min-height: 34px;
-  padding: 4px 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 2px;
+  overflow: hidden;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
-  background: var(--bg-inset);
+  background: var(--pocket-out-bg);
   color: var(--fg-2);
-  font: 500 var(--fs-hint) var(--font-mono);
-  text-align: center;
+  font: 500 var(--fs-name) var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
   cursor: pointer;
   transition:
     border-color var(--dur-fast),
@@ -3753,91 +3777,171 @@ button.chat-name:hover {
 }
 .spot .lbl {
   display: block;
-  line-height: 1;
 }
-.spot.num {
-  color: var(--fg);
+.spot.small {
+  font-size: var(--fs-hint);
+  letter-spacing: 0.08em;
 }
-.spot.num.red {
-  background: rgba(var(--hurt-rgb), 0.22);
-  border-color: rgba(var(--hurt-rgb), 0.45);
+.spot.inline {
+  flex-direction: row;
+  gap: 8px;
 }
-.spot.num.black {
-  background: var(--bg-track);
-}
-.spot.num.house,
-.spot.outside.red,
-.spot.outside.black {
-  color: var(--fg);
-}
-.spot.num.house {
-  background: rgba(var(--accent-rgb), 0.14);
-  border-color: rgba(var(--accent-rgb), 0.35);
-}
-.spot.outside.red {
-  border-color: rgba(var(--hurt-rgb), 0.45);
-}
-.spot.outside {
-  min-height: 30px;
-  color: var(--fg-3);
-}
-.spot.col {
-  color: var(--fg-3);
-}
-.spot:hover:not(:disabled) {
-  border-color: var(--accent);
-  color: var(--fg);
-}
-.spot:disabled {
+.spot[aria-disabled='true'],
+.spot.dim {
   cursor: default;
-  opacity: 0.75;
 }
-.spot.hit,
-.spot.hit:disabled {
-  opacity: 1;
-  border-color: var(--gold);
-  box-shadow: 0 0 0 1px var(--gold) inset;
-  color: var(--gold-hi);
+/* the pockets never lean on colour alone: red a solid mark, black a hollow one, the house a square */
+.spot .mark {
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  width: 5px;
+  height: 5px;
+  pointer-events: none;
+}
+.spot.red {
+  background: var(--pocket-red-bg);
+  border-color: rgba(var(--hurt-rgb), 0.42);
+  color: var(--pocket-red);
+}
+.spot.red .mark {
+  background: var(--hurt);
+  transform: rotate(45deg);
+}
+.spot.black {
+  background: var(--pocket-black-bg);
+  color: var(--fg-soft);
+}
+.spot.black .mark {
+  border: 1px solid var(--fg-icon);
+  transform: rotate(45deg);
+}
+.spot.house {
+  background: var(--pocket-house-bg);
+  border-color: rgba(var(--bone-rgb), 0.34);
+  color: var(--bone);
+}
+.spot.house .mark {
+  left: 4px;
+  top: 4px;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--bone);
+}
+.wheel-card:not(.closed) .spot:hover {
+  border-color: rgba(var(--accent-rgb), 0.65);
+  background: var(--bg-menu-hover);
+  color: var(--fg);
+}
+.spot.dim {
+  background: var(--pocket-dim-bg);
+  border-color: var(--border-row);
+  color: var(--fg-disabled);
+}
+.spot.dim.red .mark {
+  background: var(--fg-disabled-2);
+}
+.spot.dim.black .mark,
+.spot.dim.house .mark {
+  border-color: var(--fg-disabled-2);
+}
+.spot.win {
+  border-color: rgba(232, 230, 223, 0.4);
+}
+.spot.hit {
+  border-color: var(--fg);
+  background: var(--pocket-hit-bg);
+  color: #fff;
+  box-shadow:
+    0 0 0 1px rgba(232, 230, 223, 0.35),
+    0 0 14px rgba(232, 230, 223, 0.16);
+  animation: wheelHitIn 0.18s ease-out;
 }
 .spot .stack {
-  display: block;
-  margin-top: 3px;
-  font: 500 var(--fs-tag) var(--font-mono);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+.spot .pill {
+  font: 500 var(--fs-label) var(--font-mono);
+  font-variant-numeric: tabular-nums;
   line-height: 1;
-  color: var(--fg-2);
-  background: var(--bg-panel);
-  border: 1px solid var(--border-strong);
   border-radius: 999px;
-  padding: 2px 4px;
+  padding: 2px 5px;
 }
-.spot .stack.mine {
-  color: var(--gold);
-  border-color: rgba(var(--gold-rgb), 0.5);
+.spot .pill.others {
+  color: var(--fg-2);
+  background: var(--bg-inset);
+  border: 1px solid var(--fg-disabled-2);
 }
-.wheel-card.closed .wheel-table {
-  filter: saturate(0.8);
+.spot .pill.others.tucked {
+  margin-right: -6px;
 }
+.spot .pill.mine {
+  position: relative;
+  font-weight: 600;
+  color: var(--gold-soft);
+  background: var(--bg);
+  border: 1px solid var(--gold);
+}
+.spot.dim .pill.others {
+  color: var(--fg-3);
+  border-color: var(--border);
+}
+.spot.dim .pill.mine {
+  color: var(--fg-icon);
+  border-color: rgba(var(--gold-rgb), 0.3);
+}
+
+/* the stake row: what one click places */
 .chip-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-row);
 }
 .chip-row .hint {
   font: 400 var(--fs-hint) var(--font-mono);
   color: var(--fg-3);
-  margin-right: 4px;
 }
-.chip-row .btn {
-  min-width: 46px;
-  padding: 5px 8px;
-}
-.chip-row .btn.active,
-.chip-row .btn.active:hover:not(:disabled) {
+.chip-row .hint.gold {
   color: var(--gold);
-  background: rgba(var(--gold-rgb), 0.1);
-  border-color: rgba(var(--gold-rgb), 0.45);
 }
+.stake {
+  font: 500 var(--fs-hint) var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  color: var(--fg-2);
+  background: var(--bg-inset);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: 4px 11px;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast),
+    color var(--dur-fast);
+}
+.stake:hover:not(:disabled) {
+  border-color: var(--fg-3);
+  color: var(--fg);
+}
+.stake.active,
+.stake.active:hover:not(:disabled) {
+  font-weight: 600;
+  color: var(--gold-soft);
+  background: rgba(var(--gold-rgb), 0.1);
+  border-color: var(--gold);
+}
+.stake:disabled {
+  color: var(--fg-disabled-2);
+  border-color: var(--border-row);
+  cursor: default;
+}
+
+/* the strip: the last pockets, newest first and lit */
 .wheel-strip {
   display: flex;
   align-items: center;
@@ -3847,32 +3951,98 @@ button.chat-name:hover {
   padding-top: 10px;
   border-top: 1px solid var(--border-row);
 }
+.wheel-strip .label,
 .wheel-strip .hint {
-  font: 400 var(--fs-hint) var(--font-mono);
-  color: var(--fg-3);
   margin-right: 4px;
 }
+.wheel-strip .hint {
+  font: 400 var(--fs-hint) var(--font-mono);
+  color: var(--fg-disabled);
+}
 .wheel-strip .pocket {
-  min-width: 24px;
-  padding: 3px 5px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 22px;
+  padding: 0 5px 0 11px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border-strong);
-  font: 500 var(--fs-hint) var(--font-mono);
-  text-align: center;
-  color: var(--fg-2);
   background: var(--bg-track);
+  border: 1px solid var(--border);
+  font: 500 var(--fs-meta) var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-icon);
 }
-.wheel-strip .pocket:first-of-type {
-  color: var(--fg);
-  border-color: var(--fg-3);
+.wheel-strip .pocket .mark {
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin-top: -2.5px;
 }
-.wheel-strip .pocket.red {
-  background: rgba(var(--hurt-rgb), 0.22);
-  border-color: rgba(var(--hurt-rgb), 0.45);
+.wheel-strip .pocket.red .mark {
+  background: var(--fg-disabled-2);
+  transform: rotate(45deg);
 }
-.wheel-strip .pocket.house {
-  background: rgba(var(--accent-rgb), 0.14);
-  border-color: rgba(var(--accent-rgb), 0.35);
+.wheel-strip .pocket.black .mark {
+  border: 1px solid var(--fg-disabled-2);
+  transform: rotate(45deg);
+}
+.wheel-strip .pocket.house .mark {
+  left: 4px;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  border: 1px solid var(--fg-disabled-2);
+}
+.wheel-strip .pocket.latest.red {
+  background: var(--pocket-red-bg);
+  border-color: rgba(var(--hurt-rgb), 0.42);
+  color: var(--pocket-red);
+}
+.wheel-strip .pocket.latest.red .mark {
+  background: var(--hurt);
+}
+.wheel-strip .pocket.latest.black {
+  background: var(--pocket-black-bg);
+  border-color: var(--border-strong);
+  color: var(--fg-soft);
+}
+.wheel-strip .pocket.latest.black .mark {
+  border-color: var(--fg-icon);
+}
+.wheel-strip .pocket.latest.house {
+  background: var(--pocket-house-bg);
+  border-color: rgba(var(--bone-rgb), 0.34);
+  color: var(--bone);
+}
+.wheel-strip .pocket.latest.house .mark {
+  border-color: var(--bone);
+}
+
+/* your stake: take it all back while the bets are open */
+.wheel-takeall {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 11px;
+  border-top: 1px solid var(--border-row);
+}
+.wheel-takeall .btn {
+  font: 600 var(--fs-hint) var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.wheel-takeall .hint {
+  font: 400 var(--fs-label) var(--font-mono);
+  color: var(--fg-disabled-2);
+}
+.stat-row.seat.you {
+  background: rgba(var(--gold-rgb), 0.05);
+  box-shadow: inset 2px 0 0 rgba(var(--gold-rgb), 0.5);
 }
 .wheel-talk {
   display: flex;
@@ -3881,26 +4051,209 @@ button.chat-name:hover {
 .wheel-talk .chat-panel {
   margin: 0;
 }
+
+/* the reveal: between the close and the next round, the pocket stands over the table */
+.spin-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: var(--overlay);
+  animation: wheelScrimIn 0.2s ease-out;
+}
+.spin-scrim.fading {
+  animation: wheelOutFade 0.55s ease-out forwards;
+  pointer-events: none;
+}
+.spin-panel {
+  width: 300px;
+  max-width: 100%;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  padding: 22px 22px 20px;
+  text-align: center;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  animation: wheelPanelIn 0.22s ease-out;
+}
+.spin-panel.landed.red {
+  border-color: rgba(var(--hurt-rgb), 0.42);
+}
+.spin-panel.landed.house {
+  border-color: rgba(var(--bone-rgb), 0.34);
+}
+.spin-label {
+  font: 600 var(--fs-hint) var(--font-mono);
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.spin-panel.landed.red .spin-label {
+  color: var(--pocket-red);
+}
+.spin-panel.landed.black .spin-label {
+  color: var(--fg-soft);
+}
+.spin-panel.landed.house .spin-label {
+  color: var(--bone);
+}
+.spin-face {
+  position: relative;
+  width: 112px;
+  height: 112px;
+  margin: 16px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--pocket-out-bg);
+}
+.spin-face.red {
+  background: var(--pocket-red-bg);
+}
+.spin-face.black {
+  background: var(--pocket-black-bg);
+}
+.spin-face.house {
+  background: var(--pocket-house-bg);
+}
+.spin-face.landed {
+  animation: wheelLandIn 0.28s ease-out;
+  box-shadow: 0 0 26px rgba(232, 230, 223, 0.08);
+}
+.spin-face.landed.red {
+  border-color: rgba(var(--hurt-rgb), 0.42);
+}
+.spin-face.landed.black {
+  border-color: var(--border-strong);
+}
+.spin-face.landed.house {
+  border-color: rgba(var(--bone-rgb), 0.34);
+}
+.spin-face .num {
+  font: 500 46px var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--fg-disabled);
+}
+.spin-face.landed .num {
+  color: #fff;
+}
+.spin-face .mark {
+  position: absolute;
+  left: 11px;
+  top: 11px;
+  width: 9px;
+  height: 9px;
+}
+.spin-face.red .mark {
+  background: var(--hurt);
+  transform: rotate(45deg);
+}
+.spin-face.black .mark {
+  border: 1.5px solid var(--fg-icon);
+  transform: rotate(45deg);
+}
+.spin-face.house .mark {
+  width: 11px;
+  height: 11px;
+  border: 1.5px solid var(--bone);
+}
+.spin-sub {
+  font: 400 var(--fs-meta) var(--font-mono);
+  letter-spacing: 0.04em;
+  color: var(--fg-3);
+  margin-top: 14px;
+}
+.spin-outcome {
+  font: 500 var(--fs-meta) var(--font-mono);
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  color: var(--fg-icon);
+}
+.spin-outcome.gold {
+  color: var(--gold);
+}
+@keyframes wheelHitIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes wheelScrimIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes wheelPanelIn {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes wheelLandIn {
+  0% {
+    transform: scale(1.07);
+  }
+  60% {
+    transform: scale(0.995);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes wheelOutFade {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
 @media (max-width: 700px) {
-  .wheel-table {
-    grid-template-columns: 28px 1fr;
-  }
-  .wheel-table .num-row {
-    grid-template-columns: repeat(12, minmax(0, 1fr)) 28px;
-  }
-  .wheel-table .out-row {
-    margin-right: 32px;
+  .wheel-grid {
+    grid-template-columns: 30px repeat(12, minmax(0, 1fr)) 38px;
+    grid-template-rows: repeat(6, 22px) 32px 32px;
+    gap: 3px;
   }
   .spot {
-    min-height: 30px;
-    padding: 3px 0;
+    font-size: var(--fs-hint);
+    padding: 0 1px;
+    border-radius: 3px;
+  }
+  .spot .mark {
+    left: 3px;
+    top: 3px;
+    width: 4px;
+    height: 4px;
+  }
+  .spot.house .mark {
+    width: 5px;
+    height: 5px;
+  }
+  .spot.small {
     font-size: var(--fs-tag);
+    letter-spacing: 0.04em;
   }
-  .spot .stack {
-    padding: 1px 2px;
+  .spot.inline {
+    gap: 4px;
   }
-  .chip-row {
-    flex-wrap: wrap;
+  .spot .pill {
+    padding: 1px 3px;
   }
 }
 

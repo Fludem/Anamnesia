@@ -53,8 +53,20 @@ export const color = {
 
   gold: '#d2a04c',
   goldHi: '#f5d98a',
+  /** This name's chips on the wheel — Screen H's softer gold. */
+  goldSoft: '#f0d9a8',
   /** Damage, death, the stop hover — Screen E's red. */
   hurt: '#c96a5a',
+
+  /* the wheel's pockets (Screen H); bone is the house's colour */
+  pocketRed: '#dd9a8a',
+  pocketRedBg: '#2c1e1d',
+  pocketBlackBg: '#17191d',
+  pocketHouseBg: '#1d2126',
+  pocketOutBg: '#191c20',
+  pocketDimBg: '#15171a',
+  pocketHitBg: '#2c2f2c',
+  bone: '#d8d0bf',
 
   overlay: 'rgba(10,11,13,.7)',
   overlaySoft: 'rgba(10,11,13,.62)',
@@ -65,6 +77,7 @@ export const rgb = {
   accent: '86,195,154',
   gold: '210,160,76',
   hurt: '201,106,90',
+  bone: '216,208,191',
   rare: '143,208,230',
   epic: '143,99,232',
   epicText: '201,164,255',

@@ -1,6 +1,6 @@
 /**
- * The table from the register, kept fresh: read when this tab's save lands (a buy-in is
- * credited then), and every couple of seconds while the screen is open, since the other names'
+ * The table from the register, kept fresh: read when this tab's save lands (what the wheel
+ * owes comes home then), and every couple of seconds while the screen is open, since the other names'
  * chips and the pocket arrive on the register's clock, not this tab's. `offsetMs` is how far
  * that clock is from this one, so the countdown is the register's. Every change made from the
  * screen goes through `act`, which shows the register's answer and keeps its reason when it

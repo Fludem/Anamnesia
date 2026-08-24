@@ -394,19 +394,16 @@ describe('GameHost — single tab', () => {
     // The claim write already answered with the payout: it landed in memory, once.
     expect(host.getSnapshot().sim?.coins).toBe(1070);
     expect(host.getSnapshot().sim?.wheel.paidThrough).toBe(1);
-    const writesBefore = world.store.log.filter((l) => l.op === 'write').length;
-    host.dispatch({ type: 'wheel:buy-in', coins: 300 });
+    host.dispatch({ type: 'wheel:stake', coins: 300 });
     await flushMicrotasks();
     await a.runTimers(0);
     await flushMicrotasks();
     const sim = host.getSnapshot().sim!;
-    expect(world.store.log.filter((l) => l.op === 'write')).toHaveLength(writesBefore + 1);
     expect(sim.coins).toBe(770);
-    expect(sim.wheel).toEqual({ cart: [], bought: 1, paidThrough: 1 });
-    // The stored record keeps the cart until the next save carries it cleared.
-    expect(world.store.peek('main')?.sim.wheel.cart).toHaveLength(1);
+    expect(sim.wheel).toEqual({ cart: [], bought: 0, paidThrough: 1 });
+    // The next periodic save carries the stake out; the payout is never handed over twice.
     await elapse(world, [a], 1_100);
-    expect(world.store.peek('main')?.sim.wheel.cart).toEqual([]);
+    expect(world.store.peek('main')?.sim.coins).toBe(770);
     expect(host.getSnapshot().sim?.coins).toBe(770);
   });
 

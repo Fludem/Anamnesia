@@ -5,11 +5,9 @@ import { createSimState, type SimState } from './save.ts';
 import { fixtureContext as ctx } from './testing/fixture.ts';
 import {
   DOUBLE_ZERO,
-  MAX_PENDING_BUY_INS,
   POCKETS,
   RED,
   applyWheelSync,
-  buyIn,
   isSpot,
   payout,
   pocketColour,
@@ -17,6 +15,7 @@ import {
   spotLabel,
   spotOdds,
   spotWins,
+  stake,
   type Spot,
 } from './wheel.ts';
 
@@ -26,45 +25,30 @@ const rich = (coins: number, extra: Partial<SimState> = {}): SimState => ({
   ...extra,
 });
 
-describe('buying in', () => {
-  it('takes the coins onto the cart, numbered from one, and logs it', () => {
-    const r = applyCommand(rich(5000), { type: 'wheel:buy-in', coins: 1200 }, ctx);
+describe('staking', () => {
+  it('takes the coins straight from the purse, counts them, and logs it', () => {
+    const r = applyCommand(rich(5000), { type: 'wheel:stake', coins: 1200 }, ctx);
     expect(r.ok).toBe(true);
     expect(r.state.coins).toBe(3800);
-    expect(r.state.wheel).toEqual({ cart: [{ id: 1, coins: 1200 }], bought: 1, paidThrough: 0 });
+    expect(r.state.wheel).toEqual({ cart: [], bought: 0, paidThrough: 0 });
     expect(r.state.stats.boughtIn).toBe(1200);
     expect(eventsOfType(r.state, 'bought-in')).toEqual([
       { type: 'bought-in', tick: 0, coins: 1200 },
     ]);
-    const again = buyIn(r.state, 800);
-    expect(again.ok && again.state.wheel.cart.map((b) => b.id)).toEqual([1, 2]);
-    expect(again.ok && again.state.wheel.bought).toBe(2);
+    const again = stake(r.state, 800);
+    expect(again.ok && again.state.coins).toBe(3000);
+    expect(again.ok && again.state.stats.boughtIn).toBe(2000);
   });
 
-  it('refuses more than the purse, less than one, and a full cart — leaving the state as it was', () => {
+  it('refuses more than the purse and less than one — leaving the state as it was', () => {
     const s = rich(100);
     for (const coins of [101, 0, -5, 1.5]) {
-      const r = buyIn(s, coins);
+      const r = stake(s, coins);
       expect(r.ok).toBe(false);
     }
-    const viaCommand = applyCommand(s, { type: 'wheel:buy-in', coins: 101 }, ctx);
+    const viaCommand = applyCommand(s, { type: 'wheel:stake', coins: 101 }, ctx);
     expect(viaCommand.ok).toBe(false);
     expect(viaCommand.state).toBe(s);
-    let full = rich(1_000_000);
-    for (let i = 0; i < MAX_PENDING_BUY_INS; i++) {
-      const r = buyIn(full, 1);
-      if (!r.ok) throw new Error(r.reason);
-      full = r.state;
-    }
-    const over = buyIn(full, 1);
-    expect(over.ok).toBe(false);
-    expect(!over.ok && over.reason).toMatch(/not counted/);
-  });
-
-  it('numbers the next buy-in past whatever the register already knows', () => {
-    const s = rich(10, { wheel: { cart: [], bought: 7, paidThrough: 0 } });
-    const r = buyIn(s, 1);
-    expect(r.ok && r.state.wheel.cart[0]?.id).toBe(8);
   });
 });
 
