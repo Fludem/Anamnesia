@@ -4235,6 +4235,9 @@ button.chat-name:hover {
   .look-previews {
     flex-wrap: wrap;
     gap: 12px;
+  }
+}
+
 /* ---- a phone's detail card rises as a sheet ---------------------------------------------- */
 /* Wide: nothing here applies — the card stays a column. Narrow: the detail card (the bank's
    Selected, the gear screen's Selected) sits after the grid, a screen or more below the thing
