@@ -66,13 +66,14 @@ let server: Server;
 let base: string;
 let now = T0;
 let staticDir: string;
+let db: ReturnType<typeof openDatabase>;
 
 beforeAll(async () => {
   staticDir = mkdtempSync(join(tmpdir(), 'anamnesia-static-'));
   writeFileSync(join(staticDir, 'index.html'), '<!doctype html><title>hill</title>');
   mkdirSync(join(staticDir, 'assets'));
   writeFileSync(join(staticDir, 'assets', 'app.js'), 'console.log(1)');
-  const db = openDatabase(':memory:');
+  db = openDatabase(':memory:');
   server = createServer(createApp({ db, now: () => now, staticDir, ctx: fixtureContext }));
   await new Promise<void>((r) => server.listen(0, '127.0.0.1', r));
   base = `http://127.0.0.1:${String((server.address() as AddressInfo).port)}`;
@@ -398,5 +399,33 @@ describe('files', () => {
     expect((await fetch(`${base}/assets/missing.js`)).status).toBe(404);
     expect((await fetch(`${base}/..%2F..%2Fetc%2Fpasswd`)).status).toBe(404);
     expect((await fetch(`${base}/api/nothing`)).status).toBe(404);
+  });
+});
+
+describe('a save stamped by a clock that has lost its mind', () => {
+  it('does not take every board down, and does not lock its owner out', async () => {
+    now += 3_600_001; // past the register's per-address window; this file makes many names
+    const c = new Client(base);
+    expect((await c.register('Timeless')).status).toBe(201);
+    expect((await c.put(save('tab-a'), 0)).status).toBe(200);
+    const id = (db.prepare("SELECT id FROM users WHERE name = 'Timeless'").get() as { id: number })
+      .id;
+
+    // A stamp past Number.MAX_SAFE_INTEGER. node:sqlite will not hand JS such an integer at
+    // all, so one row like this used to be a 500 on every board — and a save the name that
+    // owns it could never write again, because writeSave reads the column too.
+    db.exec(`UPDATE saves SET updated_at = 1787603561612521742 WHERE user_id = ${String(id)}`);
+
+    expect((await c.call('GET', '/api/highscores/total')).status).toBe(200);
+    expect((await c.call('GET', '/api/highscores/wealth')).status).toBe(200);
+    expect((await c.put(save('tab-a', { tick: played + 3_000 }), 1)).status).toBe(200);
+
+    // And the absurd stamp is not written back: the row is sane again.
+    const after = (
+      db.prepare(`SELECT updated_at FROM saves WHERE user_id = ${String(id)}`).get() as {
+        updated_at: number;
+      }
+    ).updated_at;
+    expect(Number.isSafeInteger(after)).toBe(true);
   });
 });

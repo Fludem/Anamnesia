@@ -161,7 +161,8 @@ export class Register {
     return transaction(this.db, () => {
       const stored = this.db
         .prepare(
-          'SELECT counter, writer_id, record, updated_at, tick_base FROM saves WHERE user_id = ?',
+          'SELECT counter, writer_id, record, CAST(updated_at AS REAL) AS updated_at, tick_base' +
+            ' FROM saves WHERE user_id = ?',
         )
         .get(userId) as
         | {
@@ -186,6 +187,11 @@ export class Register {
       }
       const next = current + 1;
       const sim = put.record.sim;
+      // The clock is the register's own, but it is written into a column every board then reads
+      // back, and node:sqlite will not hand JS an integer past Number.MAX_SAFE_INTEGER at all —
+      // so one absurd stamp is a 500 on every board and a save its owner can never write again.
+      // A stamp that is not a sane millisecond is not stored; the last good one stands.
+      const at = Number.isSafeInteger(nowMs) && nowMs > 0 ? nowMs : (stored?.updated_at ?? 0);
       const acked = JSON.parse(stored?.record ?? 'null') as SaveRecord | null;
       // What the register last wrote, and the clock it wrote it by, are the two things about a
       // save the hero cannot write themselves. Between them they say what the time since could
@@ -276,7 +282,7 @@ export class Register {
           record.writerId,
           record.sim.player.god,
           JSON.stringify(record),
-          nowMs,
+          at,
           tickBase,
         );
       const upsert = this.db.prepare(
@@ -305,7 +311,7 @@ export class Register {
   board(board: BoardId, userId: number | null, nowMs: number): Board {
     const rows = this.db
       .prepare(
-        `SELECT u.id, u.name, s.god, s.updated_at, st.level, st.score
+        `SELECT u.id, u.name, s.god, CAST(s.updated_at AS REAL) AS updated_at, st.level, st.score
          FROM standings st
          JOIN users u ON u.id = st.user_id
          JOIN saves s ON s.user_id = st.user_id
@@ -335,7 +341,7 @@ export class Register {
       if (mine) {
         const me = this.db
           .prepare(
-            `SELECT u.name, s.god, s.updated_at FROM users u JOIN saves s ON s.user_id = u.id
+            `SELECT u.name, s.god, CAST(s.updated_at AS REAL) AS updated_at FROM users u JOIN saves s ON s.user_id = u.id
              WHERE u.id = ?`,
           )
           .get(userId) as { name: string; god: string | null; updated_at: number };

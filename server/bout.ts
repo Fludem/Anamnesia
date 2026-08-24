@@ -141,7 +141,7 @@ export class Ring {
     const led = this.ledger(user.id);
     const rows = this.db
       .prepare(
-        `SELECT u.id, u.name, s.god, s.record, s.updated_at FROM saves s
+        `SELECT u.id, u.name, s.god, s.record, CAST(s.updated_at AS REAL) AS updated_at FROM saves s
          JOIN users u ON u.id = s.user_id
          WHERE s.updated_at >= ? AND s.user_id != ?`,
       )
