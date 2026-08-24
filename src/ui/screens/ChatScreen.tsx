@@ -182,11 +182,18 @@ export function ChatPanel({
   const stuck = useRef(true);
   const lastId = messages?.[messages.length - 1]?.id ?? 0;
 
-  // Looking at a talk reads it. A panel seated on another screen (no way back) always
-  // counts as looked at; the talk screen's panel is hidden behind the list once `onBack`
-  // has been pressed, and says so by opening nothing.
+  // Looking at a talk reads it. The panel opens its talk when it is first shown and closes
+  // it when it leaves the screen, so words that come while another screen is up count as
+  // unread. In between, a panel seated on another screen (no way back) always counts as
+  // looked at; the talk screen's panel is hidden behind the list once `onBack` has been
+  // pressed, and says so by opening nothing.
   const { setOpen, open } = chat;
   const embedded = onBack === undefined;
+  const first = useRef(talk);
+  useEffect(() => {
+    setOpen(first.current);
+    return () => setOpen(null);
+  }, [setOpen]);
   useEffect(() => {
     if ((open !== null || embedded) && !sameTalk(open, talk)) setOpen(talk);
   }, [key, open, setOpen, talk, embedded]);

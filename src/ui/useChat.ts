@@ -48,6 +48,8 @@ export interface ChatState {
   open: Talk | null;
   /** Unread words in the listed rooms and every talk with a name. */
   unread: number;
+  /** Of those, the words said to this name alone: what the nav badge and the tab title count. */
+  unreadNames: number;
   /** Look at a talk; words with a name are read in the first time. */
   setOpen: (talk: Talk | null) => void;
   /** Say something; resolves to the register's refusal, or null. */
@@ -56,7 +58,7 @@ export interface ChatState {
   block: (name: string, blocked: boolean) => Promise<string | null>;
 }
 
-type Inner = Omit<ChatState, 'setOpen' | 'say' | 'block' | 'unread'>;
+type Inner = Omit<ChatState, 'setOpen' | 'say' | 'block' | 'unread' | 'unreadNames'>;
 
 type Action =
   | { type: 'overview'; data: ChatOverview }
@@ -80,7 +82,8 @@ const initial = (me: string): Inner => ({
   rooms: emptyRooms(),
   names: [],
   threads: {},
-  open: { kind: 'room', room: 'fire' },
+  // Nothing is on screen until a panel says so; the talk screen opens the fire when it shows.
+  open: null,
 });
 
 function reduce(s: Inner, a: Action): Inner {
@@ -181,6 +184,8 @@ export function useChat(user: User, enabled: boolean): ChatState {
   const [state, dispatch] = useReducer(reduce, user.name, initial);
   const open = useRef(state.open);
   open.current = state.open;
+  const threads = useRef(state.threads);
+  threads.current = state.threads;
 
   // The poll: an overview, then one open question after another until the tab lets go.
   useEffect(() => {
@@ -234,17 +239,16 @@ export function useChat(user: User, enabled: boolean): ChatState {
     api.chatRead(talk, lastId).catch(() => undefined);
   }, [enabled, openKey, lastId]);
 
-  const setOpen = useCallback(
-    (talk: Talk | null) => {
-      dispatch({ type: 'open', talk });
-      if (talk?.kind === 'name' && state.threads[talkKey(talk)] === undefined)
-        api.chatWith(talk.name).then(
-          (data) => dispatch({ type: 'thread', data }),
-          (e: unknown) => dispatch({ type: 'error', message: reason(e) }),
-        );
-    },
-    [state.threads],
-  );
+  // Stable on purpose: the panel closes the talk when it unmounts, and must not do so on
+  // every render in between.
+  const setOpen = useCallback((talk: Talk | null) => {
+    dispatch({ type: 'open', talk });
+    if (talk?.kind === 'name' && threads.current[talkKey(talk)] === undefined)
+      api.chatWith(talk.name).then(
+        (data) => dispatch({ type: 'thread', data }),
+        (e: unknown) => dispatch({ type: 'error', message: reason(e) }),
+      );
+  }, []);
 
   const say = useCallback(async (talk: Talk, body: string): Promise<string | null> => {
     try {
@@ -268,9 +272,10 @@ export function useChat(user: User, enabled: boolean): ChatState {
     }
   }, []);
 
-  let unread = 0;
+  let unreadNames = 0;
+  for (const n of state.names) unreadNames += n.unread;
+  let unread = unreadNames;
   for (const r of LISTED_ROOMS) unread += state.rooms[r].unread;
-  for (const n of state.names) unread += n.unread;
 
-  return { ...state, unread, setOpen, say, block };
+  return { ...state, unread, unreadNames, setOpen, say, block };
 }

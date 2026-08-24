@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from './api/client.ts';
 import type { User } from './api/protocol.ts';
 import type { Look } from './look/look.ts';
@@ -57,6 +57,8 @@ export function App() {
   return <Game key={session.user.id} user={session.user} onSignOut={door.signOut} />;
 }
 
+const PAGE_TITLE = 'Anamnesia Idle';
+
 /**
  * Chooses what the tab shows: one of the calm full-page states while the runtime is not ready
  * to play here, otherwise the shell with the current screen and any moment-overlays on top.
@@ -70,6 +72,14 @@ function Game({ user, onSignOut }: { user: User; onSignOut: () => Promise<void> 
   const { sim, role } = snapshot;
   // Only the tab that plays listens at the fire; a follower shows its calm page and no more.
   const chat = useChat(user, role === 'leader' && sim !== null && snapshot.error === null);
+  // The browser tab says when a word with a name waits, for whoever is on another tab.
+  useEffect(() => {
+    const n = chat.unreadNames;
+    document.title = n > 0 ? `(${String(n)}) ${PAGE_TITLE}` : PAGE_TITLE;
+    return () => {
+      document.title = PAGE_TITLE;
+    };
+  }, [chat.unreadNames]);
   const reload = () => runtime?.env.reloadPage();
   /** Save, stop the game here, then end the session: the last save is the one that counts. */
   const signOut = async () => {
@@ -163,6 +173,7 @@ function Game({ user, onSignOut }: { user: User; onSignOut: () => Promise<void> 
         sim={sim}
         view={view}
         unread={chat.unread}
+        unreadNames={chat.unreadNames}
         onView={setView}
         onSettings={() => setSettingsOpen(true)}
         onPaint={() => setPainting(true)}

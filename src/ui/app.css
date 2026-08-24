@@ -3276,11 +3276,31 @@
 
 /* ---- talk (Phase 13: the fire and a word with a name) ---------------------------------- */
 
-.nav-row .lvl.unread {
-  color: var(--accent);
-  font-weight: 600;
+/* A word with a name: a counted pill. Words by the fire alone: a quiet dot. */
+.nav-badge,
+.tab-badge {
+  flex: none;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--accent);
+  color: var(--bg);
+  font: 700 var(--fs-hint) var(--font-mono);
+  line-height: 18px;
+  text-align: center;
+  box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.45);
 }
-.tab.unread {
+.nav-dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.tab.unread,
+.tab.named {
   position: relative;
 }
 .tab.unread::after {
@@ -3292,6 +3312,18 @@
   height: 6px;
   border-radius: 50%;
   background: var(--accent);
+}
+.tab-badge {
+  position: absolute;
+  top: 0;
+  left: calc(50% + 4px);
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  line-height: 16px;
+  border: 2px solid var(--bg-chrome);
+  box-sizing: content-box;
 }
 
 /* The talk fills what is left of the main column under the head and first steps. */

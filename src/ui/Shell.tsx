@@ -39,8 +39,10 @@ const TAB_LABEL: Record<string, string> = {
 export interface ShellProps {
   sim: SimState;
   view: View;
-  /** Words not yet read, shown on the Talk row. */
+  /** Words not yet read anywhere: a quiet dot on the Talk row. */
   unread: number;
+  /** Of those, words said to this name alone: a counted badge on the Talk row. */
+  unreadNames: number;
   onView: (view: View) => void;
   onSettings: () => void;
   /** Open the brush on this name's likeness. */
@@ -48,9 +50,25 @@ export interface ShellProps {
   children: ReactNode;
 }
 
-export function Shell({ sim, view, unread, onView, onSettings, onPaint, children }: ShellProps) {
+export function Shell({
+  sim,
+  view,
+  unread,
+  unreadNames,
+  onView,
+  onSettings,
+  onPaint,
+  children,
+}: ShellProps) {
   const isSkill = (id: string) => view.kind === 'skill' && view.id === id;
   const coins = formatInt(sim.coins);
+  const badge = unreadNames > 99 ? '99+' : String(unreadNames);
+  const talkLabel =
+    unreadNames > 0
+      ? `Talk, ${String(unreadNames)} unread ${unreadNames === 1 ? 'word' : 'words'} with a name`
+      : unread > 0
+        ? 'Talk, new words by the fire'
+        : 'Talk';
   return (
     <div className="app">
       <header className="topbar">
@@ -135,11 +153,14 @@ export function Shell({ sim, view, unread, onView, onSettings, onPaint, children
           <button
             className={view.kind === 'talk' ? 'nav-row active' : 'nav-row'}
             onClick={() => onView({ kind: 'talk' })}
+            aria-label={talkLabel}
           >
             <UiIcon id={TALK_ICON} size={17} />
             <span className="grow">Talk</span>
-            {unread > 0 && (
-              <span className="lvl unread">{unread > 99 ? '99+' : String(unread)}</span>
+            {unreadNames > 0 ? (
+              <span className="nav-badge">{badge}</span>
+            ) : (
+              unread > 0 && <span className="nav-dot" />
             )}
           </button>
           <div className="spacer" />
@@ -205,11 +226,15 @@ export function Shell({ sim, view, unread, onView, onSettings, onPaint, children
           Scores
         </button>
         <button
-          className={`tab${view.kind === 'talk' ? ' active' : ''}${unread > 0 ? ' unread' : ''}`}
+          className={`tab${view.kind === 'talk' ? ' active' : ''}${
+            unreadNames > 0 ? ' named' : unread > 0 ? ' unread' : ''
+          }`}
           onClick={() => onView({ kind: 'talk' })}
+          aria-label={talkLabel}
         >
           <UiIcon id={TALK_ICON} size={20} />
           Talk
+          {unreadNames > 0 && <span className="tab-badge">{badge}</span>}
         </button>
         <button className="tab" onClick={onSettings}>
           <UiIcon id="lorc/cog" size={20} />
