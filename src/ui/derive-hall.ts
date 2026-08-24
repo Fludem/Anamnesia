@@ -98,9 +98,7 @@ export function roomRows(view: HallView, sim: SimState, ctx: SimContext): RoomRo
       held: n.what === GP ? sim.coins : countItem(sim.bank, n.what),
       met: n.have >= n.need,
       cart: sim.hall.gifts
-        .filter(
-          (g) => g.room === room.id && g.tier === tier + 1 && (g.item ?? GP) === n.what,
-        )
+        .filter((g) => g.room === room.id && g.tier === tier + 1 && (g.item ?? GP) === n.what)
         .reduce((a, g) => a + g.qty, 0),
     }));
     // Every term counts the same, as the bar draws it — a 2M-gp term must not drown the pelts.

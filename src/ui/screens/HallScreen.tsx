@@ -184,7 +184,7 @@ function Door({
             {halls.length === 0 && <div className="row board-note">nobody has founded one yet</div>}
             {halls.map((h) => (
               <div key={h.name} className="row hall-row">
-<Face kind="hall" name={h.name} />
+                <Face kind="hall" name={h.name} />
                 <span className="body">
                   <span className="name">{h.name}</span>
                   <span className="sub">
@@ -355,7 +355,7 @@ function Inside({
     <>
       <ScreenHead
         icon={HALL_ICON}
-face={<Face kind="hall" name={view.name} size={28} />}
+        face={<Face kind="hall" name={view.name} size={28} />}
         title={view.name}
         chip={`${view.members.length === 1 ? 'one name' : `${String(view.members.length)} names`} · ${raised === 0 ? 'nothing raised yet' : `${String(raised)} raised`}`}
         rate={
@@ -400,9 +400,7 @@ face={<Face kind="hall" name={view.name} size={28} />}
                   {r.now !== null ? numeral(r.tier) : '—'}
                 </span>
                 <span className={r.now !== null ? 'text' : 'text off'}>
-                  {r.now !== null
-                    ? perkLine(r.now, simContext)
-                    : `${r.room.name} — not yet raised`}
+                  {r.now !== null ? perkLine(r.now, simContext) : `${r.room.name} — not yet raised`}
                 </span>
               </div>
             ))}
@@ -419,7 +417,7 @@ face={<Face kind="hall" name={view.name} size={28} />}
               const armed = turnArm === m.name;
               return (
                 <div key={m.name} className={`row hall-row${m.you ? ' you' : ''}`}>
-<Face name={m.name} size={26} />
+                  <Face name={m.name} size={26} />
                   <span className="body">
                     <span className="name">
                       {m.name}
@@ -632,9 +630,7 @@ function RoomLine({ row, onGive }: { row: RoomRow; onGive: () => void }) {
                     onMouseLeave={() => setHot(null)}
                   >
                     <span className={n.what === GP && !n.met ? 'n gp' : 'n'}>
-                      {n.met
-                        ? formatInt(n.need)
-                        : `${formatInt(n.have)}/${formatInt(n.need)}`}
+                      {n.met ? formatInt(n.need) : `${formatInt(n.have)}/${formatInt(n.need)}`}
                     </span>
                     {n.met ? `${n.name} ✓` : n.name}
                   </span>
