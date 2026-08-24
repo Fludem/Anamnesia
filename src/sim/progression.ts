@@ -203,7 +203,7 @@ export function hoursToCap(skill: string, ctx: SimContext, opts: { quick?: boole
 // ---- coins --------------------------------------------------------------------------------
 
 /** Expected sale value of one roll of `table`. */
-function tableValue(table: DropTable, ctx: SimContext): number {
+export function tableValue(table: DropTable, ctx: SimContext): number {
   const total = table.nothingWeight + table.entries.reduce((n, e) => n + e.weight, 0);
   if (total === 0) return 0;
   let value = 0;

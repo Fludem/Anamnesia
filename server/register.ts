@@ -18,6 +18,7 @@ import {
 } from '../src/api/protocol.ts';
 import { isBlank, parseLook, type Look } from '../src/look/look.ts';
 import type { SimContext } from '../src/sim/context.ts';
+import { overreach } from '../src/sim/ceiling.ts';
 import { boardIds, standingsOf, type BoardId } from '../src/sim/highscores.ts';
 import type { SaveRecord } from '../src/sim/save.ts';
 import { applyBoutSync } from '../src/sim/bout.ts';
@@ -159,8 +160,9 @@ export class Register {
     const userId = user.id;
     return transaction(this.db, () => {
       const stored = this.db
-        .prepare('SELECT counter, writer_id, record FROM saves WHERE user_id = ?')
-        .get(userId) as { counter: number; writer_id: string; record: string } | undefined;
+        .prepare('SELECT counter, writer_id, record, updated_at FROM saves WHERE user_id = ?')
+        .get(userId) as
+        { counter: number; writer_id: string; record: string; updated_at: number } | undefined;
       const current = stored?.counter ?? 0;
       const retry =
         stored !== undefined &&
@@ -176,6 +178,28 @@ export class Register {
       const next = current + 1;
       const sim = put.record.sim;
       const acked = JSON.parse(stored?.record ?? 'null') as SaveRecord | null;
+      // What the register last wrote, and the clock it wrote it by, are the two things about a
+      // save the hero cannot write themselves. Between them they say what the time since could
+      // possibly have been worth (sim/ceiling.ts). A save claiming more than that was not
+      // played for, so it is not written: the tab is handed the stored record and goes back to
+      // it, exactly as it would after losing a race. Nothing is clamped — a record half the
+      // register's own and half the caller's would be a worse lie than either.
+      const past = overreach(
+        acked?.sim ?? null,
+        sim,
+        {
+          sinceWrite: nowMs - (stored?.updated_at ?? user.createdAt),
+          sinceName: nowMs - user.createdAt,
+        },
+        this.ctx,
+      );
+      if (past !== null) {
+        console.warn(
+          `refused save from ${user.name}: ${past.what} up ${past.gained.toFixed(0)} in ` +
+            `${(past.windowMs / 1000).toFixed(0)}s, ceiling ${past.ceiling.toFixed(0)}`,
+        );
+        return { ok: false, reason: 'impossible', stored: acked };
+      }
       // The cart the register last saw is how it tells a gift resent because an answer went
       // missing from a gift wearing a number the ledger has already spent (see applyGifts).
       const hall = this.halls.applyGifts(

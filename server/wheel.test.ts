@@ -19,9 +19,18 @@ import { HISTORY } from './wheel.ts';
 /** A moment at the very start of a round. */
 const T0 = Math.ceil(1_700_000_000_000 / ROUND_MS) * ROUND_MS;
 
+/**
+ * Ticks a fabricated save has been played for. The register weighs what a save claims against
+ * the ticks it took to claim it (sim/ceiling.ts), so a save that arrives out of nowhere with
+ * coins already on it is refused like any other would be. Five more minutes each time is room
+ * for anything these tests hand it.
+ */
+const PLAYED_STEP = 3_000;
+
 class Client {
   cookie: string | null = null;
   counter = 0;
+  played = 0;
   constructor(
     private readonly base: string,
     readonly name: string,
@@ -56,10 +65,11 @@ class Client {
   }
   /** Save with these coins and this cart; returns the wheel's answer. */
   async save(coins: number, cart: BuyIn[] = [], paidThrough = 0, bought = cart.length) {
+    this.played += PLAYED_STEP;
     const base = createNewSave({ seed: 1, nowMs: T0, writerId: 'tab' });
     const record: SaveRecord = {
       ...base,
-      sim: { ...base.sim, coins, wheel: { cart, bought, paidThrough } },
+      sim: { ...base.sim, tick: this.played, coins, wheel: { cart, bought, paidThrough } },
     };
     const r = await this.call('PUT', '/api/save', { record, expectedCounter: this.counter });
     const body = r.body as { ok: boolean; saveCounter: number; wheel: WheelSync };

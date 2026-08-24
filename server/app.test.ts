@@ -47,9 +47,19 @@ class Client {
   }
 }
 
+/**
+ * Ticks a fabricated save has been played for. The register weighs what a save claims against
+ * the ticks it took to claim it (sim/ceiling.ts), so a save that arrives out of nowhere with
+ * xp already on it is refused like any other would be. Five more minutes each time is room
+ * for anything these tests hand it.
+ */
+const PLAYED_STEP = 3_000;
+let played = 0;
+
 function save(writerId: string, sim: Partial<SaveRecord['sim']> = {}): SaveRecord {
+  played += PLAYED_STEP;
   const base = createNewSave({ seed: 1, nowMs: T0, writerId });
-  return { ...base, sim: { ...base.sim, ...sim } };
+  return { ...base, sim: { ...base.sim, tick: played, ...sim } };
 }
 
 let server: Server;
@@ -187,6 +197,36 @@ describe('saves', () => {
     expect(
       (await c.call('PUT', '/api/save', { record: { nope: 1 }, expectedCounter: 0 })).status,
     ).toBe(400);
+  });
+
+  it('will not take a save claiming more than the ticks behind it could have paid', async () => {
+    const c = new Client(base);
+    await c.register('Chancer');
+    const honest = save('tab', { tick: 3_000, skills: { mining: { xp: 4_470 } } });
+    expect((await c.put(honest, 0)).status).toBe(200);
+
+    // The trick as it was actually done: hold the save request on its way out, put a bigger
+    // number in it, let it go. The ticks behind it have not moved, so there is no hour for
+    // the xp to have come out of, and the register keeps what it had.
+    const forged = { ...honest, sim: { ...honest.sim, skills: { mining: { xp: 13_034_431 } } } };
+    const refused = await c.put(forged, 1);
+    expect(refused.status).toBe(409);
+    expect(refused.body).toMatchObject({
+      ok: false,
+      reason: 'impossible',
+      stored: { saveCounter: 1, sim: { skills: { mining: { xp: 4_470 } } } },
+    });
+
+    const kept = (await c.call('GET', '/api/save')).body as { record: SaveRecord };
+    expect(kept.record.sim.skills['mining']).toEqual({ xp: 4_470 });
+    const board = (await c.call('GET', '/api/highscores/mining')).body as {
+      rows: { name: string; level: number | null }[];
+    };
+    expect(board.rows.find((r) => r.name === 'Chancer')?.level).toBe(20);
+
+    // An hour further along, an hour's worth of it goes through like any other save.
+    const played = save('tab', { tick: 39_000, skills: { mining: { xp: 1_000_000 } } });
+    expect((await c.put(played, 1)).status).toBe(200);
   });
 });
 

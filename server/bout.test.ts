@@ -11,9 +11,18 @@ import { openDatabase } from './db.ts';
 
 const T0 = 1_700_000_000_000;
 
+/**
+ * Ticks a fabricated save has been played for. The register weighs what a save claims against
+ * the ticks it took to claim it (sim/ceiling.ts), so a save that arrives out of nowhere with
+ * coins already on it is refused like any other would be. Five more minutes each time is room
+ * for anything these tests hand it.
+ */
+const PLAYED_STEP = 3_000;
+
 class Client {
   cookie: string | null = null;
   counter = 0;
+  played = 0;
   /** What this name's last save said; the harness keeps it so a save is one line. */
   sim: { coins: number; equipment: Partial<Equipment>; open: boolean; settledThrough: number } = {
     coins: 0,
@@ -48,11 +57,13 @@ class Client {
 
   /** Write the save as the harness currently describes it; returns the ring's answer. */
   async save() {
+    this.played += PLAYED_STEP;
     const base = createNewSave({ seed: 1, nowMs: T0, writerId: 'tab' });
     const record: SaveRecord = {
       ...base,
       sim: {
         ...base.sim,
+        tick: this.played,
         coins: this.sim.coins,
         bank: this.bank,
         equipment: { ...base.sim.equipment, ...this.sim.equipment },

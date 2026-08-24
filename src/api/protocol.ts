@@ -87,10 +87,15 @@ export const SavePutResultSchema = z.discriminatedUnion('ok', [
     /** What the ring settled on this name: a thing taken, a thing given up, a balance owed. */
     bouts: BoutSyncSchema,
   }),
-  /** `stored` is what is there instead; null only if the save has gone entirely. */
+  /**
+   * `stored` is what is there instead; null only if the save has gone entirely. `stale` is a
+   * lost race — someone else wrote first. `impossible` is a save claiming more than the time
+   * since the register last wrote could have paid (see sim/ceiling.ts); the answer is the
+   * same either way, because in both cases the record on the register is the true one.
+   */
   z.object({
     ok: z.literal(false),
-    reason: z.literal('stale'),
+    reason: z.enum(['stale', 'impossible']),
     stored: SaveRecordSchema.nullable(),
   }),
 ]);

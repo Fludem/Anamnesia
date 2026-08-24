@@ -1772,3 +1772,74 @@ fighter stays findable and a bout stays reversible long after the save that fiel
   been.
 - The challenge list reads every in-ring save to build its rows. Fine for a hill of friends;
   it wants a projection in `standings` before it is a hundred names.
+
+## What an hour can be worth — the register stops taking the save's word for xp
+
+Someone held the save request on its way out, put a bigger number in it, and let it go. It
+worked, and it was never a bug: `PUT /api/save` shape-checked the record and stored it, and
+`standingsOf` scored the boards straight off what it was handed. Every phase since 11 has said
+some version of "the inputs are still the save's own word", most recently the ring's own
+_What is trusted_, which named the fix it would take. This is that fix.
+
+**Not by re-running the game.** Server-side re-simulation is the phrase everyone reaches for,
+and it is a different contract, not a harder version of this one: the client would have to send
+its commands rather than its state, and the register would have to tick every account. What the
+register can do today, with what it already has, is ask whether the save in front of it is
+_possible_ — and that question turns out to be almost as strong, because it is answered from
+`progression.ts`, the same model that keeps every skill near its 36 hours to the cap. A new
+node, monster or recipe raises the ceiling on the day it lands. Nobody has to remember a number.
+
+**Two things are asked, in `sim/ceiling.ts`, and either alone can be walked around.**
+
+_How long the name has been on the hill._ A tick is a tenth of a second and nothing makes ticks
+but time passing, so a save's tick count can never have outrun the age of the name carrying it —
+`users.created_at`, which is the register's own and not in any request. One offline cap's grace
+for a browser whose clock jumps. Without this the second question could be asked and answered
+honestly over and over, and four hours of the best hour there is comes to half a climb.
+
+_What those ticks were worth._ Per skill, against the best method open at the level the save
+has **reached** — rates only rise with level, and the hero was never better than they ended up.
+Wealth the same way, because selling a hoard is a fair jump in coins but never in worth. Both
+measured only upward: gear lost in the ring, goods on the hall's cart, coins staked at the
+wheel all make these numbers smaller, and a smaller number is never a lie worth telling.
+
+**The window is ticks, not seconds.** This is the part that looks wrong and is not. A tab
+claims the slot, catches up the four hours it was away, and saves — a moment later by the
+register's clock, four hours later by the hill's (`game-host.ts`, `save('claim')` then
+`save('catch-up')`). Judge that by the wall clock and every player returning from a night away
+is refused. So the window is the ticks the save claims, capped in turn by the register's clock
+plus the offline cap, so a tick count cannot buy its own allowance.
+
+**Refused, not clamped, and not written.** A record half the register's own numbers and half
+the caller's is a worse lie than either, and a client whose xp was quietly trimmed would resubmit
+the difference forever. The refusal is the 409 the store already understands: the tab is handed
+what is stored and goes back to it, exactly as after a lost race. The wire reason is
+`impossible` rather than `stale` so the log says which it was; `server-store.ts` has always read
+any 409 as stale, so a tab open across the deploy needs nothing.
+
+**The numbers are loose on purpose.** `HEADROOM` is 6. The model counts expected values with no
+god sworn, no xp on the gear and no hearth in the hall — together about four parts in ten — and
+the slab pays a cycle again for a new best fish, which can double a lucky spell of fishing.
+Six is well clear of all of it: `content/honest-play.test.ts` runs the real simulation, not the
+model, through fifteen honest hours — every gathering skill at three levels on the deepest node
+open to it with the god that pays it, and the tier's gear against the deepest monster — and the
+worst ten minutes any of them claims is about a ninth of what it is allowed. A false refusal
+costs a real player the minutes since their last save; letting a cheat through by six costs
+nothing, because nobody hijacks a save request to gain six times a fair hour.
+
+### Flagged
+
+- The ring board is still the save's own word: `standingsOf` reads `stats.taken` and
+  `stats.bouts`, and nothing here weighs them. The register mints every settlement, so it has
+  what it needs to; it wants the ring's own invariants, not a guess from this file.
+- Lifetime counters generally (`stats.items`, `stats.kills`, `sold`) are unweighed. Nothing
+  ranks on them today; first steps and the recap read them.
+- The wheel still takes a bet without asking whether the coins exist (`server/wheel.ts`,
+  `bet()`); the save's purse is checked client-side. Wealth is now weighed at the save, which
+  bounds how much can be staked over time, but the register still issues real payouts against
+  a stake it has not verified. Its own purse is the fix.
+- A save refused is a line in the journal, not a row in a table. `grep 'refused save'` is
+  enough for a hill of friends; a name that trips it often wants somewhere to be counted.
+- The dev _13h away_ button rewinds the local anchor and so makes ticks faster than the clock
+  does. Against a server store it will eventually run into the age bound, which is the button
+  working as intended.
