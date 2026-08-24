@@ -502,6 +502,7 @@
     "material": "iron",
     "rarity": "common",
     "slot": "weapon",
+    "wear": { "skill": "combat", "level": 10 },
     "stats": {
       "attack": 14,
       "strength": 5
@@ -519,6 +520,7 @@
     "material": "iron",
     "rarity": "common",
     "slot": "weapon",
+    "wear": { "skill": "combat", "level": 10 },
     "stats": {
       "attack": 11,
       "strength": 8,
@@ -536,6 +538,7 @@
     "material": "iron",
     "rarity": "common",
     "slot": "shield",
+    "wear": { "level": 10 },
     "stats": {
       "defence": 5
     },
@@ -551,6 +554,7 @@
     "material": "iron",
     "rarity": "common",
     "slot": "head",
+    "wear": { "level": 10 },
     "stats": {
       "defence": 4
     },
@@ -566,6 +570,7 @@
     "material": "iron",
     "rarity": "common",
     "slot": "body",
+    "wear": { "level": 10 },
     "stats": {
       "defence": 8
     },
@@ -581,6 +586,7 @@
     "material": "iron",
     "rarity": "common",
     "slot": "legs",
+    "wear": { "level": 10 },
     "stats": {
       "defence": 7
     },
@@ -596,6 +602,7 @@
     "material": "iron",
     "rarity": "common",
     "slot": "feet",
+    "wear": { "level": 10 },
     "stats": {
       "defence": 3
     },
@@ -641,6 +648,7 @@
     "material": "basalt",
     "rarity": "common",
     "slot": "weapon",
+    "wear": { "skill": "combat", "level": 25 },
     "stats": {
       "attack": 17,
       "strength": 7
@@ -658,6 +666,7 @@
     "material": "basalt",
     "rarity": "common",
     "slot": "weapon",
+    "wear": { "skill": "combat", "level": 25 },
     "stats": {
       "attack": 14,
       "strength": 10,
@@ -675,6 +684,7 @@
     "material": "basalt",
     "rarity": "common",
     "slot": "shield",
+    "wear": { "level": 25 },
     "stats": {
       "defence": 7
     },
@@ -690,6 +700,7 @@
     "material": "basalt",
     "rarity": "common",
     "slot": "head",
+    "wear": { "level": 25 },
     "stats": {
       "defence": 5
     },
@@ -705,6 +716,7 @@
     "material": "basalt",
     "rarity": "common",
     "slot": "body",
+    "wear": { "level": 25 },
     "stats": {
       "defence": 10
     },
@@ -720,6 +732,7 @@
     "material": "basalt",
     "rarity": "common",
     "slot": "legs",
+    "wear": { "level": 25 },
     "stats": {
       "defence": 8
     },
@@ -735,6 +748,7 @@
     "material": "basalt",
     "rarity": "common",
     "slot": "feet",
+    "wear": { "level": 25 },
     "stats": {
       "defence": 3
     },
@@ -780,6 +794,7 @@
     "material": "silver",
     "rarity": "common",
     "slot": "weapon",
+    "wear": { "skill": "combat", "level": 45 },
     "stats": {
       "attack": 20,
       "strength": 8
@@ -797,6 +812,7 @@
     "material": "silver",
     "rarity": "common",
     "slot": "weapon",
+    "wear": { "skill": "combat", "level": 45 },
     "stats": {
       "attack": 16,
       "strength": 12,
@@ -814,6 +830,7 @@
     "material": "silver",
     "rarity": "common",
     "slot": "shield",
+    "wear": { "level": 45 },
     "stats": {
       "defence": 8
     },
@@ -829,6 +846,7 @@
     "material": "silver",
     "rarity": "common",
     "slot": "head",
+    "wear": { "level": 45 },
     "stats": {
       "defence": 6
     },
@@ -844,6 +862,7 @@
     "material": "silver",
     "rarity": "common",
     "slot": "body",
+    "wear": { "level": 45 },
     "stats": {
       "defence": 12
     },
@@ -859,6 +878,7 @@
     "material": "silver",
     "rarity": "common",
     "slot": "legs",
+    "wear": { "level": 45 },
     "stats": {
       "defence": 10
     },
@@ -874,6 +894,7 @@
     "material": "silver",
     "rarity": "common",
     "slot": "feet",
+    "wear": { "level": 45 },
     "stats": {
       "defence": 4
     },
@@ -919,6 +940,7 @@
     "material": "gold",
     "rarity": "common",
     "slot": "weapon",
+    "wear": { "skill": "combat", "level": 60 },
     "stats": {
       "attack": 24,
       "strength": 10
@@ -936,6 +958,7 @@
     "material": "gold",
     "rarity": "common",
     "slot": "weapon",
+    "wear": { "skill": "combat", "level": 60 },
     "stats": {
       "attack": 19,
       "strength": 14,
@@ -953,6 +976,7 @@
     "material": "gold",
     "rarity": "common",
     "slot": "shield",
+    "wear": { "level": 60 },
     "stats": {
       "defence": 10
     },
@@ -968,6 +992,7 @@
     "material": "gold",
     "rarity": "common",
     "slot": "head",
+    "wear": { "level": 60 },
     "stats": {
       "defence": 7
     },
@@ -983,6 +1008,7 @@
     "material": "gold",
     "rarity": "common",
     "slot": "body",
+    "wear": { "level": 60 },
     "stats": {
       "defence": 14
     },
@@ -998,6 +1024,7 @@
     "material": "gold",
     "rarity": "common",
     "slot": "legs",
+    "wear": { "level": 60 },
     "stats": {
       "defence": 12
     },
@@ -1013,6 +1040,7 @@
     "material": "gold",
     "rarity": "common",
     "slot": "feet",
+    "wear": { "level": 60 },
     "stats": {
       "defence": 5
     },
@@ -1058,6 +1086,7 @@
     "material": "aether",
     "rarity": "epic",
     "slot": "weapon",
+    "wear": { "skill": "combat", "level": 75 },
     "stats": {
       "attack": 28,
       "strength": 11
@@ -1075,6 +1104,7 @@
     "material": "aether",
     "rarity": "epic",
     "slot": "weapon",
+    "wear": { "skill": "combat", "level": 75 },
     "stats": {
       "attack": 22,
       "strength": 16,
@@ -1092,6 +1122,7 @@
     "material": "aether",
     "rarity": "epic",
     "slot": "shield",
+    "wear": { "level": 75 },
     "stats": {
       "defence": 11
     },
@@ -1107,6 +1138,7 @@
     "material": "aether",
     "rarity": "epic",
     "slot": "head",
+    "wear": { "level": 75 },
     "stats": {
       "defence": 8
     },
@@ -1122,6 +1154,7 @@
     "material": "aether",
     "rarity": "epic",
     "slot": "body",
+    "wear": { "level": 75 },
     "stats": {
       "defence": 16
     },
@@ -1137,6 +1170,7 @@
     "material": "aether",
     "rarity": "epic",
     "slot": "legs",
+    "wear": { "level": 75 },
     "stats": {
       "defence": 14
     },
@@ -1152,6 +1186,7 @@
     "material": "aether",
     "rarity": "epic",
     "slot": "feet",
+    "wear": { "level": 75 },
     "stats": {
       "defence": 6
     },
@@ -1167,6 +1202,7 @@
     "material": "silver",
     "rarity": "common",
     "slot": "amulet",
+    "wear": { "level": 45 },
     "stats": {
       "defence": 2,
       "attack": 2
@@ -1183,6 +1219,7 @@
     "material": "gold",
     "rarity": "common",
     "slot": "ring",
+    "wear": { "level": 60 },
     "stats": {
       "strength": 2
     },
@@ -1198,6 +1235,7 @@
     "material": "willow",
     "rarity": "rare",
     "slot": "ring",
+    "wear": { "level": 60 },
     "stats": {
       "strength": 3,
       "defence": 2
@@ -1214,6 +1252,7 @@
     "material": "aether",
     "rarity": "rare",
     "slot": "amulet",
+    "wear": { "level": 60 },
     "stats": {
       "attack": 4,
       "defence": 3
@@ -1433,6 +1472,7 @@
     "material": "marble",
     "rarity": "rare",
     "slot": "head",
+    "wear": { "level": 70 },
     "stats": {
       "defence": 9,
       "attack": 2
@@ -1450,6 +1490,7 @@
     "material": "marble",
     "rarity": "rare",
     "slot": "body",
+    "wear": { "level": 70 },
     "stats": {
       "defence": 16,
       "attack": 3
@@ -1467,6 +1508,7 @@
     "material": "marble",
     "rarity": "rare",
     "slot": "legs",
+    "wear": { "level": 70 },
     "stats": {
       "defence": 12,
       "attack": 2
@@ -1495,6 +1537,7 @@
     "material": "gold",
     "rarity": "legendary",
     "slot": "head",
+    "wear": { "level": 70 },
     "stats": {
       "defence": 8,
       "attack": 6,
@@ -2118,6 +2161,7 @@
     "material": "iron",
     "rarity": "common",
     "slot": "hands",
+    "wear": { "level": 10 },
     "stats": {
       "defence": 3,
       "attack": 1
@@ -2134,6 +2178,7 @@
     "material": "iron",
     "rarity": "common",
     "slot": "ammo",
+    "wear": { "skill": "combat", "level": 10 },
     "stats": {
       "attack": 2,
       "strength": 4
@@ -2150,6 +2195,7 @@
     "material": "basalt",
     "rarity": "common",
     "slot": "hands",
+    "wear": { "level": 25 },
     "stats": {
       "defence": 3,
       "attack": 2
@@ -2166,6 +2212,7 @@
     "material": "basalt",
     "rarity": "common",
     "slot": "ammo",
+    "wear": { "skill": "combat", "level": 25 },
     "stats": {
       "attack": 3,
       "strength": 5
@@ -2182,6 +2229,7 @@
     "material": "silver",
     "rarity": "common",
     "slot": "hands",
+    "wear": { "level": 45 },
     "stats": {
       "defence": 4,
       "attack": 2
@@ -2198,6 +2246,7 @@
     "material": "silver",
     "rarity": "common",
     "slot": "ammo",
+    "wear": { "skill": "combat", "level": 45 },
     "stats": {
       "attack": 3,
       "strength": 6
@@ -2214,6 +2263,7 @@
     "material": "gold",
     "rarity": "common",
     "slot": "hands",
+    "wear": { "level": 60 },
     "stats": {
       "defence": 5,
       "attack": 3
@@ -2230,6 +2280,7 @@
     "material": "gold",
     "rarity": "common",
     "slot": "ammo",
+    "wear": { "skill": "combat", "level": 60 },
     "stats": {
       "attack": 4,
       "strength": 7
@@ -2246,6 +2297,7 @@
     "material": "aether",
     "rarity": "epic",
     "slot": "hands",
+    "wear": { "level": 75 },
     "stats": {
       "defence": 6,
       "attack": 4
@@ -2262,6 +2314,7 @@
     "material": "aether",
     "rarity": "epic",
     "slot": "ammo",
+    "wear": { "skill": "combat", "level": 75 },
     "stats": {
       "attack": 5,
       "strength": 9
@@ -2309,6 +2362,7 @@
     "material": "basalt",
     "rarity": "rare",
     "slot": "ring",
+    "wear": { "level": 25 },
     "stats": {
       "strength": 2,
       "defence": 1
@@ -2325,6 +2379,7 @@
     "material": "basalt",
     "rarity": "rare",
     "slot": "amulet",
+    "wear": { "level": 25 },
     "stats": {
       "attack": 2,
       "defence": 2
@@ -2360,6 +2415,7 @@
     "material": "aether",
     "rarity": "epic",
     "slot": "ring",
+    "wear": { "level": 75 },
     "stats": {
       "strength": 4,
       "attack": 2
@@ -2376,6 +2432,7 @@
     "material": "aether",
     "rarity": "epic",
     "slot": "amulet",
+    "wear": { "level": 75 },
     "stats": {
       "attack": 5,
       "defence": 4
@@ -2540,6 +2597,7 @@
     "material": "iron",
     "rarity": "rare",
     "slot": "cape",
+    "wear": { "level": 10 },
     "stats": {
       "defence": 3,
       "strength": 1
@@ -2556,6 +2614,7 @@
     "material": "marble",
     "rarity": "rare",
     "slot": "cape",
+    "wear": { "level": 45 },
     "stats": {
       "defence": 4,
       "strength": 2
@@ -2572,6 +2631,7 @@
     "material": "gold",
     "rarity": "epic",
     "slot": "cape",
+    "wear": { "level": 70 },
     "stats": {
       "defence": 6,
       "strength": 3
@@ -2606,6 +2666,7 @@
     "rarity": "common",
     "slot": "ammo",
     "style": "sorcery",
+    "wear": { "skill": "sorcery", "level": 10 },
     "stats": {
       "attack": 3,
       "strength": 4
@@ -2623,6 +2684,7 @@
     "rarity": "common",
     "slot": "ammo",
     "style": "sorcery",
+    "wear": { "skill": "sorcery", "level": 25 },
     "stats": {
       "attack": 3,
       "strength": 5
@@ -2640,6 +2702,7 @@
     "rarity": "common",
     "slot": "ammo",
     "style": "sorcery",
+    "wear": { "skill": "sorcery", "level": 45 },
     "stats": {
       "attack": 4,
       "strength": 6
@@ -2657,6 +2720,7 @@
     "rarity": "common",
     "slot": "ammo",
     "style": "sorcery",
+    "wear": { "skill": "sorcery", "level": 60 },
     "stats": {
       "attack": 4,
       "strength": 7
@@ -2674,6 +2738,7 @@
     "rarity": "epic",
     "slot": "ammo",
     "style": "sorcery",
+    "wear": { "skill": "sorcery", "level": 75 },
     "stats": {
       "attack": 5,
       "strength": 9
@@ -2708,6 +2773,7 @@
     "rarity": "common",
     "slot": "weapon",
     "style": "sorcery",
+    "wear": { "skill": "sorcery", "level": 10 },
     "stats": {
       "attack": 14,
       "strength": 5
@@ -2725,6 +2791,7 @@
     "rarity": "common",
     "slot": "weapon",
     "style": "sorcery",
+    "wear": { "skill": "sorcery", "level": 25 },
     "stats": {
       "attack": 17,
       "strength": 7
@@ -2742,6 +2809,7 @@
     "rarity": "common",
     "slot": "weapon",
     "style": "sorcery",
+    "wear": { "skill": "sorcery", "level": 45 },
     "stats": {
       "attack": 20,
       "strength": 8
@@ -2759,6 +2827,7 @@
     "rarity": "common",
     "slot": "weapon",
     "style": "sorcery",
+    "wear": { "skill": "sorcery", "level": 60 },
     "stats": {
       "attack": 24,
       "strength": 10
@@ -2776,6 +2845,7 @@
     "rarity": "epic",
     "slot": "weapon",
     "style": "sorcery",
+    "wear": { "skill": "sorcery", "level": 75 },
     "stats": {
       "attack": 28,
       "strength": 11
@@ -2856,6 +2926,7 @@
     "material": "marble",
     "rarity": "rare",
     "slot": "legs",
+    "wear": { "level": 50 },
     "stats": {
       "defence": 11,
       "strength": 2
@@ -2872,6 +2943,7 @@
     "material": "marble",
     "rarity": "rare",
     "slot": "weapon",
+    "wear": { "skill": "combat", "level": 60 },
     "stats": {
       "attack": 22,
       "strength": 9,
@@ -2889,6 +2961,7 @@
     "material": "silver",
     "rarity": "rare",
     "slot": "amulet",
+    "wear": { "level": 64 },
     "stats": {
       "attack": 5,
       "defence": 3
@@ -2905,6 +2978,7 @@
     "material": "marble",
     "rarity": "epic",
     "slot": "head",
+    "wear": { "level": 82 },
     "stats": {
       "defence": 8,
       "attack": 4,
@@ -2922,6 +2996,7 @@
     "material": "basalt",
     "rarity": "legendary",
     "slot": "shield",
+    "wear": { "level": 90 },
     "stats": {
       "defence": 14,
       "strength": 3
@@ -2976,6 +3051,7 @@
     "material": "birch",
     "rarity": "rare",
     "slot": "amulet",
+    "wear": { "level": 10 },
     "stats": {
       "attack": 2,
       "defence": 1
@@ -3003,6 +3079,7 @@
     "material": "marble",
     "rarity": "epic",
     "slot": "hands",
+    "wear": { "level": 25 },
     "stats": {
       "defence": 4,
       "strength": 2
@@ -3030,6 +3107,7 @@
     "material": "marble",
     "rarity": "epic",
     "slot": "feet",
+    "wear": { "level": 45 },
     "stats": {
       "defence": 5,
       "strength": 1
@@ -3057,6 +3135,7 @@
     "material": "silver",
     "rarity": "epic",
     "slot": "head",
+    "wear": { "level": 70 },
     "stats": {
       "defence": 6,
       "attack": 2
@@ -3119,6 +3198,7 @@
     "material": "silver",
     "rarity": "epic",
     "slot": "weapon",
+    "wear": { "skill": "combat", "level": 25 },
     "stats": {
       "attack": 18,
       "strength": 7,
@@ -3136,6 +3216,7 @@
     "material": "blight",
     "rarity": "epic",
     "slot": "body",
+    "wear": { "level": 45 },
     "stats": {
       "defence": 12,
       "attack": 3
@@ -3152,6 +3233,7 @@
     "material": "gold",
     "rarity": "legendary",
     "slot": "head",
+    "wear": { "level": 70 },
     "stats": {
       "defence": 9,
       "attack": 5,

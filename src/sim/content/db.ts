@@ -254,6 +254,11 @@ export class ContentDb {
         if (item.xpBoost.skill !== null && !skillIds.has(item.xpBoost.skill))
           problems.push(`${owner}: xp boost for unknown skill "${item.xpBoost.skill}"`);
       }
+      if (item.wear !== null) {
+        if (item.slot === null) problems.push(`${owner}: only worn items ask for a level`);
+        if (item.wear.skill !== null && !skillIds.has(item.wear.skill))
+          problems.push(`${owner}: worn level in unknown skill "${item.wear.skill}"`);
+      }
       if (!rarityIds.has(item.rarity)) problems.push(`${owner}: unknown rarity "${item.rarity}"`);
       const slotProblem = slotAllowed(item);
       if (slotProblem !== null) problems.push(`${owner}: ${slotProblem}`);

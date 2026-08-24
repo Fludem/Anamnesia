@@ -31,6 +31,7 @@ import { godOf, xpAwarded } from '../sim/perks.ts';
 import { skillLevel } from '../sim/progress.ts';
 import type { SimState, Splat } from '../sim/save.ts';
 import type { EquipmentSlot } from '../sim/slots.ts';
+import { meetsWear, wearAsk, wearLevel } from '../sim/wear.ts';
 import { TICKS_PER_HOUR } from './derive.ts';
 
 // ---- the fight ----------------------------------------------------------------------------
@@ -392,18 +393,41 @@ export function wornBody(sim: SimState, content: ContentDb): WornSlotView[] {
   });
 }
 
-/** Bank items that fit `slot`, best stat total first (an xp boost counts for a point a percent). */
-export function bankItemsFor(sim: SimState, content: ContentDb, slot: EquipmentSlot): ItemDef[] {
+/**
+ * Bank items that fit `slot`: what can go on now first, best stat total first inside that (an
+ * xp boost counts for a point a percent), and whatever the level is not there for at the end.
+ */
+export function bankItemsFor(sim: SimState, ctx: SimContext, slot: EquipmentSlot): ItemDef[] {
   const total = (i: ItemDef) =>
     (i.stats.attack ?? 0) +
     (i.stats.strength ?? 0) +
     (i.stats.defence ?? 0) +
     (i.stats.gather ?? 0) +
     (i.xpBoost?.fraction ?? 0) * 100;
+  const shut = (i: ItemDef) => (meetsWear(sim, i, ctx) ? 0 : 1);
   return sim.bank
-    .filter((s) => content.hasItem(s.item) && content.item(s.item).slot === slot)
-    .map((s) => content.item(s.item))
-    .sort((a, b) => total(b) - total(a));
+    .filter((s) => ctx.content.hasItem(s.item) && ctx.content.item(s.item).slot === slot)
+    .map((s) => ctx.content.item(s.item))
+    .sort((a, b) => shut(a) - shut(b) || total(b) - total(a));
+}
+
+export interface WearView {
+  /** "Combat level 45": the fight it is measured in and the level it asks for. */
+  ask: string;
+  /** The level the hero brings to it: the named fight's, or the better of the two. */
+  have: number;
+  /** Whether it can go on now. */
+  met: boolean;
+}
+
+/** What `item` asks before it is worn, and where this hero stands; null when it asks nothing. */
+export function wearView(sim: SimState, item: ItemDef, ctx: SimContext): WearView | null {
+  if (item.wear === null) return null;
+  return {
+    ask: wearAsk(item.wear, ctx),
+    have: wearLevel(sim, item.wear, ctx),
+    met: meetsWear(sim, item, ctx),
+  };
 }
 
 /** "+5% mining xp" / "+2% xp in every skill". */

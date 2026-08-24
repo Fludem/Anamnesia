@@ -14,6 +14,7 @@ import {
   ammoNoun,
   ammoView,
   bankItemsFor,
+  wearView,
   wornBody,
   wornXpBoost,
   xpBoostText,
@@ -201,7 +202,8 @@ function Selected({
 }) {
   const tool = slot in TOOL_SLOTS;
   const label = SLOT_LABEL[slot];
-  const inBank = bankItemsFor(sim, content, slot);
+  const inBank = bankItemsFor(sim, simContext, slot);
+  const wants = item === null ? null : wearView(sim, item, simContext);
   return (
     <div className={open ? 'card sheet' : 'card'}>
       <div className="sheet-head">
@@ -285,6 +287,15 @@ function Selected({
             <span className="v">{item.material ? content.material(item.material).name : '—'}</span>
           </div>
         )}
+        {wants && (
+          <div className="stat-row">
+            <span className="k">wants</span>
+            <span className={wants.met ? 'v' : 'v gold'}>
+              {wants.ask}
+              {wants.met ? '' : ` · you have ${formatInt(wants.have)}`}
+            </span>
+          </div>
+        )}
       </div>
       <div className="sel-flavour">
         {item
@@ -305,16 +316,33 @@ function Selected({
       {inBank.length > 0 && (
         <div className="equip-list">
           <Label>In the bank</Label>
-          {inBank.map((b) => (
-            <button key={b.id} className="equip-opt" onClick={() => onEquip(b.id)}>
-              <TileBox size="sm">
-                <BareIcon spec={itemIconSpec(content, b)} size={18} />
-              </TileBox>
-              <span className="name">{b.name}</span>
-              <span className="sub">{statLine(b)}</span>
-              <span className="btn fight">Equip</span>
-            </button>
-          ))}
+          {inBank.map((b) => {
+            const wants = wearView(sim, b, simContext);
+            const shut = wants !== null && !wants.met;
+            return (
+              <button
+                key={b.id}
+                className={shut ? 'equip-opt locked' : 'equip-opt'}
+                disabled={shut}
+                title={shut ? `${b.name} wants ${wants.ask}` : b.description}
+                onClick={() => onEquip(b.id)}
+              >
+                <TileBox size="sm" dim={shut}>
+                  <BareIcon spec={itemIconSpec(content, b)} size={18} />
+                </TileBox>
+                <span className="name">{b.name}</span>
+                <span className="sub">{shut ? wants.ask : statLine(b)}</span>
+                {shut ? (
+                  <span className="lock">
+                    <UiIcon id="lorc/padlock" size={12} />
+                    Lv {String(b.wear!.level)}
+                  </span>
+                ) : (
+                  <span className="btn fight">Equip</span>
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

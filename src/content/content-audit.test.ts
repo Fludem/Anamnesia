@@ -7,6 +7,8 @@ import { OFFLINE_CAP_MS } from '../sim/constants.ts';
 import { describe, expect, it } from 'vitest';
 import { icons } from '../icons/registry.ts';
 import type { DropTable } from '../sim/content/schema.ts';
+import { STYLE_SKILL } from '../sim/combat.ts';
+import { GEAR_LADDER, SET_PIECES, STAFF_BY_TIER } from '../sim/progression.ts';
 import { trophyLevel } from '../sim/records.ts';
 import { DEFAULT_XP_CURVE } from '../sim/xp.ts';
 import { content } from './index.ts';
@@ -299,6 +301,56 @@ describe('shipped content', () => {
       if (item.procedural !== null) expect(item.material, item.id).not.toBeNull();
       if (item.xpBoost !== null) expect(item.slot, item.id).not.toBeNull();
       expect(item.slot === 'ammo', item.id).toBe(item.tags.includes('ammo'));
+    }
+  });
+
+  it('gear asks for a level before it goes on: the tier ladder in its own fight, never more than what hands it over', () => {
+    const ladder = new Map(GEAR_LADDER.map((step) => [step.tier, step.level]));
+    // Every tier's set asks exactly the level the progression model assumes it is worn at: the
+    // sword and the javelin in Combat, the staff and the mark in Sorcery, the plate in either.
+    for (const [tier, level] of ladder) {
+      for (const piece of [...SET_PIECES, 'spear', 'javelin', 'mark', STAFF_BY_TIER[tier]!]) {
+        const id = piece.includes('-') ? piece : `${tier}-${piece}`;
+        if (!content.hasItem(id)) continue;
+        const item = content.item(id);
+        const fights = item.slot === 'weapon' || item.slot === 'ammo';
+        expect(item.wear, id).toEqual(
+          level === 1 ? null : { skill: fights ? STYLE_SKILL[item.style] : null, level },
+        );
+      }
+    }
+
+    const zoneOf = new Map<string, number>();
+    for (const m of [...content.monsters, ...content.ambushers]) {
+      const level = content.zone(m.zone).level;
+      const leaves = [...m.drops.flatMap(tableItems), ...m.always.map((a) => a.item)];
+      for (const id of leaves) zoneOf.set(id, Math.min(zoneOf.get(id) ?? level, level));
+    }
+    const forged = new Map<string, number>();
+    for (const r of content.recipes) {
+      const fight = r.requires.find((q) => q.skill === 'combat' || q.skill === 'sorcery');
+      if (fight === undefined) continue;
+      for (const o of r.outputs)
+        forged.set(o.item, Math.min(forged.get(o.item) ?? fight.level, fight.level));
+    }
+    const found = new Set(content.skills.flatMap((sk) => (sk.finds ? tableItems(sk.finds) : [])));
+
+    for (const item of content.items) {
+      if (item.slot === null) expect(item.wear, item.id).toBeNull();
+      // A tool is the anvil's business, not the fight's: a pick never asks for a fighting level.
+      if (item.class === 'tool') expect(item.wear, item.id).toBeNull();
+      // What the hill leaves for the work itself is worn by whoever did the work.
+      if (found.has(item.id)) expect(item.wear, item.id).toBeNull();
+      if (item.wear === null) continue;
+      // Only a weapon or its ammo names a fight, and then only its own.
+      const fights = item.slot === 'weapon' || item.slot === 'ammo';
+      expect(item.wear.skill, item.id).toBe(fights ? STYLE_SKILL[item.style] : null);
+      // Nothing asks for more than the thing that hands it over already asks: the zone a beast
+      // that leaves it stands in, and the fighting level its recipe wants at the anvil.
+      const gate = Math.min(zoneOf.get(item.id) ?? Infinity, forged.get(item.id) ?? Infinity);
+      expect(item.wear.level, `${item.id} asks more than it is handed over at`).toBeLessThanOrEqual(
+        gate,
+      );
     }
   });
 

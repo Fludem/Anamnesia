@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { applyCommand } from '../sim/commands.ts';
+import { addXp } from '../sim/progress.ts';
 import { createSimState, type SimState } from '../sim/save.ts';
 import { stepTick } from '../sim/step.ts';
 import {
@@ -20,6 +21,7 @@ import {
   offeringOptions,
   recentOffering,
   totalKills,
+  wearView,
   wornBody,
   wornXpBoost,
   xpBoostText,
@@ -165,8 +167,31 @@ describe('worn', () => {
     const worn = wornBody(s, content);
     expect(worn.find((w) => w.slot === 'head')?.item?.id).toBe('helm');
     expect(worn.some((w) => w.slot === 'pickaxe')).toBe(false);
-    expect(bankItemsFor(s, content, 'weapon').map((i) => i.id)).toEqual(['sword', 'spear']);
-    expect(bankItemsFor(s, content, 'head')).toEqual([]);
+    expect(bankItemsFor(s, ctx, 'weapon').map((i) => i.id)).toEqual(['sword', 'spear']);
+    expect(bankItemsFor(s, ctx, 'head')).toEqual([]);
+    // What the level is not there for sinks under what can go on now, however good it is.
+    const rich: SimState = { ...s, bank: [...s.bank, { item: 'great-sword', qty: 1 }] };
+    expect(bankItemsFor(rich, ctx, 'weapon').map((i) => i.id)).toEqual([
+      'sword',
+      'spear',
+      'great-sword',
+    ]);
+  });
+
+  it('says what a piece wants and where the hero stands against it', () => {
+    const s0 = createSimState(1);
+    expect(wearView(s0, content.item('sword'), ctx)).toBeNull();
+    expect(wearView(s0, content.item('great-sword'), ctx)).toEqual({
+      ask: 'Combat level 20',
+      have: 1,
+      met: false,
+    });
+    const sorcerer = addXp(s0, 'sorcery', ctx.xp.xpForLevel(22));
+    expect(wearView(sorcerer, content.item('plate'), ctx)).toEqual({
+      ask: 'Combat or Sorcery level 20',
+      have: 22,
+      met: true,
+    });
   });
 
   it('spells out xp boosts, adds the worn ones up, and counts the javelins', () => {

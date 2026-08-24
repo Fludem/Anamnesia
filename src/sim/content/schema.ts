@@ -178,6 +178,18 @@ export type XpBoost = z.infer<typeof XpBoostSchema>;
 export const CombatStyleSchema = z.enum(['melee', 'sorcery']);
 export type CombatStyle = z.infer<typeof CombatStyleSchema>;
 
+/**
+ * What the hill asks before a thing is worn. `skill` names the fight it is measured in — a
+ * sword's Combat, a staff's Sorcery — and `null` means either of them: a cuirass is a cuirass
+ * whichever way its wearer fights, so the better of the two levels answers for it. A tool asks
+ * nothing: a pick is the anvil's business, not the fight's.
+ */
+export const WearRequirementSchema = z.object({
+  skill: IdSchema.nullable().default(null),
+  level: z.number().int().min(1),
+});
+export type WearRequirement = z.infer<typeof WearRequirementSchema>;
+
 export const ItemDefSchema = z.object({
   id: IdSchema,
   name: z.string().min(1),
@@ -193,6 +205,8 @@ export const ItemDefSchema = z.object({
   slot: EquipmentSlotSchema.nullable().default(null),
   /** Which fight a weapon or its ammo belongs to. Melee unless said otherwise; only they may say. */
   style: CombatStyleSchema.default('melee'),
+  /** The level asked for before it goes on; null for anything anyone may wear. */
+  wear: WearRequirementSchema.nullable().default(null),
   stats: ItemStatsSchema.default({}),
   badges: z.array(BadgeKindSchema).default([]),
   /**

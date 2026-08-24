@@ -2669,6 +2669,16 @@
   font: 400 var(--fs-hint) var(--font-mono);
   color: var(--fg-3);
 }
+/* gear the level is not there for: still listed, so the bank is honest about what is waiting */
+.equip-opt.locked {
+  cursor: default;
+}
+.equip-opt.locked .name {
+  color: var(--fg-3);
+}
+.equip-opt.locked .sub {
+  color: var(--gold);
+}
 
 @media (max-width: 700px) {
   .fight-sides {

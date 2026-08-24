@@ -13,6 +13,7 @@ import type { SimState } from './save.ts';
 import { give } from './hall.ts';
 import { eat, offer } from './skills/combat.ts';
 import { buyWare } from './trader.ts';
+import { wearRefusal } from './wear.ts';
 import { stake } from './wheel.ts';
 import { EquipmentSlotSchema } from './slots.ts';
 
@@ -121,6 +122,8 @@ export function applyCommand(state: SimState, cmd: Command, ctx: SimContext): Co
       if (!ctx.content.hasItem(cmd.item)) return reject(state, `unknown item "${cmd.item}"`);
       const item = ctx.content.item(cmd.item);
       if (item.slot === null) return reject(state, `${item.name} cannot be equipped`);
+      const refusal = wearRefusal(state, item, ctx);
+      if (refusal !== null) return reject(state, refusal);
       const bank = removeItem(state.bank, cmd.item, 1);
       if (bank === null) return reject(state, `no ${item.name} in the bank`);
       const previous = state.equipment[item.slot];

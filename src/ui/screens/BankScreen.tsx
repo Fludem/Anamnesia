@@ -7,7 +7,7 @@ import { eventsOfType } from '../../sim/events.ts';
 import { countItem } from '../../sim/items.ts';
 import type { SimState } from '../../sim/save.ts';
 import { EQUIPMENT_SLOTS, type EquipmentSlot } from '../../sim/slots.ts';
-import { xpBoostText } from '../derive-combat.ts';
+import { wearView, xpBoostText } from '../derive-combat.ts';
 import { formatInt, formatShort } from '../format.ts';
 import { BareIcon } from '../items/ItemTile.tsx';
 import { itemIconSpec } from '../items/spec.ts';
@@ -78,6 +78,7 @@ export function BankScreen({ sim, dispatch, juice }: ScreenProps) {
   const held = selected !== null && countItem(sim.bank, selected) > 0 ? selected : null;
   const sel = held !== null && content.hasItem(held) ? content.item(held) : null;
   const selQty = sel ? countItem(sim.bank, sel.id) : 0;
+  const selWants = sel === null ? null : wearView(sim, sel, simContext);
 
   const pop = (text: string) => {
     if (juice === 'deadpan') return;
@@ -222,6 +223,17 @@ export function BankScreen({ sim, dispatch, juice }: ScreenProps) {
                   {xpBoostText(sel, content) && (
                     <StatRow k="xp boost" v={xpBoostText(sel, content)!} accent />
                   )}
+                  {selWants && (
+                    <StatRow
+                      k="wants"
+                      v={
+                        selWants.met
+                          ? selWants.ask
+                          : `${selWants.ask} · you have ${formatInt(selWants.have)}`
+                      }
+                      gold={!selWants.met}
+                    />
+                  )}
                 </div>
                 {sel.opens !== null && (
                   <div className="btn-row">
@@ -244,12 +256,16 @@ export function BankScreen({ sim, dispatch, juice }: ScreenProps) {
                 {sel.slot !== null && (
                   <button
                     className="btn primary"
+                    disabled={selWants !== null && !selWants.met}
                     onClick={() => dispatch({ type: 'equip', item: sel.id })}
                   >
-                    Equip
-                    {sim.equipment[sel.slot] !== null
-                      ? ` · replaces ${content.item(sim.equipment[sel.slot]!).name}`
-                      : ''}
+                    {selWants !== null && !selWants.met
+                      ? `Wants ${selWants.ask}`
+                      : `Equip${
+                          sim.equipment[sel.slot] !== null
+                            ? ` · replaces ${content.item(sim.equipment[sel.slot]!).name}`
+                            : ''
+                        }`}
                   </button>
                 )}
                 <div className="btn-row">

@@ -145,6 +145,38 @@ export const FIXTURE_PACK = {
       stats: { attack: 5, strength: 4 },
       value: 1,
     },
+    /** Gear the hill asks a level for: a blade in Combat, a staff in Sorcery, plate in either. */
+    {
+      id: 'great-sword',
+      name: 'Great sword',
+      icon: 'lorc/broadsword',
+      class: 'weapon',
+      slot: 'weapon',
+      wear: { skill: 'combat', level: 20 },
+      stats: { attack: 200, strength: 20 },
+      value: 300,
+    },
+    {
+      id: 'great-staff',
+      name: 'Great staff',
+      icon: 'lorc/wizard-staff',
+      class: 'weapon',
+      slot: 'weapon',
+      style: 'sorcery',
+      wear: { skill: 'sorcery', level: 20 },
+      stats: { attack: 200, strength: 20 },
+      value: 300,
+    },
+    {
+      id: 'plate',
+      name: 'Plate',
+      icon: 'delapouite/chest-armor',
+      class: 'armour',
+      slot: 'body',
+      wear: { level: 20 },
+      stats: { defence: 20 },
+      value: 300,
+    },
     /** A cape that pays half again in mining; a pendant that pays a quarter more everywhere. */
     {
       id: 'cape',

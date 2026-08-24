@@ -13,6 +13,7 @@ import { hallXpBonus, inHall } from '../sim/hall.ts';
 import { doubleYieldChance, godOf, xpMultiplier } from '../sim/perks.ts';
 import type { SimState } from '../sim/save.ts';
 import { findsRolls } from '../sim/trader.ts';
+import { meetsWear, wearAsk } from '../sim/wear.ts';
 import { boonText, zoneRows } from './derive-combat.ts';
 import { entryChance, formatChance } from './derive-drops.ts';
 import {
@@ -239,9 +240,29 @@ function fightLifts(sim: SimState, skill: SkillDef, ctx: SimContext): HelpLift[]
       on: true,
       note: `against whatever is weak to ${hero.style === 'sorcery' ? 'sorcery' : 'melee'}`,
     },
+    gearLift(sim, ctx),
     wornLift(sim, skill, ctx),
     hallLift(sim, skill, ctx),
   ];
+}
+
+/** The fight's gear row: whether anything in the bank is waiting on a level, and what it wants. */
+function gearLift(sim: SimState, ctx: SimContext): HelpLift {
+  const waiting = sim.bank
+    .filter((s) => ctx.content.hasItem(s.item))
+    .map((s) => ctx.content.item(s.item))
+    .filter((i) => i.wear !== null && !meetsWear(sim, i, ctx))
+    .sort((a, b) => a.wear!.level - b.wear!.level);
+  const next = waiting[0];
+  return {
+    k: 'Gear',
+    v: next === undefined ? 'nothing waiting' : `${String(waiting.length)} waiting on a level`,
+    on: next === undefined,
+    note:
+      next === undefined
+        ? 'a weapon asks for its own fight, armour for either'
+        : `${next.name} wants ${wearAsk(next.wear!, ctx)}`,
+  };
 }
 
 function oathLift(sim: SimState, skill: SkillDef, ctx: SimContext): HelpLift {

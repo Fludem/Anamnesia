@@ -1506,3 +1506,85 @@ has dropped, but never takes back a trophy already paid for.
   lint are green, and the card has never been seen rendered.
 - This landed in the same working tree as the trophies/`?` work and was committed with it
   (3b360a4) rather than on its own.
+
+## Gear asks for a level before it goes on
+
+The user asked for Combat and Sorcery level requirements to wear the different gears. The
+numbers were not invented for it: `GEAR_LADDER` in `progression.ts` has said since Phase 8 what
+tier the model assumes at what level — copper from the start, iron 10, basalt 25, silver 45,
+gold 60, aether 75 — and Phase 16's casting climb reads the same ladder in staffs and marks.
+So the rule is the model's assumption made binding: `ItemDef.wear` in content, one check in the
+`equip` command, and an audit that fails if the two ever drift apart.
+
+### A weapon asks in its own fight; everything else takes the better of the two
+
+`wear` is `{ skill, level }` with a nullable skill, and the null is the point. A sword and its
+javelin ask Combat, a staff and its mark ask Sorcery, and a cuirass asks neither in particular:
+whichever fight its wearer is better at answers for it. Armour had to be that way. Phase 16 gave
+sorcery its own weapons and its own ammo but not its own armour — the casting climb wears the
+same plate the swordsman does, at the same ladder step — so gating a cuirass on Combat alone
+would have shut a pure caster out of every body slot and taken the modelled climb down with it.
+Measuring by the better of the two has a second virtue: swapping a sword for a staff never
+invalidates what is already worn, because `max` does not care which hand the fight is in.
+
+A tool asks nothing at all. A pickaxe is the anvil's business, not the fight's, and gating one
+on a fighting level would have made mining wait on combat for no reason anybody would enjoy.
+
+### Nothing is re-checked after it is on
+
+`wear.ts` is called once, by `equip`. What is already worn stays worn, so a save from before the
+rule keeps its gear, and taking a piece off is always allowed even when putting it back is not.
+That is why there is no migration and no save version: a level is never lost, so the only saves
+that can be over their gear are the ones that were already wearing it, and stripping them on
+load would punish players for a rule they did not make. The refusal reads under the `COULD NOT`
+toast the other rejections use — "wear the Silver Sword — it wants Combat level 45".
+
+### What each piece asks, and the rule behind it
+
+Nothing asks for more than the thing that hands it over already asks:
+
+- **The tier sets** — sword, spear, shield, helm, cuirass, greaves, boots, gauntlets, javelin,
+  and the tier's jewellery — ask their ladder step: 10, 25, 45, 60, 75. Copper asks nothing; a
+  first set should not have a gate in front of it.
+- **The staffs and the marks** ask the same steps in Sorcery, in the wood ladder the rods use
+  (pine, oak, birch, willow, blightwood, elder) and the ore ladder the marks are burnt from.
+- **What a beast leaves** asks the level of the zone it stands in: 10 for the Copse, 25 for the
+  Quarry, 45 for the Deep, 70 for the Summit, nothing on the Lower Slope. So anything the hill
+  hands you in a zone you may enter, you may put on — the road's gear included, since an
+  ambusher only turns up once its zone is open to you.
+- **The anvil's trophies** ask exactly what the recipe already asked of the fight to forge them:
+  50 for the bone-braced greaves, 60 for the hound-tooth blade, 64 for the ferryman's amulet, 82
+  for the bull-horn helm, 90 for the stoneheart shield.
+- **What is found at work** — the seven skill capes, the sorcerer's cape, the wreath — asks
+  nothing. A cape is a point of defence and an xp boost; it is the work's reward, not the
+  fight's.
+- Two smithed trinkets sit off every ladder: the emerald ring and the amethyst amulet ask 60,
+  placed beside the tier they fight alongside. That is the one judgement call, and the audit
+  does not pin it.
+
+`content-audit.test.ts` pins the rest: every tier piece asks exactly its `GEAR_LADDER` step in
+the right fight, only a weapon or its ammo names a fight and then only its own, a tool and a
+found cape ask nothing, and no piece asks more than the zone or the recipe that hands it over.
+Bumping the silver sword to 46 fails it.
+
+### The screens say it before the toast has to
+
+The bank's Equip button reads "Wants Combat level 45" and is dead while it does, with a `wants`
+row in the stat block saying what the hero has. The equipment screen's slot list sorts what can
+go on now to the top and leaves the rest visible, locked, with the padlock and level the zone
+rows use — the bank should be honest about what is waiting rather than hiding it. The fight's
+"?" gained a `Gear` lift that counts what is waiting on a level and names the nearest one, and
+two lines of copy: how the two fights measure gear, and where the tiers open.
+
+### Flagged
+
+- A save already wearing gear above its level keeps it, and finds out the first time it comes
+  off. Deliberate, and the only way a grandfathered save can be surprised.
+- A smith can still forge what they cannot wear; it waits in the bank. That is the trade the
+  requirement is for, but it does mean the craft screen offers work whose output is not yet
+  usable, and it says nothing about that.
+- The trophy recipes still ask Combat at the anvil, so a pure sorcerer may wear the trophy
+  armour but cannot forge it. Opening those recipes to either fight is a content change waiting
+  for a decision.
+- Not browser-verified: the tests, the typecheck and the lint are green, and the locked rows
+  have not been seen rendered.
