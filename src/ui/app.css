@@ -1822,6 +1822,16 @@
 }
 
 /* settings */
+/*
+ * The settings panel is a page, not a dialog: nine sections, a name, a face and the save. It
+ * gets more room than any other modal so its rows stop wrapping, and it scrolls inside itself
+ * on a short screen rather than running off the top and bottom of a centred overlay.
+ */
+.modal.wide:has(.settings-section) {
+  width: 460px;
+  max-height: min(88vh, 900px);
+  overflow-y: auto;
+}
 .sworn-line {
   display: flex;
   align-items: center;

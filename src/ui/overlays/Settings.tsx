@@ -93,7 +93,7 @@ export function Settings({
   };
 
   return (
-    <Modal onClose={onClose}>
+    <Modal onClose={onClose} wide>
       <Label>Settings</Label>
 
       <div className="settings-section">
