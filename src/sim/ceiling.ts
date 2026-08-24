@@ -140,12 +140,19 @@ export interface Overreach {
   windowMs: number;
 }
 
-/** What the register's own clock says, in ms — neither number is one the hero can write. */
+/** What the register knows of its own accord — nothing here is a number the hero can write. */
 export interface Elapsed {
-  /** Since the register last wrote this name's save. */
+  /** Milliseconds since the register last wrote this name's save. */
   sinceWrite: number;
-  /** Since the name was made. */
+  /** Milliseconds since the name was made. */
   sinceName: number;
+  /**
+   * The tick the register first took on trust for this name, and measures growth from. The
+   * first save an account makes cannot be weighed against anything — a browser adopting the
+   * save it played before there were names arrives honestly with forty hours on it — so it is
+   * believed once, written down, and never believed again.
+   */
+  tickBase: number;
 }
 
 /**
@@ -156,10 +163,10 @@ export interface Elapsed {
  * Two things are asked, because either alone can be walked around.
  *
  * The first is how long the hero has been on the hill at all. A tick is a tenth of a second
- * and nothing makes them but time passing, so a save's tick count can never have outrun the
- * age of the name that carries it — one offline cap's grace for a browser whose clock jumps.
- * Without this a save could keep claiming the cap it is owed for being away, over and over,
- * and four hours of the best hour there is comes to half a climb.
+ * and nothing makes them but time passing, so the ticks a save has gathered since the register
+ * first wrote its name down can never have outrun the age of that name — one offline cap's
+ * grace for a browser whose clock jumps. Without this a save could keep claiming the cap it is
+ * owed for being away, over and over, and four hours of the best hour there is is half a climb.
  *
  * The second is what those ticks were worth. The window is the ticks themselves, since the
  * gains are made in ticks and in nothing else: it is a tab's one save after a whole night of
@@ -176,7 +183,7 @@ export function overreach(
   elapsed: Elapsed,
   ctx: SimContext,
 ): Overreach | null {
-  const lived = after.tick * TICK_MS;
+  const lived = Math.max(0, after.tick - elapsed.tickBase) * TICK_MS;
   const couldLive = Math.max(0, elapsed.sinceName) + OFFLINE_CAP_MS;
   if (lived > couldLive) {
     return { what: 'time', gained: lived, ceiling: couldLive, windowMs: elapsed.sinceName };

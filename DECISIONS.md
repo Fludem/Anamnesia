@@ -1792,10 +1792,20 @@ node, monster or recipe raises the ceiling on the day it lands. Nobody has to re
 **Two things are asked, in `sim/ceiling.ts`, and either alone can be walked around.**
 
 _How long the name has been on the hill._ A tick is a tenth of a second and nothing makes ticks
-but time passing, so a save's tick count can never have outrun the age of the name carrying it —
-`users.created_at`, which is the register's own and not in any request. One offline cap's grace
-for a browser whose clock jumps. Without this the second question could be asked and answered
-honestly over and over, and four hours of the best hour there is comes to half a climb.
+but time passing, so the ticks a save has gathered can never have outrun the age of the name
+carrying it — `users.created_at`, which is the register's own and not in any request. One
+offline cap's grace for a browser whose clock jumps. Without this the second question could be
+asked and answered honestly over and over, and four hours of the best hour there is is half a
+climb.
+
+Gathered _since the register first wrote the name down_, not since the name was made, and the
+difference is a real player: `runtime/adopt.ts` puts the save a browser played before there
+were names onto that name's first login, so it arrives honestly with forty hours on it and a
+name a minute old. Nothing can weigh a first save — there is no earlier record and no elapsed
+anything — so it is believed once, its tick kept in `saves.tick_base`, and everything after
+measured from there. The migration backfills every save already stored at exactly the tick it
+stands at, which is the same promise made to everyone who was already here. Without this the
+one player most owed their history would have been the one locked out of saving it.
 
 _What those ticks were worth._ Per skill, against the best method open at the level the save
 has **reached** — rates only rise with level, and the hero was never better than they ended up.

@@ -228,6 +228,22 @@ describe('saves', () => {
     const played = save('tab', { tick: 39_000, skills: { mining: { xp: 1_000_000 } } });
     expect((await c.put(played, 1)).status).toBe(200);
   });
+
+  it('believes a name once, at its first save, and remembers where that put it', async () => {
+    const c = new Client(base);
+    await c.register('Homecomer');
+    // Forty hours of playing this browser did before there were names, adopted onto a name a
+    // moment old. Nothing can weigh it, so it is taken as it stands (runtime/adopt.ts).
+    const adopted = save('tab', { tick: 1_440_000, skills: { mining: { xp: 4_470 } } });
+    expect((await c.put(adopted, 0)).status).toBe(200);
+
+    // Forty more, though, would have had to happen — and the register wrote down where the
+    // first save left this name, so it knows they did not.
+    const again = save('tab', { tick: 2_880_000, skills: { mining: { xp: 4_470 } } });
+    const refused = await c.put(again, 1);
+    expect(refused.status).toBe(409);
+    expect(refused.body).toMatchObject({ ok: false, reason: 'impossible' });
+  });
 });
 
 describe('boards', () => {

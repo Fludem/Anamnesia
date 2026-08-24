@@ -22,7 +22,7 @@ import { stepTick } from '../sim/step.ts';
 const BATCH_TICKS = 6_000;
 const HOUR = 6;
 /** A register that wrote ten minutes ago, for a name old enough that its age is not the question. */
-const ELAPSED = { sinceWrite: 600_000, sinceName: 1e12 };
+const ELAPSED = { sinceWrite: 600_000, sinceName: 1e12, tickBase: 0 };
 const LEVELS = [1, 50, 90];
 
 const GOD_FOR: Record<string, string> = {

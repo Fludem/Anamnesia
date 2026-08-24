@@ -233,6 +233,18 @@ const MIGRATIONS: readonly string[] = [
     PRIMARY KEY (user_id, slot)
   );
   `,
+  /**
+   * The ceiling (sim/ceiling.ts): where a name's clock starts. A save's tick count is weighed
+   * against the age of the name carrying it, but the first save an account ever makes cannot
+   * be weighed against anything — a browser adopting a save it played before there were names
+   * (runtime/adopt.ts) honestly arrives with forty hours on it. So the first one is taken on
+   * trust and remembered here, and everything after is measured from it. Every save already
+   * stored is grandfathered at exactly the tick it stands at, which is the same promise.
+   */
+  `
+  ALTER TABLE saves ADD COLUMN tick_base INTEGER NOT NULL DEFAULT 0;
+  UPDATE saves SET tick_base = COALESCE(json_extract(record, '$.sim.tick'), 0);
+  `,
 ];
 
 /** Open (creating if needed) and bring up to date. `':memory:'` for tests. */

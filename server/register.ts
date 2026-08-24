@@ -160,9 +160,18 @@ export class Register {
     const userId = user.id;
     return transaction(this.db, () => {
       const stored = this.db
-        .prepare('SELECT counter, writer_id, record, updated_at FROM saves WHERE user_id = ?')
+        .prepare(
+          'SELECT counter, writer_id, record, updated_at, tick_base FROM saves WHERE user_id = ?',
+        )
         .get(userId) as
-        { counter: number; writer_id: string; record: string; updated_at: number } | undefined;
+        | {
+            counter: number;
+            writer_id: string;
+            record: string;
+            updated_at: number;
+            tick_base: number;
+          }
+        | undefined;
       const current = stored?.counter ?? 0;
       const retry =
         stored !== undefined &&
@@ -184,12 +193,17 @@ export class Register {
       // played for, so it is not written: the tab is handed the stored record and goes back to
       // it, exactly as it would after losing a race. Nothing is clamped — a record half the
       // register's own and half the caller's would be a worse lie than either.
+      // A name's first save is taken on trust and its tick written down: there is nothing to
+      // weigh it against, and a browser adopting the save it played before there were names
+      // (runtime/adopt.ts) honestly arrives with a night already on it.
+      const tickBase = stored?.tick_base ?? sim.tick;
       const past = overreach(
         acked?.sim ?? null,
         sim,
         {
           sinceWrite: nowMs - (stored?.updated_at ?? user.createdAt),
           sinceName: nowMs - user.createdAt,
+          tickBase,
         },
         this.ctx,
       );
@@ -244,13 +258,21 @@ export class Register {
       };
       this.db
         .prepare(
-          `INSERT INTO saves (user_id, counter, writer_id, god, record, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?)
+          `INSERT INTO saves (user_id, counter, writer_id, god, record, updated_at, tick_base)
+           VALUES (?, ?, ?, ?, ?, ?, ?)
            ON CONFLICT(user_id) DO UPDATE SET counter = excluded.counter,
              writer_id = excluded.writer_id, god = excluded.god, record = excluded.record,
              updated_at = excluded.updated_at`,
         )
-        .run(userId, next, record.writerId, record.sim.player.god, JSON.stringify(record), nowMs);
+        .run(
+          userId,
+          next,
+          record.writerId,
+          record.sim.player.god,
+          JSON.stringify(record),
+          nowMs,
+          tickBase,
+        );
       const upsert = this.db.prepare(
         `INSERT INTO standings (user_id, board, level, score, key1, key2) VALUES (?, ?, ?, ?, ?, ?)
          ON CONFLICT(user_id, board) DO UPDATE SET level = excluded.level, score = excluded.score,

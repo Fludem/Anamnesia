@@ -9,7 +9,11 @@ const fresh = createSimState(3);
 const at = (tick: number, over: Partial<SimState> = {}): SimState => ({ ...fresh, tick, ...over });
 const mining = (xp: number) => ({ mining: { xp } });
 /** A register that wrote an hour ago, for a name that has been on the hill a fortnight. */
-const settled = (sinceWrite = HOUR_MS): Elapsed => ({ sinceWrite, sinceName: 14 * 24 * HOUR_MS });
+const settled = (sinceWrite = HOUR_MS): Elapsed => ({
+  sinceWrite,
+  sinceName: 14 * 24 * HOUR_MS,
+  tickBase: 0,
+});
 
 describe('what an hour on the hill can be worth', () => {
   it('lets the best hour there is through, and six times over, but not seven', () => {
@@ -44,7 +48,7 @@ describe('what an hour on the hill can be worth', () => {
   it('measures the window in ticks, so a night caught up in one save is honest', () => {
     // A tab claims the slot, catches up the four hours it was away, and saves: a moment later
     // by the register's clock, four hours later by the hill's. The clock must not be the judge.
-    const blink: Elapsed = { sinceWrite: 200, sinceName: 30 * 24 * HOUR_MS };
+    const blink: Elapsed = { sinceWrite: 200, sinceName: 30 * 24 * HOUR_MS, tickBase: 0 };
     const night = at(4 * HOUR_TICKS, { skills: mining(21_600_000) });
     expect(overreach(at(0), night, blink, ctx)).toBeNull();
   });
@@ -54,7 +58,7 @@ describe('what an hour on the hill can be worth', () => {
     // cap together can account for — otherwise a save could claim a year and be believed.
     // An old name, so the years are its own to spend; the jump still buys only the four hours
     // the register waited and the cap allow, which is 21,600,000 of the best rock there is.
-    const blink: Elapsed = { sinceWrite: 0, sinceName: 2 * 365 * 24 * HOUR_MS };
+    const blink: Elapsed = { sinceWrite: 0, sinceName: 2 * 365 * 24 * HOUR_MS, tickBase: 0 };
     const year = at(24 * 365 * HOUR_TICKS, { skills: mining(900_000_000) });
     expect(overreach(at(0), year, blink, ctx)).toEqual({
       what: 'mining',
@@ -66,8 +70,20 @@ describe('what an hour on the hill can be worth', () => {
 });
 
 describe('how long a name has been on the hill', () => {
+  it('takes a first save on trust, and measures every one after it from there', () => {
+    // A browser that played before there were names adopts what it has: forty hours on a name
+    // made a minute ago (runtime/adopt.ts). Nothing can weigh that, so it is believed once and
+    // the tick it came in on becomes the mark everything after is measured from.
+    const adopting: Elapsed = { sinceWrite: 0, sinceName: 60_000, tickBase: 40 * HOUR_TICKS };
+    const adopted = at(40 * HOUR_TICKS, { skills: mining(3_000_000) });
+    expect(overreach(null, adopted, adopting, ctx)).toBeNull();
+    // And never again: the next forty hours would have to have actually been lived.
+    const again = at(80 * HOUR_TICKS, { skills: mining(3_000_000) });
+    expect(overreach(adopted, again, adopting, ctx)).toMatchObject({ what: 'time' });
+  });
+
   it('will not be played for longer than the name has existed, less the cap for a jumped clock', () => {
-    const young: Elapsed = { sinceWrite: 0, sinceName: HOUR_MS };
+    const young: Elapsed = { sinceWrite: 0, sinceName: HOUR_MS, tickBase: 0 };
     expect(overreach(null, at(5 * HOUR_TICKS), young, ctx)).toBeNull();
     expect(overreach(null, at(5 * HOUR_TICKS + 1), young, ctx)).toMatchObject({
       what: 'time',
