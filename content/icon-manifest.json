@@ -1,5 +1,5 @@
 {
-  "$comment": "Icon ids shipped in the production bundle in addition to any `\"icon\": \"…\"` referenced from src/content/**/*.json. Ids are author/slug from src/assets/icon-index.json.",
+  "$comment": "Icon ids shipped in the production bundle in addition to any `\"icon\": \"\u2026\"` referenced from src/content/**/*.json. Ids are author/slug from src/assets/icon-index.json.",
   "icons": [
     "lorc/broadsword",
     "lorc/mining",
@@ -35,6 +35,7 @@
     "lorc/cartwheel",
     "delapouite/paint-brush",
     "delapouite/trophy-cup",
-    "lorc/fishing-hook"
+    "lorc/fishing-hook",
+    "sbed/duel"
   ]
 }

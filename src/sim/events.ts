@@ -147,6 +147,16 @@ export const SimEventSchema = z.discriminatedUnion('type', [
     /** Coins the ambusher made off with on a rout. */
     stolen: z.number().int().min(0).default(0),
   }),
+  /** A bout in the ring, as the register settled it: what was played for, and who kept it. */
+  z.object({
+    type: z.literal('bout'),
+    tick: z.number().int().min(0),
+    /** The other name. Not an id: the ring is names, and a name can be renamed. */
+    opponent: z.string().min(1),
+    won: z.boolean(),
+    item: IdSchema,
+    slot: z.string().min(1),
+  }),
 ]);
 export type SimEvent = z.infer<typeof SimEventSchema>;
 export type SimEventOf<T extends SimEvent['type']> = Extract<SimEvent, { type: T }>;

@@ -5,11 +5,12 @@ import { SimEventSchema } from './events.ts';
 import { HallStateSchema } from './hall.ts';
 import { EMPTY_RECORDS, RecordsSchema } from './records.ts';
 import { WheelStateSchema } from './wheel.ts';
+import { BoutStateSchema, NO_BOUTS } from './bout.ts';
 import { ContainerSchema } from './items.ts';
 import { seedRng } from './rng.ts';
 import { EQUIPMENT_SLOTS, EquipmentSlotSchema } from './slots.ts';
 
-export const CURRENT_SAVE_VERSION = 14;
+export const CURRENT_SAVE_VERSION = 15;
 
 const Uint32 = z.number().int().min(0).max(0xffffffff);
 
@@ -65,6 +66,12 @@ export const CombatStateSchema = z.object({
   road: z
     .object({ open: z.boolean(), ambushAt: z.number().int().min(0).nullable() })
     .default({ open: false, ambushAt: null }),
+  /**
+   * The ring: stepped in, any name in it may call you out for something you are wearing, and
+   * you may call them. Barred is the default, and a barred name is never on anyone's card.
+   * Unlike the road this draws nothing, so an old save is bit-identical either way.
+   */
+  bouts: z.object({ open: z.boolean() }).default({ open: false }),
   fight: FightSchema.nullable(),
 });
 export type CombatState = z.infer<typeof CombatStateSchema>;
@@ -127,6 +134,10 @@ export const SimStateSchema = z.object({
     /** Ambushers fought off on the open road, and times one drove the hero off. */
     ambushes: z.number().int().min(0).default(0),
     routed: z.number().int().min(0).default(0),
+    /** Bouts in the ring: fought, won (a thing taken) and lost (a thing given up). */
+    bouts: z.number().int().min(0).default(0),
+    taken: z.number().int().min(0).default(0),
+    lost: z.number().int().min(0).default(0),
   }),
   /** Times each of the trader's wares was bought, keyed by ware id. */
   upgrades: z.record(IdSchema, z.number().int().min(0)).default({}),
@@ -138,6 +149,8 @@ export const SimStateSchema = z.object({
   hall: HallStateSchema.default({ id: null, rooms: {}, gifts: [], given: 0 }),
   /** Coins on their way to the wheel, and how far this save has taken its payouts. See wheel.ts. */
   wheel: WheelStateSchema.default({ cart: [], bought: 0, paidThrough: 0 }),
+  /** How far this save has taken the ring's settlements, and what it still owes. See bout.ts. */
+  bouts: BoutStateSchema.default(NO_BOUTS),
   /** The slab: the biggest fish of each kind ever landed, and the trophies paid for. See records.ts. */
   records: RecordsSchema.default(EMPTY_RECORDS),
   combat: CombatStateSchema,
@@ -201,10 +214,14 @@ export function createSimState(seed: number): SimState {
       cashedOut: 0,
       ambushes: 0,
       routed: 0,
+      bouts: 0,
+      taken: 0,
+      lost: 0,
     },
     upgrades: {},
     hall: { id: null, rooms: {}, gifts: [], given: 0 },
     wheel: { cart: [], bought: 0, paidThrough: 0 },
+    bouts: NO_BOUTS,
     records: { fish: {}, trophies: [] },
     tutorial: { done: [], dismissed: false },
     combat: {
@@ -215,6 +232,7 @@ export function createSimState(seed: number): SimState {
       favour: 0,
       ferryman: true,
       road: { open: false, ambushAt: null },
+      bouts: { open: false },
       fight: null,
     },
   };

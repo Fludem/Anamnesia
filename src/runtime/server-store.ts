@@ -6,6 +6,7 @@
  */
 import { HallSyncSchema } from '../sim/hall.ts';
 import { WheelSyncSchema } from '../sim/wheel.ts';
+import { BoutSyncSchema } from '../sim/bout.ts';
 import type { SaveRecord } from '../sim/save.ts';
 import type { SaveStore, WriteResult } from './store.ts';
 
@@ -62,14 +63,21 @@ export class ServerSaveStore implements SaveStore {
       };
     }
     if (res.status === 200) {
-      const body = (await res.json()) as { saveCounter: number; hall?: unknown; wheel?: unknown };
+      const body = (await res.json()) as {
+        saveCounter: number;
+        hall?: unknown;
+        wheel?: unknown;
+        bouts?: unknown;
+      };
       const hall = HallSyncSchema.safeParse(body.hall);
       const wheel = WheelSyncSchema.safeParse(body.wheel);
+      const bouts = BoutSyncSchema.safeParse(body.bouts);
       return {
         ok: true,
         saveCounter: body.saveCounter,
         ...(hall.success ? { hall: hall.data } : {}),
         ...(wheel.success ? { wheel: wheel.data } : {}),
+        ...(bouts.success ? { bouts: bouts.data } : {}),
       };
     }
     if (res.status === 409) {

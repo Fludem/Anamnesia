@@ -166,6 +166,25 @@ level opens. Every number is read from the functions the sim rolls with (`src/ui
 so the panel cannot drift from the game; only the prose is written down (`src/ui/screens/help.ts`).
 The combat screen's is the fight's, and covers both styles at once.
 
+Phase 19 is the ring: names fight names. Step in (opt in, both ways, like the open road) and
+any name in the ring may call you out for one thing you are wearing — and you them. You put up
+whatever you wear in the same slot, and it must be worth at least as much. **The register
+fights it**, not either client: it loads both stored saves, works out both fighters, draws a
+seed and runs `fightBout` (`src/sim/bout.ts`), which the screen then runs again from the same
+seed to draw the blows, so the replay cannot disagree with the verdict. Neither of you has to
+be online. The ring takes the numbers as worn — levels and gear — and nothing from the bank: no
+food, no favour, no boon. What changes hands is a numbered settlement collected on the loser's
+own next save, so a bout never makes anyone's open tab go stale; a debt whose item has been
+sold costs twice its worth in coin and is carried, never forgiven. A new highscores board ranks
+the ring. Save v15 adds it.
+
+**A note on trust, honestly.** The register decides every fight, so no client can claim a win —
+but it still takes the save's word for the levels and gear it fields, exactly as the boards and
+the hall do. Because levels clamp at 99 and gear stats are content ids, the strongest fighter a
+forged save can present is one a legitimate save can also field; a cheat can reach the top of
+the ring early, but cannot invent a fighter nothing can beat. Re-simulating saves server-side
+is still the fix for all of it, and still a phase of its own. Play among friends.
+
 The hill is live at [game.onyxleeds.co.uk](https://game.onyxleeds.co.uk/): one Ubuntu box
 running `dist-server/main.js` under systemd behind Caddy, the name proxied through Cloudflare,
 the register backed up daily (`deploy/`). `scripts/deploy.sh` builds and ships it.
@@ -174,12 +193,12 @@ the register backed up daily (`deploy/`). `scripts/deploy.sh` builds and ships i
 
 | Path            | Layer                                                                                                                                                                                                                                                                                                                                                           |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/sim/`      | Pure simulation: save schema, migrations, PRNG, actions, skills, `highscores.ts` (what a standing is), `hall.ts` (gifts and the rooms' perks). No DOM.                                                                                                                                                                                                          |
+| `src/sim/`      | Pure simulation: save schema, migrations, PRNG, actions, skills, `highscores.ts` (what a standing is), `hall.ts` (gifts and the rooms' perks), `bout.ts` (the ring: the fight, and what it settles). No DOM.                                                                                                                                                    |
 | `src/content/`  | Game content as JSON (skills, gods, materials, rarities, items, rocks, trees, waters, recipes, zones, monsters, drop tables), validated at load; `progression.test.ts` pins hours-to-99.                                                                                                                                                                        |
 | `src/runtime/`  | Browser orchestration: save stores (IndexedDB and the server), leader election, channel, GameHost.                                                                                                                                                                                                                                                              |
 | `src/api/`      | The wire: `protocol.ts` (zod schemas both ends import) and `client.ts` (the game's calls).                                                                                                                                                                                                                                                                      |
 | `src/look/`     | A look: the painted picture a name or a hall shows — the palette (the design's colours, append-only), the 16×16 paint, the shapes, the schema, flood fill and pressing a shape into the paint. Shared by both ends; no DOM.                                                                                                                                     |
-| `server/`       | The register: `db.ts` (SQLite schema), `auth.ts` (scrypt, sessions, cookies, rate limits), `register.ts` (SQL), `hall.ts` (the clans), `chat.ts` (the fire: rooms, words between names, the long poll), `app.ts` (routes + static files), `main.ts` (production), `vite.ts` (dev).                                                                              |
+| `server/`       | The register: `db.ts` (SQLite schema), `auth.ts` (scrypt, sessions, cookies, rate limits), `register.ts` (SQL), `hall.ts` (the clans), `bout.ts` (the ring: bouts, escrow, the debt ledger), `chat.ts` (the fire: rooms, words between names, the long poll), `app.ts` (routes + static files), `main.ts` (production), `vite.ts` (dev).                        |
 | `src/ui/`       | React: `Shell`, `screens/`, `overlays/`, `derive.ts` (pure view helpers), `useChat.ts` (the tab's one poll at the fire), `app.css` (the design's classes over the tokens).                                                                                                                                                                                      |
 | `src/icons/`    | Icon registry, SVG renderer + cache, badge glyphs, procedural sword geometry.                                                                                                                                                                                                                                                                                   |
 | `src/ui/theme/` | Design tokens (CSS custom properties + TS object) and fonts.                                                                                                                                                                                                                                                                                                    |

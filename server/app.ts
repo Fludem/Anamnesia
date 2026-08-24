@@ -19,6 +19,7 @@ import {
   InviteSchema,
   MarkReadSchema,
   PlaceBetSchema,
+  RingCallSchema,
   TakeBackSchema,
   MAX_BODY_BYTES,
   MAX_LOOKS_ASKED,
@@ -44,6 +45,7 @@ import {
 import { Chat, ChatError } from './chat.ts';
 import { HallError, Halls } from './hall.ts';
 import { Wheel, WheelError } from './wheel.ts';
+import { BoutError, Ring } from './bout.ts';
 import { Register } from './register.ts';
 
 export interface AppOptions {
@@ -95,7 +97,8 @@ export function createApp(options: AppOptions): Handler {
   const halls = new Halls(options.db, options.ctx ?? simContext);
   const chat = new Chat(options.db, options.pollWaitMs);
   const wheel = new Wheel(options.db, options.random);
-  const register = new Register(options.db, options.ctx ?? simContext, halls, wheel);
+  const ring = new Ring(options.db, options.ctx ?? simContext, options.random);
+  const register = new Register(options.db, options.ctx ?? simContext, halls, wheel, ring);
   const staticDir = options.staticDir == null ? null : resolve(options.staticDir);
   const loginByName = new RateLimiter(LOGIN_TRIES.name, LOGIN_TRIES.windowMs);
   const loginByAddress = new RateLimiter(LOGIN_TRIES.address, LOGIN_TRIES.windowMs);
@@ -362,6 +365,28 @@ export function createApp(options: AppOptions): Handler {
 
     // ---- the wheel --------------------------------------------------------------------
 
+    // ---- the ring ---------------------------------------------------------------------
+
+    if (route === 'GET /api/ring') {
+      const user = requireUser(req);
+      json(res, 200, ring.view(user, now()));
+      return;
+    }
+
+    if (route.startsWith('GET /api/ring/card/')) {
+      const user = requireUser(req);
+      const name = decodeURIComponent(route.slice('GET /api/ring/card/'.length));
+      json(res, 200, ring.card(user, name, now()));
+      return;
+    }
+
+    if (route === 'POST /api/ring/call') {
+      const user = requireUser(req);
+      const { name, item } = await readJson(req, RingCallSchema);
+      json(res, 200, ring.call(user, name, item, now()));
+      return;
+    }
+
     if (route === 'GET /api/wheel') {
       const user = requireUser(req);
       json(res, 200, wheel.view(user.id, now()));
@@ -471,7 +496,8 @@ export function createApp(options: AppOptions): Handler {
         e instanceof HttpError ||
         e instanceof HallError ||
         e instanceof ChatError ||
-        e instanceof WheelError
+        e instanceof WheelError ||
+        e instanceof BoutError
       ) {
         json(res, e.status, { error: e.message });
         return;

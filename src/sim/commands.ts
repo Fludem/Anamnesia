@@ -65,6 +65,8 @@ export const CommandSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('combat:ferryman'), pay: z.boolean() }),
   /** Walk the open road (ambushes come, and pay) or bar it. Barred is the default. */
   z.object({ type: z.literal('combat:road'), open: z.boolean() }),
+  /** Step into the ring (names may call you out, and you them) or stay out. Out is the default. */
+  z.object({ type: z.literal('combat:bouts'), open: z.boolean() }),
   /** Buy one of the trader's wares at its current price. */
   z.object({ type: z.literal('trader:buy'), ware: IdSchema }),
   /** Put a gift on the cart for the hall: `qty` of `item`, or coins when `item` is null. */
@@ -276,6 +278,13 @@ export function applyCommand(state: SimState, cmd: Command, ctx: SimContext): Co
     }
     case 'combat:ferryman':
       return { ok: true, state: { ...state, combat: { ...state.combat, ferryman: cmd.pay } } };
+    case 'combat:bouts':
+      // Nothing is drawn either way: the register decides every bout, so an old save that
+      // steps in and out again is bit-identical to one that never did.
+      return {
+        ok: true,
+        state: { ...state, combat: { ...state.combat, bouts: { open: cmd.open } } },
+      };
     case 'combat:road': {
       if (cmd.open === state.combat.road.open) return { ok: true, state };
       // Opening draws the first gap; barring clears it, so a barred road never draws again.

@@ -2,6 +2,7 @@ import { planAdvance, planTickCount } from '../sim/advance.ts';
 import { OFFLINE_CAP_TICKS, TICK_MS } from '../sim/constants.ts';
 import { applyHallSync, type HallSync } from '../sim/hall.ts';
 import { applyWheelSync, type WheelSync } from '../sim/wheel.ts';
+import { applyBoutSync, type BoutSync } from '../sim/bout.ts';
 import { offlineCapTicks } from '../sim/trader.ts';
 import { migrateSave, SaveLoadError } from '../sim/migrate.ts';
 import { reconcileWithContent } from '../sim/reconcile.ts';
@@ -105,6 +106,8 @@ export interface GameHostOptions {
   applySync?: (sim: SimState, hall: HallSync) => SimState;
   /** Likewise for what it answered about the wheel (src/sim/wheel.ts). */
   applyWheelSync?: (sim: SimState, wheel: WheelSync) => SimState;
+  /** And for what the ring settled (src/sim/bout.ts). Never a Command: a follower cannot forge one. */
+  applyBoutSync?: (sim: SimState, bouts: BoutSync) => SimState;
   /**
    * The name the save must carry, when an account owns it: written over the save's own on
    * load. Null keeps whatever the save says (the hero names themself on first run).
@@ -188,6 +191,8 @@ export class GameHost {
       capTicksFor: options.capTicksFor ?? ((sim) => offlineCapTicks(sim, simContext)),
       applySync: options.applySync ?? ((sim, hall) => applyHallSync(sim, hall, simContext)),
       applyWheelSync: options.applyWheelSync ?? applyWheelSync,
+      applyBoutSync:
+        options.applyBoutSync ?? ((sim, bouts) => applyBoutSync(sim, bouts, simContext)),
       playerName: options.playerName ?? null,
       onStale: options.onStale ?? 'reload',
     };
@@ -547,6 +552,7 @@ export class GameHost {
       this.saveCounter = result.saveCounter;
       if (result.hall) this.applyAnswer((sim) => this.opts.applySync(sim, result.hall!));
       if (result.wheel) this.applyAnswer((sim) => this.opts.applyWheelSync(sim, result.wheel!));
+      if (result.bouts) this.applyAnswer((sim) => this.opts.applyBoutSync(sim, result.bouts!));
       this.patch({
         saveCounter: this.saveCounter,
         lastSavedAtMs: this.env.clock.now(),

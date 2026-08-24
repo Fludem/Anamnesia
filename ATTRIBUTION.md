@@ -15,6 +15,6 @@ They are licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/
 - Icons made by Lorc. Available on https://game-icons.net ([http://lorcblog.blogspot.com](http://lorcblog.blogspot.com)) — 95 icons
 - Icons made by Lucas. Available on https://game-icons.net — 1 icon
 - Icons made by Quoting. Available on https://game-icons.net — 1 icon
-- Icons made by Sbed. Available on https://game-icons.net ([http://opengameart.org/content/95-game-icons](http://opengameart.org/content/95-game-icons)) — 2 icons
+- Icons made by Sbed. Available on https://game-icons.net ([http://opengameart.org/content/95-game-icons](http://opengameart.org/content/95-game-icons)) — 3 icons
 - Icons made by Skoll. Available on https://game-icons.net — 6 icons
 - Icons made by Willdabeast. Available on https://game-icons.net ([http://wjbstories.blogspot.com](http://wjbstories.blogspot.com)) — 1 icon

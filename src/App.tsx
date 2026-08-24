@@ -34,6 +34,7 @@ import { HighscoresScreen } from './ui/screens/HighscoresScreen.tsx';
 import { HallScreen } from './ui/screens/HallScreen.tsx';
 import { TraderScreen } from './ui/screens/TraderScreen.tsx';
 import { WheelScreen } from './ui/screens/WheelScreen.tsx';
+import { RingScreen } from './ui/screens/RingScreen.tsx';
 import { NowDock } from './ui/NowDock.tsx';
 import { Shell } from './ui/Shell.tsx';
 import { peekLook, putLook } from './ui/looks.ts';
@@ -150,6 +151,8 @@ function Game({ user, onSignOut }: { user: User; onSignOut: () => Promise<void> 
         onSaved={() => runtime.host.saveNow()}
         chat={chat}
       />
+    ) : view.kind === 'ring' ? (
+      <RingScreen sim={sim} dispatch={dispatch} juice={juice} savedAtMs={snapshot.lastSavedAtMs} />
     ) : view.kind === 'highscores' ? (
       <HighscoresScreen
         sim={sim}

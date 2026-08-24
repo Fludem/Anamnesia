@@ -29,6 +29,9 @@
  *   GET  /api/looks?name=A&hall=H → Looks          (the looks of up to 100 names and halls)
  *   PUT  /api/look                SetLook → {}     (the caller's look; null takes it down)
  *   PUT  /api/hall/look           SetLook → {}     (the hall's mark; founder only)
+ *   GET  /api/ring                → RingGet        (whether the caller is in, who else is, their bouts)
+ *   GET  /api/ring/card/:name     → RingCard       (what a name in the ring is wearing, and what it costs)
+ *   POST /api/ring/call           { name, item } → RingCalled  (the bout, fought and settled at once)
  *
  * Every error is `{ error: string }` in the hill's register. State-changing requests must be
  * JSON (`Content-Type: application/json`), which with a SameSite=Lax cookie is the CSRF guard.
@@ -38,6 +41,7 @@ import { LookSchema } from '../look/look.ts';
 import { PlayerNameSchema } from '../sim/commands.ts';
 import { HallSyncSchema } from '../sim/hall.ts';
 import { SpotSchema, WheelSyncSchema } from '../sim/wheel.ts';
+import { BoutResultSchema, BoutSyncSchema, FighterSchema } from '../sim/bout.ts';
 import { SaveRecordSchema } from '../sim/save.ts';
 
 export const SESSION_COOKIE = 'anamnesia_session';
@@ -80,6 +84,8 @@ export const SavePutResultSchema = z.discriminatedUnion('ok', [
     hall: HallSyncSchema,
     /** What the table took of the cart, and what it paid out since the save last looked. */
     wheel: WheelSyncSchema,
+    /** What the ring settled on this name: a thing taken, a thing given up, a balance owed. */
+    bouts: BoutSyncSchema,
   }),
   /** `stored` is what is there instead; null only if the save has gone entirely. */
   z.object({
@@ -408,3 +414,85 @@ export type Looks = z.infer<typeof LooksSchema>;
 
 export const SetLookSchema = z.object({ look: LookSchema.nullable() });
 export type SetLook = z.infer<typeof SetLookSchema>;
+
+// ---- the ring -------------------------------------------------------------------------------
+
+/** One bout as the register holds it: both sides' numbers, the seed, and what changed hands. */
+export const BoutRowSchema = z.object({
+  id: z.number().int().positive(),
+  caller: z.string(),
+  called: z.string(),
+  callerFighter: FighterSchema,
+  calledFighter: FighterSchema,
+  seed: z.number().int().min(0),
+  slot: z.string(),
+  /** What was played for (off the called) and what was put up against it (off the caller). */
+  prize: z.string(),
+  stake: z.string(),
+  /** The name that won, so a row reads without replaying it. */
+  winner: z.string(),
+  onPoints: z.boolean(),
+  agoMs: z.number().int().min(0),
+  /** True when the caller is the one reading this row. */
+  yours: z.boolean(),
+});
+export type BoutRow = z.infer<typeof BoutRowSchema>;
+
+/** A name that has stepped into the ring, as the challenge list shows it. */
+export const RingNameSchema = z.object({
+  name: z.string(),
+  god: z.string().nullable(),
+  level: z.number().int().min(1),
+  seenAgoMs: z.number().int().min(0),
+  bouts: z.number().int().min(0),
+  taken: z.number().int().min(0),
+  /** Milliseconds until this name may be called out again; 0 when it may be now. */
+  restMs: z.number().int().min(0),
+});
+export type RingName = z.infer<typeof RingNameSchema>;
+
+export const RingGetSchema = z.object({
+  /** Whether the caller's last save had stepped into the ring. */
+  in: z.boolean(),
+  /** Milliseconds until the caller may call again, and until they may be called. */
+  restMs: z.number().int().min(0),
+  owed: z.number().int().min(0),
+  names: z.array(RingNameSchema),
+  bouts: z.array(BoutRowSchema),
+});
+export type RingGet = z.infer<typeof RingGetSchema>;
+
+/** One thing a name in the ring is wearing, and therefore one thing that may be played for. */
+export const RingWornSchema = z.object({
+  slot: z.string(),
+  item: z.string(),
+  value: z.number().int().min(0),
+  /** What the caller wears in the same slot, and whether it is enough to cover the prize. */
+  stake: z.string().nullable(),
+  stakeValue: z.number().int().min(0),
+  ok: z.boolean(),
+  /** Why this one cannot be played for, or null when it can. */
+  refusal: z.string().nullable(),
+});
+export type RingWorn = z.infer<typeof RingWornSchema>;
+
+export const RingCardSchema = z.object({
+  name: z.string(),
+  fighter: FighterSchema,
+  worn: z.array(RingWornSchema),
+  restMs: z.number().int().min(0),
+});
+export type RingCard = z.infer<typeof RingCardSchema>;
+
+export const RingCallSchema = z.object({
+  name: PlayerNameSchema,
+  item: z.string().min(1),
+});
+export type RingCall = z.infer<typeof RingCallSchema>;
+
+/** What a call answers with: the bout row, and the blow-by-blow the screen draws. */
+export const RingCalledSchema = z.object({
+  bout: BoutRowSchema,
+  result: BoutResultSchema,
+});
+export type RingCalled = z.infer<typeof RingCalledSchema>;

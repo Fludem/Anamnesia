@@ -13,6 +13,7 @@ const T0 = 1_700_000_000_000;
 /** What a save is answered with by a name in no hall with nothing on the cart. */
 const NO_HALL_SYNC = { id: null, rooms: {}, took: [], given: 0 };
 const NO_WHEEL_SYNC = { took: [], paid: [], purse: 0, bought: 0 };
+const NO_BOUT_SYNC = { settle: [], settledThrough: 0, owed: 0 };
 
 /** One browser: keeps the session cookie between calls. */
 class Client {
@@ -136,6 +137,7 @@ describe('saves', () => {
       saveCounter: 1,
       hall: NO_HALL_SYNC,
       wheel: NO_WHEEL_SYNC,
+      bouts: NO_BOUT_SYNC,
     });
     const stored = (await c.call('GET', '/api/save')).body as { record: SaveRecord };
     expect(stored.record.saveCounter).toBe(1);
@@ -152,6 +154,7 @@ describe('saves', () => {
       saveCounter: 2,
       hall: NO_HALL_SYNC,
       wheel: NO_WHEEL_SYNC,
+      bouts: NO_BOUT_SYNC,
     });
   });
 
@@ -165,6 +168,7 @@ describe('saves', () => {
       saveCounter: 2,
       hall: NO_HALL_SYNC,
       wheel: NO_WHEEL_SYNC,
+      bouts: NO_BOUT_SYNC,
     });
     // Only the same writer: a different tab against the old counter is still stale.
     expect((await c.put(save('tab-c'), 1)).status).toBe(409);
@@ -230,6 +234,7 @@ describe('boards', () => {
       expect(mining.standings.map((s) => s.board)).toEqual([
         'total',
         'wealth',
+        'ring',
         ...fixtureContext.content.skills.map((s) => s.id),
       ]);
 

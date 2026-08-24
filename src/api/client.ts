@@ -28,6 +28,12 @@ import {
   type Session,
   type Talk,
   type WheelGet,
+  RingCardSchema,
+  RingCalledSchema,
+  RingGetSchema,
+  type RingCalled,
+  type RingCard,
+  type RingGet,
 } from './protocol.ts';
 import type { Spot } from '../sim/wheel.ts';
 import type { Look } from '../look/look.ts';
@@ -129,6 +135,11 @@ export const api = {
     for (const h of halls) q.append('hall', h);
     return call('GET', `/api/looks?${q.toString()}`, LooksSchema);
   },
+  ring: (): Promise<RingGet> => call('GET', '/api/ring', RingGetSchema),
+  ringCard: (name: string): Promise<RingCard> =>
+    call('GET', `/api/ring/card/${encodeURIComponent(name)}`, RingCardSchema),
+  ringCall: (name: string, item: string): Promise<RingCalled> =>
+    call('POST', '/api/ring/call', RingCalledSchema, { name, item }),
   setLook: (look: Look | null): Promise<unknown> => call('PUT', '/api/look', EmptySchema, { look }),
   setHallLook: (look: Look | null): Promise<unknown> =>
     call('PUT', '/api/hall/look', EmptySchema, { look }),

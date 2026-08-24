@@ -178,6 +178,61 @@ const MIGRATIONS: readonly string[] = [
   ALTER TABLE users ADD COLUMN look TEXT;
   ALTER TABLE halls ADD COLUMN look TEXT;
   `,
+  /**
+   * Phase 19: the ring. `bouts` is every fight the register has held, keeping both sides'
+   * resolved numbers and the seed it drew, so a bout replays for ever exactly as it was paid
+   * out — and so an impossible fighter stays findable long after the save that fielded it
+   * changed. `bout_settlements` is what each name has coming or owing, numbered per name like
+   * `wheel_payouts`, with `settled` the register's own record that it has collected — never
+   * the client's word for it. `bout_ledger` holds the two things the register must not take a
+   * save's word on: how far it has settled a name, and what that name still owes.
+   * `bout_escrow` pins a slot while a bout is open on it, so two callers cannot win one helm.
+   */
+  `
+  CREATE TABLE bouts (
+    id INTEGER PRIMARY KEY,
+    caller_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    called_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    caller TEXT NOT NULL,
+    called TEXT NOT NULL,
+    caller_fighter TEXT NOT NULL,
+    called_fighter TEXT NOT NULL,
+    seed INTEGER NOT NULL,
+    slot TEXT NOT NULL,
+    prize TEXT NOT NULL,
+    stake TEXT NOT NULL,
+    winner_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    on_points INTEGER NOT NULL DEFAULT 0,
+    created_at INTEGER NOT NULL
+  );
+  CREATE INDEX bouts_caller ON bouts(caller_id, created_at DESC);
+  CREATE INDEX bouts_called ON bouts(called_id, created_at DESC);
+  CREATE TABLE bout_settlements (
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    seq INTEGER NOT NULL,
+    bout_id INTEGER NOT NULL REFERENCES bouts(id) ON DELETE CASCADE,
+    won INTEGER NOT NULL,
+    opponent TEXT NOT NULL,
+    item TEXT NOT NULL,
+    slot TEXT NOT NULL,
+    settled INTEGER NOT NULL DEFAULT 0,
+    collected_item INTEGER NOT NULL DEFAULT 0,
+    collected_coins INTEGER NOT NULL DEFAULT 0,
+    created_at INTEGER NOT NULL,
+    PRIMARY KEY (user_id, seq)
+  );
+  CREATE TABLE bout_ledger (
+    user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    settled_through INTEGER NOT NULL DEFAULT 0,
+    owed INTEGER NOT NULL DEFAULT 0
+  );
+  CREATE TABLE bout_escrow (
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    slot TEXT NOT NULL,
+    bout_id INTEGER NOT NULL REFERENCES bouts(id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, slot)
+  );
+  `,
 ];
 
 /** Open (creating if needed) and bring up to date. `':memory:'` for tests. */

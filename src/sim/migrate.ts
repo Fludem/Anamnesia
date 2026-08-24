@@ -171,6 +171,22 @@ export const MIGRATIONS: MigrationTable = {
       },
     };
   },
+  /**
+   * v14 → v15 (Phase 19): the ring. Barred, nothing settled, nothing owed — an old hero is on
+   * nobody's card until they step in, and the register has never taken anything from them.
+   */
+  14: (raw) => {
+    const sim = asObject(raw['sim']);
+    return {
+      ...raw,
+      sim: {
+        ...sim,
+        bouts: { settledThrough: 0, owed: 0 },
+        stats: { bouts: 0, taken: 0, lost: 0, ...asObject(sim['stats']) },
+        combat: { bouts: { open: false }, ...asObject(sim['combat']) },
+      },
+    };
+  },
 };
 
 function asObject(v: unknown): Record<string, unknown> {

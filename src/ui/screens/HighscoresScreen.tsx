@@ -7,6 +7,7 @@
 import { content, simContext } from '../../content/index.ts';
 import type { StandingRow } from '../../api/protocol.ts';
 import { boardIds, type BoardId } from '../../sim/highscores.ts';
+import { RING_ICON } from './RingScreen.tsx';
 import { godOf } from '../../sim/perks.ts';
 import type { SimState } from '../../sim/save.ts';
 import { Face } from '../Face.tsx';
@@ -45,6 +46,14 @@ function boardMeta(id: BoardId): BoardMeta {
       icon: WEALTH_ICON,
       unit: 'gp',
       hint: 'coins, the bank at sale value, everything worn',
+    };
+  }
+  if (id === 'ring') {
+    return {
+      name: 'The ring',
+      icon: RING_ICON,
+      unit: 'taken',
+      hint: 'things taken in the ring · bouts fought breaks ties',
     };
   }
   const skill = content.skill(id);

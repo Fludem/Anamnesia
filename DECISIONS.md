@@ -1663,3 +1663,112 @@ server-side `settled_through`, never repeat — because repeating an _item_ stak
 item. That is the right call there and the wrong one here: coins arriving late is a nuisance,
 coins never arriving is a loss, and the wheel's payouts are already numbered so they can be
 repeated safely once the mark is the register's own.
+
+## Phase 19 — the ring: names fight names
+
+Phase 12 asked the question and answered it the other way:
+
+> The user asked for a social layer, PvP or base building, leaning clans. … The ring stays
+> possible on the same plumbing — a duel's result could reach the sim exactly the way a raised
+> room does — but it needs the server to re-simulate first, and that is a bigger phase than
+> this one.
+
+This is the ring, and it does not re-simulate. What it does instead is move the one thing that
+must not be forgeable — **the outcome of the fight** — onto the register, and leave the inputs
+on the honour system the boards and the hall have always run on. You step in, call a name out
+for something they are wearing, and the register loads both stored saves, works out both
+fighters itself, draws a seed and fights it. Neither client is asked anything.
+
+### The fight is one function, and both ends run it
+
+`fightBout(caller, called, seed)` lives in `src/sim/bout.ts` and is imported by the register
+and by the screen. The register runs it to decide the bout; the screen runs it to draw the
+blows. That is why a bout row stores both resolved `Fighter` blocks and the seed rather than
+the two save ids: a save can change and content can ship again, and the replay still shows the
+fight that was actually paid out. The screen is not shown a retelling it has to trust — it
+re-derives the bout and can only agree.
+
+The numbers are the ones already in `combat.ts`; there is no second definition of a hit. What
+the ring leaves out is everything the bank pays for: no food, no favour, no god's boon, no ammo
+spent. `fighterFrom` therefore calls `heroStatsFrom(..., null, style)` rather than `heroStats`,
+which folds the boon in whenever favour is burning. One sentence explains the whole rule — the
+numbers as worn — and nothing in it can be stockpiled.
+
+No weakness bonus either: a monster has a weakness, a person does not. A bout is capped in
+ticks rather than swings, because the two sides have different clocks, and a bout that runs out
+goes to whoever kept more of their hitpoints — compared by cross-multiplication, so no float
+ever decides one. Dead level is a hold: the caller came to put someone down and did not.
+
+### The stake is the same slot, both ways
+
+You play for one thing they are wearing and put up what you wear in the same slot, and it must
+be worth at least as much. Slot symmetry alone is not a guard — head items run from almost
+nothing to 19,000 gp — so a cheap helm cannot play for a dear one. Only `LOSABLE_SLOTS`, the
+slots a death already takes from: `ammo` is one id worn over a stack in the bank, so staking it
+means nothing. A name cannot call itself out, and a name in the ring is one the hill has seen
+inside a week — you fight the living.
+
+### What the register will not do is write a save it was not handed
+
+Editing the loser's stored record would move their `saveCounter` out from under their open tab,
+and their next write would come back stale: losing a bout would put a player on the hold page.
+So a bout writes a numbered settlement, and it is collected the next time that name's own save
+comes through `writeSave` — folded into the incoming record, before it is stored, beside the
+hall's gifts and the wheel's payouts. The client is told what happened; it is not asked to
+agree. `bout_ledger` holds `settled_through` and `owed`, and the save's own numbers are never
+read as a floor.
+
+**Applied exactly once, never repeated.** This is the fork the wheel took the other way, and
+the reasoning is written up under "What this does not fix" above: repeating a coin payout is a
+nuisance made safe by a register-owned mark, but repeating an _item_ would mint the item for
+anyone who pressed Reset. The price is that an answer a tab drops is not re-sent — the debit is
+in the stored record, so a reload has it, but a tab that carries on playing does not. A missed
+debit costs one thing that a save able to drop the answer could have written itself anyway.
+
+Two callers cannot win one helm: `BEGIN IMMEDIATE` makes each bout atomic, but atomicity buys
+nothing when the thing being read is never written, so the loser's slot is pinned by a row in
+`bout_escrow` keyed `(user_id, slot)` until their save settles it. The cooldowns are SQL, not
+`auth.ts`'s `RateLimiter`, which is in-memory and whose own note says a restart forgives — a
+deploy would otherwise clear every clock on the hill.
+
+### A debt is carried, never forgiven
+
+Worn first, then banked, then twice its worth in coin — the ferryman's own multiplier — then
+whatever the purse holds, and the shortfall stays on the books. Forgiving it would make selling
+the thing you were about to lose the cheapest move in the game. A name with an open balance is
+out of the ring until it is square, and the balance is collected out of the purse the moment
+there is anything to collect from, so owing is a way back rather than a wall.
+
+### What is trusted
+
+The fight: nobody's. The register decides it, and no client can claim a win. The stake: an item
+id, so the register checks it is real content and that the slot matches.
+
+The inputs are still the save's own word, and that is the honest limit of this phase. It is
+worth saying exactly how far it goes, because it is narrower than it looks: `levelForXp` clamps
+at 99 and gear stats are content ids, so the strongest fighter a forged save can present is the
+best gear in the game at level 99 — a fighter a legitimate save can also field. Unlike the
+boards or a purse, where a forged save is unbounded, the ring's forgery ceiling is the game's
+own content ceiling. A cheat can arrive at the top of the ring early; it cannot invent a
+fighter nothing can beat.
+
+A guard on the _gap_ was considered and rejected as actively harmful: a maxed name against a
+level-40 one is not a coin flip but a wipe, so most legitimate bouts look implausible. The
+guard that would work is absolute — `users.created_at` gives a hard wall-clock tick budget, and
+content gives a best-case xp per tick — and it is the re-simulation phase in miniature. What
+this phase does instead is keep every bout's resolved stat blocks on its row, so an impossible
+fighter stays findable and a bout stays reversible long after the save that fielded it moved on.
+
+### Flagged
+
+- The inputs are still trusted (above). Re-simulating saves server-side remains the one fix.
+- A name that goes quiet inside the week mints one item: the winner is paid at once, and a
+  debt whose owner never plays again is never collected.
+- An answer a tab drops is not re-sent, by choice (above).
+- No design screen. The ring is Screen E's fight card over Screen A's rows, and the pick modal
+  is the hall's give modal with a what-you-put-up line. `claude-design-ring-brief.md` asks for
+  the real one — including whether a thirteenth tab is still a tab bar.
+- Save v15 is a hard cut for any tab open across the deploy, as every bump since Phase 11 has
+  been.
+- The challenge list reads every in-ring save to build its rows. Fine for a hill of friends;
+  it wants a projection in `standings` before it is a hundred names.

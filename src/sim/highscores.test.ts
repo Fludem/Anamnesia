@@ -34,10 +34,12 @@ describe('standings', () => {
     expect(s.map((x) => x.board)).toEqual([
       'total',
       'wealth',
+      'ring',
       ...ctx.content.skills.map((x) => x.id),
     ]);
     expect(s[1]).toEqual({ board: 'wealth', level: null, score: 150, keys: [150, 0] });
-    expect(s[2]).toEqual({ board: 'mining', level: 1, score: 0, keys: [0, 0] });
+    expect(s[2]).toEqual({ board: 'ring', level: null, score: 0, keys: [0, 0] });
+    expect(s[3]).toEqual({ board: 'mining', level: 1, score: 0, keys: [0, 0] });
   });
 
   it('total level sums every skill, hitpoints included, with total xp as the second key', () => {

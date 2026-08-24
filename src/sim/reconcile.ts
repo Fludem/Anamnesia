@@ -77,6 +77,7 @@ function eventKnown(e: SimEvent, content: ContentDb): boolean {
       );
     case 'offered':
     case 'trophy':
+    case 'bout':
       return content.hasItem(e.item);
     case 'gave':
       return content.hasRoom(e.room) && (e.item === null || content.hasItem(e.item));

@@ -10,11 +10,11 @@ import { skillXp } from './progress.ts';
 import type { SimState } from './save.ts';
 import { EQUIPMENT_SLOTS } from './slots.ts';
 
-export type BoardId = 'total' | 'wealth' | (string & {});
+export type BoardId = 'total' | 'wealth' | 'ring' | (string & {});
 
-/** Every board, in the order the screen lists them: total, wealth, then each skill. */
+/** Every board, in the order the screen lists them: total, wealth, the ring, then each skill. */
 export function boardIds(content: ContentDb): BoardId[] {
-  return ['total', 'wealth', ...content.skills.map((s) => s.id)];
+  return ['total', 'wealth', 'ring', ...content.skills.map((s) => s.id)];
 }
 
 /** Coins, the bank at sale value, and everything worn — tools and ammo included. */
@@ -48,6 +48,12 @@ export function standingsOf(sim: SimState, ctx: SimContext): Standing[] {
     if (board === 'wealth') {
       const gp = heroWealth(sim, content);
       return { board, level: null, score: gp, keys: [gp, 0] };
+    }
+    if (board === 'ring') {
+      // Bouts won, then bouts fought: a name that fights often and wins is above one that
+      // has won as many and been called out less. Nothing here is a level.
+      const { taken, bouts } = sim.stats;
+      return { board, level: null, score: taken, keys: [taken, bouts] };
     }
     if (board === 'total') {
       let level = 0;

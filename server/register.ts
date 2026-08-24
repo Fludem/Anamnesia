@@ -20,10 +20,12 @@ import { isBlank, parseLook, type Look } from '../src/look/look.ts';
 import type { SimContext } from '../src/sim/context.ts';
 import { boardIds, standingsOf, type BoardId } from '../src/sim/highscores.ts';
 import type { SaveRecord } from '../src/sim/save.ts';
+import { applyBoutSync } from '../src/sim/bout.ts';
 import { hashToken } from './auth.ts';
 import { transaction } from './db.ts';
 import type { Halls } from './hall.ts';
 import type { Wheel } from './wheel.ts';
+import type { Ring } from './bout.ts';
 
 export { nameKey };
 
@@ -53,6 +55,7 @@ export class Register {
     private readonly ctx: SimContext,
     private readonly halls: Halls,
     private readonly wheel: Wheel,
+    private readonly ring: Ring,
   ) {}
 
   // ---- names ------------------------------------------------------------------------------
@@ -191,14 +194,21 @@ export class Register {
         ? sim.wheel.paidThrough
         : Math.max(sim.wheel.paidThrough, acked?.sim.wheel.paidThrough ?? 0);
       const wheel = this.wheel.applyCart(userId, sim.wheel.cart, served, nowMs);
+      // The ring, before anything else touches the record: what it settles changes the gear,
+      // the bank and the purse, and the standings below must score what is actually stored.
+      // Its own mark needs no such care — the ledger never reads it off the save at all.
+      const answered = this.ring.collect(userId);
+      const settled = applyBoutSync(sim, answered, this.ctx);
+      this.ring.setOwed(userId, settled.bouts.owed);
+      const bouts = { ...answered, owed: settled.bouts.owed };
       const paid = wheel.paid.reduce((n, p) => n + p.coins, 0);
       const paidThrough = wheel.paid.reduce((n, p) => Math.max(n, p.seq), served);
       const record: SaveRecord = {
         ...put.record,
         saveCounter: next,
         sim: {
-          ...sim,
-          coins: sim.coins + paid,
+          ...settled,
+          coins: settled.coins + paid,
           player: { ...sim.player, name: user.name },
           hall: { ...sim.hall, id: hall.id, rooms: hall.rooms, given: hall.given },
           wheel: {
@@ -225,7 +235,7 @@ export class Register {
       for (const s of standingsOf(record.sim, this.ctx)) {
         upsert.run(userId, s.board, s.level, s.score, s.keys[0], s.keys[1]);
       }
-      return { ok: true, saveCounter: next, hall, wheel };
+      return { ok: true, saveCounter: next, hall, wheel, bouts };
     });
   }
 

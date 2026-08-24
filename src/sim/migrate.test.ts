@@ -83,10 +83,14 @@ describe('migrateSave', () => {
         applied.push(13);
         return r;
       },
+      14: (r) => {
+        applied.push(14);
+        return r;
+      },
     };
     const v0 = { ...fresh(), version: 0, writerId: undefined };
     const out = migrateSave(v0, migrations, CURRENT_SAVE_VERSION);
-    expect(applied).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
+    expect(applied).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
     expect(out.version).toBe(CURRENT_SAVE_VERSION);
     expect(out.writerId).toBe('migrated-from-v0');
   });
@@ -125,10 +129,14 @@ describe('migrateSave', () => {
         cashedOut: 0,
         ambushes: 0,
         routed: 0,
+        bouts: 0,
+        taken: 0,
+        lost: 0,
       },
       upgrades: {},
       hall: { id: null, rooms: {}, gifts: [], given: 0 },
       wheel: { cart: [], bought: 0, paidThrough: 0 },
+      bouts: { settledThrough: 0, owed: 0 },
       records: { fish: {}, trophies: [] },
       tutorial: { done: [], dismissed: false },
       combat: {
@@ -139,6 +147,7 @@ describe('migrateSave', () => {
         favour: 0,
         ferryman: true,
         road: { open: false, ambushAt: null },
+        bouts: { open: false },
         fight: null,
       },
     });
@@ -190,6 +199,9 @@ describe('migrateSave', () => {
       cashedOut: 0,
       ambushes: 0,
       routed: 0,
+      bouts: 0,
+      taken: 0,
+      lost: 0,
     });
     expect(out.sim.bank).toEqual([{ item: 'copper-ore', qty: 3 }]);
   });
@@ -228,6 +240,9 @@ describe('migrateSave', () => {
       cashedOut: 0,
       ambushes: 0,
       routed: 0,
+      bouts: 0,
+      taken: 0,
+      lost: 0,
     });
     expect(out.sim.tutorial).toEqual({ done: [], dismissed: false });
     // A v4 stop has no skill, so it is dropped; everything else in the log is kept.
@@ -258,6 +273,9 @@ describe('migrateSave', () => {
       cashedOut: 0,
       ambushes: 0,
       routed: 0,
+      bouts: 0,
+      taken: 0,
+      lost: 0,
     });
     expect(out.sim.combat).toEqual({
       hp: 10,
@@ -267,6 +285,7 @@ describe('migrateSave', () => {
       favour: 0,
       ferryman: true,
       road: { open: false, ambushAt: null },
+      bouts: { open: false },
       fight: null,
     });
   });
@@ -289,6 +308,7 @@ describe('migrateSave', () => {
       favour: 0,
       ferryman: true,
       road: { open: false, ambushAt: null },
+      bouts: { open: false },
       fight: null,
     });
   });
@@ -316,6 +336,9 @@ describe('migrateSave', () => {
       cashedOut: 0,
       ambushes: 0,
       routed: 0,
+      bouts: 0,
+      taken: 0,
+      lost: 0,
     });
   });
 
@@ -399,6 +422,9 @@ describe('migrateSave', () => {
       cashedOut: 0,
       ambushes: 0,
       routed: 0,
+      bouts: 0,
+      taken: 0,
+      lost: 0,
     };
     const out = migrateSave(v11);
     expect(out.version).toBe(CURRENT_SAVE_VERSION);
